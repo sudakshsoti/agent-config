@@ -46,17 +46,23 @@ The torbox-watchdog (`/opt/stacks/torbox-watchdog.sh`, cron `* * * * *`) handles
 automatically: 30s timeout test on `/mnt/torbox/__all__`, 3-strike debounce, scoped to
 the `rclone-torbox` container.
 
-**Recovery is stop → unmount-while-down → verify-gone → up. NOT `restart`.** A plain
-`docker compose restart` brings the new container up before the kernel releases the
-dead container's orphaned FUSE handle, so the new rclone mounts onto a still-wedged
-path and crash-loops with `fusermount3: failed to access mountpoint: Socket not connected`.
+**Recovery is stop → `docker rm -f` → unmount-while-down → verify-gone → up. NOT `restart`.**
+A plain `docker compose restart` brings the new container up while the dead container's
+mount namespace still holds a propagated peer of the FUSE mount, so the new rclone mounts
+onto a still-wedged path and crash-loops with `fusermount3: failed to access mountpoint:
+Socket not connected`. **`docker rm -f` is required** — a bare `stop` leaves that namespace
+(and its FUSE peer) alive, so the host unmount can't stick.
 
-Manual recovery if the watchdog isn't keeping up:
+Manual recovery if the watchdog isn't keeping up (mirrors `torbox-watchdog.sh`):
 ```bash
 cd /opt/stacks/torbox
 docker compose stop rclone-torbox
-fusermount -uz /mnt/torbox          # clear the kernel mount while nothing holds it
-mountpoint -q /mnt/torbox && echo "STILL MOUNTED — retry unmount"
+docker rm -f rclone-torbox          # destroy the namespace so the FUSE peer releases
+fusermount -uz /mnt/torbox; umount -l /mnt/torbox 2>/dev/null
+# verify against /proc/mounts — `mountpoint -q` lies after a lazy unmount (host view
+# detaches immediately while the kernel endpoint is still wedged)
+for i in $(seq 10); do grep -q /mnt/torbox /proc/mounts || break; fusermount -uz /mnt/torbox; sleep 1; done
+grep -q /mnt/torbox /proc/mounts && echo "STILL WEDGED — investigate before up"
 docker compose up -d rclone-torbox
 ```
 Then force a fresh listing so newly-grabbed folders reappear:

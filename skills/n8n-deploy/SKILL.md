@@ -26,6 +26,10 @@ silently clobber the DB via n8n's in-memory cache. `update:workflow` even warns
 "Publishing workflow … with current version" republishes from a version-history
 snapshot that overwrites your fresh import.
 
+**The official n8n docs (and Context7) will steer you to `import:workflow` and the REST
+`PUT /workflows/{id}` — those are right for multi-main/queue deployments and WRONG for this
+single-main SQLite box.** "It's the documented command" is not a reason to use it here.
+
 The only reliable path is a **direct sqlite3 UPDATE while n8n is stopped**.
 
 ## Decision: which path?
