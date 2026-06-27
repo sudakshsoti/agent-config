@@ -1,19 +1,28 @@
 #!/usr/bin/env bash
 #
-# install.sh — wire this repo into ~/.claude
+# install.sh — wire this repo into ~/.claude (and mirror skills into ~/.codex)
 #
 # Symlinks (repo is the live source of truth; edits apply instantly):
 #   skills/<name>/  -> ~/.claude/skills/<name>
 #   agents/<name>.md -> ~/.claude/agents/<name>.md
 #
-# Copies (Claude Code rewrites these itself, so symlinks would break;
-# copied only if missing — never clobbers an existing file):
+# Copies, refreshed every run (NOT symlinks):
+#   skills/<name>/ -> ~/.codex/skills/<name>
+#     Codex's skill scanner ignores symlinked directories, so the mirror must
+#     be a real copy. Trade-off: editing a SKILL.md does NOT reach Codex live —
+#     re-run ./install.sh to push edits. (Claude stays live via the symlink.)
+#     Each copy gets a .agent-config-managed marker so --prune can clean up
+#     copies of deleted skills without touching ~/.codex/skills/.system or
+#     other hand-installed Codex skills.
+#
+# Copies, only if missing (Claude Code rewrites these itself, so a symlink
+# would break; never clobbers an existing file):
 #   settings.json, statusline.sh, claude-powerline.json -> ~/.claude/
 #
 # Idempotent; safe to re-run. Run once after cloning on a new machine.
 #
-#   ./install.sh          # link skills + agents, copy settings if absent
-#   ./install.sh --prune  # also remove dangling symlinks that point here
+#   ./install.sh          # link skills+agents, copy skills into Codex, copy settings if absent
+#   ./install.sh --prune  # also remove dangling Claude symlinks + orphaned Codex copies
 #
 set -euo pipefail
 
@@ -28,7 +37,8 @@ mkdir -p "$CLAUDE/skills" "$CLAUDE/agents"
 # (its skills dir already exists) — never create ~/.codex on a Claude-only box.
 CODEX_SKILLS=""
 [ -d "$CODEX/skills" ] && CODEX_SKILLS="$CODEX/skills"
-linked=0 skipped=0 copied=0 pruned=0
+MARKER=".agent-config-managed"
+linked=0 skipped=0 copied=0 mirrored=0 pruned=0
 
 link_into() { # link_into <source> <dest-link>
   local src="$1" link="$2" name
@@ -46,13 +56,32 @@ link_into() { # link_into <source> <dest-link>
   linked=$((linked + 1))
 }
 
+copy_into() { # copy_into <source-dir> <dest-dir> — refreshed every run
+  local src="$1" dest="$2" name
+  name="$(basename "$dest")"
+  # A symlink here is from an older install — drop it and replace with a copy.
+  # A real dir without our marker is hand-installed; never clobber it.
+  if [ ! -L "$dest" ] && [ -e "$dest" ] && [ ! -f "$dest/$MARKER" ]; then
+    echo "⚠️  SKIP $name (codex) — an unmanaged entry exists at $dest."
+    echo "    Move it aside first, then re-run."
+    skipped=$((skipped + 1))
+    return
+  fi
+  rm -rf "$dest"
+  cp -R "$src" "$dest"
+  : > "$dest/$MARKER"
+  echo "copied  $name (codex)"
+  mirrored=$((mirrored + 1))
+}
+
 # 1. Skills: every directory holding a SKILL.md.
-#    Linked into ~/.claude (all repos) and mirrored into ~/.codex (Codex)
-#    when Codex is installed — same SKILL.md format works on both surfaces.
+#    Symlinked into ~/.claude (live source of truth) and COPIED into ~/.codex
+#    (Codex ignores symlinked skill dirs) when Codex is installed — same
+#    SKILL.md format works on both surfaces.
 for dir in "$REPO"/skills/*/; do
   [ -f "$dir/SKILL.md" ] || continue
   link_into "${dir%/}" "$CLAUDE/skills/$(basename "$dir")"
-  [ -n "$CODEX_SKILLS" ] && link_into "${dir%/}" "$CODEX_SKILLS/$(basename "$dir")"
+  [ -n "$CODEX_SKILLS" ] && copy_into "${dir%/}" "$CODEX_SKILLS/$(basename "$dir")"
 done
 
 # 2. Agents: every markdown file in agents/
@@ -72,9 +101,10 @@ for f in settings.json statusline.sh claude-powerline.json; do
   fi
 done
 
-# 4. Optionally remove dangling symlinks that point into this repo.
+# 4. Optionally prune deleted skills/agents.
 if [ "$PRUNE" = "1" ]; then
-  for link in "$CLAUDE"/skills/* "$CLAUDE"/agents/* ${CODEX_SKILLS:+"$CODEX_SKILLS"/*}; do
+  # Claude: dangling symlinks pointing into this repo (deleted skill/agent).
+  for link in "$CLAUDE"/skills/* "$CLAUDE"/agents/*; do
     [ -L "$link" ] || continue
     case "$(readlink "$link")" in
       "$REPO"/*)
@@ -85,7 +115,21 @@ if [ "$PRUNE" = "1" ]; then
         fi ;;
     esac
   done
+  # Codex: our managed copies whose repo skill no longer exists. The marker
+  # guards .system and hand-installed Codex skills, which lack it.
+  if [ -n "$CODEX_SKILLS" ]; then
+    for d in "$CODEX_SKILLS"/*/; do
+      d="${d%/}"
+      [ -f "$d/$MARKER" ] || continue
+      name="$(basename "$d")"
+      if [ ! -d "$REPO/skills/$name" ]; then
+        rm -rf "$d"
+        echo "pruned  $name (codex, orphaned)"
+        pruned=$((pruned + 1))
+      fi
+    done
+  fi
 fi
 
 echo "---"
-echo "linked=$linked skipped=$skipped copied=$copied pruned=$pruned"
+echo "linked=$linked mirrored=$mirrored skipped=$skipped copied=$copied pruned=$pruned"

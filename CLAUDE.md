@@ -10,16 +10,19 @@ Personal Claude Code configuration — skills, subagents, settings, and statusli
 
 Two different mechanisms, chosen per file type — get this wrong and you either lose live edits or clobber Claude Code's own writes:
 
-- **Skills and agents are symlinked** into `~/.claude` (`skills/<name>/` → `~/.claude/skills/<name>`, `agents/<name>.md` → `~/.claude/agents/<name>.md`). The repo is the live source of truth — editing a `SKILL.md` here takes effect immediately; just commit when happy. No copy step. Skills are **also mirrored into `~/.codex/skills`** when Codex is installed (same `SKILL.md` format), so a `/<name>` slash command works in both Claude Code and Codex from one source. Agents are Claude-only and are not mirrored.
+- **Skills and agents are symlinked into `~/.claude`** (`skills/<name>/` → `~/.claude/skills/<name>`, `agents/<name>.md` → `~/.claude/agents/<name>.md`). For Claude the repo is the live source of truth — editing a `SKILL.md` here takes effect immediately; just commit when happy. Agents are Claude-only and are not mirrored.
+- **Skills are also mirrored into `~/.codex/skills` as copies** (not symlinks) when Codex is installed, so a `/<name>` slash command works in both surfaces from one source. Codex's skill scanner **ignores symlinked directories** — a symlinked skill silently never appears in Codex — so the mirror must be a real copy. The trade-off: a Codex copy is a snapshot, so **editing a `SKILL.md` does NOT reach Codex until you re-run `./install.sh`** (Claude still updates live). Each copy carries a `.agent-config-managed` marker so `--prune` can remove copies of deleted skills without touching `~/.codex/skills/.system` or hand-installed Codex skills.
 - **`settings.json`, `statusline.sh`, `claude-powerline.json` are copies**, not symlinks, because Claude Code rewrites `settings.json` itself (via `/config` etc.) and would clobber a symlink. `install.sh` copies them only if missing (never overwrites). `sync.sh` pulls live versions back into the repo before committing.
 
 ```bash
-./install.sh           # link skills/agents; copy settings files if absent. Idempotent.
-./install.sh --prune   # also remove dangling symlinks for deleted skills/agents
+./install.sh           # link skills/agents into ~/.claude, copy skills into Codex, copy settings if absent. Idempotent.
+./install.sh --prune   # also remove dangling Claude symlinks + orphaned Codex copies for deleted skills/agents
 ./sync.sh              # before committing settings changes — refresh repo copies from ~/.claude
 ```
 
-After adding, renaming, or deleting a skill or agent, run `./install.sh` (or `--prune` for deletes). `install.sh` skips (with a warning) any `~/.claude` path that holds a real non-symlink entry — move it into the repo first.
+Run `./install.sh` after adding, renaming, **or editing** a skill if you want the change in Codex (Claude picks up edits live; Codex needs the re-copy). Use `--prune` after deletes. `install.sh` skips (with a warning) any `~/.claude` path that holds a real non-symlink entry, or any `~/.codex/skills` entry that isn't a marked copy — move it aside first.
+
+**Gotcha — moving/renaming this checkout breaks the Claude symlinks** (they bake in the absolute repo path). After moving the repo, `cd` into the new location and re-run `./install.sh` to re-point everything.
 
 ## Secrets policy
 
