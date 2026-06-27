@@ -1,6 +1,6 @@
 ---
 name: explain-this
-description:
+description: >-
   Explain Claude's plan, current action, or finished work in plain English, then
   teach the one concept behind it. Use when the user asks "what are you doing",
   "what did you do", "explain that", "what does that mean", "in simple terms",
