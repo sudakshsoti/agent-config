@@ -19,10 +19,15 @@ set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE="$HOME/.claude"
+CODEX="$HOME/.codex"
 PRUNE=0
 [ "${1:-}" = "--prune" ] && PRUNE=1
 
 mkdir -p "$CLAUDE/skills" "$CLAUDE/agents"
+# Mirror skills into Codex too, but only if Codex is actually installed
+# (its skills dir already exists) — never create ~/.codex on a Claude-only box.
+CODEX_SKILLS=""
+[ -d "$CODEX/skills" ] && CODEX_SKILLS="$CODEX/skills"
 linked=0 skipped=0 copied=0 pruned=0
 
 link_into() { # link_into <source> <dest-link>
@@ -41,10 +46,13 @@ link_into() { # link_into <source> <dest-link>
   linked=$((linked + 1))
 }
 
-# 1. Skills: every directory holding a SKILL.md
+# 1. Skills: every directory holding a SKILL.md.
+#    Linked into ~/.claude (all repos) and mirrored into ~/.codex (Codex)
+#    when Codex is installed — same SKILL.md format works on both surfaces.
 for dir in "$REPO"/skills/*/; do
   [ -f "$dir/SKILL.md" ] || continue
   link_into "${dir%/}" "$CLAUDE/skills/$(basename "$dir")"
+  [ -n "$CODEX_SKILLS" ] && link_into "${dir%/}" "$CODEX_SKILLS/$(basename "$dir")"
 done
 
 # 2. Agents: every markdown file in agents/
@@ -66,7 +74,7 @@ done
 
 # 4. Optionally remove dangling symlinks that point into this repo.
 if [ "$PRUNE" = "1" ]; then
-  for link in "$CLAUDE"/skills/* "$CLAUDE"/agents/*; do
+  for link in "$CLAUDE"/skills/* "$CLAUDE"/agents/* ${CODEX_SKILLS:+"$CODEX_SKILLS"/*}; do
     [ -L "$link" ] || continue
     case "$(readlink "$link")" in
       "$REPO"/*)

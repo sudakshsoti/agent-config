@@ -12,4 +12,5 @@ Then revise the plan to address every point it raised. For any point you reject,
 give a one-line reason. Show what changed, not the whole plan again.
 
 Do not hand this to the cross-lineage reviewer yet; the user runs that separately
-(`rev` / `rev-hard` in the terminal).
+— the `peer-review` skill (`/peer-review`, also available in Codex/Gemini) or the
+`rev` / `rev-hard` terminal aliases.

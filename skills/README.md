@@ -32,6 +32,13 @@ description: |            # ≤1024 chars. Say what it does AND when to use it �
   (`references/foo.md`). It loads only when needed — no context cost otherwise.
 - `description` is the discovery surface. If a skill isn't triggering, the fix
   is almost always a sharper `description`, not a longer body.
+- **Multi-line `description`s must use a block scalar (`|` or `>-`), never a
+  bare unquoted value.** Claude Code's YAML parser is lenient, but Codex's is
+  strict: an unquoted multi-line scalar containing a `: ` (colon-space, e.g.
+  "engineering side: teaches…") parses as a nested mapping and the whole skill
+  fails to load (`mapping values are not allowed in this context`). The `|`
+  block scalar in the template above makes colons and quotes literal — keep it.
+  Single-line descriptions are also fine.
 
 ## Current skills
 

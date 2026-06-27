@@ -10,7 +10,7 @@ Personal Claude Code configuration — skills, subagents, settings, and statusli
 
 Two different mechanisms, chosen per file type — get this wrong and you either lose live edits or clobber Claude Code's own writes:
 
-- **Skills and agents are symlinked** into `~/.claude` (`skills/<name>/` → `~/.claude/skills/<name>`, `agents/<name>.md` → `~/.claude/agents/<name>.md`). The repo is the live source of truth — editing a `SKILL.md` here takes effect immediately; just commit when happy. No copy step.
+- **Skills and agents are symlinked** into `~/.claude` (`skills/<name>/` → `~/.claude/skills/<name>`, `agents/<name>.md` → `~/.claude/agents/<name>.md`). The repo is the live source of truth — editing a `SKILL.md` here takes effect immediately; just commit when happy. No copy step. Skills are **also mirrored into `~/.codex/skills`** when Codex is installed (same `SKILL.md` format), so a `/<name>` slash command works in both Claude Code and Codex from one source. Agents are Claude-only and are not mirrored.
 - **`settings.json`, `statusline.sh`, `claude-powerline.json` are copies**, not symlinks, because Claude Code rewrites `settings.json` itself (via `/config` etc.) and would clobber a symlink. `install.sh` copies them only if missing (never overwrites). `sync.sh` pulls live versions back into the repo before committing.
 
 ```bash
