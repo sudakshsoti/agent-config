@@ -30,7 +30,33 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE="$HOME/.claude"
 CODEX="$HOME/.codex"
 PRUNE=0
-[ "${1:-}" = "--prune" ] && PRUNE=1
+FORCE=0
+for arg in "$@"; do
+  case "$arg" in
+    --prune) PRUNE=1 ;;
+    --force) FORCE=1 ;;
+    *) echo "unknown option: $arg (expected --prune and/or --force)"; exit 2 ;;
+  esac
+done
+
+# Guard: the symlinks bake in this checkout's absolute path. Running from an
+# ephemeral worktree (Supacode, or a temp git worktree) pins every ~/.claude
+# skill+agent link to a path that vanishes when the worktree is cleaned up —
+# silently breaking the whole personal skill set. Refuse unless --force.
+case "$REPO" in
+  */.supacode/repos/* | */.git/worktrees/* | */worktrees/*)
+    if [ "$FORCE" != "1" ]; then
+      echo "⛔ Refusing to install from what looks like an ephemeral worktree:"
+      echo "     $REPO"
+      echo "   Symlinks bake in this absolute path; when the worktree is removed,"
+      echo "   every ~/.claude skill+agent link dangles. Run from your canonical"
+      echo "   checkout (e.g. ~/dev/agent-config) instead, or pass --force if you"
+      echo "   really mean to point the global install here."
+      exit 1
+    fi
+    echo "⚠️  --force: installing from an ephemeral-looking path ($REPO)."
+    ;;
+esac
 
 mkdir -p "$CLAUDE/skills" "$CLAUDE/agents"
 # Mirror skills into Codex too, but only if Codex is actually installed
