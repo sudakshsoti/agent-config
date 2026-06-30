@@ -1,92 +1,133 @@
 ---
 name: homelab-backlog
 description: |
-  File a homelab / finance backlog item the right way — GitHub issue + Project #2 fields
-  + Linear mirror, without dropping a field. Use this skill whenever capturing new work:
-  "track this", "open an issue for…", "add to the backlog", "file this as a TODO",
-  "make a ticket", "we should do X later", "add this to the project", or when writing /
-  linking an implementation plan under plans/. Also use to move an item's Stage or apply
-  the `planned` label. Triggers on backlog, issue, ticket, Project #2, Linear, area:/type:
-  labels, Priority/Stage/Effort/Risk, or `planned`. RIGID taxonomy — GitHub is the source
-  of truth, Linear is a mirror; every item needs the full label + field set.
+  Run the homelab / finance backlog like a sharp product manager — in Linear (team
+  OKLCH, project Homelab). Four jobs. CAPTURE + TRIAGE new work: "track this",
+  "open an issue for…", "add to the backlog", "file this as a TODO", "make a ticket",
+  "we should do X later", "log this". WHAT NEXT: "what should I work on", "what's next",
+  "pick me something", "what can I do in 30 min". WEEKLY GROOMING: "groom the backlog",
+  "weekly review", "triage the backlog", "what's stale", "what's blocked". ACCEPTANCE +
+  PLANS: definition-of-ready, acceptance criteria, the needs-plan↔planned convention,
+  linking a plans/ doc. Triggers on backlog, issue, ticket, Linear, area:/type: labels,
+  Priority/Effort/Estimate, needs-plan/planned, triage, prioritize, what to work on next.
+  RIGID taxonomy — Linear is the single source of truth; every item carries the full
+  label + field set.
 ---
 
-# Homelab Backlog
+# Homelab Backlog — the PM
 
-Backlog lives in **GitHub Project #2 — "Homelab + Finance Backlog"**
-(<https://github.com/users/sudakshsoti/projects/2>) plus the **`sudakshsoti/homelab`**
-repo Issues. There is no `TODO.md` (retired). **GitHub is the source of truth; Linear
-(team Sudaksh/SUD, Homelab project) is a parallel mirror.** Use the `gh` CLI (installed).
+The backlog lives in **Linear only** — team **OKLCH** (key `OKLCH`; issue IDs look like
+`OKLCH-123`), project **Homelab**
+(<https://linear.app/sudaksh/project/homelab-0d2b9c88c38f>). There is no `TODO.md` and no
+other tracker; Linear is the **single source of truth**. Operate it with the Linear MCP
+tools (`list_issues`, `get_issue`, `save_issue`, `save_comment`, `create_attachment`,
+`list_issue_labels`).
 
-## New item — the full ritual (don't drop a field)
+You are not a ticket scribe — you are the product manager for this homelab. Capture
+cleanly, **triage with judgment**, prioritize with a stated framework, keep the backlog
+lean, and tell the operator what to do next. Route every request into one of the four
+modes below.
 
-1. **Open the issue** on `sudakshsoti/homelab` with a clear title + body (what / why /
-   acceptance). `gh issue create -R sudakshsoti/homelab -t "…" -b "…" -l area:…,type:…`
-2. **Labels — both axes are required:**
-   - `area:*` — the subsystem (e.g. `area:media`, `area:n8n`, `area:networking`,
-     `area:security`, `area:finance`, `area:hermes`). Check existing labels first:
-     `gh label list -R sudakshsoti/homelab`.
-   - `type:*` — the kind of work (e.g. `type:bug`, `type:feature`, `type:chore`,
-     `type:docs`).
-3. **Add to Project #2** and set ALL four fields (commands below):
-   - **Priority** — `P1`–`P4`
-   - **Stage** — `Inbox → Next → Doing → Blocked → Done` (new items usually `Inbox`)
-   - **Effort** — `15 min` / `1 hour` / `Half day` / `Weekend`
-   - **Risk** — `Low` / `Medium` / `High` (blast radius if it goes wrong)
-4. **Mirror to Linear** (team Sudaksh/SUD, Homelab project) — parallel copy, GitHub stays
-   authoritative. Carry the same `area:`/`type:` taxonomy and the needs-plan↔`planned`
-   convention.
-
-## Setting Project #2 fields via `gh` (the fiddly part)
-
-Project node id `PVT_kwHOALeJyM4BbSxl`. Add the issue to the board, then set each
-single-select field by **option id** (not name):
-```bash
-# 1. add the issue — prints the item id (PVTI_…)
-gh project item-add 2 --owner sudakshsoti --url <issue-url>
-
-# 2. set a field — repeat for Priority / Stage / Effort / Risk
-gh project item-edit --project-id PVT_kwHOALeJyM4BbSxl --id <item-id> \
-  --field-id <field-id> --single-select-option-id <option-id>
-```
-Field/option ids are stable; re-fetch with `gh project field-list 2 --owner sudakshsoti --format json`.
-Every field-id below shares the prefix `PVTSSF_lAHOALeJyM4BbSxlzhWEQ` (suffix shown):
-
-| Field | field-id suffix | options (name → option-id) |
-|---|---|---|
-| Priority | `p8` | P1 `85bb5703` · P2 `46b96fb0` · P3 `3d17073b` · P4 `fd734b23` |
-| Stage | `qA` | Inbox `25bfe0c3` · Next `a50264d2` · Doing `6a0ac291` · Blocked `00296d09` · Done `7ca4f776` |
-| Effort | `qE` | 15 min `7cdd5f4e` · 1 hour `76e338e2` · Half day `cb9df4a6` · Weekend `f9702213` |
-| Risk | `q8` | Low `a065482b` · Medium `818fcbee` · High `00810014` |
-
-## `planned` is a label, NOT a Stage
-
-`planned` means **"Claude has written an implementation plan for this issue"** — it's
-orthogonal to Stage/Priority (an item can be Inbox-and-unplanned, P1-and-planned, any
-combination). Apply `planned` whenever you write or link a `plans/` doc.
-
-## Implementation plans
-
-Detailed specs live in the homelab repo at **`plans/YYYY-MM-DD-<topic>.md`** (e.g.
-`plans/2026-06-26-finance-db-resilience.md`). When you write one:
-1. Create `plans/YYYY-MM-DD-<topic>.md`.
-2. Link it from the issue (comment or body).
-3. Apply the `planned` label to the issue (and the Linear mirror).
-
-## Quick reference
-
-| Action | How |
+| The request is… | Mode |
 |---|---|
-| List existing labels | `gh label list -R sudakshsoti/homelab` |
-| Create issue w/ labels | `gh issue create -R sudakshsoti/homelab -t … -b … -l area:x,type:y` |
-| View the project board | <https://github.com/users/sudakshsoti/projects/2> |
-| Move an item's Stage | edit the Project #2 Stage field (mirror in Linear) |
-| Mark plan written | add `planned` label + link the `plans/` doc |
+| "track this", "file a ticket", "we should do X later" | **1 · Capture + triage** |
+| "what should I work on", "what's next", "I have 30 min" | **2 · What next** |
+| "groom the backlog", "weekly review", "what's stale/blocked" | **3 · Weekly grooming** |
+| "write acceptance criteria", "is this ready", plan-writing | **4 · Acceptance + plans** |
+
+## The taxonomy — every item carries the full set
+
+| Field | How it works |
+|---|---|
+| **Status** | `Backlog → Todo → In Progress → In Review → Done` (+ `Canceled`, `Duplicate`). New items land in **Backlog**. "Blocked" is **not** a status — model it as a Linear *blocked-by* issue relation. |
+| **Priority** | `Urgent / High / Medium / Low`. **Risk is folded in** — a high-blast-radius change (could take the box down, lose data, or open a hole) earns a higher priority than its upside alone would justify. There is no separate Risk field. |
+| **Effort** | Native **Estimate** on the extended **T-shirt** scale `XS · S · M · L · XL · XXL · XXXL`: `XS`≈15 min · `S`≈1 hr · `M`≈half day · `L`≈weekend (the ceiling for a single issue). **`XL` and bigger = decompose before filing** — that's an epic, not an issue. |
+| **Labels — both axes required** | `area:*` = subsystem (`area:system`, `area:finance`, `area:automation`, `area:media`). `type:*` = kind (`type:bug`, `type:upgrade`, `type:maintenance`, `type:research`). Check live: `list_issue_labels`. |
+| **`needs-plan` ↔ `planned`** | Every non-trivial item carries **exactly one**. `needs-plan` = wants an implementation plan before execution; `planned` = a `plans/` doc exists and is linked. Trivial `XS`/`S` chores may carry neither. |
+
+Priority rubric: **Urgent** = drop everything / failure imminent (box down, data loss,
+cert or backup expiring, live security hole). **High** = important and soon, *or* risky
+enough that getting it wrong breaks the box. **Medium** = should do, no clock. **Low** =
+nice-to-have.
+
+## Mode 1 — Capture + triage
+
+Don't just create an issue. Run the four triage verbs, then file with the full set.
+
+1. **Dedupe first.** `list_issues` (project Homelab, search the gist). If it overlaps an
+   open issue → **link/merge** instead of creating a near-twin (set the loser to
+   `Duplicate`, or just add a comment to the existing one). This is the single highest-value
+   PM habit — a backlog of near-duplicates is a graveyard.
+2. **Decide the verb:** **Accept** (file it), **Duplicate** (merge as above), **Decline**
+   (don't file — say why), **Snooze** (file at `Low`, it can resurface).
+3. **Write it like a PM, not a sticky note** — title is an outcome, body has **what / why /
+   acceptance** (see Mode 4). No "fix the thing" tickets.
+4. **Decompose** anything `XL` (or with >1 acceptance theme) into independently shippable
+   issues *before* filing. Smallest unit that produces visible progress.
+5. **Set the full field set:** `area:` + `type:` labels, **Priority** (reasoned, risk-aware
+   — state the reasoning), **Effort** (T-shirt estimate), Status `Backlog`, and
+   `needs-plan`/`planned` if non-trivial. Use `save_issue`.
+
+## Mode 2 — What next
+
+Recommend, don't dump the list. The operator gives time/energy ("I have an hour", "low
+energy"); you return a **ranked shortlist of 3–5 with one recommended pick and the reason**.
+
+1. Pull candidates: `list_issues` in `Backlog`/`Todo`, **unblocked** (no open blocked-by
+   relation), within the stated Effort ceiling.
+2. **Rank by value-vs-effort.** Score with **ICE** (Impact × Confidence × Ease) for the
+   everyday case; use **WSJF** to float **time-bound / decay** items (cert expiry, security
+   patch, lapsing backup) to the top regardless of size. Formulas →
+   [references/prioritization.md](references/prioritization.md).
+3. **Respect the WIP limit (≤2 `In Progress`).** If two are already in progress, the honest
+   recommendation is "finish one of these first" — name them — not "start a third."
+4. Present the shortlist (issue · Effort · Priority · why), then the **one pick** for the
+   stated time/energy, and offer to move it to `Todo`/`In Progress`.
+
+## Mode 3 — Weekly grooming (the keystone, ~20–30 min)
+
+Keep the backlog lean and honest. Run the full sweep — checklist in
+[references/prioritization.md](references/prioritization.md):
+
+- **Prune** — close/cancel anything no longer relevant. Low-priority items that never get
+  done should die; the important ones resurface.
+- **Re-score** the top of the backlog with ICE; promote/demote Priority.
+- **Stale sweep** — flag issues untouched **>14 days**: re-prioritize, decompose, or kill.
+- **Blocked audit** — every blocked-by relation must name a real blocker *and* an unblock
+  action, or the item gets de-prioritized.
+- **WIP check** — more than 2 `In Progress`? Stop starting, start finishing.
+- **DoR / DoD pass** — `Todo` items must be Ready (Mode 4); `Done` items must truly meet
+  their acceptance criteria.
+
+## Mode 4 — Acceptance criteria + plans
+
+**Definition-of-Ready gate:** do **not** move an item `Backlog → Todo` unless it has
+testable acceptance criteria + an Effort estimate + no open blocker. Refuse and fix the
+gaps first.
+
+- **Acceptance criteria** are testable and outcome-shaped — "done means X is true",
+  Given/When/Then, or a short checklist. Not "make it better".
+- **Plans** live in the homelab repo at **`plans/YYYY-MM-DD-<topic>.md`**. When you write one:
+  create the file, **attach/link it to the Linear issue** (`create_attachment` with the
+  path/URL, or a `save_comment` link), then swap `needs-plan` → `planned`.
+
+## Linear reference
+
+- **Team** `OKLCH` / `OKLCH` — id `e35868f9-cb30-4e25-bb28-840abb83ece5`
+- **Project** `Homelab` — id `bd3087ef-d4fd-4493-8960-5b2d6dc8324e`
+- **Statuses:** Backlog · Todo · In Progress · In Review · Done · Canceled · Duplicate
+- **Write** with `save_issue` (create + update: title, description, priority, estimate,
+  labels, state, project). **Search / dedupe / groom** with `list_issues`. Re-check labels
+  with `list_issue_labels` rather than hard-coding ids — they drift.
 
 ## Don't
 
-- Don't create a `TODO.md` or scatter TODOs in code comments — they're invisible to the
-  backlog. Capture every "we should…" as a Project #2 issue.
-- Don't open an issue without **both** `area:` and `type:` labels.
-- Don't set `planned` as a Stage — it's a label.
-- Don't treat Linear as authoritative — sync direction is GitHub → Linear.
+- Don't create a `TODO.md` or scatter `// TODO`s in code — they're invisible to the
+  backlog. Capture every "we should…" as a Linear issue.
+- Don't file an issue missing **both** `area:` and `type:` labels, or without Priority +
+  Effort.
+- Don't create a near-duplicate — dedupe first (Mode 1).
+- Don't promote `Backlog → Todo` past the Definition-of-Ready gate.
+- Don't start a 3rd `In Progress` item — finish one first.
+- Don't file an item in two places or treat anything but Linear as authoritative — there
+  is one tracker, no "mirror".
