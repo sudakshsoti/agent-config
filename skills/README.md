@@ -49,6 +49,7 @@ description: |            # ≤1024 chars. Say what it does AND when to use it �
 | `composition-patterns` | React composition patterns (compound components, render props, context) that scale. |
 | `cross-post` | Repurpose sudaksh.io writing/projects into LinkedIn + Medium drafts. Drafts only. |
 | `design-craft` | Typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture. |
+| `execute-plan` | Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`. |
 | `gtd` | GTD productivity mentor: inbox processing, weekly reviews, daily planning, focus coaching. |
 | `handoff` | Structured session-handoff docs for continuity across sessions. |
 | `merge` | Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`. |
