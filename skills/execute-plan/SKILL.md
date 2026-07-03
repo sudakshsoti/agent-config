@@ -1,6 +1,6 @@
 ---
 name: execute-plan
-description: Autonomously execute a multi-step checklist plan file item by item — dispatching one fresh subagent per item and committing after each. Use when the user points at a PLAN.md (or any markdown checklist) and wants it run hands-off, one slice at a time with a clean context per slice.
+description: Autonomously execute a multi-step checklist plan file item by item — dispatching one fresh subagent per item and committing after each. Use when the user points at a PLAN.md (or any markdown checklist) and wants it run hands-off, one slice at a time with a clean context per slice. No per-item review gate — for low-risk, mechanical checklists. When you want spec-compliance + code-quality review after each task, use subagent-driven-development instead.
 allowed-tools: Read, Edit, Bash(git*), Task, Glob, Grep
 ---
 
