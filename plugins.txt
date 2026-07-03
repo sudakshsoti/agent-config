@@ -1,0 +1,25 @@
+# plugins.txt — declarative plugin manifest, applied by install.sh.
+#
+# install.sh reads this and runs `claude plugin marketplace add` +
+# `claude plugin install` for each line, so a fresh machine reproduces the
+# plugin set. Both commands are idempotent (no-op if already present).
+#
+# We do NOT vendor plugin content — it's large, owned upstream, and
+# auto-updates from its marketplace. This file tracks only *which* plugins,
+# at floating (latest) versions. To reproduce an exact version, install the
+# tag by hand; this manifest intentionally tracks latest.
+#
+# Format (one directive per line; blank lines and #-comments ignored):
+#   marketplace <github-repo-or-url>     # `claude plugin marketplace add <src>`
+#   plugin      <name@marketplace>       # `claude plugin install <name@mkt>`
+# Marketplaces must be listed before the plugins that come from them.
+
+marketplace anthropics/claude-plugins-official
+marketplace anthropics/claude-plugins-community
+marketplace jarrodwatts/claude-hud
+
+plugin superpowers@claude-plugins-official
+plugin frontend-design@claude-plugins-official
+plugin vercel@claude-plugins-official
+plugin claude-code-setup@claude-plugins-official
+plugin claude-hud@claude-hud

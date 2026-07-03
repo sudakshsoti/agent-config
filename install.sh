@@ -19,10 +19,16 @@
 # would break; never clobbers an existing file):
 #   settings.json, statusline.sh, claude-powerline.json -> ~/.claude/
 #
+# Plugins (declared in plugins.txt, applied via the `claude` CLI — NOT vendored):
+#   marketplace/plugin lines -> `claude plugin marketplace add` / `install`
+#   Idempotent no-ops if already present. Skipped if `claude` isn't on PATH,
+#   or with --no-plugins.
+#
 # Idempotent; safe to re-run. Run once after cloning on a new machine.
 #
-#   ./install.sh          # link skills+agents, copy skills into Codex, copy settings if absent
-#   ./install.sh --prune  # also remove dangling Claude symlinks + orphaned Codex copies
+#   ./install.sh              # link skills+agents, copy skills into Codex, copy settings if absent, sync plugins
+#   ./install.sh --prune      # also remove dangling Claude symlinks + orphaned Codex copies
+#   ./install.sh --no-plugins # skip the `claude plugin` sync step
 #
 set -euo pipefail
 
@@ -31,11 +37,13 @@ CLAUDE="$HOME/.claude"
 CODEX="$HOME/.codex"
 PRUNE=0
 FORCE=0
+PLUGINS=1
 for arg in "$@"; do
   case "$arg" in
     --prune) PRUNE=1 ;;
     --force) FORCE=1 ;;
-    *) echo "unknown option: $arg (expected --prune and/or --force)"; exit 2 ;;
+    --no-plugins) PLUGINS=0 ;;
+    *) echo "unknown option: $arg (expected --prune, --force and/or --no-plugins)"; exit 2 ;;
   esac
 done
 
@@ -64,7 +72,7 @@ mkdir -p "$CLAUDE/skills" "$CLAUDE/agents"
 CODEX_SKILLS=""
 [ -d "$CODEX/skills" ] && CODEX_SKILLS="$CODEX/skills"
 MARKER=".agent-config-managed"
-linked=0 skipped=0 copied=0 mirrored=0 pruned=0
+linked=0 skipped=0 copied=0 mirrored=0 pruned=0 plugins=0
 
 link_into() { # link_into <source> <dest-link>
   local src="$1" link="$2" name
@@ -127,7 +135,39 @@ for f in settings.json statusline.sh claude-powerline.json; do
   fi
 done
 
-# 4. Optionally prune deleted skills/agents.
+# 4. Plugins: reproduce the marketplace + plugin set from plugins.txt via the
+#    `claude` CLI. Content is NOT vendored — these commands add the marketplaces
+#    and install the latest plugin versions, and no-op if already present.
+if [ "$PLUGINS" = "1" ] && [ -f "$REPO/plugins.txt" ]; then
+  if command -v claude >/dev/null 2>&1; then
+    while read -r kind arg _; do
+      case "$kind" in
+        ''|\#*) continue ;;  # skip blanks and comments
+        marketplace)
+          if claude plugin marketplace add "$arg" >/dev/null 2>&1; then
+            echo "plugin  marketplace $arg"
+            plugins=$((plugins + 1))
+          else
+            echo "⚠️  FAILED to add marketplace $arg"
+            skipped=$((skipped + 1))
+          fi ;;
+        plugin)
+          if claude plugin install "$arg" >/dev/null 2>&1; then
+            echo "plugin  $arg"
+            plugins=$((plugins + 1))
+          else
+            echo "⚠️  FAILED to install plugin $arg"
+            skipped=$((skipped + 1))
+          fi ;;
+        *) echo "⚠️  plugins.txt: unknown directive '$kind' (expected marketplace|plugin)" ;;
+      esac
+    done < "$REPO/plugins.txt"
+  else
+    echo "⚠️  SKIP plugins — 'claude' not on PATH. Run ./install.sh again where it is."
+  fi
+fi
+
+# 5. Optionally prune deleted skills/agents.
 if [ "$PRUNE" = "1" ]; then
   # Claude: dangling symlinks pointing into this repo (deleted skill/agent).
   for link in "$CLAUDE"/skills/* "$CLAUDE"/agents/*; do
@@ -158,4 +198,4 @@ if [ "$PRUNE" = "1" ]; then
 fi
 
 echo "---"
-echo "linked=$linked mirrored=$mirrored skipped=$skipped copied=$copied pruned=$pruned"
+echo "linked=$linked mirrored=$mirrored skipped=$skipped copied=$copied plugins=$plugins pruned=$pruned"
