@@ -52,6 +52,7 @@ description: |            # ≤1024 chars. Say what it does AND when to use it �
 | `execute-plan` | Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`. |
 | `gtd` | GTD productivity mentor: inbox processing, weekly reviews, daily planning, focus coaching. |
 | `handoff` | Structured session-handoff docs for continuity across sessions. |
+| `maintainability-review` | Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`. |
 | `merge` | Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`. |
 | `n8n-deploy` | RIGID homelab procedure: deploy/edit n8n workflows via the sqlite3 dance without clobbering the DB. |
 | `obsidian-markdown` | Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties. |
