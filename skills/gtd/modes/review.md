@@ -1,15 +1,16 @@
 # Weekly Review
 
-5 parts, under 10 minutes. Move fast — the value is in the habit, not the thoroughness.
+Structured as GTD's **Get Clear → Get Current → Get Creative**. Under 10 minutes — move fast, the value is in the habit, not the thoroughness.
 
 ## Start
 
-```bash
-.claude/skills/gtd/scripts/reminders.sh counts
-.claude/skills/gtd/scripts/reminders.sh completed 7
-.claude/skills/gtd/scripts/reminders.sh stale 7
-.claude/skills/gtd/scripts/reminders.sh orphan-projects
-.claude/skills/gtd/scripts/reminders.sh waiting-age
+```
+find-tasks (projectId: inbox) — inbox count
+find-completed-tasks (last 7 days) — wins
+find-tasks (filterIdOrName: "Stalled") — stale items
+find-tasks (labels: ["waiting"]) — waiting items
+find-projects (archivedStatus: active) — project count, for Part 3
+find-comments (on the recurring "Weekly Review" task) — last week's stated focus
 ```
 
 ```
@@ -18,27 +19,34 @@ Weekly review. ~[N] min based on what's here.
 Last 7 days: [X] completed
 [Y] in Next Actions, [Z] in inbox, [W] stale
 
+Last week's focus was "[focus]" — how'd that go? [only if a focus was recorded]
+
 Ready?
 ```
 
-Estimate time: 2 min base + 30s per stale item + 30s per orphan project + 30s per waiting item. Cap at 10 min estimate.
+Estimate time: 2 min base + 30s per stale item + 30s per project + 30s per waiting item. Cap at 10 min estimate.
 
-## Part 1: Wins (1 min)
+## Get Clear: Inbox to zero (1-2 min)
 
-Show completed items. Ask: "Biggest win?"
+If inbox isn't already empty, run a fast version of [modes/process.md](process.md) — `now`/`later`/`someday`/`delete` only, no project detection.
+
+## Get Current, Part 1: Wins (1 min)
+
+Show completed items from `find-completed-tasks`. Ask: "Biggest win?"
 
 Acknowledge briefly ("Nice." / "Solid."), move on. Don't dwell.
 
-## Part 2: Stuck Items (2-3 min)
+## Get Current, Part 2: Stuck Items (2-3 min)
 
-**Stale (7+ days):**
+**Stale (from the `Stalled` filter — created 14+ days ago, still open):**
 
 If many stale items (8+), offer batch option first:
 ```
-[N] items sitting 7+ days. Want to:
+[N] items sitting 14+ days. Want to:
 1. Triage one by one
 2. Bulk move old ones to Someday (keeps recent)
 ```
+Bulk = batched `update-tasks` moving all matched task IDs to the Someday project.
 
 Otherwise go item by item:
 ```
@@ -49,28 +57,32 @@ Otherwise go item by item:
 
 | Response | Action |
 |----------|--------|
-| `y` or `keep` | Keep in Next Actions |
-| `someday` | Move to Someday |
-| `delete` | Delete |
+| `y` or `keep` | Keep as-is |
+| `someday` | Move to Someday project |
+| `delete` | `delete-object` |
 
-## Part 3: Project Health (1-2 min)
+## Get Current, Part 3: Project Health (1-2 min)
 
-**Orphan projects (no next action):**
+```
+find-projects (archivedStatus: active)
+get-project-health (per projectId) — health status per project
+```
 
-Skip if none. Otherwise:
+`get-project-health` flags AT_RISK/CRITICAL projects — typically no open next action or a high overdue load. If a project's health data looks missing or stale, `analyze-project-health (projectId)` triggers a fresh assessment (async — it just kicks off the analysis, so re-check with `get-project-health` after, don't expect an immediate result). Skip this part if everything comes back EXCELLENT/ON_TRACK.
+
 ```
 [N] projects need a next action:
 
 1. '[project]' — next step?
 ```
 
-User gives next action → add to Next Actions → next project.
+User gives next action → `add-tasks` as a sub-task/first task of that project → next project.
 
-If user says "drop it" → delete project.
+If user says "drop it" → archive or delete the project.
 
-## Part 4: Waiting Check (1-2 min)
+## Get Current, Part 4: Waiting Check (1-2 min)
 
-**Waiting items with age:**
+**Waiting items (`@waiting` label), age from `created_at`:**
 
 Skip if none. Otherwise:
 ```
@@ -83,22 +95,20 @@ For each: "Still waiting? (y/nudge/done)"
 | Response | Action |
 |----------|--------|
 | `y` | Keep waiting |
-| `nudge` | Add "Follow up with [person] re: [item]" to Next Actions |
-| `done` | Mark complete |
+| `nudge` | `add-tasks` "Follow up with [person] re: [item]" as a normal next action |
+| `done` | `complete-tasks` |
 
-## Part 5: Mind Sweep (2 min)
+## Get Creative: Mind Sweep (2 min)
 
 ```
 Anything floating in your head not captured?
 ```
 
-Add each to inbox. "Got it." Repeat until "done" or "no."
+`add-tasks` each into Inbox. "Got it." Repeat until "done" or "no." (Every few weeks, if it feels right, widen this to a higher-horizon prompt: "Any projects or goals that need to change — start, stop, or reshape?")
 
 ## Close
 
-```bash
-.claude/skills/gtd/scripts/state.sh review <completed_count> "<focus>"
-```
+`complete-tasks` on the recurring "Weekly Review" task (this is what drives next session's days-since-review). Ask for next week's focus, then `add-comments` it on that same task so it surfaces at the next review:
 
 ```
 Review done.
@@ -110,4 +120,4 @@ Review done.
 Focus for next week?
 ```
 
-Save their answer as the focus. If they don't have one, that's fine — don't push.
+Save their answer as a comment. If they don't have one, that's fine — don't push.

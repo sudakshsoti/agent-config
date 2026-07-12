@@ -4,12 +4,12 @@ Agent checks health at session start and surfaces issues naturally. Never lectur
 
 ## Health Thresholds
 
-| Metric | Healthy | Warning | Critical |
-|--------|---------|---------|----------|
-| Inbox | 0-5 | 6-15 | 16+ |
-| Stale (14+ days) | 0-3 | 4-10 | 11+ |
-| Days since review | 0-7 | 8-14 | 15+ |
-| Next Actions | 5-20 | 21-40 | 41+ |
+| Metric | Healthy | Warning | Critical | Source |
+|--------|---------|---------|----------|--------|
+| Inbox | 0-5 | 6-15 | 16+ | `find-tasks (projectId: inbox)` count |
+| Stale (14+ days) | 0-3 | 4-10 | 11+ | `find-tasks (filterIdOrName: "Stalled")` count |
+| Days since review | 0-7 | 8-14 | 15+ | last completion of the recurring "Weekly Review" task (`find-completed-tasks`) |
+| Next Actions | 5-20 | 21-40 | 41+ | `find-tasks (filterIdOrName: "Next Actions")` count |
 
 ## Surfacing
 
@@ -45,9 +45,7 @@ Which?
 ```
 
 **Option 1 — Bankruptcy:**
-```bash
-.claude/skills/gtd/scripts/reminders.sh batch-defer 14
-```
+Batch `update-tasks` moving every task from the `Stalled` filter's result set to the Someday project.
 Then: "Done. [N] items moved to Someday. Inbox next? (y/n)"
 
 **Option 2 — Blitz:**
@@ -55,15 +53,15 @@ Use inbox processing flow but faster — just "keep/dump" for each:
 ```
 1/[N]: '[item]' — keep or dump?
 ```
-No project detection, no context tagging. Speed is the point.
+No project detection, no label tagging. Speed is the point.
 
 **Option 3 — Focus 3:**
-```bash
-.claude/skills/gtd/scripts/reminders.sh next
 ```
-Show all Next Actions. User picks 3 → flag those → done.
+find-tasks (filterIdOrName: "Next Actions")
 ```
-Flagged your 3. Rest is noise this week.
+Show all Next Actions. User picks 3 → `update-tasks` priority `p1` on those → done.
+```
+Set your 3 to p1. Rest is noise this week.
 ```
 
 ## After Recovery
@@ -80,7 +78,7 @@ Process inbox next, or done for now?
 | Frequency | Action | Time |
 |-----------|--------|------|
 | Daily | Process inbox | 2 min |
-| Weekly | Review | 5 min |
-| Monthly | Prune Someday list | 10 min |
+| Weekly | Review (the recurring "Weekly Review" task) | 5 min |
+| Monthly | Prune Someday project | 10 min |
 
 Small, frequent, friction-free beats big scheduled reviews. If the user's system keeps going critical, suggest shorter daily check-ins rather than bigger weekly reviews.

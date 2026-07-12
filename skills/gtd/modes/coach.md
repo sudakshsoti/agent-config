@@ -4,14 +4,22 @@ For planning, focus, energy matching, and getting unstuck. The goal is always to
 
 ## Start
 
-```bash
-.claude/skills/gtd/scripts/reminders.sh today
-.claude/skills/gtd/scripts/reminders.sh counts
-.claude/skills/gtd/scripts/calendar.sh free
-.claude/skills/gtd/scripts/state.sh trends
+```
+find-tasks-by-date (today) — due/flagged-equivalent (p1) items
+find-tasks (filterIdOrName: "Next Actions") — counts
+get-productivity-stats — day-of-week / streak patterns
+[if Google Calendar MCP connected] list_events (today) / suggest_time — free time, next event
 ```
 
 Assess silently. Don't dump all the data — pick what's relevant to the user's intent and lead with ONE focusing question or suggestion.
+
+## Engage by Four Criteria
+
+When picking what to suggest, weigh all four — not just whatever's overdue:
+- **Context** — what label fits where the user is right now (`@home`, `@office`, `@computer`, `@errands`, `@calls`)
+- **Time available** — from a stated window or calendar gaps; match `@quick` for short windows
+- **Energy** — high/medium/low (see mapping below)
+- **Priority** — `p1`/`p2` first, but don't let priority override a bad context/energy match
 
 ## Patterns
 
@@ -22,20 +30,20 @@ This is a daily briefing. Show it as a compact dashboard, not a wall of text:
 ```
 Today — [Day], [Date]
 
-📅 [N] events ([next event] at [time])
-✅ [X] due/flagged
+📅 [N] events ([next event] at [time])   ← only if Google Calendar is connected
+✅ [X] due/p1
 📥 [Y] in inbox
 ⏳ [Z] waiting
 
 Top 3 candidates:
-1. [task] — [why: due today / flagged / stalled N days]
+1. [task] — [why: due today / p1 / stalled N days]
 2. [task]
 3. [task]
 
 Start with #1, or pick another?
 ```
 
-Pull candidates from: flagged items first, then due today, then oldest in Next Actions. Keep it to 3. If calendar is packed, say "Tight day — [X]h free. Pick one thing."
+Pull candidates from: `p1` items first, then due today, then oldest in Next Actions. Keep it to 3. If calendar is connected and packed, say "Tight day — [X]h free. Pick one thing." If Google Calendar isn't connected, drop the 📅 line entirely — don't mention its absence.
 
 ### "What should I do?" / "What should I work on?"
 
@@ -57,7 +65,7 @@ Pull the actual task counts, then reduce:
 Ignore all of it. What ONE thing would make you feel progress?
 ```
 
-→ User names it → Flag it, then offer: "Hide the rest for today? (y/n)"
+→ User names it → set `p1` on it, then offer: "Hide the rest for today? (y/n)"
 
 The point is to shrink the world, not add to it. Don't list tasks, don't suggest strategies, don't lecture about GTD. One thing.
 
@@ -74,35 +82,35 @@ What's blocking '[task]'?
 
 Based on answer:
 - **1 (unclear):** "What would you do if you only had 5 minutes? That's your next action."
-- **2 (need info):** "Who? I'll add a waiting-for." → `delegate <id> <person>`
-- **3 (too big):** "What's the smallest piece? I'll add it as a next action."
+- **2 (need info):** "Who? I'll add a waiting-for." → add `@waiting` label + comment naming them
+- **3 (too big):** "What's the smallest piece? I'll add it as a next action." → add as sub-task
 - **4 (avoiding):** "What would make it less painful? Timer for 15 min? Different environment? Or just do the first 2 minutes."
 
 ### "Help me prioritize"
 
-```bash
-.claude/skills/gtd/scripts/reminders.sh next
+```
+find-tasks (filterIdOrName: "Next Actions")
 ```
 
 Show the full Next Actions list, then:
 
 ```
-Pick 3 for today. I'll flag them, rest stays off your radar.
+Pick 3 for today. I'll set them to p1, rest stays off your radar.
 ```
 
-User picks → flag those 3 → done.
+User picks → `update-tasks` priority `p1` on those 3 → done.
 
 ### "I'm tired" / "Low energy" / "Quick wins"
 
-```bash
-.claude/skills/gtd/scripts/reminders.sh context #quick
-.claude/skills/gtd/scripts/reminders.sh context #low
+```
+find-tasks (labels: ["quick"])
+find-tasks (labels: ["low_energy"])
 ```
 
 If tagged tasks exist, suggest up to 3. If none are tagged:
 
-```bash
-.claude/skills/gtd/scripts/reminders.sh next
+```
+find-tasks (filterIdOrName: "Next Actions")
 ```
 
 Pick the simplest-sounding items (short titles, admin-type tasks) and suggest those. Never suggest deep work or creative tasks when energy is low.
@@ -118,17 +126,17 @@ Pick one, or rest? No shame in resting.
 
 ## Using Historical Data
 
-When trends data exists, weave it in naturally — don't announce it:
+`get-productivity-stats` gives day-of-week completion patterns, streaks, and karma trend — weave it in naturally, don't announce it:
 
 | Pattern | How to use it |
 |---------|---------------|
-| `peak_days` contains today | Lead with: "[Day]s are usually strong for you." |
-| `defer_days` contains today | "You tend to push things on [day]s — keep it light?" |
-| High context usage | "You do a lot @[context] — want to batch those?" |
-| Declining `weekly_completed` | "Completions are down. Overloaded or just a slow stretch?" |
-| High velocity | "You usually knock out [N]/session." (sets a target) |
+| Today is historically a strong completion day | Lead with: "[Day]s are usually strong for you." |
+| Today is historically a low-completion day | "You tend to slow down on [day]s — keep it light?" |
+| Heavy use of one label | "You do a lot @[context] — want to batch those?" |
+| Declining weekly completion trend | "Completions are down. Overloaded or just a slow stretch?" |
+| High/consistent streak | "You usually knock out [N]/session." (sets a target) |
 
-Don't show trends data if there isn't enough history. 2+ weeks of data minimum.
+Don't show stats if there isn't enough history for a pattern to mean anything (2+ weeks minimum).
 
 ## Energy Mapping
 
@@ -142,18 +150,12 @@ Don't show trends data if there isn't enough history. 2+ weeks of data minimum.
 
 If user mentions a location or context:
 
-```bash
-.claude/skills/gtd/scripts/reminders.sh context @home
+```
+find-tasks (labels: ["home"])
 ```
 
-Suggest top 3 from that context. If no tasks tagged with that context, say so: "Nothing tagged @home. Want to tag some tasks?"
+Suggest top 3 from that context. If no tasks tagged with that label, say so: "Nothing tagged @home. Want to tag some tasks?"
 
 ## Error Handling
 
-If scripts fail: "Reminders not responding. Open it and try again?"
-
-## Session End
-
-```bash
-.claude/skills/gtd/scripts/state.sh session coach 1
-```
+If Todoist calls fail: "Todoist not responding. Check the connection and try again?" If only the Google Calendar call fails, silently drop the calendar line — don't block the rest of the briefing on it.
