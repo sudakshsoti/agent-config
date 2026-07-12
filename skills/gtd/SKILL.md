@@ -10,6 +10,8 @@ Chatbot interface. You do the cognitive heavy lifting. User makes decisions; **T
 
 **Prerequisite:** this skill requires the Todoist MCP connector. If `user-info` or `find-tasks` errors or isn't available, say so plainly: "Todoist isn't connected — enable it in your connector settings and try again." Don't fall back to guessing or inventing task state.
 
+**Overarching principle — read the user's structure, then adapt; do not impose the skill's own taxonomy.** Waiting For, Someday, and parking projects may already exist as projects OR labels under names the user chose. Map what's there at session start and build every filter query from the detected structure. Only create what's genuinely missing, matching the user's convention — never build parallel structure (e.g. don't add an `@waiting` label when a "Waiting For" project already exists). See [reference/todoist-setup.md](reference/todoist-setup.md).
+
 ## GTD Principles (apply throughout, not just in one mode)
 
 - **Five steps:** capture → clarify → organize → reflect → engage. Every mode below is one of these.
@@ -20,14 +22,21 @@ Chatbot interface. You do the cognitive heavy lifting. User makes decisions; **T
 
 ## Session Start
 
+**Step 0 — map structure (once per session, before anything else):**
+```
+get-overview + find-projects + find-labels
+```
+Detect whether Waiting For, Someday/Maybe, and any parking projects (e.g. Watchlist Inbox) exist as PROJECTS or LABELS, and record the query token for each. Identify the parking-project exclusion list and the Audit Log project. The filters below hold queries built from *this* detected structure, not hardcoded `@waiting`/`##Someday`. Full detection procedure and the token → filter mapping: [reference/todoist-setup.md](reference/todoist-setup.md).
+
+**Then the metric reads:**
 ```
 find-tasks (projectId: inbox) — inbox count
-find-tasks (filterIdOrName: "Stalled") — stale count
-find-tasks (filterIdOrName: "Next Actions") — next-actions count
+find-tasks (filterIdOrName: "Stalled") — stale count (no-date items outside parking projects — NOT created-before)
+find-tasks (filterIdOrName: "Next Actions") — next-actions count (excludes parking projects)
 find-tasks (searchText: "Weekly Review", filter: "recurring") + find-completed-tasks — days since last review
 ```
 
-If the GTD structure (labels/filters/Someday project/Weekly Review task) doesn't exist yet, see **First-Run Setup** below before anything else.
+If the GTD structure (Waiting For / Someday / parking projects, filters, Weekly Review task, Audit Log) doesn't exist yet — or exists only partially — see **First-Run Setup** below before anything else.
 
 Run silently, then pick ONE opener:
 
@@ -36,9 +45,14 @@ Run silently, then pick ONE opener:
 3. **Returning after gap** (3+ days since last session — infer from most recent activity/completion): "Back after [N] days. [one-line status]." Then wait.
 4. **Healthy**: Wait for user intent. Don't narrate the health check.
 
+**Reading signals correctly** (don't over-alarm):
+- **Stale** = no-date actionable tasks outside parking projects (the `Stalled` filter), NOT `created before: -N days` — future-dated parked items aren't stale.
+- **Overdue** isn't automatically rot. Ignore today/yesterday overdue (just not-yet-done) and recurring rollovers; only surface **one-off tasks overdue 7+ days** as a concern. See reference → Overdue health signal.
+- **Review baseline:** when a review starts, read the most recent Audit Log entry for last time's numbers to compare against; at review end, write a new dated summary there. See reference → Audit Log convention.
+
 ## First-Run Setup
 
-If labels, the Someday project, the four filters, or the recurring Weekly Review task are missing, create them idempotently (check with `find-labels`/`find-projects`/`find-filters` first, only create what's missing). Show the user what you're about to create before doing it. Full spec, exact filter query strings, and the label taxonomy: [reference/todoist-setup.md](reference/todoist-setup.md).
+Runs AFTER Step 0 mapping — gap-fill, not build-from-scratch. Create **only what's genuinely missing**, matching the user's existing convention; never build parallel structure. If Waiting For already exists as a project, use it and do NOT create an `@waiting` label. Filter queries are built from the detected tokens, not hardcoded. Identify parking projects (Someday + any the user designates) and exclude them from every active-task filter. Detect the Audit Log project; if absent, **offer** to create it rather than assuming. Show the user what you're about to create before doing it. Full detection procedure, token → filter mapping, exact query strings, and the Audit Log convention: [reference/todoist-setup.md](reference/todoist-setup.md).
 
 ## Routing
 
@@ -78,10 +92,10 @@ add-tasks: [{ content: "call mom", projectId: "inbox", dueString: "tomorrow" }]
 
 ## Waiting Check
 
-When user asks about waiting items:
+When user asks about waiting items, read from the detected Waiting For structure (`find-tasks` on the `##Waiting For` project, or `labels: ["waiting"]` if it's a label — see Step 0):
 
 ```
-find-tasks (labels: ["waiting"])
+find-tasks (filterIdOrName: "Waiting For")   # resolves to ##Waiting For or @waiting per detection
 ```
 
 Age = today minus the task's `created_at` (Todoist has no per-task "last modified" — created date is the best proxy for a delegated item). Show items with who and age:
