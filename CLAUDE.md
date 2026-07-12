@@ -45,6 +45,12 @@ Each skill is a directory under `skills/` with a required `SKILL.md` (YAML front
 
 Same format works on Claude Code, Claude.ai (zip upload), and the Claude API — but skills do **not** sync between surfaces; install each separately. See `skills/README.md` for per-surface install details.
 
+## Distributable zips
+
+`dist/<skill-name>.zip` — one zip per skill, committed to the repo — is the upload artifact for claude.ai and the Claude API, which install a skill from a zip rather than a symlink. Built by `./scripts/build-zip.sh` (all skills) or `./scripts/build-zip.sh <name>` (one skill); each archive holds a single top-level `<name>/` folder with `SKILL.md` at its root, which is what claude.ai expects.
+
+These zips are snapshots, not symlinks — **editing a `SKILL.md` does not update its zip.** After adding, renaming, or editing a skill, re-run `./scripts/build-zip.sh` and commit the changed `dist/*.zip` files alongside the skill edit, or the committed zip silently drifts from the source.
+
 ## Authoring agents
 
 Subagents are single markdown files in `agents/` with frontmatter: `name`, `description`, optional `tools` (comma-separated allowlist) and `model`. Invoked explicitly with `@<name>` or proactively per the description.
