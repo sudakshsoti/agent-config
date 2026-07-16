@@ -33,8 +33,8 @@ their own commit.
 Never push, merge, or open a PR until I explicitly ask. Commits accumulate
 locally on the branch until then.
 
-`homelab` and `finance-dashboard` override the commit rule: in those repos leave
-the tree dirty for review and never commit until asked.
+`homelab` overrides the commit rule: there, leave the tree dirty for review and
+never commit until asked, even after a fully verified change.
 
 ## Verify instead of recalling
 
