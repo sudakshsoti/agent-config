@@ -5,6 +5,7 @@
 # Symlinks (repo is the live source of truth; edits apply instantly):
 #   skills/<name>/  -> ~/.claude/skills/<name>
 #   agents/<name>.md -> ~/.claude/agents/<name>.md
+#   global-CLAUDE.md -> ~/.claude/CLAUDE.md
 #
 # Copies, refreshed every run (NOT symlinks):
 #   skills/<name>/ -> ~/.codex/skills/<name>
@@ -124,7 +125,17 @@ for file in "$REPO"/agents/*.md; do
   link_into "$file" "$CLAUDE/agents/$(basename "$file")"
 done
 
-# 3. Settings files: copy only if missing (new-machine bootstrap).
+# 3. Global CLAUDE.md: symlinked, like skills and agents — the repo stays the
+#    live source of truth, so edits apply instantly and land in git history.
+#    Unlike settings.json (which Claude Code rewrites via /config), this file is
+#    only ever appended to by the `#` quick-capture shortcut, and an append
+#    writes through a symlink to the target. If some future Claude Code version
+#    rewrites it atomically instead, the symlink becomes a real file and
+#    link_into's guard below reports it loudly on the next run — at which point
+#    move the live file back into the repo.
+link_into "$REPO/global-CLAUDE.md" "$CLAUDE/CLAUDE.md"
+
+# 4. Settings files: copy only if missing (new-machine bootstrap).
 #    settings.json in the repo has no secrets — add machine-local env/keys
 #    to ~/.claude/settings.local.json, which is never tracked here.
 for f in settings.json statusline.sh claude-powerline.json; do
@@ -135,7 +146,7 @@ for f in settings.json statusline.sh claude-powerline.json; do
   fi
 done
 
-# 4. Plugins: reproduce the marketplace + plugin set from plugins.txt via the
+# 5. Plugins: reproduce the marketplace + plugin set from plugins.txt via the
 #    `claude` CLI. Content is NOT vendored — these commands add the marketplaces
 #    and install the latest plugin versions, and no-op if already present.
 if [ "$PLUGINS" = "1" ] && [ -f "$REPO/plugins.txt" ]; then
@@ -167,7 +178,7 @@ if [ "$PLUGINS" = "1" ] && [ -f "$REPO/plugins.txt" ]; then
   fi
 fi
 
-# 5. Optionally prune deleted skills/agents.
+# 6. Optionally prune deleted skills/agents.
 if [ "$PRUNE" = "1" ]; then
   # Claude: dangling symlinks pointing into this repo (deleted skill/agent).
   for link in "$CLAUDE"/skills/* "$CLAUDE"/agents/*; do
