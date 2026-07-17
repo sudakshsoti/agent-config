@@ -16,6 +16,7 @@ Assess silently. Don't dump all the data — pick what's relevant to the user's 
 ## Engage by Four Criteria
 
 When picking what to suggest, weigh all four — not just whatever's overdue:
+
 - **Context** — what label fits where the user is right now (`@home`, `@office`, `@computer`, `@errands`, `@calls`)
 - **Time available** — from a stated window or calendar gaps; match `@quick` for short windows
 - **Energy** — high/medium/low (see mapping below)
@@ -81,6 +82,7 @@ What's blocking '[task]'?
 ```
 
 Based on answer:
+
 - **1 (unclear):** "What would you do if you only had 5 minutes? That's your next action."
 - **2 (need info):** "Who? I'll add a waiting-for." → add `@waiting` label + comment naming them
 - **3 (too big):** "What's the smallest piece? I'll add it as a next action." → add as sub-task
@@ -128,23 +130,23 @@ Pick one, or rest? No shame in resting.
 
 `get-productivity-stats` gives day-of-week completion patterns, streaks, and karma trend — weave it in naturally, don't announce it:
 
-| Pattern | How to use it |
-|---------|---------------|
-| Today is historically a strong completion day | Lead with: "[Day]s are usually strong for you." |
-| Today is historically a low-completion day | "You tend to slow down on [day]s — keep it light?" |
-| Heavy use of one label | "You do a lot @[context] — want to batch those?" |
-| Declining weekly completion trend | "Completions are down. Overloaded or just a slow stretch?" |
-| High/consistent streak | "You usually knock out [N]/session." (sets a target) |
+| Pattern                                       | How to use it                                              |
+| --------------------------------------------- | ---------------------------------------------------------- |
+| Today is historically a strong completion day | Lead with: "[Day]s are usually strong for you."            |
+| Today is historically a low-completion day    | "You tend to slow down on [day]s — keep it light?"         |
+| Heavy use of one label                        | "You do a lot @[context] — want to batch those?"           |
+| Declining weekly completion trend             | "Completions are down. Overloaded or just a slow stretch?" |
+| High/consistent streak                        | "You usually knock out [N]/session." (sets a target)       |
 
 Don't show stats if there isn't enough history for a pattern to mean anything (2+ weeks minimum).
 
 ## Energy Mapping
 
-| Energy | Suggest | Avoid |
-|--------|---------|-------|
-| High | Deep work, creative, complex | Admin busywork |
-| Medium | Regular tasks, meetings prep | Heavy creative |
-| Low | Admin, quick wins, or rest | Deep work, anything requiring focus |
+| Energy | Suggest                      | Avoid                               |
+| ------ | ---------------------------- | ----------------------------------- |
+| High   | Deep work, creative, complex | Admin busywork                      |
+| Medium | Regular tasks, meetings prep | Heavy creative                      |
+| Low    | Admin, quick wins, or rest   | Deep work, anything requiring focus |
 
 ## Context Suggestions
 

@@ -22,11 +22,12 @@ root cause (see superpowers:systematic-debugging).
 ## Step 0 — read history first
 
 Before theorizing, read `JOURNAL.md` (homelab repo) for prior occurrences — most "new"
-incidents have a documented cause and fix. This is non-negotiable for *recurring* symptoms.
+incidents have a documented cause and fix. This is non-negotiable for _recurring_ symptoms.
 
 ## Step 1 — first-look sweep (fixed order)
 
 On the box (or over Tailscale SSH — see homelab-deploy for the on-box vs remote rule):
+
 ```bash
 df -h / /mnt/HC_Volume_105268540        # root disk fills fast — known issue
 docker system df                         # image/volume/log bloat
@@ -35,22 +36,23 @@ free -m && uptime                        # swap thrash + load (gate is load >8 o
 timeout 30 ls /mnt/torbox/__all__/ >/dev/null && echo "FUSE ok" || echo "FUSE WEDGED"
 tail -40 /var/log/server-watchdog.log    # reboots, disk prunes, daemon restarts
 ```
+
 Ask for the **exact error / log output** before proposing a root cause. Run the failing
 thing in isolation before declaring a fix (check timezone shifts, empty arrays,
 parallel-branch timing).
 
 ## Step 2 — map symptom → owning subsystem
 
-| Symptom | Owner / where to look |
-|---|---|
-| SSH hangs / commands hang / `Transport endpoint not connected` / mount stale | **torbox-ops skill** (FUSE recovery) |
-| Torrent stuck "Downloading" 0 B / folder won't import | **torbox-ops skill** (reconciler) |
-| Container OOM-killed / restarting | `.claude/rules/memory-management.md` (mem caps + host slices) |
-| n8n workflow broken / not firing | **n8n-deploy skill** + `.claude/rules/architecture.md` (n8n) |
-| Stream stutters / won't play remotely | `.claude/rules/networking.md` (Cloudflare proxy vs grey-cloud, BBR) |
-| DNS / Caddy / TLS / cert | `.claude/rules/networking.md` (Caddy + Cloudflare) |
-| Hermes agent / Discord / cron / MCP | `.claude/rules/architecture-hermes.md` |
-| Box rebooted on its own | server-watchdog (Tier 1) or Cloudflare Worker (Tier 2) — `.claude/rules/architecture.md` |
+| Symptom                                                                      | Owner / where to look                                                                    |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| SSH hangs / commands hang / `Transport endpoint not connected` / mount stale | **torbox-ops skill** (FUSE recovery)                                                     |
+| Torrent stuck "Downloading" 0 B / folder won't import                        | **torbox-ops skill** (reconciler)                                                        |
+| Container OOM-killed / restarting                                            | `.claude/rules/memory-management.md` (mem caps + host slices)                            |
+| n8n workflow broken / not firing                                             | **n8n-deploy skill** + `.claude/rules/architecture.md` (n8n)                             |
+| Stream stutters / won't play remotely                                        | `.claude/rules/networking.md` (Cloudflare proxy vs grey-cloud, BBR)                      |
+| DNS / Caddy / TLS / cert                                                     | `.claude/rules/networking.md` (Caddy + Cloudflare)                                       |
+| Hermes agent / Discord / cron / MCP                                          | `.claude/rules/architecture-hermes.md`                                                   |
+| Box rebooted on its own                                                      | server-watchdog (Tier 1) or Cloudflare Worker (Tier 2) — `.claude/rules/architecture.md` |
 
 ## Step 3 — respect the escalation chain
 
@@ -77,12 +79,18 @@ teardown makes the wedge worse.
 
   ```markdown
   # RCA YYYY-MM-DD — <one-line title>
-  ## Symptom        — what was observed, when, blast radius
-  ## Timeline       — UTC timestamps of detection → recovery
-  ## Root cause     — the actual mechanism (not the proximate symptom)
-  ## Fix            — what changed, with command/diff
-  ## Verification   — the command/output proving it's resolved
-  ## Prevention     — guardrail/watchdog/cap added so it can't silently recur
+
+  ## Symptom — what was observed, when, blast radius
+
+  ## Timeline — UTC timestamps of detection → recovery
+
+  ## Root cause — the actual mechanism (not the proximate symptom)
+
+  ## Fix — what changed, with command/diff
+
+  ## Verification — the command/output proving it's resolved
+
+  ## Prevention — guardrail/watchdog/cap added so it can't silently recur
   ```
 
 - If the fix changed anything under `/opt/stacks`, capture it with `make sync-stacks`

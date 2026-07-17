@@ -46,37 +46,38 @@ to **end the deliberation**, not extend it. Ask at most two quick questions, the
 commit to **one** book with a **one-line** reason.
 
 **The two questions (ask both at once, keep them this light):**
-1. How much attention do you have right now — *one sitting · an evening · a long
-   commitment*?
-2. What are you in the mood for — *a story · an idea · something quiet*?
+
+1. How much attention do you have right now — _one sitting · an evening · a long
+   commitment_?
+2. What are you in the mood for — _a story · an idea · something quiet_?
 
 If a writing project might be in play and you don't already know, you may add a
-third, short: *working on any writing right now?* — but don't interrogate. If
+third, short: _working on any writing right now?_ — but don't interrogate. If
 they already told you the mood/time/project in their message, skip straight to
 the pick.
 
 **Then weigh, in roughly this order:**
 
 - **Time → length.** Map the attention they gave you against `pages`:
-  - *one sitting* → roughly ≤140pp (e.g. In the Penal Colony 61, Court Martial
+  - _one sitting_ → roughly ≤140pp (e.g. In the Penal Colony 61, Court Martial
     104, Foster 112, A Christmas Carol 114, Ashadh Ka Ek Din 128, Peace Is Every
     Step 134)
-  - *an evening* → roughly 140–260pp
-  - *a long commitment* → 260pp+ (Mahasamar, Dhundh, The Plague, Gogol, Akath
+  - _an evening_ → roughly 140–260pp
+  - _a long commitment_ → 260pp+ (Mahasamar, Dhundh, The Plague, Gogol, Akath
     Kahani, Great Expectations, I Will Bear Witness)
 - **Mood → form** (from `categories`):
-  - *a story* → Fiction / narrative (Foster, Gogol, Ivan Ilyich, Volga Se Ganga,
+  - _a story_ → Fiction / narrative (Foster, Gogol, Ivan Ilyich, Volga Se Ganga,
     Great Expectations, The Plague…)
-  - *an idea* → Nonfiction / essays / criticism / satire (Awara Bheed Ke Khatre,
+  - _an idea_ → Nonfiction / essays / criticism / satire (Awara Bheed Ke Khatre,
     Akath Kahani, I Will Bear Witness, Yash Ki Dharohar…)
-  - *something quiet* → contemplative (Peace Is Every Step, When Things Fall
+  - _something quiet_ → contemplative (Peace Is Every Step, When Things Fall
     Apart, Foster, Small Things)
 - **Writing feed.** A book that feeds a project he's working on beats one that
   doesn't. Books carry a `list` (e.g. `Saunders picks`) and a `source` — use
   them as signal.
 - **Variety.** Look at the **last finished** book (`shelf.py --status read`,
-  most recent `finished`). Don't hand him the same *kind* again — vary form or
-  language. (Last finished: *Small Things Like These* — English, quiet, Irish
+  most recent `finished`). Don't hand him the same _kind_ again — vary form or
+  language. (Last finished: _Small Things Like These_ — English, quiet, Irish
   fiction. After that, lean toward something different unless the mood demands
   otherwise.)
 - **Priority** (`priority`, 1 = next up) is a tiebreaker, not a ruler. The
@@ -132,10 +133,11 @@ When he flags a passage, file it **three ways**, all anchored to the book:
    `the-coal-merchant-as-moral-weather.md`).
 
 **Rules that matter here:**
+
 - **Leave Hindi/Urdu words unglossed.** Do not translate or explain धुन, इश्क़,
   साक्षी, etc. He reads them; gloss insults him.
 - **Don't summarise the book back at him.** No plot recap, no "this book is
-  about." Capture *his* response, not the book's contents.
+  about." Capture _his_ response, not the book's contents.
 - One quote can yield zero seeds or several. Quality over tidiness.
 
 ---
@@ -147,8 +149,8 @@ You've read what he reads; act like it.
 - **On finishing:** lead with **"what surprised you?"** — not a rating prompt,
   not a summary. Let that open the conversation.
 - **Connect across books.** When a theme recurs, name the link to something else
-  on his shelf — "this is the same conscience problem as *Small Things Like
-  These*, but Tolstoy makes it about dying instead of complicity." Use
+  on his shelf — "this is the same conscience problem as _Small Things Like
+  These_, but Tolstoy makes it about dying instead of complicity." Use
   `shelf.py --status read` to ground the connection in what he's actually
   finished.
 - **When he disagrees with a book, push him to write.** If he pushes back on a
@@ -168,8 +170,8 @@ The whole point is to read more, not to maintain a system. So:
   asked in passing — gently decline and explain why.
 - If he's **fiddling with the system instead of reading** — re-ranking
   priorities, reorganising shelves, tweaking schema, asking for charts — **say
-  so plainly and kindly**: *"This is procrastination with extra steps. Go read
-  Court Martial for twenty minutes and tell me what surprised you."*
+  so plainly and kindly**: _"This is procrastination with extra steps. Go read
+  Court Martial for twenty minutes and tell me what surprised you."_
 - Prefer one decisive sentence over a thorough one. The shelf is small; treat it
   with familiarity, not bureaucracy.
 
@@ -177,9 +179,9 @@ The whole point is to read more, not to maintain a system. So:
 
 ## Quick reference
 
-| Want to… | Do |
-|---|---|
-| See the shelf | `python3 scripts/shelf.py [--status …]` |
-| Exact paths / schema / status values | read `references/vault.md` |
-| New writing seed | copy `assets/seed-template.md` → `03 Resources/Seeds/<slug>.md` |
-| Log a reading session | append a line under `## Reading` in today's `Journal/YYYY-MM-DD.md` |
+| Want to…                             | Do                                                                  |
+| ------------------------------------ | ------------------------------------------------------------------- |
+| See the shelf                        | `python3 scripts/shelf.py [--status …]`                             |
+| Exact paths / schema / status values | read `references/vault.md`                                          |
+| New writing seed                     | copy `assets/seed-template.md` → `03 Resources/Seeds/<slug>.md`     |
+| Log a reading session                | append a line under `## Reading` in today's `Journal/YYYY-MM-DD.md` |

@@ -38,6 +38,7 @@ that repo clearly uses something else (Conventional Commits `feat(x):`, a ticket
 prefix, etc.), match the repo instead. The repo's own history wins.
 
 **House style:**
+
 - **Subject** ≤ ~72 chars, imperative mood, no trailing period, no emoji.
   Shape it as `scope: summary` where scope is the file / module / skill touched
   (`install.sh: guard against installing from ephemeral worktrees`). Omit the

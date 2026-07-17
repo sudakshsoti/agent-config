@@ -3,8 +3,8 @@ title: "{{SEED}}"
 type: seed
 status: seed
 source: "[[{{BOOK_FILE}}]]"
-created: {{DATE}}
-updated: {{DATE}}
+created: { { DATE } }
+updated: { { DATE } }
 tags:
   - seed
   - writing

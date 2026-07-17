@@ -5,6 +5,7 @@ This document provides extended examples of common UX text patterns applied acro
 ## Titles
 
 ### Brand Title
+
 Identifies the product/organization
 
 **TAPP Transit**: "TAPP"
@@ -12,6 +13,7 @@ Identifies the product/organization
 **Sturgeon Club**: "The Sturgeon Club"
 
 ### Content Title
+
 Reflects what's on the screen
 
 **TAPP Transit**: "Your routes", "Bus schedule", "Payment methods"
@@ -19,6 +21,7 @@ Reflects what's on the screen
 **Sturgeon Club**: "Your reservations", "Member directory", "Event calendar"
 
 ### Category Title (Ambiguous Task)
+
 Covers multiple related actions
 
 **TAPP Transit**: "Trip planning", "Account settings", "Help and support"
@@ -26,6 +29,7 @@ Covers multiple related actions
 **Sturgeon Club**: "Membership benefits", "Venue access", "Concierge services"
 
 ### Task Title (Single Action)
+
 Acts as instruction for one task
 
 **TAPP Transit**: "Buy a day pass", "Report a problem", "Change your email"
@@ -39,18 +43,21 @@ Acts as instruction for one task
 ### Primary Actions
 
 **TAPP Transit**:
+
 - "Buy pass"
 - "Track bus"
 - "Plan trip"
 - "Report issue"
 
 **'appee**:
+
 - "Upload photo"
 - "Vote now"
 - "Challenge friend"
 - "Claim reward"
 
 **Sturgeon Club**:
+
 - "Reserve table"
 - "View details"
 - "Confirm attendance"
@@ -59,18 +66,21 @@ Acts as instruction for one task
 ### Secondary Actions
 
 **TAPP Transit**:
+
 - "View schedule"
 - "Cancel"
 - "Go back"
 - "Skip"
 
 **'appee**:
+
 - "See rules"
 - "Maybe later"
 - "Pass"
 - "View profile"
 
 **Sturgeon Club**:
+
 - "Learn more"
 - "Decline"
 - "Return"
@@ -79,16 +89,19 @@ Acts as instruction for one task
 ### Destructive Actions
 
 **TAPP Transit**:
+
 - "Delete payment method"
 - "Cancel trip"
 - "Remove favorite"
 
 **'appee**:
+
 - "Delete photo"
 - "Leave game"
 - "Remove friend"
 
 **Sturgeon Club**:
+
 - "Cancel reservation"
 - "Remove guest"
 - "Close account"
@@ -100,16 +113,19 @@ Acts as instruction for one task
 ### Navigational Links
 
 **TAPP Transit**:
+
 - "See all routes"
 - "View trip history"
 - "Check real-time updates"
 
 **'appee**:
+
 - "Browse all challenges"
 - "See your stats"
 - "View friend activity"
 
 **Sturgeon Club**:
+
 - "Explore member benefits"
 - "View upcoming events"
 - "Access your membership card"
@@ -117,16 +133,19 @@ Acts as instruction for one task
 ### Contextual Links
 
 **TAPP Transit**:
+
 - "Learn about fare options"
 - "Get help with passes"
 - "Contact support"
 
 **'appee**:
+
 - "How scoring works"
 - "Tips for better photos"
 - "Report a problem"
 
 **Sturgeon Club**:
+
 - "Terms of membership"
 - "Dress code requirements"
 - "Concierge contacts"
@@ -138,16 +157,19 @@ Acts as instruction for one task
 ### Inline Errors
 
 **TAPP Transit**:
+
 - "Email must include @"
 - "Card number is incomplete"
 - "Pick a future date"
 
 **'appee**:
+
 - "Username already taken"
 - "Photo must be under 10MB"
 - "Needs at least 3 characters"
 
 **Sturgeon Club**:
+
 - "Email address required"
 - "Valid phone number required"
 - "Select a date"
@@ -193,18 +215,21 @@ Acts as instruction for one task
 ### Simple Confirmation
 
 **TAPP Transit**:
+
 - "Pass purchased"
 - "Favorite added"
 - "Route saved"
 - "Email updated"
 
 **'appee**:
+
 - "Photo uploaded"
 - "Vote recorded"
 - "Friend added"
 - "Profile saved"
 
 **Sturgeon Club**:
+
 - "Reservation confirmed"
 - "Preferences updated"
 - "Guest added"
@@ -322,16 +347,19 @@ Acts as instruction for one task
 ### Instructions (Helper Text)
 
 **TAPP Transit**:
+
 - "We'll send trip updates to this email"
 - "This card will be saved securely for future purchases"
 - "Shown on your receipts and account"
 
 **'appee**:
+
 - "Choose a unique name others will see"
 - "Tell other players about yourself"
 - "Upload a photo that represents you"
 
 **Sturgeon Club**:
+
 - "Required for reservation confirmations"
 - "We'll contact you about events and updates"
 - "Help us prepare the perfect dining experience"
@@ -349,30 +377,36 @@ Acts as instruction for one task
 ### Toggle Switches
 
 **TAPP Transit**:
+
 - **Name**: "Real-time updates"
 - **Description**: "Get notifications when your bus is arriving"
 
 **'appee**:
+
 - **Name**: "Push notifications"
 - **Description**: "Get notified about new challenges and friend activity"
 
 **Sturgeon Club**:
+
 - **Name**: "Event reminders"
 - **Description**: "Receive notifications about upcoming reservations and events"
 
 ### Checkboxes
 
 **TAPP Transit**:
+
 - "Remember this payment method"
 - "Include accessibility information"
 - "Show express routes only"
 
 **'appee**:
+
 - "Make profile public"
 - "Allow friend requests"
 - "Share scores on leaderboard"
 
 **Sturgeon Club**:
+
 - "Send event invitations"
 - "Include guests in communications"
 - "Opt in to exclusive offers"
@@ -389,7 +423,7 @@ Acts as instruction for one task
 
 ### On-Demand Instructions
 
-**TAPP Transit**: 
+**TAPP Transit**:
 **Trigger**: Help icon next to "Transfer"
 **Content**: "Switch to another bus or train at connecting stops. Your pass covers transfers within 2 hours."
 
@@ -406,18 +440,21 @@ Acts as instruction for one task
 ## Key Differences by Voice
 
 **TAPP Transit (Helpful, Efficient, Trustworthy)**:
+
 - Direct, clear, informative
 - Focuses on practical information
 - Anticipates user needs
 - Transparent about problems
 
 **'appee (Playful, Competitive, Rewarding)**:
+
 - Energetic, encouraging language
 - Emphasizes achievement and competition
 - Celebrates user actions
 - Uses exclamation points appropriately
 
 **Sturgeon Club (Sophisticated, Exclusive, Elegant)**:
+
 - Polished, refined tone
 - Emphasizes service and quality
 - More formal phrasing

@@ -17,6 +17,7 @@ Welcome → Setup → First Success → Next Steps
 ```
 
 Each step should answer:
+
 - **Where am I?** (Progress indicator)
 - **What do I do here?** (Clear instruction)
 - **Why does this matter?** (Benefit to user)
@@ -34,11 +35,12 @@ Each step should answer:
 ```
 
 **Example:**
+
 ```
 **Headline**: Welcome to TaskFlow
-**Body**: 
+**Body**:
 • Organize projects with your team
-• Track progress in real time  
+• Track progress in real time
 • Never miss a deadline
 
 **Primary CTA**: Create account
@@ -60,13 +62,14 @@ Each step should answer:
 ```
 
 **Example:**
+
 ```
 **Title**: Tell us about yourself
 **Body**: We'll personalize your experience.
 
 **Fields**:
 - Name
-- Email  
+- Email
 - Password
 
 **Primary CTA**: Continue
@@ -74,6 +77,7 @@ Each step should answer:
 ```
 
 **Best practices:**
+
 - Only ask for what you absolutely need now
 - Explain why each field is required
 - Use smart defaults when possible
@@ -95,6 +99,7 @@ Each step should answer:
 ```
 
 **Example:**
+
 ```
 **Title**: Create your first project
 **Body**: Projects help you organize related tasks and collaborate with your team.
@@ -107,6 +112,7 @@ Each step should answer:
 ```
 
 **Best practices:**
+
 - Show, don't tell (use visuals)
 - Let users try immediately
 - Keep explanations under 20 words
@@ -126,6 +132,7 @@ Each step should answer:
 ```
 
 **Example:**
+
 ```
 **Title**: You're all set!
 **Body**: You created your first project. Ready to invite your team?
@@ -135,6 +142,7 @@ Each step should answer:
 ```
 
 **Best practices:**
+
 - Use exclamation points sparingly (once per flow max)
 - Make the celebration feel earned
 - Suggest logical next step
@@ -157,36 +165,45 @@ For each step in your onboarding flow, verify:
 ## Content Patterns by Step Type
 
 ### Welcome/Introduction
+
 **Pattern**: "Welcome to [Product]. [Do X to achieve Y]."
 
 Examples:
+
 - "Welcome to Notion. Create beautiful docs, wikis, and projects."
 - "Welcome to Figma. Design, prototype, and collaborate in real time."
 
 ### Permission Request
+
 **Pattern**: "Enable [permission] to [specific benefit]"
 
 Examples:
+
 - "Enable notifications to stay updated on team activity"
 - "Allow camera access to scan documents instantly"
 
 ### Feature Tutorial
+
 **Pattern**: "[Action]. [Brief benefit]."
 
 Examples:
+
 - "Add your first task. Stay organized and never miss a deadline."
 - "Create a workspace. Collaborate with your team in one place."
 
 ### Completion
+
 **Pattern**: "[Celebration]! [What's now possible]. [Optional: Next step]"
 
 Examples:
+
 - "You're ready to go! Start creating, or invite teammates to collaborate."
 - "Setup complete! Your workspace is ready for your team."
 
 ## Tone Variations
 
 ### Professional/B2B
+
 ```
 **Title**: Set up your workspace
 **Body**: Add team members and create your first project.
@@ -194,6 +211,7 @@ Examples:
 ```
 
 ### Consumer/Casual
+
 ```
 **Title**: Let's get you started!
 **Body**: This will only take a minute.
@@ -201,6 +219,7 @@ Examples:
 ```
 
 ### Technical/Developer
+
 ```
 **Title**: Configure your environment
 **Body**: Connect your repository to start deploying.
@@ -210,6 +229,7 @@ Examples:
 ## Multi-Screen Flow Example
 
 ### Screen 1: Welcome
+
 ```
 **Welcome to WriteRight**
 
@@ -223,12 +243,13 @@ Write better, faster with AI-powered editing.
 ```
 
 ### Screen 2: Setup
+
 ```
 **What brings you to WriteRight?** (2 of 4)
 
 Select all that apply:
 □ Business writing
-□ Creative writing  
+□ Creative writing
 □ Student papers
 □ Personal projects
 
@@ -236,6 +257,7 @@ Select all that apply:
 ```
 
 ### Screen 3: First Action
+
 ```
 **Try it out** (3 of 4)
 
@@ -247,6 +269,7 @@ Paste any text below and watch WriteRight improve it.
 ```
 
 ### Screen 4: Success
+
 ```
 **Nice work!**
 
@@ -278,15 +301,13 @@ Use this to draft a basic onboarding flow:
 
 **Product name:**
 **Core value (one sentence):**
-**Key features to introduce (pick 2-3):**
-1.
-2.
-3.
+**Key features to introduce (pick 2-3):** 1. 2. 3.
 
 **First user action that shows value:**
 **Celebration/success moment:**
 
 **Draft flow:**
+
 1. Welcome → [Value prop]
 2. Setup → [Essential info only]
 3. Feature 1 → [Try it action]
@@ -296,6 +317,7 @@ Use this to draft a basic onboarding flow:
 ## Testing Your Onboarding
 
 Questions to answer:
+
 1. Can users complete onboarding in under 2 minutes?
 2. Do users achieve something meaningful in their first session?
 3. Can users skip optional steps without confusion?

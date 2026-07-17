@@ -11,6 +11,7 @@ Use this template to guide users when content is absent and help them take actio
 ## Template Types
 
 ### First-Use Empty State
+
 **Purpose**: Guide new users to populate content
 **Tone**: Inviting, encouraging, clear on benefit
 
@@ -21,6 +22,7 @@ Use this template to guide users when content is absent and help them take actio
 ```
 
 **Example:**
+
 ```
 **Title**: No projects yet
 **Body**: Create your first project to start organizing work.
@@ -30,6 +32,7 @@ Use this template to guide users when content is absent and help them take actio
 ---
 
 ### User-Cleared Empty State
+
 **Purpose**: Confirm completion, positive reinforcement
 **Tone**: Positive, celebratory (appropriately)
 
@@ -39,6 +42,7 @@ Use this template to guide users when content is absent and help them take actio
 ```
 
 **Example:**
+
 ```
 **Title**: You're all caught up
 **Body**: New tasks will appear here when they're assigned to you.
@@ -46,7 +50,8 @@ Use this template to guide users when content is absent and help them take actio
 
 ---
 
-### Error/No Results Empty State  
+### Error/No Results Empty State
+
 **Purpose**: Suggest alternatives when search/filter returns nothing
 **Tone**: Helpful, solution-focused
 
@@ -57,6 +62,7 @@ Use this template to guide users when content is absent and help them take actio
 ```
 
 **Example:**
+
 ```
 **Title**: No results for "vintage cameras"
 **Body**: Try different keywords or browse all items.
@@ -79,33 +85,41 @@ Before finalizing an empty state, verify:
 ## Content Patterns by Type
 
 ### First-Use (Onboarding)
+
 **Pattern**: "No [content] yet. [Benefit statement]. [Action]"
 
 Examples:
+
 - "No contacts yet. Import contacts to start messaging. **Import contacts**"
 - "No favorites saved. Save items to find them quickly later. **Browse items**"
 - "No team members yet. Invite people to collaborate on projects. **Invite team**"
 
 ### User-Cleared (Completion)
+
 **Pattern**: "All [done/complete/caught up]. [Optional: when more appears]"
 
 Examples:
+
 - "All tasks complete. New tasks appear when teammates assign them to you."
 - "Inbox zero! You've read all your messages."
 - "You're all set. Check back tomorrow for new recommendations."
 
 ### No Results (Search/Filter)
+
 **Pattern**: "No [content] match [criteria]. [Suggestion]. [Alternative]"
 
 Examples:
+
 - "No files match your search. Try different keywords or **view all files**."
 - "No events this month. **See upcoming events** or **create an event**."
 - "No team members match these filters. **Clear filters** to see all members."
 
 ### Permission/Access Required
+
 **Pattern**: "[Content] isn't available. [Why]. [How to get access]"
 
 Examples:
+
 - "Reports aren't available yet. Upgrade to Premium to access detailed analytics. **View plans**"
 - "This folder is private. Ask the owner to share it with you."
 - "Calendar events are hidden. Enable calendar sync in **settings** to see events."
@@ -113,6 +127,7 @@ Examples:
 ## Voice Variations
 
 ### Professional/B2B Product
+
 ```
 **Title**: No documents uploaded
 **Body**: Upload files to share with your team.
@@ -120,6 +135,7 @@ Examples:
 ```
 
 ### Consumer/Friendly Product
+
 ```
 **Title**: Nothing here yet!
 **Body**: Start adding favorites to build your collection.
@@ -127,6 +143,7 @@ Examples:
 ```
 
 ### Serious/High-Stakes Product
+
 ```
 **Title**: No alerts
 **Body**: Your systems are running normally.
@@ -173,6 +190,7 @@ Use this for rapid empty state drafting:
 **Button**: [Specific action]
 
 **Example filled:**
+
 - Type: First-use
 - What's empty: Saved reports
 - Why: New user

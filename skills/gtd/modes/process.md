@@ -34,15 +34,18 @@ For anything not obviously simple, run the canonical GTD clarify question set si
 ## Per-Item Flow
 
 **Simple items:**
+
 ```
 1/5: 'Call dentist'
 Actionable? (now/later/someday/delete)
 
 → "later"
 ```
+
 Move it, show next item immediately.
 
 **Looks like a project** (multi-step, vague, or big):
+
 ```
 2/5: 'Plan vacation'
 Sounds like a project. What's ONE next action?
@@ -51,39 +54,44 @@ Sounds like a project. What's ONE next action?
 
 Got it. Keep 'Plan vacation' as a project with that as the first step? (y/n)
 ```
+
 On "y": `add-tasks` "Plan vacation" (as a project or parent task), then `add-tasks` "research flights" as its sub-task (`parentId`).
 
 **Has a due date or time clue** ("dentist appointment Tuesday"):
+
 ```
 3/5: 'Dentist appointment Tuesday'
 When? (I'll set the due date)
 
 → "tuesday 2pm"
 ```
+
 `update-tasks` with `dueString: "tuesday 2pm"`, move to Next Actions (remove from Inbox project via `projectId` update, drop any inbox-only state).
 
 **Under 2 minutes:**
+
 ```
 4/5: 'Reply to Sarah — one line'
 That's a 2-min task. Doing it now, or file it?
 
 → "now"
 ```
+
 On "now": walk them through it, then `complete-tasks`. On anything else, file normally.
 
 ## Response Mapping
 
-| User Says | Action |
-|-----------|--------|
-| `now` | Set priority `p1`, keep/set `dueString: today`, move out of Inbox |
-| `later` | Move out of Inbox (no date unless date-bound), leave in the Next Actions filter |
-| `later home` | Same as `later` + add `@home` label |
-| `someday` | `update-tasks` project → Someday |
-| `delete` | `delete-object` (task) |
-| `skip` | Next item |
-| `stop` | End session |
-| `home` / `office` / `errands` / `calls` | Add matching `@context` label, move to Next Actions |
-| `delegate [person]` | Add `@waiting` label + a comment naming who, move out of Inbox |
+| User Says                               | Action                                                                          |
+| --------------------------------------- | ------------------------------------------------------------------------------- |
+| `now`                                   | Set priority `p1`, keep/set `dueString: today`, move out of Inbox               |
+| `later`                                 | Move out of Inbox (no date unless date-bound), leave in the Next Actions filter |
+| `later home`                            | Same as `later` + add `@home` label                                             |
+| `someday`                               | `update-tasks` project → Someday                                                |
+| `delete`                                | `delete-object` (task)                                                          |
+| `skip`                                  | Next item                                                                       |
+| `stop`                                  | End session                                                                     |
+| `home` / `office` / `errands` / `calls` | Add matching `@context` label, move to Next Actions                             |
+| `delegate [person]`                     | Add `@waiting` label + a comment naming who, move out of Inbox                  |
 
 **Context shortcut:** Any context word combined with a disposition adds the label. "later office" = move out of Inbox + `@office` label.
 
@@ -92,6 +100,7 @@ On "now": walk them through it, then `complete-tasks`. On anything else, file no
 ## Error Handling
 
 If an MCP call fails mid-session:
+
 1. Retry once
 2. If still fails: "Todoist not responding. Check the connection and try again?"
 3. Don't lose track of position — remember where you were (Todoist state itself isn't lost; only your position in the walkthrough is)

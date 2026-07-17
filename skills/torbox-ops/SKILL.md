@@ -32,13 +32,13 @@ the host — run everything locally, never `ssh`/`sshpass` into the box IP. If
 
 ## Symptom → action
 
-| Symptom | Cause | Go to |
-|---|---|---|
-| SSH connects but commands hang | Stale TorBox FUSE mount | **FUSE recovery** |
-| Torrent stuck "Downloading" at 0 B | Wedged mount or decypharr stall | **FUSE recovery**, then **reconciler** |
-| Folder on WebDAV but no library symlink | decypharr never reached `processSymlink()` | **reconciler** |
-| Broken symlinks in `/mnt/library` | TorBox pruned the item (30-day) | **retention** |
-| Movie/show won't match (foreign title) | normalisation / not in arr | **reconciler unmatched** |
+| Symptom                                 | Cause                                      | Go to                                  |
+| --------------------------------------- | ------------------------------------------ | -------------------------------------- |
+| SSH connects but commands hang          | Stale TorBox FUSE mount                    | **FUSE recovery**                      |
+| Torrent stuck "Downloading" at 0 B      | Wedged mount or decypharr stall            | **FUSE recovery**, then **reconciler** |
+| Folder on WebDAV but no library symlink | decypharr never reached `processSymlink()` | **reconciler**                         |
+| Broken symlinks in `/mnt/library`       | TorBox pruned the item (30-day)            | **retention**                          |
+| Movie/show won't match (foreign title)  | normalisation / not in arr                 | **reconciler unmatched**               |
 
 ## FUSE recovery — order matters
 
@@ -54,6 +54,7 @@ Socket not connected`. **`docker rm -f` is required** — a bare `stop` leaves t
 (and its FUSE peer) alive, so the host unmount can't stick.
 
 Manual recovery if the watchdog isn't keeping up (mirrors `torbox-watchdog.sh`):
+
 ```bash
 cd /opt/stacks/torbox
 docker compose stop rclone-torbox
@@ -65,7 +66,9 @@ for i in $(seq 10); do grep -q /mnt/torbox /proc/mounts || break; fusermount -uz
 grep -q /mnt/torbox /proc/mounts && echo "STILL WEDGED — investigate before up"
 docker compose up -d rclone-torbox
 ```
+
 Then force a fresh listing so newly-grabbed folders reappear:
+
 ```bash
 docker exec rclone-torbox wget -qO- --post-data='recursive=false' http://localhost:5573/vfs/refresh
 ```
@@ -77,19 +80,21 @@ docker exec rclone-torbox wget -qO- --post-data='recursive=false' http://localho
 `/mnt/library/{movies,shows}` symlinks and ManualImports any orphan. Also runs
 cleanup passes (empty-placeholder rmdir, stuck/ghost queue eviction). Run manually
 between ticks:
+
 ```bash
 /opt/stacks/torbox-import-reconciler.py
 tail -30 /var/log/torbox-reconciler.log
 ```
+
 **Unmatched folders** go to `/var/log/torbox-reconciler.unmatched.log`. These are
 normally either content not in Sonarr/Radarr or language-variant dubs — they prune
 naturally on TorBox's 30-day cycle. Title matching uses Unicode NFD decomposition
-(`Cléo`→`cleo`) plus Radarr `originalTitle` / Sonarr `alternateTitles`; if a *known*
+(`Cléo`→`cleo`) plus Radarr `originalTitle` / Sonarr `alternateTitles`; if a _known_
 film with diacritics is stuck, the NFD fix may have regressed — check `normalize()`.
 
 ## 30-Day Retention
 
-TorBox prunes items not *downloaded/streamed* in 30 days. **Critical: WebDAV reads
+TorBox prunes items not _downloaded/streamed_ in 30 days. **Critical: WebDAV reads
 are clock-neutral by design — Jellyfin streaming does NOT reset the timer.** Only a
 torrent re-add or `/api/torrents/requestdl` counts. Two-stage nightly flow:
 

@@ -39,6 +39,7 @@ Example:
 > clickable while it loads instead of freezing.
 >
 > Going deeper (optional):
+>
 > - **The idea — `async`:** code that kicks off slow work and keeps going
 >   instead of standing still waiting for the result.
 > - **Like…** ordering at a counter and getting a buzzer — you sit down and do
@@ -63,7 +64,7 @@ More worked examples across coding, homelab, automation, and infra:
   value-based care, or clinical references.
 - **Scale to the moment.** A tiny action gets just the TL;DR, no deeper layer. A
   real plan or a finished feature earns both layers. Never pad.
-- **Any of three tenses:** an upcoming *plan*, a *current* action, or *finished*
+- **Any of three tenses:** an upcoming _plan_, a _current_ action, or _finished_
   work. Adjust the TL;DR's tense; the shape stays the same.
 - **Plain markdown, not `<details>`.** The terminal may not collapse HTML, so the
   skippable layer is just the `Going deeper (optional):` heading.
@@ -71,7 +72,7 @@ More worked examples across coding, homelab, automation, and infra:
 ## Common mistakes
 
 - A TL;DR that still leaks jargon ("I'm memoizing the selector") — rewrite it as
-  what it *does* for the reader, push the term down into `The idea`.
+  what it _does_ for the reader, push the term down into `The idea`.
 - Explaining something the reader already knows (a design pattern, a care
   workflow). That's not teaching, it's noise — cut it.
 - Three concepts crammed in. Pick the one that matters most here; the rest can

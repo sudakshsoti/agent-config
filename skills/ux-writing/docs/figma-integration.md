@@ -5,6 +5,7 @@ Connect this skill to Figma so Claude can review and improve copy directly from 
 ## What You Can Do
 
 Once connected, you can:
+
 - **Share Figma frame links** with Claude and get instant UX writing feedback
 - **Audit existing designs** for accessibility, clarity, and tone
 - **Generate improved copy** that follows best practices
@@ -36,6 +37,7 @@ There are two ways to connect Figma to Claude Code. **Choose the Remote Server o
 **Best for:** Quick setup, working from anywhere, no Figma desktop app needed
 
 **Requirements:**
+
 - Claude Code installed
 - Figma account (Starter, Professional, Organization, or Enterprise plan)
 - Internet connection
@@ -68,6 +70,7 @@ There are two ways to connect Figma to Claude Code. **Choose the Remote Server o
 **Step 4: Verify It's Working**
 
 Type in Claude Code:
+
 ```
 Do you have access to Figma?
 ```
@@ -81,6 +84,7 @@ Claude should confirm it can access Figma and explain what it can do.
 **Best for:** Working locally, no internet dependency once set up
 
 **Requirements:**
+
 - Figma desktop app (latest version)
 - Claude Code installed
 - Dev Mode access in Figma
@@ -113,6 +117,7 @@ Claude should confirm it can access Figma and explain what it can do.
 **Step 4: Verify It's Working**
 
 Type in Claude Code:
+
 ```
 Do you have access to Figma?
 ```
@@ -152,6 +157,7 @@ Focus on:
 **Step 3: Get Feedback**
 
 Claude will:
+
 1. Access the Figma frame
 2. Extract all text elements
 3. Apply the UX Writing Skill automatically
@@ -267,14 +273,17 @@ Check for:
 ### Be Specific About What You Want
 
 ❌ **Too vague:**
+
 > "Review this design: [link]"
 
 ✅ **Better:**
+
 > "Review the error messages in this form: [link]. Check for accessibility, clarity, and actionable guidance."
 
 ### Reference Multiple Frames for Context
 
 When reviewing a flow, share links to all relevant screens:
+
 ```
 Review this 3-step onboarding flow:
 1. Welcome screen: [link]
@@ -287,6 +296,7 @@ Check for consistent voice and progressive disclosure of information.
 ### Ask for Specific Frameworks
 
 The UX Writing Skill includes several frameworks you can reference:
+
 ```
 Use the tone adaptation framework to suggest appropriate tone for this error state: [link]
 ```
@@ -310,6 +320,7 @@ Then create a voice chart based on the existing copy to document our current voi
 ### "I don't have access to that Figma file"
 
 **Solutions:**
+
 1. Make sure the file is set to "Anyone with the link can view"
 2. Check that you're signed into the same Figma account you authenticated with
 3. Try copying the link again (might have been truncated)
@@ -317,11 +328,13 @@ Then create a voice chart based on the existing copy to document our current voi
 ### "The MCP server is disconnected"
 
 **For Remote Server:**
+
 1. Type `/mcp` in Claude Code
 2. Find the figma server and press Enter to reconnect
 3. Re-authenticate if prompted
 
 **For Desktop Server:**
+
 1. Make sure Figma desktop app is running
 2. Switch to Dev Mode (`Shift + D`)
 3. Check that MCP server is enabled in the Inspect panel
@@ -329,6 +342,7 @@ Then create a voice chart based on the existing copy to document our current voi
 ### "I can't see the MCP server section in Figma"
 
 **Solutions:**
+
 1. Update to the latest Figma desktop app version
 2. Make sure you're in Dev Mode (`Shift + D`)
 3. Check that your Figma plan includes Dev Mode access
@@ -337,11 +351,13 @@ Then create a voice chart based on the existing copy to document our current voi
 
 **Solution:**
 Explicitly mention it in your prompt:
+
 ```
 Using the UX Writing Skill, review this design: [link]
 ```
 
 Or ask Claude to apply specific frameworks:
+
 ```
 Apply the four quality standards (purposeful, concise, conversational, clear) to this copy: [link]
 ```
@@ -353,9 +369,11 @@ Apply the four quality standards (purposeful, concise, conversational, clear) to
 Be aware of Figma MCP rate limits:
 
 **Starter Plan or View/Collab seats:**
+
 - Up to 6 tool calls per month
 
 **Dev or Full seat on Professional/Organization/Enterprise:**
+
 - Per-minute rate limits (more generous)
 
 If you hit rate limits, wait a few minutes before making additional requests.
@@ -414,6 +432,7 @@ Check:
 ## Feedback
 
 Have ideas for improving this integration? Open an issue or contribute to the repository. We'd especially love to hear:
+
 - Real-world workflows that work well
 - Examples of great UX writing improvements from Figma designs
 - Tips for content design teams using this integration

@@ -5,9 +5,11 @@ This document shows actual UX text transformations with scoring against the four
 ## E-commerce Checkout Error
 
 ### Before
+
 "An error has occurred while processing your payment. Please try again later or contact customer support if the problem persists."
 
 **Analysis:**
+
 - **Purposeful**: 2/10 — Doesn't help user recover or understand next steps
 - **Concise**: 4/10 — 18 words, vague timeframe ("later")
 - **Conversational**: 4/10 — Robotic system-speak ("an error has occurred")
@@ -16,9 +18,11 @@ This document shows actual UX text transformations with scoring against the four
 **Overall**: 3/10 — Poor user experience
 
 ### After
+
 "We couldn't process your payment. Check your card details and try again."
 
 **Analysis:**
+
 - **Purposeful**: 9/10 — Provides specific next action
 - **Concise**: 9/10 — 11 words, direct instruction
 - **Conversational**: 9/10 — Natural language ("we couldn't")
@@ -33,9 +37,11 @@ This document shows actual UX text transformations with scoring against the four
 ## SaaS Dashboard Empty State
 
 ### Before
+
 "No data available."
 
 **Analysis:**
+
 - **Purposeful**: 2/10 — Doesn't explain why or guide next steps
 - **Concise**: 10/10 — Very brief, but too brief
 - **Conversational**: 5/10 — Cold and unhelpful
@@ -44,9 +50,11 @@ This document shows actual UX text transformations with scoring against the four
 **Overall**: 4/10 — Needs significant work
 
 ### After
+
 "No data yet. Connect your account to see insights."
 
 **Analysis:**
+
 - **Purposeful**: 9/10 — Explains state and provides clear CTA
 - **Concise**: 9/10 — 9 words, includes action
 - **Conversational**: 8/10 — Friendly "yet" implies this is temporary
@@ -61,10 +69,12 @@ This document shows actual UX text transformations with scoring against the four
 ## Mobile App Permission Request
 
 ### Before
+
 "'AppName' Would Like to Access Your Location"
 [Allow] [Don't Allow]
 
 **Analysis:**
+
 - **Purposeful**: 4/10 — Doesn't explain benefit to user
 - **Concise**: 7/10 — Adequate length but no context
 - **Conversational**: 6/10 — Standard iOS pattern, not particularly engaging
@@ -73,10 +83,12 @@ This document shows actual UX text transformations with scoring against the four
 **Overall**: 5/10 — Adequate but could be better
 
 ### After
+
 "Enable location to find coffee shops near you"
 [Allow] [Not now]
 
 **Analysis:**
+
 - **Purposeful**: 9/10 — Clear user benefit (find shops)
 - **Concise**: 8/10 — 7 words with value proposition
 - **Conversational**: 9/10 — Direct, benefit-focused
@@ -91,9 +103,11 @@ This document shows actual UX text transformations with scoring against the four
 ## Account Deletion Confirmation
 
 ### Before
+
 "Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently deleted."
 
 **Analysis:**
+
 - **Purposeful**: 6/10 — Warns of consequences but feels heavy-handed
 - **Concise**: 5/10 — 19 words, some redundancy ("permanently deleted")
 - **Conversational**: 5/10 — Somewhat robotic multiple sentences
@@ -102,9 +116,11 @@ This document shows actual UX text transformations with scoring against the four
 **Overall**: 6/10 — Adequate but could be improved
 
 ### After
+
 "Delete your account? You'll lose all your data and this can't be undone."
 
 **Analysis:**
+
 - **Purposeful**: 8/10 — Clear warning without being preachy
 - **Concise**: 9/10 — 13 words, no redundancy
 - **Conversational**: 9/10 — Natural phrasing, contraction
@@ -119,9 +135,11 @@ This document shows actual UX text transformations with scoring against the four
 ## Password Requirements
 
 ### Before
+
 "Password must contain at least 8 characters including uppercase letters, lowercase letters, numbers and special characters."
 
 **Analysis:**
+
 - **Purposeful**: 7/10 — Provides requirements but hard to scan
 - **Concise**: 4/10 — 17 words in one dense sentence
 - **Conversational**: 5/10 — List reads like technical documentation
@@ -130,10 +148,12 @@ This document shows actual UX text transformations with scoring against the four
 **Overall**: 5/10 — Adequate but not optimal
 
 ### After
+
 "Create a strong password (8+ characters)
 Use a mix of letters, numbers, and symbols"
 
 **Analysis:**
+
 - **Purposeful**: 8/10 — Explains why (strong) and what
 - **Concise**: 9/10 — 14 words, broken into scannable lines
 - **Conversational**: 9/10 — "Create" vs "must contain"
@@ -148,9 +168,11 @@ Use a mix of letters, numbers, and symbols"
 ## Newsletter Unsubscribe Confirmation
 
 ### Before
+
 "You have been successfully unsubscribed from our mailing list. You will no longer receive emails from us. Thank you for your participation."
 
 **Analysis:**
+
 - **Purposeful**: 4/10 — Overly formal for someone leaving
 - **Concise**: 3/10 — 23 words, lots of redundancy
 - **Conversational**: 3/10 — Corporate, stiff
@@ -159,9 +181,11 @@ Use a mix of letters, numbers, and symbols"
 **Overall**: 4/10 — Needs work
 
 ### After
+
 "You're unsubscribed. You can resubscribe anytime in your settings."
 
 **Analysis:**
+
 - **Purposeful**: 9/10 — Confirms action, offers easy reversal
 - **Concise**: 10/10 — 9 words, direct
 - **Conversational**: 10/10 — Casual, respectful
@@ -176,9 +200,11 @@ Use a mix of letters, numbers, and symbols"
 ## File Upload Progress
 
 ### Before
+
 "File uploading... Please wait."
 
 **Analysis:**
+
 - **Purposeful**: 5/10 — Shows status but no time estimate
 - **Concise**: 8/10 — Very brief
 - **Conversational**: 5/10 — Somewhat robotic
@@ -187,9 +213,11 @@ Use a mix of letters, numbers, and symbols"
 **Overall**: 6/10 — Adequate
 
 ### After
+
 "Uploading report.pdf... Almost done"
 
 **Analysis:**
+
 - **Purposeful**: 8/10 — Shows filename and reassuring progress
 - **Concise**: 8/10 — 4 words plus filename
 - **Conversational**: 9/10 — Encouraging "almost done"

@@ -99,9 +99,9 @@ Reach for these when the conversation drills into a specific dimension.
 
 The three-step structure is clean, and for the 80% case — a marketing manager building a standard segment — it'll feel fast. But I have a few pressure-test questions before I call it done.
 
-First, what happens at Step 2 when the preview returns 47,000 contacts? That's a realistic number for a mid-size customer list. Does the user get a count, a sample, a distribution breakdown? Just a count is almost useless — they need to know if the segment *makes sense* before saving. Consider a lightweight summary: top 5 traits, geography spread, engagement-score histogram. That's what differentiates "search results" from "audience intelligence."
+First, what happens at Step 2 when the preview returns 47,000 contacts? That's a realistic number for a mid-size customer list. Does the user get a count, a sample, a distribution breakdown? Just a count is almost useless — they need to know if the segment _makes sense_ before saving. Consider a lightweight summary: top 5 traits, geography spread, engagement-score histogram. That's what differentiates "search results" from "audience intelligence."
 
-Second, Step 1 to Step 2 is where the natural-language-to-query translation does its work. What's the confidence-communication strategy? If the translation is 85% confident, does the user know? A marketing manager won't inspect the underlying query, but they need *some* signal that the system understood their intent. Maybe a plain-English restatement: "I understood: Contacts who opened 2+ emails in the last 30 days AND haven't purchased in 90 days. 47,231 contacts match." That's trust-building through transparency — your third design principle.
+Second, Step 1 to Step 2 is where the natural-language-to-query translation does its work. What's the confidence-communication strategy? If the translation is 85% confident, does the user know? A marketing manager won't inspect the underlying query, but they need _some_ signal that the system understood their intent. Maybe a plain-English restatement: "I understood: Contacts who opened 2+ emails in the last 30 days AND haven't purchased in 90 days. 47,231 contacts match." That's trust-building through transparency — your third design principle.
 
 Third, the "save segment" step — is this save-and-done, or save-and-hand-off? If the segment feeds a downstream campaign tool, the save action should make the handoff explicit: "Save and add to campaign" vs "Save as draft." The default matters here — what's the most common next action after segment creation?
 
@@ -124,6 +124,7 @@ Quick context: We're deciding between two features for the next sprint — repor
 **Recommendation: Templates first.**
 
 Three reasons:
+
 1. **Adoption velocity.** Templates let a typical user create a report in 2 clicks instead of assembling a query from scratch. For launch, we need the "it just works" story for the 80% case. The query builder serves the 5% power user — important, but not the launch blocker.
 2. **Trust scaffolding.** Templates are pre-validated — the logic is known-good. This builds user confidence before we ask them to trust an AI-assisted query from natural language. It's the "training wheels to bicycle" progression.
 3. **Content leverage.** Every template becomes a reference implementation for the query-translation model to learn from, and a demonstration asset for sales. Double ROI.
@@ -132,7 +133,7 @@ Three reasons:
 
 **Ask:** Can we align on templates for next sprint? Happy to walk through implementation scope on our Thursday sync.
 
-*Anticipated question: "Won't power users feel limited without the query builder?"*
+_Anticipated question: "Won't power users feel limited without the query builder?"_
 For launch, our power users are internal. We can give them direct data access as a stopgap. For general availability, the template library should cover 80%+ of use cases if we nail the top 15–20 scenarios.
 
 ---

@@ -28,25 +28,25 @@ cleanly, **triage with judgment**, prioritize with a stated framework, keep the 
 lean, and tell the operator what to do next. Route every request into one of the four
 modes below.
 
-| The request is… | Mode |
-|---|---|
-| "track this", "file a ticket", "we should do X later" | **1 · Capture + triage** |
-| "what should I work on", "what's next", "I have 30 min" | **2 · What next** |
-| "groom the backlog", "weekly review", "what's stale/blocked" | **3 · Weekly grooming** |
-| "write acceptance criteria", "is this ready", plan-writing | **4 · Acceptance + plans** |
+| The request is…                                              | Mode                       |
+| ------------------------------------------------------------ | -------------------------- |
+| "track this", "file a ticket", "we should do X later"        | **1 · Capture + triage**   |
+| "what should I work on", "what's next", "I have 30 min"      | **2 · What next**          |
+| "groom the backlog", "weekly review", "what's stale/blocked" | **3 · Weekly grooming**    |
+| "write acceptance criteria", "is this ready", plan-writing   | **4 · Acceptance + plans** |
 
 ## The taxonomy — every item carries the full set
 
-| Field | How it works |
-|---|---|
-| **Status** | `Backlog → Todo → In Progress → In Review → Done` (+ `Canceled`, `Duplicate`). New items land in **Backlog**. "Blocked" is **not** a status — model it as a Linear *blocked-by* issue relation. |
-| **Priority** | `Urgent / High / Medium / Low`. **Risk is folded in** — a high-blast-radius change (could take the box down, lose data, or open a hole) earns a higher priority than its upside alone would justify. There is no separate Risk field. |
-| **Effort** | Native **Estimate** on the extended **T-shirt** scale `XS · S · M · L · XL · XXL · XXXL`: `XS`≈15 min · `S`≈1 hr · `M`≈half day · `L`≈weekend (the ceiling for a single issue). **`XL` and bigger = decompose before filing** — that's an epic, not an issue. |
-| **Labels — both axes required** | `area:*` = subsystem (`area:system`, `area:finance`, `area:automation`, `area:media`). `type:*` = kind (`type:bug`, `type:upgrade`, `type:maintenance`, `type:research`). Check live: `list_issue_labels`. |
-| **`needs-plan` ↔ `planned`** | Every non-trivial item carries **exactly one**. `needs-plan` = wants an implementation plan before execution; `planned` = a `plans/` doc exists and is linked. Trivial `XS`/`S` chores may carry neither. |
+| Field                           | How it works                                                                                                                                                                                                                                                  |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Status**                      | `Backlog → Todo → In Progress → In Review → Done` (+ `Canceled`, `Duplicate`). New items land in **Backlog**. "Blocked" is **not** a status — model it as a Linear _blocked-by_ issue relation.                                                               |
+| **Priority**                    | `Urgent / High / Medium / Low`. **Risk is folded in** — a high-blast-radius change (could take the box down, lose data, or open a hole) earns a higher priority than its upside alone would justify. There is no separate Risk field.                         |
+| **Effort**                      | Native **Estimate** on the extended **T-shirt** scale `XS · S · M · L · XL · XXL · XXXL`: `XS`≈15 min · `S`≈1 hr · `M`≈half day · `L`≈weekend (the ceiling for a single issue). **`XL` and bigger = decompose before filing** — that's an epic, not an issue. |
+| **Labels — both axes required** | `area:*` = subsystem (`area:system`, `area:finance`, `area:automation`, `area:media`). `type:*` = kind (`type:bug`, `type:upgrade`, `type:maintenance`, `type:research`). Check live: `list_issue_labels`.                                                    |
+| **`needs-plan` ↔ `planned`**    | Every non-trivial item carries **exactly one**. `needs-plan` = wants an implementation plan before execution; `planned` = a `plans/` doc exists and is linked. Trivial `XS`/`S` chores may carry neither.                                                     |
 
 Priority rubric: **Urgent** = drop everything / failure imminent (box down, data loss,
-cert or backup expiring, live security hole). **High** = important and soon, *or* risky
+cert or backup expiring, live security hole). **High** = important and soon, _or_ risky
 enough that getting it wrong breaks the box. **Medium** = should do, no clock. **Low** =
 nice-to-have.
 
@@ -63,7 +63,7 @@ Don't just create an issue. Run the four triage verbs, then file with the full s
 3. **Write it like a PM, not a sticky note** — title is an outcome, body has **what / why /
    acceptance** (see Mode 4). No "fix the thing" tickets.
 4. **Decompose** anything `XL` (or with >1 acceptance theme) into independently shippable
-   issues *before* filing. Smallest unit that produces visible progress.
+   issues _before_ filing. Smallest unit that produces visible progress.
 5. **Set the full field set:** `area:` + `type:` labels, **Priority** (reasoned, risk-aware
    — state the reasoning), **Effort** (T-shirt estimate), Status `Backlog`, and
    `needs-plan`/`planned` if non-trivial. Use `save_issue`.
@@ -93,7 +93,7 @@ Keep the backlog lean and honest. Run the full sweep — checklist in
   done should die; the important ones resurface.
 - **Re-score** the top of the backlog with ICE; promote/demote Priority.
 - **Stale sweep** — flag issues untouched **>14 days**: re-prioritize, decompose, or kill.
-- **Blocked audit** — every blocked-by relation must name a real blocker *and* an unblock
+- **Blocked audit** — every blocked-by relation must name a real blocker _and_ an unblock
   action, or the item gets de-prioritized.
 - **WIP check** — more than 2 `In Progress`? Stop starting, start finishing.
 - **DoR / DoD pass** — `Todo` items must be Ready (Mode 4); `Done` items must truly meet

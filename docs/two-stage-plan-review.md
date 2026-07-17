@@ -38,7 +38,7 @@ graph TD
 ### Stage 1 — self-review (in-house, free, fast)
 
 - **Trigger:** type `/self-review` after Opus proposes a plan.
-- **What runs:** the [[#plan-critic|plan-critic]] subagent — Opus, read-only, prompted as a hostile reviewer with *no loyalty* to the plan. It runs in a **fresh context window**, so it isn't anchored by the reasoning that produced the plan.
+- **What runs:** the [[#plan-critic|plan-critic]] subagent — Opus, read-only, prompted as a hostile reviewer with _no loyalty_ to the plan. It runs in a **fresh context window**, so it isn't anchored by the reasoning that produced the plan.
 - **Output:** assumptions → internal inconsistencies → blind spots → over-engineering → verdict. Opus then revises in place and shows ==only what changed==.
 
 ### Stage 2 — cross-lineage (different model family, costs OpenRouter credits)
@@ -50,6 +50,7 @@ graph TD
 ## Daily ritual
 
 > [!tip] The loop
+>
 > 1. Opus proposes a plan in plan mode.
 > 2. Type `/self-review` → plan-critic critiques it cold, Opus revises.
 > 3. Copy the revised plan → run `rev` in the terminal for the DeepSeek pass.
@@ -58,11 +59,11 @@ graph TD
 
 ## Commands & aliases
 
-| Command | Where | What it does |
-| --- | --- | --- |
-| `/self-review` | Claude Code | Stage 1 — dispatch plan-critic, then revise |
-| `rev` | terminal | Stage 2 — clipboard plan → DeepSeek V4 Pro |
-| `rev-hard` | terminal | Stage 2 (hard) — clipboard plan → Gemini 3 Flash |
+| Command        | Where       | What it does                                     |
+| -------------- | ----------- | ------------------------------------------------ |
+| `/self-review` | Claude Code | Stage 1 — dispatch plan-critic, then revise      |
+| `rev`          | terminal    | Stage 2 — clipboard plan → DeepSeek V4 Pro       |
+| `rev-hard`     | terminal    | Stage 2 (hard) — clipboard plan → Gemini 3 Flash |
 
 ```bash
 # ~/.zshrc
@@ -78,13 +79,13 @@ alias rev-hard='pbpaste | llm -t peer-review -m openrouter/google/gemini-3-flash
 > [!info] Tracked vs. out-of-repo
 > The agent and command are **version-controlled** in `agent-config` and symlinked into `~/.claude`. The shell/CLI pieces live outside any repo.
 
-| Piece | Location | Tracked? |
-| --- | --- | --- |
-| `plan-critic` agent | `agent-config/agents/plan-critic.md` → `~/.claude/agents/` | ✅ git + symlink |
-| `/self-review` skill | `agent-config/skills/self-review/SKILL.md` → `~/.claude/skills/` | ✅ git + symlink |
-| `peer-review` template | `~/Library/Application Support/io.datasette.llm/templates/peer-review.yaml` | ❌ |
-| `rev` / `rev-hard` aliases | `~/.zshrc` | ❌ |
-| OpenRouter API key | `llm` keystore | ❌ (secret) |
+| Piece                      | Location                                                                    | Tracked?         |
+| -------------------------- | --------------------------------------------------------------------------- | ---------------- |
+| `plan-critic` agent        | `agent-config/agents/plan-critic.md` → `~/.claude/agents/`                  | ✅ git + symlink |
+| `/self-review` skill       | `agent-config/skills/self-review/SKILL.md` → `~/.claude/skills/`            | ✅ git + symlink |
+| `peer-review` template     | `~/Library/Application Support/io.datasette.llm/templates/peer-review.yaml` | ❌               |
+| `rev` / `rev-hard` aliases | `~/.zshrc`                                                                  | ❌               |
+| OpenRouter API key         | `llm` keystore                                                              | ❌ (secret)      |
 
 > [!note] Why a skill, not a command file
 > This repo has no `commands/` directory — its mechanism for a slash command is a `user-invocable: true` skill. `/self-review` is functionally identical to a command file.
@@ -120,6 +121,7 @@ system: |
 ## Design rationale
 
 > [!question] Why this order, and why two models?
+>
 > - **Cheap-first.** Stage 1 runs every time at no marginal cost; Stage 2 spends OpenRouter credits, so it only runs on plans Stage 1 has already tightened.
 > - **Lineage diversity.** Claude reviewing Claude shares the same blind spots. A different model family (DeepSeek, Gemini) is the point — it sees what self-review structurally cannot.
 > - **Fresh context.** plan-critic reviews cold, with no loyalty to the plan's original reasoning.
@@ -127,6 +129,7 @@ system: |
 ## Setup notes
 
 > [!todo] First-run / new-machine checklist
+>
 > - [ ] `pipx install llm` and inject `llm-openrouter`
 > - [ ] `llm keys set openrouter` (paste key)
 > - [ ] Write `peer-review.yaml` to the `llm` templates dir

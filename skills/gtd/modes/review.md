@@ -41,25 +41,28 @@ Acknowledge briefly ("Nice." / "Solid."), move on. Don't dwell.
 **Stale (from the `Stalled` filter — created 14+ days ago, still open):**
 
 If many stale items (8+), offer batch option first:
+
 ```
 [N] items sitting 14+ days. Want to:
 1. Triage one by one
 2. Bulk move old ones to Someday (keeps recent)
 ```
+
 Bulk = batched `update-tasks` moving all matched task IDs to the Someday project.
 
 Otherwise go item by item:
+
 ```
 [N] stale items:
 
 1. '[item]' ([X] days) — keep/someday/delete?
 ```
 
-| Response | Action |
-|----------|--------|
-| `y` or `keep` | Keep as-is |
-| `someday` | Move to Someday project |
-| `delete` | `delete-object` |
+| Response      | Action                  |
+| ------------- | ----------------------- |
+| `y` or `keep` | Keep as-is              |
+| `someday`     | Move to Someday project |
+| `delete`      | `delete-object`         |
 
 ## Get Current, Part 3: Project Health (1-2 min)
 
@@ -85,6 +88,7 @@ If user says "drop it" → archive or delete the project.
 **Waiting items (`@waiting` label), age from `created_at`:**
 
 Skip if none. Otherwise:
+
 ```
 Waiting on:
 • '[item]' — [person] — [X] days
@@ -92,11 +96,11 @@ Waiting on:
 
 For each: "Still waiting? (y/nudge/done)"
 
-| Response | Action |
-|----------|--------|
-| `y` | Keep waiting |
-| `nudge` | `add-tasks` "Follow up with [person] re: [item]" as a normal next action |
-| `done` | `complete-tasks` |
+| Response | Action                                                                   |
+| -------- | ------------------------------------------------------------------------ |
+| `y`      | Keep waiting                                                             |
+| `nudge`  | `add-tasks` "Follow up with [person] re: [item]" as a normal next action |
+| `done`   | `complete-tasks`                                                         |
 
 ## Get Creative: Mind Sweep (2 min)
 

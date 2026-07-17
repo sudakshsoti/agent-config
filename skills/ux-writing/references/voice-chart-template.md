@@ -19,10 +19,12 @@ A voice chart contains three key elements for each brand concept:
 **Description**: [1-2 sentences explaining what this means for the writing]
 
 **Do**:
+
 - Example of text that embodies this concept
 - Another example showing this voice
 
 **Don't**:
+
 - Example of what to avoid
 - Counter-example that violates this voice
 
@@ -35,10 +37,12 @@ A voice chart contains three key elements for each brand concept:
 **Description**: [1-2 sentences explaining what this means for the writing]
 
 **Do**:
+
 - Example of text that embodies this concept
 - Another example showing this voice
 
 **Don't**:
+
 - Example of what to avoid
 - Counter-example that violates this voice
 
@@ -51,10 +55,12 @@ A voice chart contains three key elements for each brand concept:
 **Description**: [1-2 sentences explaining what this means for the writing]
 
 **Do**:
+
 - Example of text that embodies this concept
 - Another example showing this voice
 
 **Don't**:
+
 - Example of what to avoid
 - Counter-example that violates this voice
 
@@ -69,10 +75,12 @@ A voice chart contains three key elements for each brand concept:
 **Description**: TAPP is a companion that helps riders navigate the transit system with confidence. We anticipate questions and provide clear guidance.
 
 **Do**:
+
 - "Your bus arrives in 5 minutes at Bay St."
 - "Tap your card when you board and when you exit."
 
 **Don't**:
+
 - "Arrival: 5 min"
 - "Payment required at entry and exit points."
 
@@ -85,10 +93,12 @@ A voice chart contains three key elements for each brand concept:
 **Description**: Riders are often in a hurry. We respect their time by being brief and front-loading important information.
 
 **Do**:
+
 - "Route delayed 10 minutes due to traffic"
 - "Transfer at Main St for Line 3"
 
 **Don't**:
+
 - "Due to unexpected traffic conditions, your route is experiencing delays of approximately 10 minutes"
 - "You can transfer to Line 3 if you get off at Main St"
 
@@ -101,10 +111,12 @@ A voice chart contains three key elements for each brand concept:
 **Description**: Riders depend on TAPP to get where they need to go. We're upfront about problems and provide accurate information.
 
 **Do**:
+
 - "This route is currently unavailable. Use Route 42 instead."
 - "Your payment didn't go through. Update your card to continue."
 
 **Don't**:
+
 - "Service interruption on this route."
 - "Payment error. Try again."
 

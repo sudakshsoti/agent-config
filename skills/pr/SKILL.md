@@ -34,16 +34,19 @@ Prose first, in the user's voice. Fill only the sections that carry weight:
 
 ```markdown
 ## Summary
+
 1–3 sentences: what this does and, mainly, why.
 
 ## Changes
+
 - concrete change one
 - concrete change two
 
 ## Test plan
+
 - [ ] how it was verified
 
-Closes #123   ← only if an issue is actually referenced
+Closes #123 ← only if an issue is actually referenced
 ```
 
 Do **not** add any "Generated with Claude Code" / AI-attribution footer.

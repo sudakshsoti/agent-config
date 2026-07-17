@@ -5,15 +5,15 @@ live vault on 2026-06-07. If a path stops resolving, re-check rather than guess.
 
 ## Paths
 
-| Thing | Path |
-|---|---|
-| Vault root | `/Users/sudakshsoti/dev/vault` |
-| Book notes | `02 Areas/Reading/Books/<Title> - <Author>.md` |
-| The database (Bases) | `02 Areas/Reading/Library.base` (views: To Read · Reading · Read · Shelf · All) |
-| Reading hub | `02 Areas/Reading/Reading Hub.md` |
-| Daily notes | `Journal/YYYY-MM-DD.md` (created by Templater folder-template `99 Templates/Daily.md`) |
-| Writing seeds | `03 Resources/Seeds/<slug>.md` (one note per seed) |
-| Book note template | `99 Templates/Book Note.md` |
+| Thing                | Path                                                                                   |
+| -------------------- | -------------------------------------------------------------------------------------- |
+| Vault root           | `/Users/sudakshsoti/dev/vault`                                                         |
+| Book notes           | `02 Areas/Reading/Books/<Title> - <Author>.md`                                         |
+| The database (Bases) | `02 Areas/Reading/Library.base` (views: To Read · Reading · Read · Shelf · All)        |
+| Reading hub          | `02 Areas/Reading/Reading Hub.md`                                                      |
+| Daily notes          | `Journal/YYYY-MM-DD.md` (created by Templater folder-template `99 Templates/Daily.md`) |
+| Writing seeds        | `03 Resources/Seeds/<slug>.md` (one note per seed)                                     |
+| Book note template   | `99 Templates/Book Note.md`                                                            |
 
 Note: the core Daily Notes plugin config points at `00 Inbox`, but real daily
 notes are written to `Journal/` via Templater. Use `Journal/`.
@@ -23,30 +23,30 @@ notes are written to `Journal/` via Templater. Use `Journal/`.
 Read from real notes, not assumed. Property names are exact.
 
 ```yaml
-title:            # string
-aliases:          # list — includes bare title and any Devanagari title
-type: book-note   # constant; the Base filters on this
-status:           # to-read | reading | read | abandoned   ← lifecycle
-priority:         # number, 1 = next up; tiebreaker only
-author:           # LIST (e.g. [Claire Keegan])
-published:        # year
-publisher:        # string
-pages:            # integer  ← length signal for PICK
-isbn:             # string
-cover:            # image URL
-categories:       # LIST — literary FORM: Fiction, Nonfiction, Play, Satire,
-                  #   Memoir, Diary, Travel Memoir, Short Stories, Classics…
-                  #   (this is how fiction/non-fiction is encoded — no boolean)
-language:         # English | Hindi   ← language signal for PICK
-rating:           # 1–5, blank until read
-started:          # YYYY-MM-DD, set when status→reading
-finished:         # YYYY-MM-DD, set when status→read
-position:         # current spot: "p.84" or "60%"  ← ADD if missing (see below)
-list:             # freeform shelf, e.g. "Saunders picks", "2026 favourites"
-source:           # optional wikilink to where the book came from
-created:          # YYYY-MM-DD
-updated:          # YYYY-MM-DD  ← bump on every edit
-tags:             # includes status/<state> mirror — see below
+title: # string
+aliases: # list — includes bare title and any Devanagari title
+type: book-note # constant; the Base filters on this
+status: # to-read | reading | read | abandoned   ← lifecycle
+priority: # number, 1 = next up; tiebreaker only
+author: # LIST (e.g. [Claire Keegan])
+published: # year
+publisher: # string
+pages: # integer  ← length signal for PICK
+isbn: # string
+cover: # image URL
+categories: # LIST — literary FORM: Fiction, Nonfiction, Play, Satire,
+  #   Memoir, Diary, Travel Memoir, Short Stories, Classics…
+  #   (this is how fiction/non-fiction is encoded — no boolean)
+language: # English | Hindi   ← language signal for PICK
+rating: # 1–5, blank until read
+started: # YYYY-MM-DD, set when status→reading
+finished: # YYYY-MM-DD, set when status→read
+position: # current spot: "p.84" or "60%"  ← ADD if missing (see below)
+list: # freeform shelf, e.g. "Saunders picks", "2026 favourites"
+source: # optional wikilink to where the book came from
+created: # YYYY-MM-DD
+updated: # YYYY-MM-DD  ← bump on every edit
+tags: # includes status/<state> mirror — see below
 ```
 
 ### `position` is the one field you may add
@@ -67,6 +67,7 @@ Place it near `started`/`finished`. Format: `position: "p.84"` or
 ### Lifecycle tags mirror status
 
 Notes carry a `status/*` tag that tracks `status`:
+
 - `status: to-read` ↔ tag `status/to-read`
 - `status: reading` ↔ tag `status/active`
 - `status: read` ↔ tag `status/completed`
@@ -92,6 +93,7 @@ section (create it the first time that day), one line per session:
 
 ```markdown
 ## Reading
+
 - 📖 Foster — p.40/112 · "the kind of quiet that holds its breath"
 ```
 

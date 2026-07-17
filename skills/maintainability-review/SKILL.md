@@ -13,28 +13,31 @@ Claude-written code tends to work on the first pass and still be a liability six
 
 Detect from context; if genuinely ambiguous, ask.
 
-| Situation | Mode |
-|---|---|
-| Reviewing a change just made, or before committing | **diff** (default) |
-| Periodic check-in on a repo you actively work in | **audit** |
-| Haven't opened this repo in weeks, unsure how bad it is | **triage** |
+| Situation                                               | Mode               |
+| ------------------------------------------------------- | ------------------ |
+| Reviewing a change just made, or before committing      | **diff** (default) |
+| Periodic check-in on a repo you actively work in        | **audit**          |
+| Haven't opened this repo in weeks, unsure how bad it is | **triage**         |
 
 Cues: just wrote code → diff; "how's the codebase doing" → audit; "haven't touched this in a while" → triage.
 
 ## Before flagging anything (all modes)
 
-- **Read for intent first.** Understand what the code is trying to do before deciding whether *how* it does it is a problem.
-- **Cross-check the repo before calling something duplication.** Grep for similar existing logic (function names, sibling utility files, component patterns) before saying "extract this". If a match exists elsewhere → flag as cross-file duplication and name the other location. If not → only flag duplication *within* the current scope.
+- **Read for intent first.** Understand what the code is trying to do before deciding whether _how_ it does it is a problem.
+- **Cross-check the repo before calling something duplication.** Grep for similar existing logic (function names, sibling utility files, component patterns) before saying "extract this". If a match exists elsewhere → flag as cross-file duplication and name the other location. If not → only flag duplication _within_ the current scope.
 - **Check consistency with local conventions.** New code that works but doesn't match the surrounding error-handling or naming style is itself a maintainability cost.
 - Run the checklist in `references/checklist.md` (DRY, over-engineering, structure, naming, comments, error handling, state, dependencies). Skip sections that don't apply. Don't manufacture findings to look thorough — a clean review gets a short report.
 
 ## Modes
 
 ### diff (default)
+
 Review only what changed or the files named, not the whole repo. Scope it with `git diff --name-only` (uncommitted), `git diff --name-only <base>..HEAD` (a branch), or `git status --short` (pre-commit). If the change touches 15+ files, say so and offer to focus on the riskiest few first. Report with the severity format below.
 
 ### audit
+
 Whole-repo health check; assume the repo is mostly fine and you're hunting drift, not doing first-time triage.
+
 1. Get the file list; skip generated/vendor code (`node_modules`, `dist`, `build`, lockfiles, `*.gen.*`).
 2. Look for **architectural drift across files**, not per-file nits: 2–3 different ways of doing the same thing (multiple date formatters, multiple API-call patterns, multiple state approaches for similar problems). This is the failure mode unique to code written across many sessions — each file looks fine, the whole has no consistent pattern.
 3. Spot-check naming, folder structure, and whether newer files follow older established patterns.
@@ -43,7 +46,9 @@ Whole-repo health check; assume the repo is mostly fine and you're hunting drift
 Report as a short narrative + severity list organized **by theme** ("3 different toast patterns in use"), not by file — the value is the pattern, not any single instance.
 
 ### triage
+
 For a repo weeks without review. The first pass is a **map of where the damage is concentrated**, not a line-by-line dump.
+
 1. Build a hotspot list before reading in detail:
    `git log --format=format: --name-only --since="90 days ago" | sort | uniq -c | sort -rg | head -30`
    (widen the window to match the gap). Often-edited files are where debt compounds; barely-touched ones are lower priority even if messy.
@@ -51,9 +56,9 @@ For a repo weeks without review. The first pass is a **map of where the damage i
 3. Separately, one repo-wide pass for architectural drift (same as audit step 2) — it compounds silently and won't show in a hotspot list.
 4. Report as a triage table:
 
-   | File | Change freq | Severity | Core issue (one line) |
-   |---|---|---|---|
-   | `src/api/orders.ts` | 34 commits/90d | 🔴 | 3 duplicate fetch patterns, no shared error handling |
+   | File                | Change freq    | Severity | Core issue (one line)                                |
+   | ------------------- | -------------- | -------- | ---------------------------------------------------- |
+   | `src/api/orders.ts` | 34 commits/90d | 🔴       | 3 duplicate fetch patterns, no shared error handling |
 
    Follow with a short "start here" — the top 2–3 rows. Offer to go deeper on any file after the user sees the map, rather than front-loading full detail on all 15.
 

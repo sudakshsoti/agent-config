@@ -5,31 +5,37 @@ Use this checklist to evaluate UX text quality. Rate each criterion 0-10.
 ## Concise
 
 **Every word has a distinct job**
+
 - No filler words like "basically", "actually", "just"
 - Each word adds meaning or clarity
 - Can't remove words without losing meaning
 
 **High information density in minimal words**
+
 - Maximum meaning per word
 - Efficient phrasing
 - No redundancy
 
 **40-60 characters per line**
+
 - Optimal line length for readability
 - Breaks appropriately for scanning
 - Not too long (causes focus loss) or too short (causes back-and-forth eye movement)
 
 **Short sentences and paragraphs**
+
 - Less than 3-4 lines per paragraph
 - Sentences vary in length but average ~15-20 words
 - Broken into scannable chunks
 
 **Front-loaded with signal words**
+
 - Most important words come first
 - Action words at start of sentences
 - Users see key information immediately
 
 **Ideas ordered by priority**
+
 - Most critical information first
 - Secondary details follow
 - Nice-to-know information last
@@ -37,31 +43,37 @@ Use this checklist to evaluate UX text quality. Rate each criterion 0-10.
 ## Purposeful
 
 **User goals are clear and supported**
+
 - Text helps users complete their task
 - Addresses user's "why am I here?" question
 - Removes barriers to action
 
 **Business goals are met**
+
 - Supports conversion, engagement, or retention
 - Aligns with product objectives
 - Advances organizational goals
 
 **Brand voice is reflected**
+
 - Consistent with brand personality
 - Recognizable as coming from this product
 - Uses appropriate tone for context
 
 **Value proposition is evident**
+
 - User benefit is clear
 - Explains "what's in it for me?"
 - Shows value before asking for action
 
 **Subject matter focuses on user benefit**
+
 - Written in second person ("you")
 - Emphasizes outcomes, not features
 - User-centered, not company-centered
 
 **Active, inviting framing**
+
 - Motivates action without being pushy
 - Matches user's intention and journey stage
 - Appropriate level of urgency
@@ -69,26 +81,31 @@ Use this checklist to evaluate UX text quality. Rate each criterion 0-10.
 ## Conversational
 
 **Natural, spoken language**
+
 - Sounds like something you'd say aloud
 - Flows naturally when read
 - Not stiff or overly formal
 
 **Active voice predominates**
+
 - Subject performs the action
 - Direct and energetic
 - Use passive only when it's clearer (rare cases)
 
 **Connecting words included**
+
 - Prepositions present ("to", "from", "with")
 - Articles included ("a", "an", "the")
 - Not telegraphic or robotic
 
 **Familiar words and phrases**
+
 - Uses language your users use
 - Based on user research and testing
 - No unnecessary technical jargon
 
 **Personality in appropriate moments**
+
 - Voice shines through when context allows
 - Not overly serious in light contexts
 - Not playful in serious moments
@@ -96,26 +113,31 @@ Use this checklist to evaluate UX text quality. Rate each criterion 0-10.
 ## Clear
 
 **Accurate action words**
+
 - Specific verbs that describe the action
 - "Delete" not "Remove" for permanent deletion
 - "Save" not "OK" for saving changes
 
 **Command forms used appropriately**
+
 - Active imperative for buttons
 - Clear, direct instructions
 - Action-oriented language
 
 **Plain language**
+
 - 7th grade reading level for general audience
 - 10th grade for professional contexts
 - Avoids complex vocabulary and sentence structures
 
 **Meaningful, descriptive titles**
+
 - Titles tell you where you are
 - Not generic or vague
 - Provide context and orientation
 
 **Consistent patterns and terminology**
+
 - Same word means same thing throughout
 - UI patterns applied consistently
 - Terminology documented in style guide

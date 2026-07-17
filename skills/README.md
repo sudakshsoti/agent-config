@@ -18,11 +18,12 @@ skills/
 
 ```yaml
 ---
-name: skill-name          # ≤64 chars, [a-z0-9-] only, must match the folder
-                          # name, no "claude"/"anthropic", no XML tags
-description: |            # ≤1024 chars. Say what it does AND when to use it —
-                          # this is the only text always in context, so triggers
-                          # belong here.
+name:
+  skill-name # ≤64 chars, [a-z0-9-] only, must match the folder
+  # name, no "claude"/"anthropic", no XML tags
+description: | # ≤1024 chars. Say what it does AND when to use it —
+  # this is the only text always in context, so triggers
+  # belong here.
 ---
 ```
 
@@ -42,34 +43,35 @@ description: |            # ≤1024 chars. Say what it does AND when to use it �
 
 ## Current skills
 
-| Skill | Purpose |
-|-------|---------|
-| `clinical-reasoning` | Structured clinical decision-making (Indian guidelines, drug interactions, red flags). |
-| `commit` | Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`. |
-| `composition-patterns` | React composition patterns (compound components, render props, context) that scale. |
-| `cross-post` | Repurpose sudaksh.io writing/projects into LinkedIn + Medium drafts. Drafts only. |
-| `design-craft` | Typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture. |
-| `execute-plan` | Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`. |
-| `gtd` | GTD productivity mentor: inbox processing, weekly reviews, daily planning, focus coaching. |
-| `handoff` | Structured session-handoff docs for continuity across sessions. |
-| `maintainability-review` | Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`. |
-| `merge` | Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`. |
-| `n8n-deploy` | RIGID homelab procedure: deploy/edit n8n workflows via the sqlite3 dance without clobbering the DB. |
-| `obsidian-markdown` | Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties. |
-| `pr` | Open a GitHub PR via `gh` — title from commits, why-first body, no AI footer. `/pr`. |
-| `prose-editor` | Critique + rewrite personal essays to a high editorial bar. |
-| `push` | Safe push — sets upstream, shows outgoing commits, `--force-with-lease`, warns on main. `/push`. |
-| `reading-companion` | Obsidian-vault reading companion: pick/track books, capture quotes & writing seeds. |
-| `torbox-ops` | RIGID homelab procedure: recover the TorBox/rclone/decypharr symlink chain (FUSE, reconciler, retention). |
-| `ux-writing` | User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y. |
-| `value-connect` | Strategy + UX advisor for enterprise/healthcare design: brainstorm, audit, design-process artifacts. |
-| `web-design-guidelines` | Review UI code against the Web Interface Guidelines (accessibility, UX). |
+| Skill                    | Purpose                                                                                                                                                |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `clinical-reasoning`     | Structured clinical decision-making (Indian guidelines, drug interactions, red flags).                                                                 |
+| `commit`                 | Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.                                               |
+| `composition-patterns`   | React composition patterns (compound components, render props, context) that scale.                                                                    |
+| `cross-post`             | Repurpose sudaksh.io writing/projects into LinkedIn + Medium drafts. Drafts only.                                                                      |
+| `design-craft`           | Typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.                                                            |
+| `execute-plan`           | Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`. |
+| `gtd`                    | GTD productivity mentor: inbox processing, weekly reviews, daily planning, focus coaching.                                                             |
+| `handoff`                | Structured session-handoff docs for continuity across sessions.                                                                                        |
+| `maintainability-review` | Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.             |
+| `merge`                  | Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`.                                                        |
+| `n8n-deploy`             | RIGID homelab procedure: deploy/edit n8n workflows via the sqlite3 dance without clobbering the DB.                                                    |
+| `obsidian-markdown`      | Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.                                                                           |
+| `pr`                     | Open a GitHub PR via `gh` — title from commits, why-first body, no AI footer. `/pr`.                                                                   |
+| `prose-editor`           | Critique + rewrite personal essays to a high editorial bar.                                                                                            |
+| `push`                   | Safe push — sets upstream, shows outgoing commits, `--force-with-lease`, warns on main. `/push`.                                                       |
+| `reading-companion`      | Obsidian-vault reading companion: pick/track books, capture quotes & writing seeds.                                                                    |
+| `torbox-ops`             | RIGID homelab procedure: recover the TorBox/rclone/decypharr symlink chain (FUSE, reconciler, retention).                                              |
+| `ux-writing`             | User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.                                                        |
+| `value-connect`          | Strategy + UX advisor for enterprise/healthcare design: brainstorm, audit, design-process artifacts.                                                   |
+| `web-design-guidelines`  | Review UI code against the Web Interface Guidelines (accessibility, UX).                                                                               |
 
 ## Installing per surface
 
 Skills **do not sync** between surfaces — install separately where you want each one.
 
 ### Claude Code
+
 Filesystem-based, no upload. **On a new machine, clone this repo and run the
 linker** — it symlinks every skill here into `~/.claude/skills/`:
 
@@ -90,6 +92,7 @@ ln -s "$PWD/skills/prose-editor" /path/to/project/.claude/skills/   # project-sc
 Claude discovers each by `name`/`description`; invoke implicitly or with `/prose-editor`.
 
 ### Claude.ai (Pro / Max / Team / Enterprise, code execution on)
+
 Upload as a **zip of the skill folder** via Settings → Features → Skills:
 
 ```bash
@@ -99,6 +102,7 @@ cd skills && zip -r prose-editor.zip prose-editor && cd -
 Then upload `prose-editor.zip`. Uploaded per-user; re-upload after edits.
 
 ### Claude API
+
 Upload via the `/v1/skills` endpoints and reference the `skill_id` in the
 `container` param (needs the `skills-2025-10-02` + `code-execution-2025-08-25`
 beta headers). Note: API skills run with **no network access**.

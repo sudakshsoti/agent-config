@@ -33,14 +33,14 @@ into steps — and routes the two footgun cases to specialized skills.
 
 **Do NOT reflexively `docker compose up -d` for everything.** Match the change:
 
-| Change type | Mechanism |
-|---|---|
-| Generic stack edit (compose, Caddy, env, watchdog) | `cd /opt/stacks && docker compose up -d` |
-| **rclone-torbox / FUSE config** | **STOP — use the `torbox-ops` skill** (watchdog teardown under flock). NEVER a bare `docker compose up -d rclone-torbox`. |
-| **n8n workflow** | **STOP — use the `n8n-deploy` skill** or `make deploy WORKFLOW=…`. NEVER `n8n import:workflow` / `update:workflow` / the API. |
-| Env-var change on a container | `docker compose up -d <svc>` — a **recreate**, not `restart` (restart does NOT pick up env changes). |
-| New subdomain | DNS A record → server, add to `/opt/stacks/Caddyfile`, then `docker exec stacks-caddy-1 caddy reload --config /etc/caddy/Caddyfile`. |
-| Caddy Dockerfile change | `cd /opt/stacks && docker compose build caddy && docker compose up -d caddy`. |
+| Change type                                        | Mechanism                                                                                                                            |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Generic stack edit (compose, Caddy, env, watchdog) | `cd /opt/stacks && docker compose up -d`                                                                                             |
+| **rclone-torbox / FUSE config**                    | **STOP — use the `torbox-ops` skill** (watchdog teardown under flock). NEVER a bare `docker compose up -d rclone-torbox`.            |
+| **n8n workflow**                                   | **STOP — use the `n8n-deploy` skill** or `make deploy WORKFLOW=…`. NEVER `n8n import:workflow` / `update:workflow` / the API.        |
+| Env-var change on a container                      | `docker compose up -d <svc>` — a **recreate**, not `restart` (restart does NOT pick up env changes).                                 |
+| New subdomain                                      | DNS A record → server, add to `/opt/stacks/Caddyfile`, then `docker exec stacks-caddy-1 caddy reload --config /etc/caddy/Caddyfile`. |
+| Caddy Dockerfile change                            | `cd /opt/stacks && docker compose build caddy && docker compose up -d caddy`.                                                        |
 
 ### The two landmines (say them out loud before deploying)
 
@@ -55,9 +55,11 @@ into steps — and routes the two footgun cases to specialized skills.
 ## Capture drift back into git
 
 After any **live server edit**, run from the repo on the Mac:
+
 ```bash
 make sync-stacks
 ```
+
 It rsyncs `/opt/stacks/` → repo `stacks/` (excludes `.env`, runtime state, backups).
 `git diff` is then your review surface. Skip this only if the edit was made in the repo
 and pushed out, never edited live.
@@ -72,10 +74,12 @@ for review. When the user asks to commit: push to a **new branch and open a PR i
 ## Verify before declaring done
 
 A deploy is not "done" until it's confirmed live (evidence, not assertion):
+
 ```bash
 cd /opt/stacks && docker compose ps          # target container Up + healthy
 docker compose logs --tail=30 <svc>          # no crash-loop
 ```
+
 For a web service, hit the endpoint (from the Mac/client, not the Hetzner IP — Cloudflare
 Bot-Fight 403s the datacenter IP for proxied vhosts). If something regressed, treat it as
 an incident → use the **homelab-triage** skill and write up non-trivial fixes in

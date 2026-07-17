@@ -43,6 +43,7 @@ Lifestyle modifications. Follow-up timing. Expected treatment timeline. Warning 
 ### Severity Grading
 
 Use consistently across all lab parameters:
+
 - **Normal**: within reference range, no action
 - **Watch**: borderline or trending toward abnormal, retest at next scheduled visit
 - **Flag**: outside reference range, warrants clinical attention or workup change
@@ -51,6 +52,7 @@ Use consistently across all lab parameters:
 ### Trend Analysis
 
 When 3+ data points exist, calculate slope:
+
 - Direction: improving / worsening / static
 - Rate of change per unit time (e.g., eGFR mL/min/year, Hb g/dL per quarter, HbA1c % per 3 months)
 - Compare against expected trajectory (age-related, disease-related, medication-related)
@@ -73,6 +75,7 @@ Flag slow declines even if still in range (e.g., eGFR dropping >3 mL/min/year, H
 ### Lab Gap Flagging
 
 Cross-reference against clinical milestones and current date. Flag overdue investigations:
+
 - Format: "Last [parameter]: [value] ([date]) → [N months overdue] — [clinical reason recheck needed]"
 - Prioritise: HIGH (affects active treatment decisions), CRITICAL (surveillance gap for known pathology)
 
@@ -113,7 +116,7 @@ Gurugram facilities: Medanta, Artemis, Fortis Memorial Research Institute.
 - <38°C (100.4°F): Monitor at home, hydration, cool compress
 - 38–38.5°C (100.4–101.3°F): Paracetamol drops (Crocin/Dolo), humidifier, observe 24h
 - 38.5–39.2°C (101.3–102.5°F): Urgent clinic visit, not ER unless red flags present
-- >39.2°C (102.5°F): Immediate ER
+- > 39.2°C (102.5°F): Immediate ER
 
 ### Postpartum/Obstetric Red Flags → ER
 
@@ -158,6 +161,7 @@ Gurugram facilities: Medanta, Artemis, Fortis Memorial Research Institute.
 ### Label Update When Documenting Interactions
 
 Format for medication changelog:
+
 - Added: [Drug] [dose] ([reason]) — [date]
 - Switched: [Old] → [New] ([reason]) — [date]
 - Removed: [Drug] ([reason]) — [date]
@@ -169,6 +173,7 @@ Apply to ALL medication recommendations when patient is breastfeeding.
 
 **Primary source**: LactMed (NIH) — gold standard
 **Secondary**: Hale's Medications & Mothers' Milk (L1–L5 categories)
+
 - L1–L2: Generally safe
 - L3: Moderately safe, monitor infant
 - L4: Potentially hazardous, risk-benefit discussion required
@@ -183,6 +188,7 @@ Apply to ALL medication recommendations when patient is breastfeeding.
 ### Days-Since-Change Protocol
 
 For any active medication start, stop, dose change, or taper step:
+
 - Calculate days since event relative to current date
 - Note pharmacokinetic context (half-life, steady-state timing)
 - Flag if within expected side-effect onset window or withdrawal window
@@ -190,16 +196,19 @@ For any active medication start, stop, dose change, or taper step:
 ### Taper Protocol
 
 **General rules**:
+
 - One medication taper at a time. Never overlap tapers.
 - 3–4 week buffer between completing one taper and starting the next
 - Track taper phases with absolute dates, not relative
 - Distinguish withdrawal symptoms from relapse/recurrence
 
 **Taper documentation format**:
+
 - Phase [N] ([date]): [old dose] → [new dose]. Expected effects: [list]. Duration: [weeks].
 - Buffer period: [end date of last phase] + 3–4 weeks before next taper begins
 
 **Psychological preparation (for psychiatric medications)**:
+
 - Pre-taper: explore what returning emotional range means for the patient
 - During: normalise withdrawal symptoms (brain zaps, mood instability, sleep disruption) as withdrawal, not relapse
 - After: anticipate ambivalence — return of feeling is both wanted and feared
@@ -208,6 +217,7 @@ For any active medication start, stop, dose change, or taper step:
 ### Injection Schedule Tracking
 
 For injectable medications (GLP-1 RA, vaccines, biologics):
+
 - Track injection day and days post-injection
 - Note peak effect windows (e.g., GLP-1 GI symptoms peak days 2-4)
 - Site rotation protocol where applicable
@@ -227,6 +237,7 @@ For patients with active monitoring (chronic conditions, postpartum, pediatric g
 **Trigger**: If profile data is >21 days old, prompt for refresh before proceeding.
 
 **Refresh fields** (adapt to patient):
+
 - Weight, vitals, current symptoms
 - Medication changes since last update
 - New lab results or imaging
@@ -249,22 +260,22 @@ Format: "Your last profile update was [date] — [N] days ago. Before I proceed,
 
 ### Common Drug Brands (India)
 
-| Generic | Indian Brands |
-|---------|--------------|
-| Paracetamol | Crocin, Dolo 650 |
-| Ibuprofen + Paracetamol | Bugesic Plus |
-| Aspirin 75mg | Ecosprin |
-| Telmisartan + Amlodipine | Telma AM, Telmikind AM |
-| Levothyroxine | Thyronorm |
-| Metformin | Glycomet, Glykind |
-| Dapagliflozin | Forxiga |
-| Pantoprazole | Pan 40, Pantocid |
-| Atorvastatin | Atorva, Lipicure |
-| Furosemide | Lasix |
-| Venlafaxine XR | Venlor XR |
-| Escitalopram | Nexito, Stalopam |
-| Clonazepam | Lonazep |
-| Pregabalin | Pregalin, Pregabalin-NT |
+| Generic                  | Indian Brands           |
+| ------------------------ | ----------------------- |
+| Paracetamol              | Crocin, Dolo 650        |
+| Ibuprofen + Paracetamol  | Bugesic Plus            |
+| Aspirin 75mg             | Ecosprin                |
+| Telmisartan + Amlodipine | Telma AM, Telmikind AM  |
+| Levothyroxine            | Thyronorm               |
+| Metformin                | Glycomet, Glykind       |
+| Dapagliflozin            | Forxiga                 |
+| Pantoprazole             | Pan 40, Pantocid        |
+| Atorvastatin             | Atorva, Lipicure        |
+| Furosemide               | Lasix                   |
+| Venlafaxine XR           | Venlor XR               |
+| Escitalopram             | Nexito, Stalopam        |
+| Clonazepam               | Lonazep                 |
+| Pregabalin               | Pregalin, Pregabalin-NT |
 
 Always use format: Generic name (Brand) when prescribing.
 

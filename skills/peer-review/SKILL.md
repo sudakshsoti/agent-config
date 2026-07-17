@@ -23,7 +23,7 @@ section has nothing real, write "none".
 
 ---
 
-This is the cross-lineage pass. Its value comes from being run by a *different*
+This is the cross-lineage pass. Its value comes from being run by a _different_
 model than the one that wrote the plan — run it in Codex or Gemini on a plan
 Claude proposed, or vice versa. The in-house equivalent (Claude reviewing its
 own plan via a subagent) is the separate `self-review` skill; the terminal

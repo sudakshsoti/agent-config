@@ -11,6 +11,7 @@ Use this template to write clear, actionable error messages that help users reco
 ## Template
 
 ### Inline Error (Form Validation)
+
 **Format**: Brief, immediate correction guidance
 
 ```
@@ -18,6 +19,7 @@ Use this template to write clear, actionable error messages that help users reco
 ```
 
 **Examples:**
+
 - Email must include @
 - Password needs 8+ characters
 - Card number is incomplete
@@ -26,6 +28,7 @@ Use this template to write clear, actionable error messages that help users reco
 ---
 
 ### Detour Error (Recoverable Problem)
+
 **Format**: Problem + Solution
 
 ```
@@ -35,6 +38,7 @@ Use this template to write clear, actionable error messages that help users reco
 ```
 
 **Example:**
+
 ```
 **Title**: Can't save changes
 **Body**: Check your internet connection and try again.
@@ -44,6 +48,7 @@ Use this template to write clear, actionable error messages that help users reco
 ---
 
 ### Blocking Error (System Issue)
+
 **Format**: Clear explanation + Timeline + Reassurance
 
 ```
@@ -53,8 +58,9 @@ Use this template to write clear, actionable error messages that help users reco
 ```
 
 **Example:**
+
 ```
-**Title**: Service temporarily unavailable  
+**Title**: Service temporarily unavailable
 **Body**: We're updating our systems and will be back in about 15 minutes. Your data is safe.
 **Button**: Check status
 ```
@@ -76,6 +82,7 @@ Before finalizing an error message, verify:
 ## Voice Variations by Context
 
 ### High-Stakes Error (Payment, Security, Data Loss)
+
 **Tone**: Serious, clear, reassuring
 
 ```
@@ -83,6 +90,7 @@ We couldn't process your payment. Your card wasn't charged. Check your card deta
 ```
 
 ### Low-Stakes Error (Optional Feature, Nice-to-Have)
+
 **Tone**: Light, helpful, not dramatic
 
 ```
@@ -90,6 +98,7 @@ Couldn't load preview. Refresh to try again.
 ```
 
 ### First-Time User Error
+
 **Tone**: Educational, patient
 
 ```
@@ -125,6 +134,7 @@ Use this for rapid error message drafting:
 [What failed]. [Why, if known]. [Next action].
 
 **Example filled:**
+
 - What failed: Couldn't send invite
 - Why: Email bounced
 - What to do: Check spelling

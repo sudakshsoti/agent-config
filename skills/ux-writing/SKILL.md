@@ -10,6 +10,7 @@ Write clear, concise, user-centered interface copy (UX text/microcopy) for digit
 ## When to Use This Skill
 
 Use this skill when:
+
 - Writing interface copy (buttons, labels, titles, messages, forms)
 - Editing existing UX text for clarity and effectiveness
 - Creating error messages, notifications, or success messages
@@ -31,6 +32,7 @@ Every piece of UX text should be:
 ### Key Best Practices
 
 **Conciseness**
+
 - Use 40-60 characters per line maximum
 - Every word must have a job
 - Break dense text into scannable chunks
@@ -40,18 +42,21 @@ Every piece of UX text should be:
 - Avoid stacking modifiers — one adjective is usually enough
 
 **Clarity**
+
 - Use plain language (7th grade reading level for general, 10th for professional)
 - Avoid jargon, idioms, and technical terms
 - Use consistent terminology throughout
 - Choose meaningful, specific verbs
 
 **Conversational Tone**
+
 - Write how you speak
 - Use active voice 85% of the time
 - Include prepositions and articles
 - Avoid robotic phrasing
 
 **User-Centered**
+
 - Focus on user benefits, not features
 - Anticipate and answer user questions
 - Use second-person ("you") language
@@ -62,19 +67,22 @@ Every piece of UX text should be:
 Apply these common patterns for interface elements.
 
 ### Titles
+
 - **Purpose**: Orient users to where they are
 - **Format**: Noun phrases, sentence case
 - **Types**: Brand titles, content titles, category titles, task titles
 - **Examples**: "Account settings", "Your library", "Create new post"
 
 ### Buttons and Links
+
 - **Purpose**: Enable users to take action
 - **Format**: Active imperative verbs, sentence case
-- **Pattern**: `[Verb] [object]` 
+- **Pattern**: `[Verb] [object]`
 - **Examples**: "Save changes", "Delete account", "View details"
 - **Avoid**: Generic labels like "OK", "Submit", "Click here"
 
 ### Error Messages
+
 - **Purpose**: Explain problem and provide solution
 - **Format**: Empathetic, clear, actionable
 - **Pattern**: `[What failed]. [Why/context]. [What to do].`
@@ -83,24 +91,28 @@ Apply these common patterns for interface elements.
 Four error types — validation (inline), system (modal/banner), blocking (full-screen), and permission — each with its own pattern, timing, and placement. See references/error-patterns.md for the full breakdown with examples.
 
 ### Success Messages
+
 - **Purpose**: Confirm action completion
 - **Format**: Past tense, specific, encouraging
 - **Pattern**: `[Action] [result/benefit]`
 - **Examples**: "Changes saved", "Email sent", "Profile updated"
 
 ### Empty States
+
 - **Purpose**: Guide users when content is absent
 - **Types**: First-use, user-cleared, error/no results
 - **Format**: Explanation + CTA to populate
 - **Example**: "No messages yet. Start a conversation to connect with your team."
 
 ### Form Fields
+
 - **Labels**: Clear noun phrases describing input ("Email address", "Phone number")
 - **Instructions**: Verb-first, explain why information is needed
 - **Placeholder**: Use sparingly, only for standard inputs like "name@example.com"
 - **Helper text**: Static, on-demand, or automatic based on importance
 
 ### Notifications
+
 - **Purpose**: Deliver timely, valuable information
 - **Types**: Action-required (intrusive), Passive (less intrusive)
 - **Format**: Verb-first title + contextual description
@@ -135,7 +147,9 @@ Four error types — validation (inline), system (modal/banner), blocking (full-
 ## Voice and Tone
 
 ### Voice (Consistent Brand Personality)
+
 Voice is the consistent personality of the product. Establish voice using:
+
 - **Concepts**: 3-5 key brand principles/values
 - **Voice characteristics**: Descriptive adjectives for each concept
 - **Do/Don't examples**: Concrete examples showing voice in action
@@ -143,6 +157,7 @@ Voice is the consistent personality of the product. Establish voice using:
 See references/voice-chart-template.md for creating a voice chart.
 
 ### Tone (Adaptive to Context)
+
 Tone is how voice adapts to specific situations. While voice remains constant, tone shifts based on the user's purpose, context, emotional state, and the stakes of the action.
 
 Match tone to the user's emotional state (frustrated, confused, confident, cautious, successful) and to the content type (errors, success, instructions, onboarding, confirmations, empty states). See references/tone-adaptation.md for the full matrices with examples.
@@ -152,24 +167,28 @@ Match tone to the user's emotional state (frustrated, confused, confident, cauti
 Edit UX text in four phases:
 
 ### Phase 1: Purposeful
+
 - Does text help user achieve their goal?
 - Does text serve business objectives?
 - Is value to user clear?
 - Are concerns anticipated and addressed?
 
 ### Phase 2: Concise
+
 - Remove unnecessary words
 - Combine redundant information
 - Ensure every word earns its space
 - Front-load important concepts
 
 ### Phase 3: Conversational
+
 - Read aloud—would you say this?
 - Use active voice (unless passive is clearer)
 - Include natural connecting words
 - Avoid corporate jargon
 
 ### Phase 4: Clear
+
 - Use specific, accurate verbs
 - Maintain consistent terminology
 - Test readability (Hemingway Editor, Flesch-Kincaid)
@@ -241,6 +260,7 @@ Hit research-backed targets for length and reading level — e.g. buttons 2–4 
 ## Resources
 
 This skill includes:
+
 - **references/error-patterns.md**: The four error message types (validation, system, blocking, permission) with patterns and examples
 - **references/tone-adaptation.md**: Tone matrices by user emotional state and by content type
 - **references/benchmarks.md**: Research-backed length, comprehension, and reading-level targets

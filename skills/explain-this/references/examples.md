@@ -13,6 +13,7 @@ not as scripts to copy.
 > every time the screen redraws.
 >
 > Going deeper (optional):
+>
 > - **The idea — `caching`:** keeping the answer to expensive work nearby so you
 >   can reuse it instead of recomputing.
 > - **Like…** writing a phone number on a sticky note instead of looking it up
@@ -26,6 +27,7 @@ not as scripts to copy.
 > it to answer before I show the page.
 >
 > Going deeper (optional):
+>
 > - **The idea — `API call`:** a structured request to another program — you ask
 >   a specific question in an agreed format, it sends back an answer.
 > - **Like…** ordering from a menu: you don't go into the kitchen, you give the
@@ -39,6 +41,7 @@ not as scripts to copy.
 > because a plain restart would wedge it harder.
 >
 > Going deeper (optional):
+>
 > - **The idea — `FUSE mount`:** a folder that's really a live window into remote
 >   storage, not files actually sitting on the disk.
 > - **Like…** a TV showing a live camera feed — yank the cable mid-frame and it
@@ -50,6 +53,7 @@ not as scripts to copy.
 > instead of you triggering it.
 >
 > Going deeper (optional):
+>
 > - **The idea — `cron schedule`:** a clock-based rule that says "run this at
 >   exactly these times" without anyone pressing go.
 > - **Like…** a programmable coffee maker set for 7am — it just happens, you
@@ -63,6 +67,7 @@ not as scripts to copy.
 > them up so the system handles them steadily without getting overwhelmed.
 >
 > Going deeper (optional):
+>
 > - **The idea — `queue`:** a waiting line for tasks — they get added at the
 >   back and worked off the front, one or a few at a time.
 > - **Like…** a single-file line at a coffee counter: orders don't get lost in a
@@ -76,6 +81,7 @@ not as scripts to copy.
 > try can break the version that's currently working.
 >
 > Going deeper (optional):
+>
 > - **The idea — `branch`:** a parallel line of work split off from the main one,
 >   that you can merge back in once it's proven good.
 > - **Like…** drafting an essay in a separate document instead of editing the

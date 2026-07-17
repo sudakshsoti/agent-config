@@ -13,13 +13,13 @@ cd ~/dev/agent-config && ./install.sh
 
 ## What's included
 
-| Path | What | How it's wired into `~/.claude` |
-|------|------|--------------------------------|
-| `skills/` | Skills for Claude Code and Claude.ai (see `skills/README.md`) | symlinked per skill |
-| `agents/` | Subagent definitions (`design-craft`) | symlinked per file |
-| `settings.json` | Global settings — sanitized, no API keys | copied if missing |
-| `statusline.sh` | Minimal custom statusline (context bar + model) | copied if missing |
-| `claude-powerline.json` | Config for the claude-powerline statusline | copied if missing |
+| Path                    | What                                                          | How it's wired into `~/.claude` |
+| ----------------------- | ------------------------------------------------------------- | ------------------------------- |
+| `skills/`               | Skills for Claude Code and Claude.ai (see `skills/README.md`) | symlinked per skill             |
+| `agents/`               | Subagent definitions (`design-craft`)                         | symlinked per file              |
+| `settings.json`         | Global settings — sanitized, no API keys                      | copied if missing               |
+| `statusline.sh`         | Minimal custom statusline (context bar + model)               | copied if missing               |
+| `claude-powerline.json` | Config for the claude-powerline statusline                    | copied if missing               |
 
 ## Day-to-day
 

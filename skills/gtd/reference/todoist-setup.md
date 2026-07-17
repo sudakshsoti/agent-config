@@ -1,6 +1,6 @@
 # Todoist GTD Setup
 
-**This skill adapts to your Todoist — it does not impose a taxonomy.** At session start, *map the existing structure* and build every filter query from what's actually there. Only create missing pieces, and match the conventions already in use. The default tables below describe a *recommended* fresh-account layout — they are not an assumption to force onto an account that already organizes things differently. Read once per session before the first Todoist write.
+**This skill adapts to your Todoist — it does not impose a taxonomy.** At session start, _map the existing structure_ and build every filter query from what's actually there. Only create missing pieces, and match the conventions already in use. The default tables below describe a _recommended_ fresh-account layout — they are not an assumption to force onto an account that already organizes things differently. Read once per session before the first Todoist write.
 
 ## Map existing structure first (before any create)
 
@@ -14,13 +14,13 @@ find-labels
 
 For each GTD concept, detect whether it exists as a **project**, a **label**, or **neither**, and record the query token to use:
 
-| GTD concept | Look for | Token if PROJECT | Token if LABEL |
-|---|---|---|---|
-| Waiting For | project "Waiting For" **or** label "waiting" | `##Waiting For` | `@waiting` |
-| Someday/Maybe | project "Someday / Maybe" or "Someday" **or** a someday label | `##Someday / Maybe` | `@someday` |
-| Parking projects | any holding-pen project (e.g. "Watchlist Inbox") | `##Watchlist Inbox` (one token per project) | — |
-| Audit Log | project named per `AUDIT_LOG_PROJECT` (default "Audit Log") | — | — |
-| Contexts | labels (whatever the user actually uses) | — | `@Calls`, `@Work`, … |
+| GTD concept      | Look for                                                      | Token if PROJECT                            | Token if LABEL       |
+| ---------------- | ------------------------------------------------------------- | ------------------------------------------- | -------------------- |
+| Waiting For      | project "Waiting For" **or** label "waiting"                  | `##Waiting For`                             | `@waiting`           |
+| Someday/Maybe    | project "Someday / Maybe" or "Someday" **or** a someday label | `##Someday / Maybe`                         | `@someday`           |
+| Parking projects | any holding-pen project (e.g. "Watchlist Inbox")              | `##Watchlist Inbox` (one token per project) | —                    |
+| Audit Log        | project named per `AUDIT_LOG_PROJECT` (default "Audit Log")   | —                                           | —                    |
+| Contexts         | labels (whatever the user actually uses)                      | —                                           | `@Calls`, `@Work`, … |
 
 **Rule:** if a concept already exists as a project, do NOT also create a label for it (and vice versa). E.g. if "Waiting For" is already a project, use `##Waiting For` everywhere and never create an `@waiting` label. Match what's there.
 
@@ -33,7 +33,7 @@ From the detected tokens, define the variables the filter templates use:
 
 ## Parking projects (holding pens)
 
-A **parking project** is any project whose tasks must be excluded from *every* active-task view — Next Actions, Stalled, inbox counts, coach candidates, overdue health. It's a named, extensible list, not a single hardcoded "Someday":
+A **parking project** is any project whose tasks must be excluded from _every_ active-task view — Next Actions, Stalled, inbox counts, coach candidates, overdue health. It's a named, extensible list, not a single hardcoded "Someday":
 
 - Always includes the Someday/Maybe project.
 - Includes any user-designated parking project — e.g. **Watchlist Inbox**, a media parking lot that would otherwise flood Next Actions with dozens of non-actionable items.
@@ -43,22 +43,22 @@ Waiting For is excluded from active-task/no-date views too (a delegated item isn
 
 ## Structure (default recommendation)
 
-For a fresh account. On an existing account, detect first (above) and adapt — several of these can be a project *or* a label:
+For a fresh account. On an existing account, detect first (above) and adapt — several of these can be a project _or_ a label:
 
-| GTD concept | Todoist structure |
-|---|---|
-| Inbox | Native Todoist Inbox project |
-| Next Actions | **Filter**, not a project — see below |
-| Waiting For | Project `##Waiting For` **or** label `@waiting` — detect which; don't create both |
-| Someday/Maybe | Project (`##Someday / Maybe` / `##Someday`) **or** label — detect which |
-| Parking projects | User's holding-pen projects (e.g. `##Watchlist Inbox`) — excluded from all active views |
-| Projects (multi-step outcomes) | Todoist project (big) or a parent task with sub-tasks (small). First sub-task/task = the next action. |
-| Context | Label — use the user's actual context labels (e.g. `@Calls`, `@Work`, `@Health`, `@Errands`, `@Online`, `@Computer`, `@Deep-Work`, `@10 Min`). On a bare account the defaults are `@home`, `@office`, `@errands`, `@calls`, `@computer`, `@online`. |
-| Energy/time | Label: a short-task label (`@10 Min` / `@quick`), plus `@Deep-Work` / `@low_energy` |
-| Today's focus | Priority `p1` and/or `dueString: today` |
-| Hard deadline | `deadlineDate` (ISO `YYYY-MM-DD`) — separate from due date |
-| Review cadence | Recurring task **"Weekly Review"**, `dueString: "every Sunday"` |
-| Audit trail | Project `AUDIT_LOG_PROJECT` (default "Audit Log") of dated review summaries — see below |
+| GTD concept                    | Todoist structure                                                                                                                                                                                                                                   |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Inbox                          | Native Todoist Inbox project                                                                                                                                                                                                                        |
+| Next Actions                   | **Filter**, not a project — see below                                                                                                                                                                                                               |
+| Waiting For                    | Project `##Waiting For` **or** label `@waiting` — detect which; don't create both                                                                                                                                                                   |
+| Someday/Maybe                  | Project (`##Someday / Maybe` / `##Someday`) **or** label — detect which                                                                                                                                                                             |
+| Parking projects               | User's holding-pen projects (e.g. `##Watchlist Inbox`) — excluded from all active views                                                                                                                                                             |
+| Projects (multi-step outcomes) | Todoist project (big) or a parent task with sub-tasks (small). First sub-task/task = the next action.                                                                                                                                               |
+| Context                        | Label — use the user's actual context labels (e.g. `@Calls`, `@Work`, `@Health`, `@Errands`, `@Online`, `@Computer`, `@Deep-Work`, `@10 Min`). On a bare account the defaults are `@home`, `@office`, `@errands`, `@calls`, `@computer`, `@online`. |
+| Energy/time                    | Label: a short-task label (`@10 Min` / `@quick`), plus `@Deep-Work` / `@low_energy`                                                                                                                                                                 |
+| Today's focus                  | Priority `p1` and/or `dueString: today`                                                                                                                                                                                                             |
+| Hard deadline                  | `deadlineDate` (ISO `YYYY-MM-DD`) — separate from due date                                                                                                                                                                                          |
+| Review cadence                 | Recurring task **"Weekly Review"**, `dueString: "every Sunday"`                                                                                                                                                                                     |
+| Audit trail                    | Project `AUDIT_LOG_PROJECT` (default "Audit Log") of dated review summaries — see below                                                                                                                                                             |
 
 ## First-run / gap-fill checklist
 
@@ -83,7 +83,7 @@ Quick Wins:   {QUICK} & !{WAITING} & !{SOMEDAY} & (no date | today | overdue)
 Stalled:      (no date) & !{SOMEDAY} & {!##<each parking project>} & !{WAITING}
 ```
 
-**Worked example — project-based setup** (Waiting For, Someday / Maybe, and Watchlist Inbox are all *projects*; short-task label is `@10 Min`). These are copy-pasteable into `find-tasks (filterIdOrName)` / `add-filters`:
+**Worked example — project-based setup** (Waiting For, Someday / Maybe, and Watchlist Inbox are all _projects_; short-task label is `@10 Min`). These are copy-pasteable into `find-tasks (filterIdOrName)` / `add-filters`:
 
 ```
 Next Actions: !#Inbox & !##Waiting For & !##Someday / Maybe & !##Watchlist Inbox & (no date | today | overdue)
@@ -104,7 +104,7 @@ Staleness is now: **actionable tasks with NO due date, sitting outside parking p
 
 (Substitute your own `SOMEDAY` / parking / `WAITING` tokens.) On the same account this returned ~8, of which most were genuinely dropped — real signal.
 
-Todoist still has **no true last-modified field**, so there's no perfect "last touched" measure. `created before: -N days` can still be a *secondary* curiosity, but never the headline stall number. `analyze-project-health` / `get-project-health` remain the better signal for whether a *project* (vs a task) is stalled.
+Todoist still has **no true last-modified field**, so there's no perfect "last touched" measure. `created before: -N days` can still be a _secondary_ curiosity, but never the headline stall number. `analyze-project-health` / `get-project-health` remain the better signal for whether a _project_ (vs a task) is stalled.
 
 ## Overdue health signal
 
@@ -139,6 +139,6 @@ From the real-overdue result set, bucket by due date: due ≥ yesterday → nois
 - **`complete-tasks` on a recurring task rolls it forward** rather than closing it permanently — this is what the weekly review relies on to reset days-since-review, and why a rolled-forward recurring task shows as overdue without being stalled.
 - **Labels are referenced by name**, not ID, in every tool that takes a `labels` array.
 - **`duration`/`durationUnit`** must be supplied together (`minute` or `day`).
-- **No per-task "last modified" field.** Don't approximate staleness with `created before: -N days` as the primary signal (it flags deliberately future-dated items — see Staleness signal above). Use the no-date-outside-parking `Stalled` filter for task staleness, and `analyze-project-health`/`get-project-health` for whether a *project* is stalled.
+- **No per-task "last modified" field.** Don't approximate staleness with `created before: -N days` as the primary signal (it flags deliberately future-dated items — see Staleness signal above). Use the no-date-outside-parking `Stalled` filter for task staleness, and `analyze-project-health`/`get-project-health` for whether a _project_ is stalled.
 - **Batch, don't loop:** `add-tasks`, `update-tasks`, `complete-tasks` all accept arrays — pass every item in one call instead of one call per task.
 - **`get-overview`** is the cheap orientation call (project/today/upcoming structure in one shot) — prefer it over several `find-*` calls when you just need the lay of the land, and lead the map-structure step with it.

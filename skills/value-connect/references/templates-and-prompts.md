@@ -109,9 +109,9 @@ Reach for these when the conversation drills into a specific dimension.
 
 The three-step structure is clean, and for the 80% case — a population health director creating a standard registry — it'll feel fast. But I have a few pressure-test questions before I call it done.
 
-First, what happens at Step 2 when the preview returns 47,000 patients? That's a realistic number for a large health plan. Does the user get a count, a sample, a distribution breakdown? Just a count is almost useless — they need to know if the cohort *makes clinical sense* before saving. Consider a lightweight summary: top 5 conditions, age distribution, risk-score histogram. That's what differentiates "search results" from "clinical intelligence."
+First, what happens at Step 2 when the preview returns 47,000 patients? That's a realistic number for a large health plan. Does the user get a count, a sample, a distribution breakdown? Just a count is almost useless — they need to know if the cohort _makes clinical sense_ before saving. Consider a lightweight summary: top 5 conditions, age distribution, risk-score histogram. That's what differentiates "search results" from "clinical intelligence."
 
-Second, Step 1 to Step 2 is where Text-to-SQL does its work. What's the confidence-communication strategy? If the NL-to-SQL translation is 85% confident, does the user know? A population health director won't inspect the SQL, but they need *some* signal that the system understood their intent. Maybe a plain-English restatement: "I understood: Members with diabetes AND HbA1c > 9 AND no PCP visit in 6 months. 47,231 members match." That's trust-building through transparency — your third design principle.
+Second, Step 1 to Step 2 is where Text-to-SQL does its work. What's the confidence-communication strategy? If the NL-to-SQL translation is 85% confident, does the user know? A population health director won't inspect the SQL, but they need _some_ signal that the system understood their intent. Maybe a plain-English restatement: "I understood: Members with diabetes AND HbA1c > 9 AND no PCP visit in 6 months. 47,231 members match." That's trust-building through transparency — your third design principle.
 
 Third, the "save registry" step — is this save-and-done, or save-and-hand-off? If the registry feeds Care Management downstream, the save action should make the handoff explicit: "Save and assign to Care Management" vs "Save as draft." The default matters here — what's the most common next action after registry creation?
 
@@ -134,6 +134,7 @@ Quick context: We're deciding between two features for the next sprint — regis
 **Recommendation: Templates first.**
 
 Three reasons:
+
 1. **Adoption velocity.** Templates let a population health director create a registry in 2 clicks instead of writing a natural-language query. For GA, we need the "it just works" story for the 80% case. The SQL editor serves the 5% power user — important, but not the launch blocker.
 2. **Trust scaffolding.** Templates are pre-validated — the SQL is known-good. This builds user confidence before we ask them to trust AI-generated SQL from natural language. It's the "training wheels to bicycle" progression.
 3. **Content leverage.** Every template becomes a reference implementation for the Text-to-SQL model to learn from, and a demonstration asset for sales. Double ROI.
@@ -142,7 +143,7 @@ Three reasons:
 
 **Ask:** Can we align on templates for next sprint? Happy to walk through implementation scope on our Thursday sync.
 
-*Anticipated question: "Won't power users feel limited without the SQL editor?"*
+_Anticipated question: "Won't power users feel limited without the SQL editor?"_
 For alpha, our power users are internal. We can give them direct DB access as a stopgap. For GA, the template library should cover 80%+ of use cases if we nail the top 15–20 clinical scenarios.
 
 ---

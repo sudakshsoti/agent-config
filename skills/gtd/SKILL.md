@@ -23,12 +23,15 @@ Chatbot interface. You do the cognitive heavy lifting. User makes decisions; **T
 ## Session Start
 
 **Step 0 — map structure (once per session, before anything else):**
+
 ```
 get-overview + find-projects + find-labels
 ```
-Detect whether Waiting For, Someday/Maybe, and any parking projects (e.g. Watchlist Inbox) exist as PROJECTS or LABELS, and record the query token for each. Identify the parking-project exclusion list and the Audit Log project. The filters below hold queries built from *this* detected structure, not hardcoded `@waiting`/`##Someday`. Full detection procedure and the token → filter mapping: [reference/todoist-setup.md](reference/todoist-setup.md).
+
+Detect whether Waiting For, Someday/Maybe, and any parking projects (e.g. Watchlist Inbox) exist as PROJECTS or LABELS, and record the query token for each. Identify the parking-project exclusion list and the Audit Log project. The filters below hold queries built from _this_ detected structure, not hardcoded `@waiting`/`##Someday`. Full detection procedure and the token → filter mapping: [reference/todoist-setup.md](reference/todoist-setup.md).
 
 **Then the metric reads:**
+
 ```
 find-tasks (projectId: inbox) — inbox count
 find-tasks (filterIdOrName: "Stalled") — stale count (no-date items outside parking projects — NOT created-before)
@@ -46,6 +49,7 @@ Run silently, then pick ONE opener:
 4. **Healthy**: Wait for user intent. Don't narrate the health check.
 
 **Reading signals correctly** (don't over-alarm):
+
 - **Stale** = no-date actionable tasks outside parking projects (the `Stalled` filter), NOT `created before: -N days` — future-dated parked items aren't stale.
 - **Overdue** isn't automatically rot. Ignore today/yesterday overdue (just not-yet-done) and recurring rollovers; only surface **one-off tasks overdue 7+ days** as a concern. See reference → Overdue health signal.
 - **Review baseline:** when a review starts, read the most recent Audit Log entry for last time's numbers to compare against; at review end, write a new dated summary there. See reference → Audit Log convention.
@@ -56,14 +60,14 @@ Runs AFTER Step 0 mapping — gap-fill, not build-from-scratch. Create **only wh
 
 ## Routing
 
-| User Intent | Mode |
-|-------------|------|
-| "process inbox", "clear inbox", "inbox zero", "/gtd" | [modes/process.md](modes/process.md) |
-| "weekly review", "review", "how am I doing" | [modes/review.md](modes/review.md) |
-| "plan my day", "start my day", "morning", "what should I do", "stuck", "focus", "prioritize", "tired", "low energy" | [modes/coach.md](modes/coach.md) |
-| "overwhelmed", "system is a mess", "need to reset", "cleanup" | [modes/health.md](modes/health.md) → Recovery |
-| "waiting on", "who owes me", "follow up" | Waiting check (inline) |
-| "capture [X]", "add [X]", "remember [X]", "quick add" | Quick capture (inline) |
+| User Intent                                                                                                         | Mode                                          |
+| ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| "process inbox", "clear inbox", "inbox zero", "/gtd"                                                                | [modes/process.md](modes/process.md)          |
+| "weekly review", "review", "how am I doing"                                                                         | [modes/review.md](modes/review.md)            |
+| "plan my day", "start my day", "morning", "what should I do", "stuck", "focus", "prioritize", "tired", "low energy" | [modes/coach.md](modes/coach.md)              |
+| "overwhelmed", "system is a mess", "need to reset", "cleanup"                                                       | [modes/health.md](modes/health.md) → Recovery |
+| "waiting on", "who owes me", "follow up"                                                                            | Waiting check (inline)                        |
+| "capture [X]", "add [X]", "remember [X]", "quick add"                                                               | Quick capture (inline)                        |
 
 **Ambiguous intent:** When unclear, check inbox count. If inbox > 5, suggest processing. Otherwise ask: "Process inbox, plan your day, or something else?"
 
@@ -78,6 +82,7 @@ add-tasks: [{ content: "[title]", projectId: "inbox" }]
 Respond: `Captured: [title]`
 
 **Multiple items:** Parse comma-separated, "and"-joined, or line-broken lists. Pass them as one batched `add-tasks` array, then confirm:
+
 ```
 Captured:
 • Call dentist
@@ -86,6 +91,7 @@ Captured:
 ```
 
 **With context clues:** If the user says "remind me to call mom tomorrow", capture the title and set `dueString`:
+
 ```
 add-tasks: [{ content: "call mom", projectId: "inbox", dueString: "tomorrow" }]
 ```
@@ -99,6 +105,7 @@ find-tasks (filterIdOrName: "Waiting For")   # resolves to ##Waiting For or @wai
 ```
 
 Age = today minus the task's `created_at` (Todoist has no per-task "last modified" — created date is the best proxy for a delegated item). Show items with who and age:
+
 ```
 Waiting on:
 • 'API access' — Sarah — 3 days
@@ -114,6 +121,7 @@ Items > 7 days get the ⚠️ and a nudge suggestion. If user says yes, `add-tas
 **Position format:** Always show `N/total: 'Title'`
 
 **User responses** (keep it simple):
+
 - `now` / `later` / `someday` / `delete`
 - `1` / `2` / `3` (choices)
 - `done` / `stop` / `skip`
@@ -142,6 +150,7 @@ If the Google Calendar MCP connector is available, coach mode uses it for free-t
 ## Error Recovery
 
 If an MCP call fails:
+
 1. Retry once silently
 2. If still fails: "Todoist not responding. Check the connection and try again?"
-Don't dump error traces. Keep it human.
+   Don't dump error traces. Keep it human.

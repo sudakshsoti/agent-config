@@ -93,7 +93,7 @@ Provide, ready to paste if importing isn't used:
   depended on a stripped JSX artifact — e.g. describe what the bucket table
   showed rather than linking a component). Keep links.
 - **Canonical footer**: a first line or closing italic note —
-  *"Originally published at [sudaksh.io](<canonical-url>)."* — for when the post
+  _"Originally published at [sudaksh.io](canonical-url)."_ — for when the post
   is pasted rather than imported.
 
 ## 4. Output
