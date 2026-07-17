@@ -59,11 +59,9 @@ graph TD
 
 ## Commands & aliases
 
-| Command        | Where       | What it does                                     |
-| -------------- | ----------- | ------------------------------------------------ |
-| `/self-review` | Claude Code | Stage 1 — dispatch plan-critic, then revise      |
-| `rev`          | terminal    | Stage 2 — clipboard plan → DeepSeek V4 Pro       |
-| `rev-hard`     | terminal    | Stage 2 (hard) — clipboard plan → Gemini 3 Flash |
+- `/self-review` — Claude Code. Stage 1 — dispatch plan-critic, then revise.
+- `rev` — terminal. Stage 2 — clipboard plan → DeepSeek V4 Pro.
+- `rev-hard` — terminal. Stage 2 (hard) — clipboard plan → Gemini 3 Flash.
 
 ```bash
 # ~/.zshrc
@@ -79,13 +77,11 @@ alias rev-hard='pbpaste | llm -t peer-review -m openrouter/google/gemini-3-flash
 > [!info] Tracked vs. out-of-repo
 > The agent and command are **version-controlled** in `agent-config` and symlinked into `~/.claude`. The shell/CLI pieces live outside any repo.
 
-| Piece                      | Location                                                                    | Tracked?         |
-| -------------------------- | --------------------------------------------------------------------------- | ---------------- |
-| `plan-critic` agent        | `agent-config/agents/plan-critic.md` → `~/.claude/agents/`                  | ✅ git + symlink |
-| `/self-review` skill       | `agent-config/skills/self-review/SKILL.md` → `~/.claude/skills/`            | ✅ git + symlink |
-| `peer-review` template     | `~/Library/Application Support/io.datasette.llm/templates/peer-review.yaml` | ❌               |
-| `rev` / `rev-hard` aliases | `~/.zshrc`                                                                  | ❌               |
-| OpenRouter API key         | `llm` keystore                                                              | ❌ (secret)      |
+- `plan-critic` agent — `agent-config/agents/plan-critic.md` → `~/.claude/agents/`. Tracked: ✅ git + symlink.
+- `/self-review` skill — `agent-config/skills/self-review/SKILL.md` → `~/.claude/skills/`. Tracked: ✅ git + symlink.
+- `peer-review` template — `~/Library/Application Support/io.datasette.llm/templates/peer-review.yaml`. Tracked: ❌
+- `rev` / `rev-hard` aliases — `~/.zshrc`. Tracked: ❌
+- OpenRouter API key — `llm` keystore. Tracked: ❌ (secret)
 
 > [!note] Why a skill, not a command file
 > This repo has no `commands/` directory — its mechanism for a slash command is a `user-invocable: true` skill. `/self-review` is functionally identical to a command file.

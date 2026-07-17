@@ -33,14 +33,12 @@ into steps — and routes the two footgun cases to specialized skills.
 
 **Do NOT reflexively `docker compose up -d` for everything.** Match the change:
 
-| Change type                                        | Mechanism                                                                                                                            |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Generic stack edit (compose, Caddy, env, watchdog) | `cd /opt/stacks && docker compose up -d`                                                                                             |
-| **rclone-torbox / FUSE config**                    | **STOP — use the `torbox-ops` skill** (watchdog teardown under flock). NEVER a bare `docker compose up -d rclone-torbox`.            |
-| **n8n workflow**                                   | **STOP — use the `n8n-deploy` skill** or `make deploy WORKFLOW=…`. NEVER `n8n import:workflow` / `update:workflow` / the API.        |
-| Env-var change on a container                      | `docker compose up -d <svc>` — a **recreate**, not `restart` (restart does NOT pick up env changes).                                 |
-| New subdomain                                      | DNS A record → server, add to `/opt/stacks/Caddyfile`, then `docker exec stacks-caddy-1 caddy reload --config /etc/caddy/Caddyfile`. |
-| Caddy Dockerfile change                            | `cd /opt/stacks && docker compose build caddy && docker compose up -d caddy`.                                                        |
+- Generic stack edit (compose, Caddy, env, watchdog) → `cd /opt/stacks && docker compose up -d`
+- **rclone-torbox / FUSE config** → **STOP — use the `torbox-ops` skill** (watchdog teardown under flock). NEVER a bare `docker compose up -d rclone-torbox`.
+- **n8n workflow** → **STOP — use the `n8n-deploy` skill** or `make deploy WORKFLOW=…`. NEVER `n8n import:workflow` / `update:workflow` / the API.
+- Env-var change on a container → `docker compose up -d <svc>` — a **recreate**, not `restart` (restart does NOT pick up env changes).
+- New subdomain → DNS A record → server, add to `/opt/stacks/Caddyfile`, then `docker exec stacks-caddy-1 caddy reload --config /etc/caddy/Caddyfile`.
+- Caddy Dockerfile change → `cd /opt/stacks && docker compose build caddy && docker compose up -d caddy`.
 
 ### The two landmines (say them out loud before deploying)
 

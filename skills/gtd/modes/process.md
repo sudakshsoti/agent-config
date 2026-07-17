@@ -81,17 +81,15 @@ On "now": walk them through it, then `complete-tasks`. On anything else, file no
 
 ## Response Mapping
 
-| User Says                               | Action                                                                          |
-| --------------------------------------- | ------------------------------------------------------------------------------- |
-| `now`                                   | Set priority `p1`, keep/set `dueString: today`, move out of Inbox               |
-| `later`                                 | Move out of Inbox (no date unless date-bound), leave in the Next Actions filter |
-| `later home`                            | Same as `later` + add `@home` label                                             |
-| `someday`                               | `update-tasks` project → Someday                                                |
-| `delete`                                | `delete-object` (task)                                                          |
-| `skip`                                  | Next item                                                                       |
-| `stop`                                  | End session                                                                     |
-| `home` / `office` / `errands` / `calls` | Add matching `@context` label, move to Next Actions                             |
-| `delegate [person]`                     | Add `@waiting` label + a comment naming who, move out of Inbox                  |
+- `now` → Set priority `p1`, keep/set `dueString: today`, move out of Inbox
+- `later` → Move out of Inbox (no date unless date-bound), leave in the Next Actions filter
+- `later home` → Same as `later` + add `@home` label
+- `someday` → `update-tasks` project → Someday
+- `delete` → `delete-object` (task)
+- `skip` → Next item
+- `stop` → End session
+- `home` / `office` / `errands` / `calls` → Add matching `@context` label, move to Next Actions
+- `delegate [person]` → Add `@waiting` label + a comment naming who, move out of Inbox
 
 **Context shortcut:** Any context word combined with a disposition adds the label. "later office" = move out of Inbox + `@office` label.
 

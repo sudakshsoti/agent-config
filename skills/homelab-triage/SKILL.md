@@ -43,16 +43,14 @@ parallel-branch timing).
 
 ## Step 2 — map symptom → owning subsystem
 
-| Symptom                                                                      | Owner / where to look                                                                    |
-| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| SSH hangs / commands hang / `Transport endpoint not connected` / mount stale | **torbox-ops skill** (FUSE recovery)                                                     |
-| Torrent stuck "Downloading" 0 B / folder won't import                        | **torbox-ops skill** (reconciler)                                                        |
-| Container OOM-killed / restarting                                            | `.claude/rules/memory-management.md` (mem caps + host slices)                            |
-| n8n workflow broken / not firing                                             | **n8n-deploy skill** + `.claude/rules/architecture.md` (n8n)                             |
-| Stream stutters / won't play remotely                                        | `.claude/rules/networking.md` (Cloudflare proxy vs grey-cloud, BBR)                      |
-| DNS / Caddy / TLS / cert                                                     | `.claude/rules/networking.md` (Caddy + Cloudflare)                                       |
-| Hermes agent / Discord / cron / MCP                                          | `.claude/rules/architecture-hermes.md`                                                   |
-| Box rebooted on its own                                                      | server-watchdog (Tier 1) or Cloudflare Worker (Tier 2) — `.claude/rules/architecture.md` |
+- SSH hangs / commands hang / `Transport endpoint not connected` / mount stale → **torbox-ops skill** (FUSE recovery)
+- Torrent stuck "Downloading" 0 B / folder won't import → **torbox-ops skill** (reconciler)
+- Container OOM-killed / restarting → `.claude/rules/memory-management.md` (mem caps + host slices)
+- n8n workflow broken / not firing → **n8n-deploy skill** + `.claude/rules/architecture.md` (n8n)
+- Stream stutters / won't play remotely → `.claude/rules/networking.md` (Cloudflare proxy vs grey-cloud, BBR)
+- DNS / Caddy / TLS / cert → `.claude/rules/networking.md` (Caddy + Cloudflare)
+- Hermes agent / Discord / cron / MCP → `.claude/rules/architecture-hermes.md`
+- Box rebooted on its own → server-watchdog (Tier 1) or Cloudflare Worker (Tier 2) — `.claude/rules/architecture.md`
 
 ## Step 3 — respect the escalation chain
 

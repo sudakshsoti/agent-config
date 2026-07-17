@@ -130,13 +130,11 @@ Pick one, or rest? No shame in resting.
 
 `get-productivity-stats` gives day-of-week completion patterns, streaks, and karma trend — weave it in naturally, don't announce it:
 
-| Pattern                                       | How to use it                                              |
-| --------------------------------------------- | ---------------------------------------------------------- |
-| Today is historically a strong completion day | Lead with: "[Day]s are usually strong for you."            |
-| Today is historically a low-completion day    | "You tend to slow down on [day]s — keep it light?"         |
-| Heavy use of one label                        | "You do a lot @[context] — want to batch those?"           |
-| Declining weekly completion trend             | "Completions are down. Overloaded or just a slow stretch?" |
-| High/consistent streak                        | "You usually knock out [N]/session." (sets a target)       |
+- Today is historically a strong completion day → Lead with: "[Day]s are usually strong for you."
+- Today is historically a low-completion day → "You tend to slow down on [day]s — keep it light?"
+- Heavy use of one label → "You do a lot @[context] — want to batch those?"
+- Declining weekly completion trend → "Completions are down. Overloaded or just a slow stretch?"
+- High/consistent streak → "You usually knock out [N]/session." (sets a target)
 
 Don't show stats if there isn't enough history for a pattern to mean anything (2+ weeks minimum).
 

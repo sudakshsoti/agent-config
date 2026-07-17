@@ -14,13 +14,11 @@ find-labels
 
 For each GTD concept, detect whether it exists as a **project**, a **label**, or **neither**, and record the query token to use:
 
-| GTD concept      | Look for                                                      | Token if PROJECT                            | Token if LABEL       |
-| ---------------- | ------------------------------------------------------------- | ------------------------------------------- | -------------------- |
-| Waiting For      | project "Waiting For" **or** label "waiting"                  | `##Waiting For`                             | `@waiting`           |
-| Someday/Maybe    | project "Someday / Maybe" or "Someday" **or** a someday label | `##Someday / Maybe`                         | `@someday`           |
-| Parking projects | any holding-pen project (e.g. "Watchlist Inbox")              | `##Watchlist Inbox` (one token per project) | —                    |
-| Audit Log        | project named per `AUDIT_LOG_PROJECT` (default "Audit Log")   | —                                           | —                    |
-| Contexts         | labels (whatever the user actually uses)                      | —                                           | `@Calls`, `@Work`, … |
+- **Waiting For** — look for project "Waiting For" **or** label "waiting". Token if project: `##Waiting For`; token if label: `@waiting`.
+- **Someday/Maybe** — look for project "Someday / Maybe" or "Someday" **or** a someday label. Token if project: `##Someday / Maybe`; token if label: `@someday`.
+- **Parking projects** — any holding-pen project (e.g. "Watchlist Inbox"). Token if project: `##Watchlist Inbox` (one token per project); no label form.
+- **Audit Log** — project named per `AUDIT_LOG_PROJECT` (default "Audit Log"). No project/label token.
+- **Contexts** — labels (whatever the user actually uses). No project form; label tokens like `@Calls`, `@Work`, …
 
 **Rule:** if a concept already exists as a project, do NOT also create a label for it (and vice versa). E.g. if "Waiting For" is already a project, use `##Waiting For` everywhere and never create an `@waiting` label. Match what's there.
 
@@ -45,20 +43,18 @@ Waiting For is excluded from active-task/no-date views too (a delegated item isn
 
 For a fresh account. On an existing account, detect first (above) and adapt — several of these can be a project _or_ a label:
 
-| GTD concept                    | Todoist structure                                                                                                                                                                                                                                   |
-| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Inbox                          | Native Todoist Inbox project                                                                                                                                                                                                                        |
-| Next Actions                   | **Filter**, not a project — see below                                                                                                                                                                                                               |
-| Waiting For                    | Project `##Waiting For` **or** label `@waiting` — detect which; don't create both                                                                                                                                                                   |
-| Someday/Maybe                  | Project (`##Someday / Maybe` / `##Someday`) **or** label — detect which                                                                                                                                                                             |
-| Parking projects               | User's holding-pen projects (e.g. `##Watchlist Inbox`) — excluded from all active views                                                                                                                                                             |
-| Projects (multi-step outcomes) | Todoist project (big) or a parent task with sub-tasks (small). First sub-task/task = the next action.                                                                                                                                               |
-| Context                        | Label — use the user's actual context labels (e.g. `@Calls`, `@Work`, `@Health`, `@Errands`, `@Online`, `@Computer`, `@Deep-Work`, `@10 Min`). On a bare account the defaults are `@home`, `@office`, `@errands`, `@calls`, `@computer`, `@online`. |
-| Energy/time                    | Label: a short-task label (`@10 Min` / `@quick`), plus `@Deep-Work` / `@low_energy`                                                                                                                                                                 |
-| Today's focus                  | Priority `p1` and/or `dueString: today`                                                                                                                                                                                                             |
-| Hard deadline                  | `deadlineDate` (ISO `YYYY-MM-DD`) — separate from due date                                                                                                                                                                                          |
-| Review cadence                 | Recurring task **"Weekly Review"**, `dueString: "every Sunday"`                                                                                                                                                                                     |
-| Audit trail                    | Project `AUDIT_LOG_PROJECT` (default "Audit Log") of dated review summaries — see below                                                                                                                                                             |
+- **Inbox** — Native Todoist Inbox project
+- **Next Actions** — **Filter**, not a project — see below
+- **Waiting For** — Project `##Waiting For` **or** label `@waiting` — detect which; don't create both
+- **Someday/Maybe** — Project (`##Someday / Maybe` / `##Someday`) **or** label — detect which
+- **Parking projects** — User's holding-pen projects (e.g. `##Watchlist Inbox`) — excluded from all active views
+- **Projects (multi-step outcomes)** — Todoist project (big) or a parent task with sub-tasks (small). First sub-task/task = the next action.
+- **Context** — Label — use the user's actual context labels (e.g. `@Calls`, `@Work`, `@Health`, `@Errands`, `@Online`, `@Computer`, `@Deep-Work`, `@10 Min`). On a bare account the defaults are `@home`, `@office`, `@errands`, `@calls`, `@computer`, `@online`.
+- **Energy/time** — Label: a short-task label (`@10 Min` / `@quick`), plus `@Deep-Work` / `@low_energy`
+- **Today's focus** — Priority `p1` and/or `dueString: today`
+- **Hard deadline** — `deadlineDate` (ISO `YYYY-MM-DD`) — separate from due date
+- **Review cadence** — Recurring task **"Weekly Review"**, `dueString: "every Sunday"`
+- **Audit trail** — Project `AUDIT_LOG_PROJECT` (default "Audit Log") of dated review summaries — see below
 
 ## First-run / gap-fill checklist
 

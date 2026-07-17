@@ -43,28 +43,26 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-| Skill                    | Purpose                                                                                                                                                |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `clinical-reasoning`     | Structured clinical decision-making (Indian guidelines, drug interactions, red flags).                                                                 |
-| `commit`                 | Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.                                               |
-| `composition-patterns`   | React composition patterns (compound components, render props, context) that scale.                                                                    |
-| `cross-post`             | Repurpose sudaksh.io writing/projects into LinkedIn + Medium drafts. Drafts only.                                                                      |
-| `design-craft`           | Typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.                                                            |
-| `execute-plan`           | Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`. |
-| `gtd`                    | GTD productivity mentor: inbox processing, weekly reviews, daily planning, focus coaching.                                                             |
-| `handoff`                | Structured session-handoff docs for continuity across sessions.                                                                                        |
-| `maintainability-review` | Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.             |
-| `merge`                  | Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`.                                                        |
-| `n8n-deploy`             | RIGID homelab procedure: deploy/edit n8n workflows via the sqlite3 dance without clobbering the DB.                                                    |
-| `obsidian-markdown`      | Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.                                                                           |
-| `pr`                     | Open a GitHub PR via `gh` — title from commits, why-first body, no AI footer. `/pr`.                                                                   |
-| `prose-editor`           | Critique + rewrite personal essays to a high editorial bar.                                                                                            |
-| `push`                   | Safe push — sets upstream, shows outgoing commits, `--force-with-lease`, warns on main. `/push`.                                                       |
-| `reading-companion`      | Obsidian-vault reading companion: pick/track books, capture quotes & writing seeds.                                                                    |
-| `torbox-ops`             | RIGID homelab procedure: recover the TorBox/rclone/decypharr symlink chain (FUSE, reconciler, retention).                                              |
-| `ux-writing`             | User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.                                                        |
-| `value-connect`          | Strategy + UX advisor for enterprise/healthcare design: brainstorm, audit, design-process artifacts.                                                   |
-| `web-design-guidelines`  | Review UI code against the Web Interface Guidelines (accessibility, UX).                                                                               |
+- `clinical-reasoning` — Structured clinical decision-making (Indian guidelines, drug interactions, red flags).
+- `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
+- `composition-patterns` — React composition patterns (compound components, render props, context) that scale.
+- `cross-post` — Repurpose sudaksh.io writing/projects into LinkedIn + Medium drafts. Drafts only.
+- `design-craft` — Typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
+- `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
+- `gtd` — GTD productivity mentor: inbox processing, weekly reviews, daily planning, focus coaching.
+- `handoff` — Structured session-handoff docs for continuity across sessions.
+- `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
+- `merge` — Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`.
+- `n8n-deploy` — RIGID homelab procedure: deploy/edit n8n workflows via the sqlite3 dance without clobbering the DB.
+- `obsidian-markdown` — Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.
+- `pr` — Open a GitHub PR via `gh` — title from commits, why-first body, no AI footer. `/pr`.
+- `prose-editor` — Critique + rewrite personal essays to a high editorial bar.
+- `push` — Safe push — sets upstream, shows outgoing commits, `--force-with-lease`, warns on main. `/push`.
+- `reading-companion` — Obsidian-vault reading companion: pick/track books, capture quotes & writing seeds.
+- `torbox-ops` — RIGID homelab procedure: recover the TorBox/rclone/decypharr symlink chain (FUSE, reconciler, retention).
+- `ux-writing` — User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.
+- `value-connect` — Strategy + UX advisor for enterprise/healthcare design: brainstorm, audit, design-process artifacts.
+- `web-design-guidelines` — Review UI code against the Web Interface Guidelines (accessibility, UX).
 
 ## Installing per surface
 

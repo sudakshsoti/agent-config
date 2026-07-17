@@ -28,22 +28,18 @@ cleanly, **triage with judgment**, prioritize with a stated framework, keep the 
 lean, and tell the operator what to do next. Route every request into one of the four
 modes below.
 
-| The request is…                                              | Mode                       |
-| ------------------------------------------------------------ | -------------------------- |
-| "track this", "file a ticket", "we should do X later"        | **1 · Capture + triage**   |
-| "what should I work on", "what's next", "I have 30 min"      | **2 · What next**          |
-| "groom the backlog", "weekly review", "what's stale/blocked" | **3 · Weekly grooming**    |
-| "write acceptance criteria", "is this ready", plan-writing   | **4 · Acceptance + plans** |
+- "track this", "file a ticket", "we should do X later" → **1 · Capture + triage**
+- "what should I work on", "what's next", "I have 30 min" → **2 · What next**
+- "groom the backlog", "weekly review", "what's stale/blocked" → **3 · Weekly grooming**
+- "write acceptance criteria", "is this ready", plan-writing → **4 · Acceptance + plans**
 
 ## The taxonomy — every item carries the full set
 
-| Field                           | How it works                                                                                                                                                                                                                                                  |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Status**                      | `Backlog → Todo → In Progress → In Review → Done` (+ `Canceled`, `Duplicate`). New items land in **Backlog**. "Blocked" is **not** a status — model it as a Linear _blocked-by_ issue relation.                                                               |
-| **Priority**                    | `Urgent / High / Medium / Low`. **Risk is folded in** — a high-blast-radius change (could take the box down, lose data, or open a hole) earns a higher priority than its upside alone would justify. There is no separate Risk field.                         |
-| **Effort**                      | Native **Estimate** on the extended **T-shirt** scale `XS · S · M · L · XL · XXL · XXXL`: `XS`≈15 min · `S`≈1 hr · `M`≈half day · `L`≈weekend (the ceiling for a single issue). **`XL` and bigger = decompose before filing** — that's an epic, not an issue. |
-| **Labels — both axes required** | `area:*` = subsystem (`area:system`, `area:finance`, `area:automation`, `area:media`). `type:*` = kind (`type:bug`, `type:upgrade`, `type:maintenance`, `type:research`). Check live: `list_issue_labels`.                                                    |
-| **`needs-plan` ↔ `planned`**    | Every non-trivial item carries **exactly one**. `needs-plan` = wants an implementation plan before execution; `planned` = a `plans/` doc exists and is linked. Trivial `XS`/`S` chores may carry neither.                                                     |
+- **Status** — `Backlog → Todo → In Progress → In Review → Done` (+ `Canceled`, `Duplicate`). New items land in **Backlog**. "Blocked" is **not** a status — model it as a Linear _blocked-by_ issue relation.
+- **Priority** — `Urgent / High / Medium / Low`. **Risk is folded in** — a high-blast-radius change (could take the box down, lose data, or open a hole) earns a higher priority than its upside alone would justify. There is no separate Risk field.
+- **Effort** — Native **Estimate** on the extended **T-shirt** scale `XS · S · M · L · XL · XXL · XXXL`: `XS`≈15 min · `S`≈1 hr · `M`≈half day · `L`≈weekend (the ceiling for a single issue). **`XL` and bigger = decompose before filing** — that's an epic, not an issue.
+- **Labels — both axes required** — `area:*` = subsystem (`area:system`, `area:finance`, `area:automation`, `area:media`). `type:*` = kind (`type:bug`, `type:upgrade`, `type:maintenance`, `type:research`). Check live: `list_issue_labels`.
+- **`needs-plan` ↔ `planned`** — Every non-trivial item carries **exactly one**. `needs-plan` = wants an implementation plan before execution; `planned` = a `plans/` doc exists and is linked. Trivial `XS`/`S` chores may carry neither.
 
 Priority rubric: **Urgent** = drop everything / failure imminent (box down, data loss,
 cert or backup expiring, live security hole). **High** = important and soon, _or_ risky

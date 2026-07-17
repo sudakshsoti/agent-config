@@ -179,9 +179,7 @@ The whole point is to read more, not to maintain a system. So:
 
 ## Quick reference
 
-| Want to…                             | Do                                                                  |
-| ------------------------------------ | ------------------------------------------------------------------- |
-| See the shelf                        | `python3 scripts/shelf.py [--status …]`                             |
-| Exact paths / schema / status values | read `references/vault.md`                                          |
-| New writing seed                     | copy `assets/seed-template.md` → `03 Resources/Seeds/<slug>.md`     |
-| Log a reading session                | append a line under `## Reading` in today's `Journal/YYYY-MM-DD.md` |
+- See the shelf → `python3 scripts/shelf.py [--status …]`
+- Exact paths / schema / status values → read `references/vault.md`
+- New writing seed → copy `assets/seed-template.md` → `03 Resources/Seeds/<slug>.md`
+- Log a reading session → append a line under `## Reading` in today's `Journal/YYYY-MM-DD.md`

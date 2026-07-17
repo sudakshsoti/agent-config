@@ -32,13 +32,11 @@ the host — run everything locally, never `ssh`/`sshpass` into the box IP. If
 
 ## Symptom → action
 
-| Symptom                                 | Cause                                      | Go to                                  |
-| --------------------------------------- | ------------------------------------------ | -------------------------------------- |
-| SSH connects but commands hang          | Stale TorBox FUSE mount                    | **FUSE recovery**                      |
-| Torrent stuck "Downloading" at 0 B      | Wedged mount or decypharr stall            | **FUSE recovery**, then **reconciler** |
-| Folder on WebDAV but no library symlink | decypharr never reached `processSymlink()` | **reconciler**                         |
-| Broken symlinks in `/mnt/library`       | TorBox pruned the item (30-day)            | **retention**                          |
-| Movie/show won't match (foreign title)  | normalisation / not in arr                 | **reconciler unmatched**               |
+- SSH connects but commands hang — Stale TorBox FUSE mount → **FUSE recovery**
+- Torrent stuck "Downloading" at 0 B — Wedged mount or decypharr stall → **FUSE recovery**, then **reconciler**
+- Folder on WebDAV but no library symlink — decypharr never reached `processSymlink()` → **reconciler**
+- Broken symlinks in `/mnt/library` — TorBox pruned the item (30-day) → **retention**
+- Movie/show won't match (foreign title) — normalisation / not in arr → **reconciler unmatched**
 
 ## FUSE recovery — order matters
 

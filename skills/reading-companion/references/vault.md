@@ -5,15 +5,13 @@ live vault on 2026-06-07. If a path stops resolving, re-check rather than guess.
 
 ## Paths
 
-| Thing                | Path                                                                                   |
-| -------------------- | -------------------------------------------------------------------------------------- |
-| Vault root           | `/Users/sudakshsoti/dev/vault`                                                         |
-| Book notes           | `02 Areas/Reading/Books/<Title> - <Author>.md`                                         |
-| The database (Bases) | `02 Areas/Reading/Library.base` (views: To Read · Reading · Read · Shelf · All)        |
-| Reading hub          | `02 Areas/Reading/Reading Hub.md`                                                      |
-| Daily notes          | `Journal/YYYY-MM-DD.md` (created by Templater folder-template `99 Templates/Daily.md`) |
-| Writing seeds        | `03 Resources/Seeds/<slug>.md` (one note per seed)                                     |
-| Book note template   | `99 Templates/Book Note.md`                                                            |
+- **Vault root** — `/Users/sudakshsoti/dev/vault`
+- **Book notes** — `02 Areas/Reading/Books/<Title> - <Author>.md`
+- **The database (Bases)** — `02 Areas/Reading/Library.base` (views: To Read · Reading · Read · Shelf · All)
+- **Reading hub** — `02 Areas/Reading/Reading Hub.md`
+- **Daily notes** — `Journal/YYYY-MM-DD.md` (created by Templater folder-template `99 Templates/Daily.md`)
+- **Writing seeds** — `03 Resources/Seeds/<slug>.md` (one note per seed)
+- **Book note template** — `99 Templates/Book Note.md`
 
 Note: the core Daily Notes plugin config points at `00 Inbox`, but real daily
 notes are written to `Journal/` via Templater. Use `Journal/`.

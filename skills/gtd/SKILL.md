@@ -60,14 +60,12 @@ Runs AFTER Step 0 mapping — gap-fill, not build-from-scratch. Create **only wh
 
 ## Routing
 
-| User Intent                                                                                                         | Mode                                          |
-| ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| "process inbox", "clear inbox", "inbox zero", "/gtd"                                                                | [modes/process.md](modes/process.md)          |
-| "weekly review", "review", "how am I doing"                                                                         | [modes/review.md](modes/review.md)            |
-| "plan my day", "start my day", "morning", "what should I do", "stuck", "focus", "prioritize", "tired", "low energy" | [modes/coach.md](modes/coach.md)              |
-| "overwhelmed", "system is a mess", "need to reset", "cleanup"                                                       | [modes/health.md](modes/health.md) → Recovery |
-| "waiting on", "who owes me", "follow up"                                                                            | Waiting check (inline)                        |
-| "capture [X]", "add [X]", "remember [X]", "quick add"                                                               | Quick capture (inline)                        |
+- "process inbox", "clear inbox", "inbox zero", "/gtd" → [modes/process.md](modes/process.md)
+- "weekly review", "review", "how am I doing" → [modes/review.md](modes/review.md)
+- "plan my day", "start my day", "morning", "what should I do", "stuck", "focus", "prioritize", "tired", "low energy" → [modes/coach.md](modes/coach.md)
+- "overwhelmed", "system is a mess", "need to reset", "cleanup" → [modes/health.md](modes/health.md) → Recovery
+- "waiting on", "who owes me", "follow up" → Waiting check (inline)
+- "capture [X]", "add [X]", "remember [X]", "quick add" → Quick capture (inline)
 
 **Ambiguous intent:** When unclear, check inbox count. If inbox > 5, suggest processing. Otherwise ask: "Process inbox, plan your day, or something else?"
 

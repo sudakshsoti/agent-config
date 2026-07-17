@@ -4,12 +4,10 @@ Agent checks health at session start and surfaces issues naturally. Never lectur
 
 ## Health Thresholds
 
-| Metric            | Healthy | Warning | Critical | Source                                                                         |
-| ----------------- | ------- | ------- | -------- | ------------------------------------------------------------------------------ |
-| Inbox             | 0-5     | 6-15    | 16+      | `find-tasks (projectId: inbox)` count                                          |
-| Stale (14+ days)  | 0-3     | 4-10    | 11+      | `find-tasks (filterIdOrName: "Stalled")` count                                 |
-| Days since review | 0-7     | 8-14    | 15+      | last completion of the recurring "Weekly Review" task (`find-completed-tasks`) |
-| Next Actions      | 5-20    | 21-40   | 41+      | `find-tasks (filterIdOrName: "Next Actions")` count                            |
+- **Inbox** — healthy 0-5, warning 6-15, critical 16+ (`find-tasks (projectId: inbox)` count)
+- **Stale (14+ days)** — healthy 0-3, warning 4-10, critical 11+ (`find-tasks (filterIdOrName: "Stalled")` count)
+- **Days since review** — healthy 0-7, warning 8-14, critical 15+ (last completion of the recurring "Weekly Review" task, `find-completed-tasks`)
+- **Next Actions** — healthy 5-20, warning 21-40, critical 41+ (`find-tasks (filterIdOrName: "Next Actions")` count)
 
 ## Surfacing
 
