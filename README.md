@@ -15,6 +15,8 @@ cd ~/dev/agent-config && ./install.sh
 
 - `skills/` — Skills for Claude Code and Claude.ai (see `skills/README.md`). Symlinked per skill.
 - `agents/` — Subagent definitions (`design-craft`). Symlinked per file.
+- `commands/` — Global slash commands (`/recall`, `/remember` for the
+  `~/claude-memory` vault). Symlinked per file.
 - `settings.json` — Global settings, sanitized, no API keys. Copied if missing.
 - `statusline.sh` — Minimal custom statusline (context bar + model). Copied if missing.
 - `claude-powerline.json` — Config for the claude-powerline statusline. Copied if missing.

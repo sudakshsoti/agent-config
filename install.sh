@@ -5,6 +5,7 @@
 # Symlinks (repo is the live source of truth; edits apply instantly):
 #   skills/<name>/  -> ~/.claude/skills/<name>
 #   agents/<name>.md -> ~/.claude/agents/<name>.md
+#   commands/<name>.md -> ~/.claude/commands/<name>.md
 #   global-CLAUDE.md -> ~/.claude/CLAUDE.md
 #
 # Copies, refreshed every run (NOT symlinks):
@@ -67,7 +68,7 @@ case "$REPO" in
     ;;
 esac
 
-mkdir -p "$CLAUDE/skills" "$CLAUDE/agents"
+mkdir -p "$CLAUDE/skills" "$CLAUDE/agents" "$CLAUDE/commands"
 # Mirror skills into Codex too, but only if Codex is actually installed
 # (its skills dir already exists) — never create ~/.codex on a Claude-only box.
 CODEX_SKILLS=""
@@ -123,6 +124,12 @@ done
 for file in "$REPO"/agents/*.md; do
   [ -f "$file" ] || continue
   link_into "$file" "$CLAUDE/agents/$(basename "$file")"
+done
+
+# 2b. Commands: every markdown file in commands/ becomes a global slash command.
+for file in "$REPO"/commands/*.md; do
+  [ -f "$file" ] || continue
+  link_into "$file" "$CLAUDE/commands/$(basename "$file")"
 done
 
 # 3. Global CLAUDE.md: symlinked, like skills and agents — the repo stays the
@@ -181,7 +188,7 @@ fi
 # 6. Optionally prune deleted skills/agents.
 if [ "$PRUNE" = "1" ]; then
   # Claude: dangling symlinks pointing into this repo (deleted skill/agent).
-  for link in "$CLAUDE"/skills/* "$CLAUDE"/agents/*; do
+  for link in "$CLAUDE"/skills/* "$CLAUDE"/agents/* "$CLAUDE"/commands/*; do
     [ -L "$link" ] || continue
     case "$(readlink "$link")" in
       "$REPO"/*)
