@@ -92,7 +92,7 @@ teardown makes the wedge worse.
   ```
 
 - If the fix changed anything under `/opt/stacks`, capture it with `make sync-stacks`
-  (see homelab-deploy), and leave the tree dirty — commit only when asked.
+  (see homelab-deploy), then commit it on a branch. Push only when asked.
 
 ## Notes
 

@@ -62,12 +62,16 @@ It rsyncs `/opt/stacks/` → repo `stacks/` (excludes `.env`, runtime state, bac
 `git diff` is then your review surface. Skip this only if the edit was made in the repo
 and pushed out, never edited live.
 
-## Stop. Leave the tree dirty.
+## Commit the verified change
 
-**NEVER `git commit` or `git push` until the user explicitly asks** — even after a fully
-verified change. Make the edits, deploy, run sync-stacks, leave the working tree dirty
-for review. When the user asks to commit: push to a **new branch and open a PR into
-`main`** — never commit directly to `main`.
+Once the deploy is verified live and `make sync-stacks` has captured the drift, **commit
+it** — one commit per completed step, not one batched commit at the end.
+
+**Never commit directly to `main`** — branch first, then commit there. **Push or open a
+PR only when the user explicitly asks**; commits accumulate locally until then.
+
+(This repo used to require leaving the tree dirty and never committing until asked. That
+override was dropped 2026-07-23 in favour of the global always-commit habit.)
 
 ## Verify before declaring done
 
