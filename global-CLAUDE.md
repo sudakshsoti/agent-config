@@ -45,11 +45,37 @@ source (web, Context7, the actual file, a script) and say which one you checked.
 Before building a workaround for unexpected behaviour, search first. Only build
 something custom if research confirms nothing already exists.
 
+## Context economy
+
+Anything that lands in context is re-billed on every later call in the session.
+Measured on this machine: a token added mid-session is re-read about 33 times, and
+the 35% of sessions that pass 100K account for 78% of all spend. Volume matters far
+more than it looks.
+
+Delegate exploration. Locating where something lives, "which files use X", checking
+one detail in a file you are not about to edit: dispatch `Explore` or a
+`general-purpose` agent with `model: "sonnet"` and take back the conclusion. A
+subagent returns ~300 tokens for work that would inject thousands inline.
+
+Read a file inline only when about to edit it.
+
+Do not re-print code that was just written or edited. State what changed in a
+sentence and reference `file:line`. Output is billed at 5x input, then re-read on
+every later turn, so verbosity compounds.
+
+At a task boundary past ~150K, stop and `/clear` rather than pushing on. Use
+`/handoff` then `/clear` when continuity matters. Avoid `/compact`: it costs a full
+context read plus summary output, which never pays back against a ~38K floor.
+
 ## Subagent model economy
 
 Subagents inherit the main session's model, which is wasteful for mechanical work.
 For a basic lookup, a single grep, or a trivial fetch, pass `model: "sonnet"` to
-the Agent tool. Sonnet is the floor; never drop to Haiku.
+the Agent tool.
+
+Haiku is allowed only for work with no judgment in it: renames, config value
+changes, formatting, mass file moves. Anything that involves a decision starts at
+Sonnet.
 
 Keep the inherited model (or pass `opus`) for subagents doing real reasoning:
 planning, design critique, code review, architecture, or anything where a wrong
