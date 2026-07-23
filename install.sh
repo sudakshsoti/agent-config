@@ -6,6 +6,7 @@
 #   skills/<name>/  -> ~/.claude/skills/<name>
 #   agents/<name>.md -> ~/.claude/agents/<name>.md
 #   commands/<name>.md -> ~/.claude/commands/<name>.md
+#   hooks/<name> -> ~/.claude/hooks/<name>
 #   global-CLAUDE.md -> ~/.claude/CLAUDE.md
 #
 # Copies, refreshed every run (NOT symlinks):
@@ -68,7 +69,7 @@ case "$REPO" in
     ;;
 esac
 
-mkdir -p "$CLAUDE/skills" "$CLAUDE/agents" "$CLAUDE/commands"
+mkdir -p "$CLAUDE/skills" "$CLAUDE/agents" "$CLAUDE/commands" "$CLAUDE/hooks"
 # Mirror skills into Codex too, but only if Codex is actually installed
 # (its skills dir already exists) — never create ~/.codex on a Claude-only box.
 CODEX_SKILLS=""
@@ -132,6 +133,16 @@ for file in "$REPO"/commands/*.md; do
   link_into "$file" "$CLAUDE/commands/$(basename "$file")"
 done
 
+# 2c. Hooks: every script in hooks/ becomes a hook helper. Symlinked, since
+#     Claude Code only ever executes these — it never rewrites them. The
+#     settings.json entries that invoke them are baked into the repo copy in
+#     step 4, and reference "$HOME/.claude/hooks/<name>" so they survive a
+#     different checkout path.
+for file in "$REPO"/hooks/*; do
+  [ -f "$file" ] || continue
+  link_into "$file" "$CLAUDE/hooks/$(basename "$file")"
+done
+
 # 3. Global CLAUDE.md: symlinked, like skills and agents — the repo stays the
 #    live source of truth, so edits apply instantly and land in git history.
 #    Unlike settings.json (which Claude Code rewrites via /config), this file is
@@ -188,7 +199,7 @@ fi
 # 6. Optionally prune deleted skills/agents.
 if [ "$PRUNE" = "1" ]; then
   # Claude: dangling symlinks pointing into this repo (deleted skill/agent).
-  for link in "$CLAUDE"/skills/* "$CLAUDE"/agents/* "$CLAUDE"/commands/*; do
+  for link in "$CLAUDE"/skills/* "$CLAUDE"/agents/* "$CLAUDE"/commands/* "$CLAUDE"/hooks/*; do
     [ -L "$link" ] || continue
     case "$(readlink "$link")" in
       "$REPO"/*)
