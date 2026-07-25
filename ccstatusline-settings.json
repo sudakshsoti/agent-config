@@ -16,12 +16,6 @@
         "color": "hex:828689"
       },
       {
-        "id": "3",
-        "type": "separator",
-        "character": "·",
-        "color": "hex:4A4F52"
-      },
-      {
         "id": "r1",
         "type": "git-origin-repo",
         "color": "hex:D3D8DA",
@@ -49,9 +43,7 @@
       },
       {
         "id": "7",
-        "type": "separator",
-        "character": "·",
-        "color": "hex:4A4F52"
+        "type": "flex-separator"
       },
       {
         "id": "8",
