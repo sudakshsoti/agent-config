@@ -21,7 +21,7 @@ import glob
 import json
 import os
 
-THRESHOLD = 150_000   # context size at which a session should be broken
+THRESHOLD = 180_000   # absolute and cost-driven, so it does not scale with a larger context window
 BUCKET = 50_000       # the hook re-warns each time it climbs another BUCKET
 
 

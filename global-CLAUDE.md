@@ -63,7 +63,7 @@ Do not re-print code that was just written or edited. State what changed in a
 sentence and reference `file:line`. Output is billed at 5x input, then re-read on
 every later turn, so verbosity compounds.
 
-At a task boundary past ~150K, stop and `/clear` rather than pushing on. Use
+At a task boundary past ~180K, stop and `/clear` rather than pushing on. Use
 `/handoff` then `/clear` when continuity matters. Avoid `/compact`: it costs a full
 context read plus summary output, which never pays back against a ~38K floor.
 
