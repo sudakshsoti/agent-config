@@ -222,7 +222,6 @@
   },
   "enabledPlugins": {
     "claude-code-setup@claude-plugins-official": true,
-    "claude-hud@claude-hud": true,
     "frontend-design@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
     "vercel@claude-plugins-official": true,
@@ -239,12 +238,6 @@
       "source": {
         "source": "github",
         "repo": "anthropics/claude-plugins-community"
-      }
-    },
-    "claude-hud": {
-      "source": {
-        "source": "github",
-        "repo": "jarrodwatts/claude-hud"
       }
     },
     "claude-plugins-official": {
@@ -291,6 +284,5 @@
       "Internal sharing / snippet hosting: none configured. No public paste or gist service is trusted; nothing from this environment should be posted to one.",
       "Data retention / declassification: the paid MonoLisa and Berkeley Mono font binaries in the dotfiles repo, and the employer-internal Artifactory host and corporate CA path gated behind the `work` machine block in dot_zshrc.tmpl, must never leave that private repository."
     ]
-  },
-  "model": "sonnet"
+  }
 }
