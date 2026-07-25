@@ -22,12 +22,20 @@
         "color": "hex:4A4F52"
       },
       {
+        "id": "r1",
+        "type": "git-origin-repo",
+        "color": "hex:D3D8DA",
+        "metadata": {
+          "hideNoRemote": "true"
+        }
+      },
+      {
         "id": "4",
         "type": "current-working-dir",
         "rawValue": true,
-        "color": "hex:D3D8DA",
+        "color": "hex:828689",
         "metadata": {
-          "fishStyle": "true"
+          "segments": "1"
         }
       },
       {
