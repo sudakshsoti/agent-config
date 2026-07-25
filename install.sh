@@ -18,9 +18,10 @@
 #     copies of deleted skills without touching ~/.codex/skills/.system or
 #     other hand-installed Codex skills.
 #
-# Copies, only if missing (Claude Code rewrites it itself, so a symlink
+# Copies, only if missing (the owning tool rewrites these itself, so a symlink
 # would break; never clobbers an existing file):
-#   settings.json -> ~/.claude/
+#   settings.json             -> ~/.claude/settings.json
+#   ccstatusline-settings.json -> ~/.config/ccstatusline/settings.json
 #
 # Plugins (declared in plugins.txt, applied via the `claude` CLI — NOT vendored):
 #   marketplace/plugin lines -> `claude plugin marketplace add` / `install`
@@ -160,6 +161,18 @@ f=settings.json
 if [ ! -e "$CLAUDE/$f" ]; then
   cp "$REPO/$f" "$CLAUDE/$f"
   echo "copied  $f"
+  copied=$((copied + 1))
+fi
+
+# 4b. ccstatusline layout: same copy-if-missing rule, same reason. The
+#     ccstatusline TUI rewrites ~/.config/ccstatusline/settings.json in place,
+#     so a symlink would let it write back into the repo unreviewed. Edit the
+#     layout with the TUI, then run ./sync.sh to pull it back here.
+CCSL="$HOME/.config/ccstatusline"
+if [ ! -e "$CCSL/settings.json" ]; then
+  mkdir -p "$CCSL"
+  cp "$REPO/ccstatusline-settings.json" "$CCSL/settings.json"
+  echo "copied  ccstatusline-settings.json"
   copied=$((copied + 1))
 fi
 
