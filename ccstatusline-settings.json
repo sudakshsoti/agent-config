@@ -75,9 +75,9 @@
     [
       {
         "id": "11",
-        "type": "custom-text",
-        "customText": "ctx",
-        "color": "hex:828689"
+        "type": "custom-command",
+        "commandPath": "python3 /Users/sudakshsoti/dev/agent-config/scripts/ctx-flag.py",
+        "preserveColors": true
       },
       {
         "id": "12",

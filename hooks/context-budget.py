@@ -6,17 +6,23 @@ Measured on this machine (519 sessions, 33,935 API calls): a token added
 mid-session is re-billed ~33x as cache read, and the 35% of sessions passing
 100K carry 78% of all cost. Drop THRESHOLD to 100000 to track the data.
 
+THRESHOLD and the measurement itself live in context_size.py, shared with the
+status line's ctx-flag.py so the two can never disagree about when to break.
+
 UserPromptSubmit hook. Fails open, never blocks a prompt.
 """
 
-import glob
 import hashlib
 import json
 import os
 import sys
 
-THRESHOLD = 150_000   # warn once context passes this
-BUCKET = 50_000       # re-warn each time it climbs another BUCKET
+# realpath, not abspath: this file is invoked through its ~/.claude/hooks
+# symlink, and resolving it lands in the repo checkout next to context_size.py
+# whether or not install.sh has linked that module out yet.
+sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
+
+from context_size import BUCKET, THRESHOLD, measure
 
 
 def main():
@@ -27,54 +33,15 @@ def main():
     if not isinstance(payload, dict):
         return
 
-    path = payload.get("transcript_path")
-    session = payload.get("session_id")
-
-    # Fall back to locating the transcript by session id if the payload omits it.
-    if not path and session:
-        hits = glob.glob(
-            os.path.expanduser(f"~/.claude/projects/**/{session}.jsonl"),
-            recursive=True,
-        )
-        path = hits[0] if hits else None
-
-    if not path or not os.path.isfile(path):
-        return
-
-    ctx = 0
-    try:
-        with open(path, errors="ignore") as fh:
-            for line in fh:
-                if '"usage"' not in line:
-                    continue
-                try:
-                    entry = json.loads(line)
-                except Exception:
-                    continue
-                # Subagent turns carry their own much smaller context. Counting one
-                # would understate the main thread and silence the warning.
-                if entry.get("isSidechain"):
-                    continue
-                msg = entry.get("message") or {}
-                usage = msg.get("usage") if isinstance(msg, dict) else None
-                if not isinstance(usage, dict):
-                    continue
-                total = (
-                    (usage.get("input_tokens") or 0)
-                    + (usage.get("cache_read_input_tokens") or 0)
-                    + (usage.get("cache_creation_input_tokens") or 0)
-                )
-                if total > 0:
-                    ctx = total   # last main-chain usage = current context size
-    except Exception:
-        return
-
+    ctx = measure(payload)
     if ctx < THRESHOLD:
         return
 
-    # Warn once per bucket rather than on every prompt above the line.
+    # Warn once per bucket rather than on every prompt above the line. Keyed
+    # on the transcript so two concurrent sessions don't silence each other.
+    key_source = payload.get("transcript_path") or payload.get("session_id") or ""
     step = (ctx - THRESHOLD) // BUCKET
-    key = hashlib.sha1(f"{path}:{step}".encode()).hexdigest()[:16]
+    key = hashlib.sha1(f"{key_source}:{step}".encode()).hexdigest()[:16]
     stamp = os.path.join("/tmp", f"claude-ctx-{key}")
     if os.path.exists(stamp):
         return
