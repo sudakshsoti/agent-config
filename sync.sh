@@ -15,7 +15,15 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE="$HOME/.claude"
 
-jq 'del(.env)' "$CLAUDE/settings.json" > "$REPO/settings.json"
+# Write via a temp file and mv into place only once jq has succeeded. Redirecting
+# straight into the repo copy truncates it before jq runs, so a malformed live
+# file or a full disk leaves settings.json at 0 bytes — and since this repo is
+# now the only copy, there is nothing left to restore it from.
+tmp="$(mktemp "$REPO/.settings.json.XXXXXX")"
+trap 'rm -f "$tmp"' EXIT
+jq 'del(.env)' "$CLAUDE/settings.json" > "$tmp"
+chmod 644 "$tmp"   # mktemp gives 600; keep the tracked file world-readable
+mv "$tmp" "$REPO/settings.json"
 echo "synced  settings.json (env block stripped)"
 
 echo "---"

@@ -225,5 +225,31 @@ if [ "$PRUNE" = "1" ]; then
   fi
 fi
 
+# 7. Post-run check: is the live settings.json on a permissive posture?
+#    Step 4 only ever copies when the target is absent, so it never inspects an
+#    existing file — and no repo tracks ~/.claude/settings.json any more, so
+#    nothing else reports on it either. A machine provisioned from an older,
+#    stale snapshot can be running with permission prompts bypassed and all Bash
+#    whitelisted, and stay that way silently. Warn only; never rewrite the file.
+if [ -e "$CLAUDE/settings.json" ]; then
+  if command -v jq >/dev/null 2>&1; then
+    if jq -e '
+          (.permissions.defaultMode? == "bypassPermissions")
+          or ((.permissions.allow? // []) | any(. == "Bash(*)" or . == "Bash"))
+        ' "$CLAUDE/settings.json" >/dev/null 2>&1; then
+      echo "⚠️  ~/.claude/settings.json is on a permissive posture:"
+      echo "    defaultMode is 'bypassPermissions', and/or permissions.allow"
+      echo "    whitelists Bash unconditionally. Likely provisioned from an old"
+      echo "    stale snapshot. This repo's tracked settings.json is the safe one"
+      echo "    ('auto' mode, scoped allowlist) — review the live file against it."
+      echo "    Not changed automatically: live is authoritative for this path."
+    else
+      echo "checked settings.json — permission posture is not permissive"
+    fi
+  else
+    echo "⚠️  SKIP settings.json posture check — 'jq' not on PATH."
+  fi
+fi
+
 echo "---"
 echo "linked=$linked mirrored=$mirrored skipped=$skipped copied=$copied plugins=$plugins pruned=$pruned"

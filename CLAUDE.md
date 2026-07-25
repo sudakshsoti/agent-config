@@ -21,7 +21,7 @@ Two different mechanisms, chosen per file type — get this wrong and you either
 ./install.sh              # link skills/agents into ~/.claude, copy skills into Codex, copy settings if absent, sync plugins. Idempotent.
 ./install.sh --prune      # also remove dangling Claude symlinks + orphaned Codex copies for deleted skills/agents
 ./install.sh --no-plugins # skip the `claude plugin` sync step (e.g. offline, or claude not on PATH)
-./sync.sh                 # before committing settings changes — refresh repo copies from ~/.claude
+./sync.sh                 # before committing settings changes — refresh the repo copy of settings.json from ~/.claude
 ```
 
 Run `./install.sh` after adding, renaming, **or editing** a skill if you want the change in Codex (Claude picks up edits live; Codex needs the re-copy). Use `--prune` after deletes. `install.sh` skips (with a warning) any `~/.claude` path that holds a real non-symlink entry, or any `~/.codex/skills` entry that isn't a marked copy — move it aside first.
