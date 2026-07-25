@@ -216,11 +216,12 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash -c 'cols=${COLUMNS:-}; case \"$cols\" in \"\"|*[!0-9]*) cols=$(stty size </dev/tty 2>/dev/null | awk '\"'\"'{print $2}'\"'\"');; esac; case \"$cols\" in \"\"|*[!0-9]*) cols=120;; esac; export COLUMNS=$(( cols > 4 ? cols - 4 : 1 )); plugin_dir=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/*/claude-hud/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $(0) }'\"'\"' | grep -E '\"'\"'^[0-9]+\\.[0-9]+\\.[0-9]+[[:space:]]'\"'\"' | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); node_bin=$(command -v node 2>/dev/null || ls -d \"${NVM_DIR:-$HOME/.nvm}\"/versions/node/*/bin/node 2>/dev/null | sort -V | tail -1); exec \"${node_bin:-/opt/homebrew/bin/node}\" \"${plugin_dir}dist/index.js\"'"
+    "command": "ccstatusline",
+    "padding": 0,
+    "refreshInterval": 10
   },
   "enabledPlugins": {
     "claude-code-setup@claude-plugins-official": true,
-    "claude-hud@claude-hud": true,
     "frontend-design@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
     "vercel@claude-plugins-official": true,
@@ -237,12 +238,6 @@
       "source": {
         "source": "github",
         "repo": "anthropics/claude-plugins-community"
-      }
-    },
-    "claude-hud": {
-      "source": {
-        "source": "github",
-        "repo": "jarrodwatts/claude-hud"
       }
     },
     "claude-plugins-official": {
@@ -289,6 +284,5 @@
       "Internal sharing / snippet hosting: none configured. No public paste or gist service is trusted; nothing from this environment should be posted to one.",
       "Data retention / declassification: the paid MonoLisa and Berkeley Mono font binaries in the dotfiles repo, and the employer-internal Artifactory host and corporate CA path gated behind the `work` machine block in dot_zshrc.tmpl, must never leave that private repository."
     ]
-  },
-  "model": "sonnet"
+  }
 }

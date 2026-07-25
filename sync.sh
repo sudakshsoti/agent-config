@@ -10,10 +10,15 @@
 # is stripped so secrets never enter git. Keep keys in
 # ~/.claude/settings.local.json or accept that they stay local-only.
 #
+# The ccstatusline layout is pulled back the same way, for the same reason:
+# its TUI rewrites ~/.config/ccstatusline/settings.json in place, so the live
+# file is the one that drifts. No secrets in it, so it is copied verbatim.
+#
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE="$HOME/.claude"
+CCSL="$HOME/.config/ccstatusline"
 
 # Write via a temp file and mv into place only once jq has succeeded. Redirecting
 # straight into the repo copy truncates it before jq runs, so a malformed live
@@ -26,6 +31,13 @@ chmod 644 "$tmp"   # mktemp gives 600; keep the tracked file world-readable
 mv "$tmp" "$REPO/settings.json"
 echo "synced  settings.json (env block stripped)"
 
+if [ -f "$CCSL/settings.json" ]; then
+  cp "$CCSL/settings.json" "$REPO/ccstatusline-settings.json"
+  echo "synced  ccstatusline-settings.json"
+else
+  echo "skipped ccstatusline-settings.json ($CCSL/settings.json not found)"
+fi
+
 echo "---"
-git -C "$REPO" status --short -- settings.json
+git -C "$REPO" status --short -- settings.json ccstatusline-settings.json
 echo "(commit with: git add -A && git commit)"
