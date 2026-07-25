@@ -17,8 +17,8 @@
       },
       {
         "id": "3",
-        "type": "custom-text",
-        "customText": "·",
+        "type": "separator",
+        "character": "·",
         "color": "hex:4A4F52"
       },
       {
@@ -49,8 +49,8 @@
       },
       {
         "id": "7",
-        "type": "custom-text",
-        "customText": "·",
+        "type": "separator",
+        "character": "·",
         "color": "hex:4A4F52"
       },
       {
