@@ -157,14 +157,32 @@ echo "layout command (ccstatusline-settings.json, widget 11)"
 # under /bin/sh -c, since that's what ccstatusline's execSync uses, and it's
 # what makes the `||` fallback in the string meaningful.
 #
-# commandPath is an absolute path baked to this checkout. If this checkout
-# is ever moved, these three tests fail -- correctly: a moved checkout
-# silently breaks the live status line, and this group is the only thing
-# that would catch it. A failure here means "check whether the repo moved"
-# before "check ctx-flag.py" -- the note below prints only if that happens,
-# so a normal passing run stays quiet about it.
+# commandPath is an absolute path baked to this checkout. If this checkout is
+# ever moved, only one of the three tests below is guaranteed to fail: the
+# fallback renders identically to success (same grey "ctx"), so the
+# below-threshold case and the missing-script case both pass vacuously --
+# they observe the fallback firing and mistake it for the real script running.
+# Only the above-threshold case is safe, because the fallback can never
+# produce red "CLEAR". The guard just below turns that silent, misleading
+# 2-pass-1-fail into a named failure instead of relying on someone noticing
+# the group didn't go fully red.
 cmd=$(jq -r '.lines[1][] | select(.id=="11") | .commandPath' "$repo_root/ccstatusline-settings.json")
 fail_before_layout=$fail
+
+# Precondition for the missing-script case below: it works by substituting
+# $missing for $script inside $cmd, which only rewrites anything if $script
+# actually appears in $cmd. A moved checkout means commandPath no longer
+# contains $script, so the sed match-and-replace becomes a no-op, broken_cmd
+# equals cmd, and that case silently re-runs the already-broken real command
+# instead of testing the substitution it claims to. Name that condition
+# directly rather than letting it masquerade as a pass.
+if [[ "$cmd" != *"$script"* ]]; then
+  echo "  FAIL  layout commandPath does not point at $script"
+  echo "        commandPath: $cmd"
+  echo "        Did this checkout move? The live status line is broken too;"
+  echo "        run ./install.sh --force-statusline after fixing the path."
+  fail=$((fail+1))
+fi
 
 check "layout command: below threshold renders ctx" "$(payload "$usage_below")" label /bin/sh -c "$cmd"
 
