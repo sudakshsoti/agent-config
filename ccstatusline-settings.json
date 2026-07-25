@@ -46,7 +46,7 @@
       {
         "id": "11",
         "type": "custom-command",
-        "commandPath": "python3 /Users/sudakshsoti/dev/agent-config/scripts/ctx-flag.py",
+        "commandPath": "python3 /Users/sudakshsoti/dev/agent-config/scripts/ctx-flag.py 2>/dev/null || printf '\\033[38;2;130;134;137mctx\\033[39m'",
         "preserveColors": true
       },
       {
