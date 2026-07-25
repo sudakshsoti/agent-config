@@ -22,6 +22,8 @@
 # would break; never clobbers an existing file):
 #   settings.json             -> ~/.claude/settings.json
 #   ccstatusline-settings.json -> ~/.config/ccstatusline/settings.json
+#     (pass --force-statusline to overwrite an existing live file with the
+#     repo's copy — needed to actually deploy a repo-side layout edit)
 #
 # Plugins (declared in plugins.txt, applied via the `claude` CLI — NOT vendored):
 #   marketplace/plugin lines -> `claude plugin marketplace add` / `install`
@@ -30,9 +32,10 @@
 #
 # Idempotent; safe to re-run. Run once after cloning on a new machine.
 #
-#   ./install.sh              # link skills+agents, copy skills into Codex, copy settings if absent, sync plugins
-#   ./install.sh --prune      # also remove dangling Claude symlinks + orphaned Codex copies
-#   ./install.sh --no-plugins # skip the `claude plugin` sync step
+#   ./install.sh                  # link skills+agents, copy skills into Codex, copy settings if absent, sync plugins
+#   ./install.sh --prune          # also remove dangling Claude symlinks + orphaned Codex copies
+#   ./install.sh --no-plugins     # skip the `claude plugin` sync step
+#   ./install.sh --force-statusline # redeploy ccstatusline-settings.json over an existing live file
 #
 set -euo pipefail
 
@@ -42,12 +45,14 @@ CODEX="$HOME/.codex"
 PRUNE=0
 FORCE=0
 PLUGINS=1
+FORCE_STATUSLINE=0
 for arg in "$@"; do
   case "$arg" in
     --prune) PRUNE=1 ;;
     --force) FORCE=1 ;;
     --no-plugins) PLUGINS=0 ;;
-    *) echo "unknown option: $arg (expected --prune, --force and/or --no-plugins)"; exit 2 ;;
+    --force-statusline) FORCE_STATUSLINE=1 ;;
+    *) echo "unknown option: $arg (expected --prune, --force, --no-plugins and/or --force-statusline)"; exit 2 ;;
   esac
 done
 
@@ -168,11 +173,17 @@ fi
 #     ccstatusline TUI rewrites ~/.config/ccstatusline/settings.json in place,
 #     so a symlink would let it write back into the repo unreviewed. Edit the
 #     layout with the TUI, then run ./sync.sh to pull it back here.
+#     --force-statusline overwrites the live file even when it already exists,
+#     for the opposite direction: pushing a repo-side layout edit out live.
 CCSL="$HOME/.config/ccstatusline"
 if [ ! -e "$CCSL/settings.json" ]; then
   mkdir -p "$CCSL"
   cp "$REPO/ccstatusline-settings.json" "$CCSL/settings.json"
   echo "copied  ccstatusline-settings.json"
+  copied=$((copied + 1))
+elif [ "$FORCE_STATUSLINE" = "1" ]; then
+  cp "$REPO/ccstatusline-settings.json" "$CCSL/settings.json"
+  echo "forced  ccstatusline-settings.json (overwrote existing live file)"
   copied=$((copied + 1))
 fi
 

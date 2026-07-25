@@ -16,12 +16,6 @@
         "color": "hex:828689"
       },
       {
-        "id": "3",
-        "type": "custom-text",
-        "customText": "·",
-        "color": "hex:4A4F52"
-      },
-      {
         "id": "r1",
         "type": "git-origin-repo",
         "color": "hex:D3D8DA",
@@ -49,9 +43,7 @@
       },
       {
         "id": "7",
-        "type": "custom-text",
-        "customText": "·",
-        "color": "hex:4A4F52"
+        "type": "flex-separator"
       },
       {
         "id": "8",
@@ -75,9 +67,9 @@
     [
       {
         "id": "11",
-        "type": "custom-text",
-        "customText": "ctx",
-        "color": "hex:828689"
+        "type": "custom-command",
+        "commandPath": "python3 /Users/sudakshsoti/dev/agent-config/scripts/ctx-flag.py",
+        "preserveColors": true
       },
       {
         "id": "12",
@@ -107,6 +99,36 @@
         "type": "context-window",
         "rawValue": true,
         "color": "hex:828689"
+      },
+      {
+        "id": "24",
+        "type": "separator",
+        "character": "·",
+        "color": "hex:4A4F52"
+      },
+      {
+        "id": "26",
+        "type": "cache-timer",
+        "rawValue": true,
+        "color": "hex:65C1B5",
+        "metadata": {
+          "ttlSeconds": "3600",
+          "hideWhenEmpty": "true",
+          "symbolHot": "◆",
+          "symbolFresh": "▓",
+          "symbolDraining": "▒",
+          "symbolUrgent": "░",
+          "symbolCold": "×"
+        }
+      },
+      {
+        "id": "27",
+        "type": "cache-hit-rate",
+        "rawValue": true,
+        "color": "hex:65C1B5",
+        "metadata": {
+          "hideWhenEmpty": "true"
+        }
       },
       {
         "id": "16",
