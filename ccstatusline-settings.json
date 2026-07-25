@@ -40,35 +40,13 @@
         "metadata": {
           "hideNoGit": "true"
         }
-      },
-      {
-        "id": "7",
-        "type": "flex-separator"
-      },
-      {
-        "id": "8",
-        "type": "session-clock",
-        "rawValue": true,
-        "color": "hex:828689"
-      },
-      {
-        "id": "9",
-        "type": "custom-text",
-        "customText": "·",
-        "color": "hex:4A4F52"
-      },
-      {
-        "id": "10",
-        "type": "session-cost",
-        "rawValue": true,
-        "color": "hex:828689"
       }
     ],
     [
       {
         "id": "11",
         "type": "custom-command",
-        "commandPath": "python3 /Users/sudakshsoti/dev/agent-config/scripts/ctx-flag.py",
+        "commandPath": "python3 /Users/sudakshsoti/dev/agent-config/scripts/ctx-flag.py 2>/dev/null || printf '\\033[38;2;130;134;137mctx\\033[39m'",
         "preserveColors": true
       },
       {

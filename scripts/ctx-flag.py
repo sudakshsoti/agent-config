@@ -48,6 +48,11 @@ def main():
     except Exception:
         return
 
+    # Written once, as the last statement, and never before this point in the
+    # function: the layout's `|| printf` fallback replaces stdout wholesale on
+    # failure, so any earlier or incremental write here would leave stale
+    # partial output for the fallback text to concatenate onto rather than
+    # replace.
     if measure(payload) >= THRESHOLD:
         sys.stdout.write(f"{RED}{ALERT}{RESET}")
     else:
