@@ -131,6 +131,15 @@
         }
       },
       {
+        "id": "27",
+        "type": "cache-hit-rate",
+        "rawValue": true,
+        "color": "hex:65C1B5",
+        "metadata": {
+          "hideWhenEmpty": "true"
+        }
+      },
+      {
         "id": "16",
         "type": "custom-text",
         "customText": "·",
