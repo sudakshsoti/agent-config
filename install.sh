@@ -18,9 +18,9 @@
 #     copies of deleted skills without touching ~/.codex/skills/.system or
 #     other hand-installed Codex skills.
 #
-# Copies, only if missing (Claude Code rewrites these itself, so a symlink
+# Copies, only if missing (Claude Code rewrites it itself, so a symlink
 # would break; never clobbers an existing file):
-#   settings.json, statusline.sh, claude-powerline.json -> ~/.claude/
+#   settings.json -> ~/.claude/
 #
 # Plugins (declared in plugins.txt, applied via the `claude` CLI — NOT vendored):
 #   marketplace/plugin lines -> `claude plugin marketplace add` / `install`
@@ -153,16 +153,15 @@ done
 #    move the live file back into the repo.
 link_into "$REPO/global-CLAUDE.md" "$CLAUDE/CLAUDE.md"
 
-# 4. Settings files: copy only if missing (new-machine bootstrap).
+# 4. Settings file: copy only if missing (new-machine bootstrap).
 #    settings.json in the repo has no secrets — add machine-local env/keys
 #    to ~/.claude/settings.local.json, which is never tracked here.
-for f in settings.json statusline.sh claude-powerline.json; do
-  if [ ! -e "$CLAUDE/$f" ]; then
-    cp "$REPO/$f" "$CLAUDE/$f"
-    echo "copied  $f"
-    copied=$((copied + 1))
-  fi
-done
+f=settings.json
+if [ ! -e "$CLAUDE/$f" ]; then
+  cp "$REPO/$f" "$CLAUDE/$f"
+  echo "copied  $f"
+  copied=$((copied + 1))
+fi
 
 # 5. Plugins: reproduce the marketplace + plugin set from plugins.txt via the
 #    `claude` CLI. Content is NOT vendored — these commands add the marketplaces
