@@ -2,9 +2,9 @@
 #
 # sync.sh — pull live settings from ~/.claude back into this repo
 #
-# Skills and agents are symlinked, so they never drift. The three copied
-# files can: Claude Code edits ~/.claude/settings.json directly (via
-# /config etc.). Run this before committing to refresh the repo copies.
+# Skills and agents are symlinked, so they never drift. settings.json is
+# copied instead: Claude Code edits ~/.claude/settings.json directly (via
+# /config etc.). Run this before committing to refresh the repo copy.
 #
 # settings.json is sanitized on the way in: the "env" block (API keys)
 # is stripped so secrets never enter git. Keep keys in
@@ -15,16 +15,17 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE="$HOME/.claude"
 
-jq 'del(.env)' "$CLAUDE/settings.json" > "$REPO/settings.json"
+# Write via a temp file and mv into place only once jq has succeeded. Redirecting
+# straight into the repo copy truncates it before jq runs, so a malformed live
+# file or a full disk leaves settings.json at 0 bytes — and since this repo is
+# now the only copy, there is nothing left to restore it from.
+tmp="$(mktemp "$REPO/.settings.json.XXXXXX")"
+trap 'rm -f "$tmp"' EXIT
+jq 'del(.env)' "$CLAUDE/settings.json" > "$tmp"
+chmod 644 "$tmp"   # mktemp gives 600; keep the tracked file world-readable
+mv "$tmp" "$REPO/settings.json"
 echo "synced  settings.json (env block stripped)"
 
-for f in statusline.sh claude-powerline.json; do
-  if [ -e "$CLAUDE/$f" ]; then
-    cp "$CLAUDE/$f" "$REPO/$f"
-    echo "synced  $f"
-  fi
-done
-
 echo "---"
-git -C "$REPO" status --short -- settings.json statusline.sh claude-powerline.json
+git -C "$REPO" status --short -- settings.json
 echo "(commit with: git add -A && git commit)"

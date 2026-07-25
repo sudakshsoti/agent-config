@@ -1,8 +1,8 @@
 # agent-config
 
 My agent configuration for [Claude Code](https://code.claude.com/docs) —
-skills, subagents, settings, and statusline. Private: several skills carry
-personal context.
+skills, subagents, and settings. Private: several skills carry personal
+context.
 
 ## Quick start (new machine)
 
@@ -18,22 +18,20 @@ cd ~/dev/agent-config && ./install.sh
 - `commands/` — Global slash commands (`/recall`, `/remember` for the
   `~/claude-memory` vault). Symlinked per file.
 - `settings.json` — Global settings, sanitized, no API keys. Copied if missing.
-- `statusline.sh` — Minimal custom statusline (context bar + model). Copied if missing.
-- `claude-powerline.json` — Config for the claude-powerline statusline. Copied if missing.
 
 ## Day-to-day
 
 ```bash
 ./install.sh           # after adding/renaming a skill or agent — relinks
 ./install.sh --prune   # after deleting one — also clears dead symlinks
-./sync.sh              # before committing — refresh repo copies of the
-                       # settings files from ~/.claude (strips API keys)
+./sync.sh              # before committing — refresh the repo copy of
+                       # settings.json from ~/.claude (strips API keys)
 ```
 
 Skills and agents are **symlinked**, so editing them in this repo is live
-immediately — just commit when happy. The settings files are **copies**
-(Claude Code rewrites `settings.json` itself, which would clobber a
-symlink), hence `sync.sh`.
+immediately — just commit when happy. `settings.json` is a **copy**
+(Claude Code rewrites it itself, which would clobber a symlink), hence
+`sync.sh`.
 
 ## Secrets policy
 

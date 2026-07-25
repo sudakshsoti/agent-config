@@ -5,12 +5,128 @@
   },
   "permissions": {
     "allow": [
-      "Bash(*)",
-      "Bash"
+      "Bash(md5 *)",
+      "Bash(defaults read *)",
+      "Bash(fc-list *)",
+      "Bash(fc-scan *)",
+      "Bash(fc-match *)",
+      "Bash(plutil -p *)",
+      "Bash(chezmoi diff *)",
+      "Bash(chezmoi status *)",
+      "Bash(chezmoi managed *)",
+      "Bash(chezmoi status)",
+      "Bash(chezmoi managed)",
+      "mcp__claude-in-chrome__find",
+      "mcp__claude-in-chrome__read_page",
+      "mcp__claude-in-chrome__tabs_context_mcp"
     ],
-    "defaultMode": "bypassPermissions"
+    "defaultMode": "auto"
+  },
+  "skillOverrides": {
+    "composition-patterns": "off",
+    "web-design-guidelines": "off",
+    "cross-post": "off",
+    "reading-companion": "off",
+    "gtd": "off"
   },
   "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPACODE_SURFACE_ID:-}\" ] && { __tty=$(ps -o tty= -p \"$PPID\" 2>/dev/null | tr -d '[:space:]'); case \"$__tty\" in *[0-9]*) __tty=\"/dev/${__tty#/dev/}\";; *) __tty=\"/dev/tty\";; esac; __sp=\"\"; [ -n \"${SUPACODE_SOCKET_PATH:-}\" ] && __sp=\";pid=$PPID\"; printf '\\033]3008;start=claude;event=awaiting_input%s\\033\\\\' \"$__sp\" > \"$__tty\"; __in=$(cat); __t=$(printf '%s' \"$__in\" | LC_ALL=C awk -v keys=\"title\" -v budget=160 'function ws(c){return c==\" \"||c==\"\\t\"||c==\"\\n\"||c==\"\\r\"}function fv(s,key,  p,i,n,c,o,e){p=\"\\\"\"key\"\\\"\";i=index(s,p);if(i==0)return \"\";i+=length(p);n=length(s);while(i<=n){if(ws(substr(s,i,1)))i++;else break}if(substr(s,i,1)!=\":\")return \"\";i++;while(i<=n){if(ws(substr(s,i,1)))i++;else break}if(substr(s,i,1)!=\"\\\"\")return \"\";i++;o=\"\";e=0;while(i<=n){c=substr(s,i,1);if(e){o=o c;e=0;i++;continue}if(c==\"\\\\\"){o=o c;e=1;i++;continue}if(c==\"\\\"\")break;o=o c;i++}return o}{d=d $0}END{n=split(keys,ks,\",\");v=\"\";for(j=1;j<=n;j++){v=fv(d,ks[j]);if(v!=\"\")break}if(length(v)>budget+0)v=substr(v,1,budget+0);printf \"%s\",v}' | base64 | tr -d '\\n'); __b=$(printf '%s' \"$__in\" | LC_ALL=C awk -v keys=\"message,last_assistant_message,assistant_response\" -v budget=1000 'function ws(c){return c==\" \"||c==\"\\t\"||c==\"\\n\"||c==\"\\r\"}function fv(s,key,  p,i,n,c,o,e){p=\"\\\"\"key\"\\\"\";i=index(s,p);if(i==0)return \"\";i+=length(p);n=length(s);while(i<=n){if(ws(substr(s,i,1)))i++;else break}if(substr(s,i,1)!=\":\")return \"\";i++;while(i<=n){if(ws(substr(s,i,1)))i++;else break}if(substr(s,i,1)!=\"\\\"\")return \"\";i++;o=\"\";e=0;while(i<=n){c=substr(s,i,1);if(e){o=o c;e=0;i++;continue}if(c==\"\\\\\"){o=o c;e=1;i++;continue}if(c==\"\\\"\")break;o=o c;i++}return o}{d=d $0}END{n=split(keys,ks,\",\");v=\"\";for(j=1;j<=n;j++){v=fv(d,ks[j]);if(v!=\"\")break}if(length(v)>budget+0)v=substr(v,1,budget+0);printf \"%s\",v}' | base64 | tr -d '\\n'); printf '\\033]3008;start=claude;kind=notify;title=%s;body=%s\\033\\\\' \"$__t\" \"$__b\" > \"$__tty\"; } >/dev/null 2>&1 || true # supacode-managed-hook",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPERSET_HOME_DIR:-}\" ] && [ -x \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" ] && SUPERSET_AGENT_ID=claude \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" || true"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPERSET_HOME_DIR:-}\" ] && [ -x \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" ] && SUPERSET_AGENT_ID=claude \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" || true"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPACODE_SURFACE_ID:-}\" ] && { __tty=$(ps -o tty= -p \"$PPID\" 2>/dev/null | tr -d '[:space:]'); case \"$__tty\" in *[0-9]*) __tty=\"/dev/${__tty#/dev/}\";; *) __tty=\"/dev/tty\";; esac; __sp=\"\"; [ -n \"${SUPACODE_SOCKET_PATH:-}\" ] && __sp=\";pid=$PPID\"; printf '\\033]3008;start=claude;event=idle%s\\033\\\\' \"$__sp\" > \"$__tty\"; } >/dev/null 2>&1 || true # supacode-managed-hook",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPERSET_HOME_DIR:-}\" ] && [ -x \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" ] && SUPERSET_AGENT_ID=claude \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" || true"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPACODE_SURFACE_ID:-}\" ] && { __tty=$(ps -o tty= -p \"$PPID\" 2>/dev/null | tr -d '[:space:]'); case \"$__tty\" in *[0-9]*) __tty=\"/dev/${__tty#/dev/}\";; *) __tty=\"/dev/tty\";; esac; __sp=\"\"; [ -n \"${SUPACODE_SOCKET_PATH:-}\" ] && __sp=\";pid=$PPID\"; printf '\\033]3008;start=claude;event=busy%s\\033\\\\' \"$__sp\" > \"$__tty\"; } >/dev/null 2>&1 || true # supacode-managed-hook",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "AskUserQuestion|ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPACODE_SURFACE_ID:-}\" ] && { __tty=$(ps -o tty= -p \"$PPID\" 2>/dev/null | tr -d '[:space:]'); case \"$__tty\" in *[0-9]*) __tty=\"/dev/${__tty#/dev/}\";; *) __tty=\"/dev/tty\";; esac; __sp=\"\"; [ -n \"${SUPACODE_SOCKET_PATH:-}\" ] && __sp=\";pid=$PPID\"; printf '\\033]3008;start=claude;event=awaiting_input%s\\033\\\\' \"$__sp\" > \"$__tty\"; } >/dev/null 2>&1 || true # supacode-managed-hook",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPERSET_HOME_DIR:-}\" ] && [ -x \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" ] && SUPERSET_AGENT_ID=claude \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" || true"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPACODE_SURFACE_ID:-}\" ] && { __tty=$(ps -o tty= -p \"$PPID\" 2>/dev/null | tr -d '[:space:]'); case \"$__tty\" in *[0-9]*) __tty=\"/dev/${__tty#/dev/}\";; *) __tty=\"/dev/tty\";; esac; __sp=\"\"; [ -n \"${SUPACODE_SOCKET_PATH:-}\" ] && __sp=\";pid=$PPID\"; printf '\\033]3008;end=claude;event=session_end%s\\033\\\\' \"$__sp\" > \"$__tty\"; __sp=\"\"; [ -n \"${SUPACODE_SOCKET_PATH:-}\" ] && __sp=\";pid=$PPID\"; printf '\\033]3008;start=claude;event=idle%s\\033\\\\' \"$__sp\" > \"$__tty\"; } >/dev/null 2>&1 || true # supacode-managed-hook",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "matcher": "*",
@@ -21,9 +137,62 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPERSET_HOME_DIR:-}\" ] && [ -x \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" ] && SUPERSET_AGENT_ID=claude \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" || true"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPACODE_SURFACE_ID:-}\" ] && { __tty=$(ps -o tty= -p \"$PPID\" 2>/dev/null | tr -d '[:space:]'); case \"$__tty\" in *[0-9]*) __tty=\"/dev/${__tty#/dev/}\";; *) __tty=\"/dev/tty\";; esac; __sp=\"\"; [ -n \"${SUPACODE_SOCKET_PATH:-}\" ] && __sp=\";pid=$PPID\"; printf '\\033]3008;start=claude;event=session_start%s\\033\\\\' \"$__sp\" > \"$__tty\"; } >/dev/null 2>&1 || true # supacode-managed-hook",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPERSET_HOME_DIR:-}\" ] && [ -x \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" ] && SUPERSET_AGENT_ID=claude \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" || true"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPACODE_SURFACE_ID:-}\" ] && { __tty=$(ps -o tty= -p \"$PPID\" 2>/dev/null | tr -d '[:space:]'); case \"$__tty\" in *[0-9]*) __tty=\"/dev/${__tty#/dev/}\";; *) __tty=\"/dev/tty\";; esac; __sp=\"\"; [ -n \"${SUPACODE_SOCKET_PATH:-}\" ] && __sp=\";pid=$PPID\"; printf '\\033]3008;start=claude;event=idle%s\\033\\\\' \"$__sp\" > \"$__tty\"; __in=$(cat); __t=$(printf '%s' \"$__in\" | LC_ALL=C awk -v keys=\"title\" -v budget=160 'function ws(c){return c==\" \"||c==\"\\t\"||c==\"\\n\"||c==\"\\r\"}function fv(s,key,  p,i,n,c,o,e){p=\"\\\"\"key\"\\\"\";i=index(s,p);if(i==0)return \"\";i+=length(p);n=length(s);while(i<=n){if(ws(substr(s,i,1)))i++;else break}if(substr(s,i,1)!=\":\")return \"\";i++;while(i<=n){if(ws(substr(s,i,1)))i++;else break}if(substr(s,i,1)!=\"\\\"\")return \"\";i++;o=\"\";e=0;while(i<=n){c=substr(s,i,1);if(e){o=o c;e=0;i++;continue}if(c==\"\\\\\"){o=o c;e=1;i++;continue}if(c==\"\\\"\")break;o=o c;i++}return o}{d=d $0}END{n=split(keys,ks,\",\");v=\"\";for(j=1;j<=n;j++){v=fv(d,ks[j]);if(v!=\"\")break}if(length(v)>budget+0)v=substr(v,1,budget+0);printf \"%s\",v}' | base64 | tr -d '\\n'); __b=$(printf '%s' \"$__in\" | LC_ALL=C awk -v keys=\"message,last_assistant_message,assistant_response\" -v budget=1000 'function ws(c){return c==\" \"||c==\"\\t\"||c==\"\\n\"||c==\"\\r\"}function fv(s,key,  p,i,n,c,o,e){p=\"\\\"\"key\"\\\"\";i=index(s,p);if(i==0)return \"\";i+=length(p);n=length(s);while(i<=n){if(ws(substr(s,i,1)))i++;else break}if(substr(s,i,1)!=\":\")return \"\";i++;while(i<=n){if(ws(substr(s,i,1)))i++;else break}if(substr(s,i,1)!=\"\\\"\")return \"\";i++;o=\"\";e=0;while(i<=n){c=substr(s,i,1);if(e){o=o c;e=0;i++;continue}if(c==\"\\\\\"){o=o c;e=1;i++;continue}if(c==\"\\\"\")break;o=o c;i++}return o}{d=d $0}END{n=split(keys,ks,\",\");v=\"\";for(j=1;j<=n;j++){v=fv(d,ks[j]);if(v!=\"\")break}if(length(v)>budget+0)v=substr(v,1,budget+0);printf \"%s\",v}' | base64 | tr -d '\\n'); printf '\\033]3008;start=claude;kind=notify;title=%s;body=%s\\033\\\\' \"$__t\" \"$__b\" > \"$__tty\"; } >/dev/null 2>&1 || true # supacode-managed-hook",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPERSET_HOME_DIR:-}\" ] && [ -x \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" ] && SUPERSET_AGENT_ID=claude \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" || true"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPACODE_SURFACE_ID:-}\" ] && { __tty=$(ps -o tty= -p \"$PPID\" 2>/dev/null | tr -d '[:space:]'); case \"$__tty\" in *[0-9]*) __tty=\"/dev/${__tty#/dev/}\";; *) __tty=\"/dev/tty\";; esac; __sp=\"\"; [ -n \"${SUPACODE_SOCKET_PATH:-}\" ] && __sp=\";pid=$PPID\"; printf '\\033]3008;start=claude;event=busy%s\\033\\\\' \"$__sp\" > \"$__tty\"; } >/dev/null 2>&1 || true # supacode-managed-hook",
+            "timeout": 10
+          }
+        ]
+      },
       {
         "hooks": [
           {
@@ -33,29 +202,65 @@
           }
         ]
       }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${SUPERSET_HOME_DIR:-}\" ] && [ -x \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" ] && SUPERSET_AGENT_ID=claude \"${SUPERSET_HOME_DIR:-}/hooks/notify.sh\" || true"
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
     "type": "command",
-    "command": "npx -y @owloops/claude-powerline@latest",
-    "padding": 0
+    "command": "bash -c 'cols=${COLUMNS:-}; case \"$cols\" in \"\"|*[!0-9]*) cols=$(stty size </dev/tty 2>/dev/null | awk '\"'\"'{print $2}'\"'\"');; esac; case \"$cols\" in \"\"|*[!0-9]*) cols=120;; esac; export COLUMNS=$(( cols > 4 ? cols - 4 : 1 )); plugin_dir=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/*/claude-hud/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $(0) }'\"'\"' | grep -E '\"'\"'^[0-9]+\\.[0-9]+\\.[0-9]+[[:space:]]'\"'\"' | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); node_bin=$(command -v node 2>/dev/null || ls -d \"${NVM_DIR:-$HOME/.nvm}\"/versions/node/*/bin/node 2>/dev/null | sort -V | tail -1); exec \"${node_bin:-/opt/homebrew/bin/node}\" \"${plugin_dir}dist/index.js\"'"
   },
   "enabledPlugins": {
+    "claude-code-setup@claude-plugins-official": true,
+    "claude-hud@claude-hud": true,
     "frontend-design@claude-plugins-official": true,
-    "vercel@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
-    "claude-code-setup@claude-plugins-official": true
+    "vercel@claude-plugins-official": true,
+    "humanizer@humanizer": true
   },
   "extraKnownMarketplaces": {
+    "claude-code-warp": {
+      "source": {
+        "source": "github",
+        "repo": "warpdotdev/claude-code-warp"
+      }
+    },
     "claude-community": {
       "source": {
         "source": "github",
         "repo": "anthropics/claude-plugins-community"
       }
+    },
+    "claude-hud": {
+      "source": {
+        "source": "github",
+        "repo": "jarrodwatts/claude-hud"
+      }
+    },
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "humanizer": {
+      "source": {
+        "source": "github",
+        "repo": "blader/humanizer"
+      }
     }
   },
   "spinnerTipsEnabled": false,
   "effortLevel": "high",
+  "askUserQuestionTimeout": "never",
   "autoUpdatesChannel": "latest",
   "skipDangerousModePermissionPrompt": true,
   "editorMode": "normal",
@@ -63,5 +268,27 @@
   "remoteControlAtStartup": false,
   "agentPushNotifEnabled": false,
   "skipAutoPermissionPrompt": true,
-  "model": "claude-fable-5[1m]"
+  "useAutoModeDuringPlan": true,
+  "autoMode": {
+    "hard_deny": [
+      "$defaults",
+      "Never make github.com/sudakshsoti/dotfiles public, and never copy its paid font binaries or its employer-internal `work`-gated config into any public repository, gist, paste service, or other public destination. The repository's private status is a licence obligation that a later commit cannot undo."
+    ],
+    "environment": [
+      "$defaults",
+      "Organization: individual developer, no employer context on this machine (hostname OKLCH, a personal Mac). Primary use: software development plus personal infrastructure automation — dotfiles management, a self-hosted homelab, and small web projects.",
+      "Source control: github.com/sudakshsoti is the source-control trust boundary and every repository under it is the user's own. Visibility still governs content independently of account trust: a public repository under this account is a publication destination like any other, and account ownership does not clear private material into one.",
+      "Repository visibility: github.com/sudakshsoti/dotfiles is private and carries paid non-redistributable font binaries plus employer-internal config. It is a routine push target for first-party dotfiles work; what it must never be is a source for anything sent to a public destination, and its visibility must never change.",
+      "Cloud provider(s): Hetzner (the homelab VPS), Vercel, and Supabase. Tailscale provides the private network between machines.",
+      "Trusted internal domains: *.sudaksh.com (all subdomains are the user's own self-hosted services behind Caddy), and the homelab host reachable over Tailscale at 100.113.191.93 and via the `homelab` SSH alias.",
+      "Key internal services: the homelab box — a single-tenant Hetzner VPS the user owns outright — running Docker Compose stacks under /opt/stacks, a Caddy reverse proxy, n8n at n8n.sudaksh.com, ntfy at ntfy.sudaksh.com, and a self-hosted media stack (sonarr, radarr, prowlarr, bazarr, decypharr, rclone/TorBox). SSH into it, reading and editing /opt/stacks files, inspecting docker state, and reading logs are all routine.",
+      "CI/CD deploy targets: the homelab box itself is the deploy target, and it is trusted. Deploying means rsyncing /opt/stacks and running docker compose up -d / restart over SSH. These are first-party operations on hardware the user owns, not deploys into a shared or multi-tenant production environment.",
+      "Protected deployment namespaces / environments: none. The homelab is a personal single-tenant box with no other users or tenants, so it should not be treated as a sensitive production namespace merely because it serves live traffic.",
+      "Secrets management: 1Password via the `op` CLI (Personal vault) and age-encrypted blobs committed as ciphertext inside the private dotfiles repo. Reading a secret with `op read`, and decrypting with the age identity at ~/.config/chezmoi/key.txt during `chezmoi apply`, are the intended everyday mechanisms and are expected to happen without escalation.",
+      "Org-specific CLIs: chezmoi (dotfiles source-of-truth; `chezmoi diff`/`status`/`managed`/`apply` are routine), herdr (terminal multiplexer), op (1Password), gh, rclone, docker, supabase, and vercel.",
+      "Internal sharing / snippet hosting: none configured. No public paste or gist service is trusted; nothing from this environment should be posted to one.",
+      "Data retention / declassification: the paid MonoLisa and Berkeley Mono font binaries in the dotfiles repo, and the employer-internal Artifactory host and corporate CA path gated behind the `work` machine block in dot_zshrc.tmpl, must never leave that private repository."
+    ]
+  },
+  "model": "sonnet"
 }
