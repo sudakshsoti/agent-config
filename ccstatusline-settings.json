@@ -30,15 +30,6 @@
         }
       },
       {
-        "id": "4",
-        "type": "current-working-dir",
-        "rawValue": true,
-        "color": "hex:828689",
-        "metadata": {
-          "segments": "1"
-        }
-      },
-      {
         "id": "5",
         "type": "git-branch",
         "rawValue": true,
