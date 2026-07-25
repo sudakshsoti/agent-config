@@ -40,28 +40,6 @@
         "metadata": {
           "hideNoGit": "true"
         }
-      },
-      {
-        "id": "7",
-        "type": "flex-separator"
-      },
-      {
-        "id": "8",
-        "type": "session-clock",
-        "rawValue": true,
-        "color": "hex:828689"
-      },
-      {
-        "id": "9",
-        "type": "custom-text",
-        "customText": "·",
-        "color": "hex:4A4F52"
-      },
-      {
-        "id": "10",
-        "type": "session-cost",
-        "rawValue": true,
-        "color": "hex:828689"
       }
     ],
     [
