@@ -84,8 +84,8 @@ docker compose logs --tail=30 <svc>          # no crash-loop
 
 For a web service, hit the endpoint (from the Mac/client, not the Hetzner IP — Cloudflare
 Bot-Fight 403s the datacenter IP for proxied vhosts). If something regressed, treat it as
-an incident → use the **homelab-triage** skill and write up non-trivial fixes in
-`JOURNAL.md`.
+an incident → use the **homelab-triage** skill and `/remember` non-trivial fixes into
+`~/dev/claude-memory`.
 
 ## Research-first
 

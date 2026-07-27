@@ -8,8 +8,8 @@ description: |
   issue. Triggers on "the box is down", "X is unhealthy / keeps restarting",
   "out of disk", "everything is slow", "what's wrong with the server", "why did it
   reboot", "OOM", "write an RCA", "incident", or any homelab debugging. Points symptom
-  → the right rules file and scaffolds the JOURNAL / RCA entry. RIGID first-look order;
-  read JOURNAL before theorizing, write it up after.
+  → the right rules file and scaffolds a `/remember` entry for the incident. RIGID
+  first-look order; recall prior history before theorizing, `/remember` it after.
 ---
 
 # Homelab Triage
@@ -21,8 +21,10 @@ root cause (see superpowers:systematic-debugging).
 
 ## Step 0 — read history first
 
-Before theorizing, read `JOURNAL.md` (homelab repo) for prior occurrences — most "new"
-incidents have a documented cause and fix. This is non-negotiable for _recurring_ symptoms.
+Before theorizing, invoke `/recall` (or read `~/dev/claude-memory` directly — `wiki/index.md`
+is the entry point) for prior occurrences — most "new" incidents have a documented cause and
+fix. This is non-negotiable for _recurring_ symptoms. (`JOURNAL.md` and `RCA-*.md` were
+retired 2026-07-27 — all incident/decision history now lives in this vault, not the repo.)
 
 ## Step 1 — first-look sweep (fixed order)
 
@@ -68,15 +70,15 @@ teardown makes the wedge worse.
 
 ## Step 4 — leave a paper trail
 
-- **Recurring or non-trivial fix** → append a dated entry to `JOURNAL.md` (the incident
-  log): what broke, root cause, fix, how verified.
-- **Significant incident with a real root-cause investigation** → write `RCA-YYYY-MM-DD-<slug>.md`
-  at the homelab repo root. `CLAUDE.md` name-drops the `RCA-*.md` convention; the structure
-  below is the canonical spec. For a worked example to model the depth on, see the existing
-  `INCIDENT-2026-06-25-sonarr-library-wipe.md` at the repo root. Suggested structure:
+- **Recurring or non-trivial fix** → invoke `/remember` so the incident gets distilled and
+  ingested into `~/dev/claude-memory` (what broke, root cause, fix, how verified) — this
+  replaces the old `JOURNAL.md` append.
+- **Significant incident with a real root-cause investigation** → still worth writing up in
+  the same shape the old `RCA-*.md` files used, but hand it to `/remember` as the source
+  material rather than a new repo file:
 
   ```markdown
-  # RCA YYYY-MM-DD — <one-line title>
+  # <one-line title>, YYYY-MM-DD
 
   ## Symptom — what was observed, when, blast radius
 
