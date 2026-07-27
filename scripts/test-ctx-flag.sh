@@ -166,7 +166,7 @@ echo "layout command (ccstatusline-settings.json, widget 11)"
 # produce red "CLEAR". The guard just below turns that silent, misleading
 # 2-pass-1-fail into a named failure instead of relying on someone noticing
 # the group didn't go fully red.
-cmd=$(jq -r '.lines[1][] | select(.id=="11") | .commandPath' "$repo_root/ccstatusline-settings.json")
+cmd=$(jq -r '.lines[0][] | select(.id=="11") | .commandPath' "$repo_root/ccstatusline-settings.json")
 fail_before_layout=$fail
 
 # Precondition for the missing-script case below: it works by substituting
