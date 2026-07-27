@@ -187,19 +187,57 @@ time. `hooks/context-budget.py` is the working model to copy, and
 `scripts/test-ctx-flag.sh` is the precedent for how an intentionally silent thing gets
 tested.
 
-- [ ] Write `hooks/memory-consolidate.py`. It fires on `SessionEnd`, decides whether the
-      session produced anything durable, and if so runs the A path.
-- [ ] Wire it in `settings.json` and mirror the change with `sync.sh` conventions.
-- [ ] Make it commit separately, so the consolidation diff is reviewable on its own.
-- [ ] Add mutual exclusion, so two sessions ending together cannot double-write.
-- [ ] Extend `scripts/test-ctx-flag.sh` or add a sibling test. The failure mode of a
+- [x] Write `hooks/memory-consolidate.py`. It fires on `SessionEnd`, decides whether the
+      session produced anything durable, and if so runs the A path. (commit `906dabc`)
+      The decision is split, because a Python hook cannot make it: the hook gates on
+      transcript size only (>= 4 human turns AND >= 500 human characters, tool results
+      and sidechain turns excluded), and the durable-or-not judgement is made by a
+      detached `claude -p` run told the default answer is no. A keyword heuristic
+      pretending to do that judgement was rejected outright — it would fire on every
+      session that happened to say "decided".
+- [x] Wire it in `settings.json` and mirror the change with `sync.sh` conventions.
+      (commit `8c7cdcb`) Appended as a third `SessionEnd` entry; the superset and
+      supacode entries were left alone. Written to both the repo copy and the live
+      `~/.claude/settings.json`, since it is a copy not a symlink.
+- [x] Make it commit separately, so the consolidation diff is reviewable on its own.
+      The worker's prompt requires one dedicated vault commit with a `memory:
+      consolidate` subject, scoped to the vault, no amend, no push.
+- [x] Add mutual exclusion, so two sessions ending together cannot double-write. An
+      `O_EXCL` lock at `/tmp/claude-memory-consolidate.lock`, held for the worker's
+      lifetime and stolen only when its PID is dead or it is an hour old — so one
+      crashed worker cannot disable consolidation permanently. A per-transcript stamp
+      additionally stops a re-consolidation when `SessionEnd` fires twice on the same
+      session (quit after a `/clear`).
+- [x] Extend `scripts/test-ctx-flag.sh` or add a sibling test. The failure mode of a
       silent hook is that it looks exactly like a quiet one, which is the specific trap
-      this repo already documents.
+      this repo already documents. Added `scripts/test-memory-consolidate.sh`, 31 cases,
+      all passing. (commit `80f03b8`)
 
 **Acceptance.** Ending a session with durable material produces a vault commit without
 any wait in the session itself. Ending a session with nothing durable produces no commit
 and no output. A deliberately broken hook still exits 0 and blocks nothing, proven by a
 test rather than by reasoning.
+
+Verified 2026-07-27, and be precise about what that covers:
+
+**Proven by test.** The hook returns in ~66ms while the stubbed worker sleeps 4s, so it
+demonstrably does not wait. Malformed payloads, a binary transcript and a half-installed
+checkout all exit 0 with nothing on stdout or stderr and no side effect. A below-gate
+session creates no lock and spawns nothing. An above-gate session creates the lock and
+the detached worker really does exec the binary with a bounded, vault-scoped, `-p`
+command line. A second session ending mid-consolidation produces one invocation, not two.
+A lock naming a dead PID is stolen; one naming a live process is obeyed.
+
+Writing the broken-install case is what caught the actual bug: the `context_size` import
+sat outside the `try/except` and exited 1 with a traceback. Reasoning would not have
+found it, which is the whole argument for the test.
+
+**NOT proven.** No real headless `claude -p` call has ever run end to end — the binary
+and the vault are both stubbed by env override, so no test has produced a real vault
+commit. The model's judgement quality (does it correctly refuse junk, does it follow
+INGEST) is designed and prompted for, and entirely unverified. The first real firing will
+be the first real test of it. `/tmp/claude-memory-consolidate.log` is the only place that
+failure will show, since the hook is silent by contract.
 
 ### E. Reconcile the harness memory store against the vault
 
