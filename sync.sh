@@ -14,11 +14,15 @@
 # its TUI rewrites ~/.config/ccstatusline/settings.json in place, so the live
 # file is the one that drifts. No secrets in it, so it is copied verbatim.
 #
+# ccline's config.toml (the statusline actually in use as of 2026-07-27) is
+# pulled back for the same reason: `ccline -c` rewrites it in place.
+#
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE="$HOME/.claude"
 CCSL="$HOME/.config/ccstatusline"
+CCLINE_DIR="$HOME/.claude/ccline"
 
 # Write via a temp file and mv into place only once jq has succeeded. Redirecting
 # straight into the repo copy truncates it before jq runs, so a malformed live
@@ -38,6 +42,13 @@ else
   echo "skipped ccstatusline-settings.json ($CCSL/settings.json not found)"
 fi
 
+if [ -f "$CCLINE_DIR/config.toml" ]; then
+  cp "$CCLINE_DIR/config.toml" "$REPO/ccline-config.toml"
+  echo "synced  ccline-config.toml"
+else
+  echo "skipped ccline-config.toml ($CCLINE_DIR/config.toml not found)"
+fi
+
 echo "---"
-git -C "$REPO" status --short -- settings.json ccstatusline-settings.json
+git -C "$REPO" status --short -- settings.json ccstatusline-settings.json ccline-config.toml
 echo "(commit with: git add -A && git commit)"

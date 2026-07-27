@@ -24,6 +24,13 @@
 #   ccstatusline-settings.json -> ~/.config/ccstatusline/settings.json
 #     (pass --force-statusline to overwrite an existing live file with the
 #     repo's copy — needed to actually deploy a repo-side layout edit)
+#   ccline-config.toml -> ~/.claude/ccline/config.toml
+#     the active statusline as of 2026-07-27 (CCometixLine, via `ccline`,
+#     installed separately with `npm i -g @cometix/ccline`). ccstatusline is
+#     kept wired above only as a rollback path — statusLine in settings.json
+#     now points at `ccline`, not `ccstatusline`.
+#     (pass --force-ccline to overwrite an existing live file with the
+#     repo's copy)
 #
 # Plugins (declared in plugins.txt, applied via the `claude` CLI — NOT vendored):
 #   marketplace/plugin lines -> `claude plugin marketplace add` / `install`
@@ -36,6 +43,7 @@
 #   ./install.sh --prune          # also remove dangling Claude symlinks + orphaned Codex copies
 #   ./install.sh --no-plugins     # skip the `claude plugin` sync step
 #   ./install.sh --force-statusline # redeploy ccstatusline-settings.json over an existing live file
+#   ./install.sh --force-ccline   # redeploy ccline-config.toml over an existing live file
 #
 set -euo pipefail
 
@@ -46,13 +54,15 @@ PRUNE=0
 FORCE=0
 PLUGINS=1
 FORCE_STATUSLINE=0
+FORCE_CCLINE=0
 for arg in "$@"; do
   case "$arg" in
     --prune) PRUNE=1 ;;
     --force) FORCE=1 ;;
     --no-plugins) PLUGINS=0 ;;
     --force-statusline) FORCE_STATUSLINE=1 ;;
-    *) echo "unknown option: $arg (expected --prune, --force, --no-plugins and/or --force-statusline)"; exit 2 ;;
+    --force-ccline) FORCE_CCLINE=1 ;;
+    *) echo "unknown option: $arg (expected --prune, --force, --no-plugins, --force-statusline and/or --force-ccline)"; exit 2 ;;
   esac
 done
 
@@ -184,6 +194,24 @@ if [ ! -e "$CCSL/settings.json" ]; then
 elif [ "$FORCE_STATUSLINE" = "1" ]; then
   cp "$REPO/ccstatusline-settings.json" "$CCSL/settings.json"
   echo "forced  ccstatusline-settings.json (overwrote existing live file)"
+  copied=$((copied + 1))
+fi
+
+# 4c. CCometixLine config: same copy-if-missing rule, same reason. Its own
+#     `ccline -c` TUI rewrites ~/.claude/ccline/config.toml in place, so a
+#     symlink would let it write back into the repo unreviewed. This is the
+#     tool settings.json's statusLine actually invokes as of 2026-07-27 —
+#     `npm i -g @cometix/ccline` installs the `ccline` binary separately;
+#     install.sh does not install it.
+CCLINE_DIR="$HOME/.claude/ccline"
+if [ ! -e "$CCLINE_DIR/config.toml" ]; then
+  mkdir -p "$CCLINE_DIR"
+  cp "$REPO/ccline-config.toml" "$CCLINE_DIR/config.toml"
+  echo "copied  ccline-config.toml"
+  copied=$((copied + 1))
+elif [ "$FORCE_CCLINE" = "1" ]; then
+  cp "$REPO/ccline-config.toml" "$CCLINE_DIR/config.toml"
+  echo "forced  ccline-config.toml (overwrote existing live file)"
   copied=$((copied + 1))
 fi
 

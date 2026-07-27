@@ -22,6 +22,7 @@
     ],
     "defaultMode": "auto"
   },
+  "model": "sonnet",
   "skillOverrides": {
     "composition-patterns": "off",
     "web-design-guidelines": "off",
@@ -226,7 +227,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "ccstatusline",
+    "command": "ccline",
     "padding": 0,
     "refreshInterval": 10
   },
