@@ -82,35 +82,53 @@ separate cleanup that can happen any time.
 
 ### A. Fork the `/remember` write path
 
-`commands/remember.md` currently runs all five steps inline. Change it so the main
-session does nothing but dispatch: an `Agent` call with `subagent_type: "fork"` does
-steps 2 through 5 (timestamp, raw file, INGEST, commit) and reports back.
+**Superseded 2026-07-27: `subagent_type: "fork"` does not exist in this harness's Agent
+tool.** Confirmed by direct invocation in the top-level session that `/remember` itself
+runs from: `Agent type 'fork' not found. Available agents: claude, design-craft, Explore,
+general-purpose, Plan, plan-critic, statusline-setup, vercel:*`. The plan's own caveat
+about the fork mechanism ("a third-party reverse-engineering of the client, not
+Anthropic documentation") turned out to be load-bearing — the primitive is either
+CLI-specific or does not exist as documented. Implemented the fallback this section
+already named instead. Original fork-primitive rationale kept below for the record; it
+no longer describes what's implemented.
 
-A fork is the right primitive here specifically because it **inherits the full
+~~`commands/remember.md` currently runs all five steps inline. Change it so the main
+session does nothing but dispatch: an `Agent` call with `subagent_type: "fork"` does
+steps 2 through 5 (timestamp, raw file, INGEST, commit) and reports back.~~
+
+~~A fork is the right primitive here specifically because it **inherits the full
 conversation context**, so there is no distil-then-hand-off step to write and no risk of
 the distillation losing what made the material worth keeping. It runs in the background,
-and its tool output never enters the parent context.
+and its tool output never enters the parent context.~~
 
-The trade to accept knowingly: a fork always runs on the parent model, so this is Opus
-tokens against a shared cache rather than Sonnet tokens against a cold one. For a
-twelve-turn file-shuffling job with a large parent context, the shared cache wins. If
-that turns out wrong, the fallback is distil-inline-then-dispatch to a Sonnet
-`general-purpose` agent, which is strictly cheaper per token and strictly worse at
-knowing what to keep.
+The trade accepted instead: the parent distils inline (step 1, cheap — reasoning, not
+tool calls) then dispatches a Sonnet `general-purpose` agent for steps 2-5. Strictly
+cheaper per token than the fork approach would have been, strictly worse at knowing what
+to keep, since the dispatched agent gets only the distilled prose, not the full parent
+context.
 
-- [ ] Rewrite `commands/remember.md` so the parent dispatches a fork and reports only
-      the fork's confirmation line.
-- [ ] Keep the vault's INGEST procedure as the fork's instructions by reference, not by
-      inlining it into the command. The 123-line `ingest.md` should load in the fork's
-      context, never the parent's.
-- [ ] Give the fork an explicit bound: if it cannot finish INGEST, it must still leave
-      the `raw/` file written and say so. A half-ingested vault is recoverable; a lost
-      raw file is not.
+- [x] Rewrite `commands/remember.md` so the parent distils inline, dispatches a single
+      Sonnet `general-purpose` agent for steps 2-5, and reports only that agent's
+      confirmation line. (commits `9d5ebd6`, `0948b23` on `memory-latency-item-a`)
+- [x] Keep the vault's INGEST procedure as the dispatched agent's instructions by
+      reference, not by inlining it into the command. The 123-line `ingest.md` loads in
+      the dispatched agent's context, never the parent's.
+- [x] Give the dispatched agent an explicit bound: if it cannot finish INGEST, it must
+      still leave the `raw/` file written and say so. A half-ingested vault is
+      recoverable; a lost raw file is not.
 
 **Acceptance.** Invoke `/remember` on a real session. The raw file exists, the wiki page
 is created or updated, `index.md` and `log.md` are updated, and the vault has a commit.
 The parent session's context grows by roughly the confirmation line only, not by twelve
 turns of tool output. Verify by inspecting the transcript, not by asking the model.
+
+Verified 2026-07-27 via a direct dispatch matching the new command's shape (distilled
+prose only, no inherited context): raw file `raw/2026-07-27-1052-remember-fork-does-not-exist.md`
+written, `wiki/vault-access.md` + `index.md` + `log.md` updated, vault commit `8558c15`.
+Dispatched agent burned 64,508 tokens over 15 tool uses; only the one-line confirmation
+reached the parent. Not yet verified through the literal `/remember` slash command in an
+interactive session — that's the one thing this run couldn't exercise from inside an
+agent.
 
 ### B. Grep-first `/recall`
 
