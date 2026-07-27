@@ -216,8 +216,10 @@ negative.
 
 Do this first, or none of the acceptance criteria above are checkable:
 
-- [ ] Time one `/remember` end to end, and count its tool round trips from the
-      transcript.
+- [x] Time one `/remember` end to end, and count its tool round trips from the
+      transcript. Already captured above under "The problem, stated precisely":
+      ten to fifteen sequential round trips, ~3k tokens of setup, measured
+      2026-07-26.
 
 Re-run the same measurement after A. If the round-trip count in the parent does not drop
 to roughly one, A did not do what it claims.
