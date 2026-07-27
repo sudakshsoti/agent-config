@@ -125,6 +125,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$HOME/.claude/hooks/memory-consolidate.py\"",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "SessionStart": [
