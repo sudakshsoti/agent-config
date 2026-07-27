@@ -157,17 +157,22 @@ guessing.
 
 ### C. Typed observations in INGEST (vault `PLAN.md` item F)
 
-- [ ] Add the `- [decision] chose X over Y because Z` observation form to the page
+- [x] Add the `- [decision] chose X over Y because Z` observation form to the page
       template in `claude-memory/.claude/commands/ingest.md`.
-- [ ] Document the convention in the vault `CLAUDE.md` in one line, not a section. That
+- [x] Document the convention in the vault `CLAUDE.md` in one line, not a section. That
       file is the always-resident one and the IFScale finding about instruction density
       applies to every line added to it.
-- [ ] Decide whether `tools/lint.py` should check observation syntax. Default is no: an
+- [x] Decide whether `tools/lint.py` should check observation syntax. Default is no: an
       unenforced convention is better than a check that fires on every legacy page.
+      Kept as-is, no enforcement added.
 
 **Acceptance.** A page ingested after this change carries typed observations, `lint.py`
 still exits clean on the existing wiki, and grepping for a decision term lands on the
 observation line rather than only on the page title.
+
+Verified 2026-07-27: `lint.py` exits with the same 12 pre-existing `source-newer-than-page`
+findings before and after (known mtime noise, no regression). Committed to vault `main`
+as `1aeb69b`.
 
 ### D. SessionEnd consolidation hook (vault `PLAN.md` item G)
 
