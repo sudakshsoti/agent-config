@@ -135,11 +135,11 @@ agent.
 `commands/recall.md` routes every lookup through `CLAUDE.md` + `index.md` summaries and
 then opens whole pages of 130 to 180 lines when the task needs one section.
 
-- [ ] Rewrite step 1 to grep `wiki/` for the task's terms first, and read only the pages
-      that hit.
-- [ ] Keep `index.md` as the fallback for when grep returns nothing, which is exactly
+- [x] Rewrite step 1 to grep `wiki/` for the task's terms first, and read only the pages
+      that hit. (commit `0df121e` on `memory-latency-item-a`)
+- [x] Keep `index.md` as the fallback for when grep returns nothing, which is exactly
       the case where a summary-level scan is the right tool.
-- [ ] Preserve the existing prohibitions verbatim: never bulk-read `wiki/`, never read
+- [x] Preserve the existing prohibitions verbatim: never bulk-read `wiki/`, never read
       `raw/` during recall.
 
 At 20 pages grep is instant, so this is a read-volume fix rather than a search-speed
@@ -149,6 +149,11 @@ the page.
 **Acceptance.** A recall on a known topic (say `hermes`) reads at most two files before
 answering, and the answer is no worse than today's. A recall on a topic the vault has
 never seen still says so rather than guessing.
+
+Verified 2026-07-27: known topic `hermes` resolved in 1 file read (`wiki/hermes.md`),
+under the two-file bar. Fabricated topic `quantumfluxwidget` correctly produced zero
+grep hits and would fall through to the index fallback and then "not found" rather than
+guessing.
 
 ### C. Typed observations in INGEST (vault `PLAN.md` item F)
 
