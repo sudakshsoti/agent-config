@@ -3,13 +3,6 @@
   "lines": [
     [
       {
-        "id": "1a",
-        "type": "custom-symbol",
-        "customSymbol": "◆",
-        "color": "hex:4A4F52",
-        "merge": "no-padding"
-      },
-      {
         "id": "1",
         "type": "model",
         "rawValue": true,
@@ -17,81 +10,164 @@
         "bold": true
       },
       {
-        "id": "11",
-        "type": "custom-command",
-        "commandPath": "python3 /Users/sudakshsoti/dev/agent-config/scripts/ctx-flag.py 2>/dev/null || printf '\\033[38;2;130;134;137mctx\\033[39m'",
-        "preserveColors": true,
-        "merge": "no-padding"
-      },
-      {
         "id": "2",
-        "type": "context-percentage",
-        "rawValue": true,
-        "color": "hex:65C1B5",
-        "metadata": {
-          "inverse": "true"
-        }
-      },
-      {
-        "id": "3a",
-        "type": "custom-symbol",
-        "customSymbol": "◔",
-        "color": "hex:4A4F52",
-        "merge": "no-padding"
-      },
-      {
-        "id": "3",
-        "type": "reset-timer",
-        "rawValue": true,
-        "color": "hex:D9A05B",
-        "metadata": {
-          "compact": "true"
-        }
-      },
-      {
-        "id": "4a",
-        "type": "custom-symbol",
-        "customSymbol": "⚡︎",
-        "color": "hex:4A4F52",
-        "merge": "no-padding"
-      },
-      {
-        "id": "4",
-        "type": "context-length",
+        "type": "thinking-effort",
         "rawValue": true,
         "color": "hex:828689"
       },
       {
-        "id": "5a",
-        "type": "custom-symbol",
-        "customSymbol": "◎",
-        "color": "hex:4A4F52",
-        "merge": "no-padding"
-      },
-      {
-        "id": "5",
-        "type": "session-cost",
-        "rawValue": true,
-        "color": "hex:7CB88F"
-      },
-      {
-        "id": "6a",
-        "type": "custom-symbol",
-        "customSymbol": "⎇",
-        "color": "hex:4A4F52",
-        "merge": "no-padding",
+        "id": "r1",
+        "type": "git-origin-repo",
+        "color": "hex:D3D8DA",
         "metadata": {
-          "hideNoGit": "true"
+          "hideNoRemote": "true"
         }
       },
       {
-        "id": "6",
+        "id": "5",
         "type": "git-branch",
         "rawValue": true,
         "color": "hex:D598C0",
         "maxWidth": 30,
         "metadata": {
           "hideNoGit": "true"
+        }
+      },
+      {
+        "id": "6",
+        "type": "git-changes",
+        "color": "hex:A86893",
+        "metadata": {
+          "hideNoGit": "true"
+        }
+      }
+    ],
+    [
+      {
+        "id": "11",
+        "type": "custom-command",
+        "commandPath": "python3 /Users/sudakshsoti/dev/agent-config/scripts/ctx-flag.py 2>/dev/null || printf '\\033[38;2;130;134;137mctx\\033[39m'",
+        "preserveColors": true
+      },
+      {
+        "id": "12",
+        "type": "context-percentage",
+        "rawValue": true,
+        "color": "hex:65C1B5",
+        "metadata": {
+          "display": "slider"
+        }
+      },
+      {
+        "id": "13",
+        "type": "context-length",
+        "rawValue": true,
+        "color": "hex:828689",
+        "merge": "no-padding"
+      },
+      {
+        "id": "14",
+        "type": "custom-text",
+        "customText": "/",
+        "color": "hex:828689",
+        "merge": "no-padding"
+      },
+      {
+        "id": "15",
+        "type": "context-window",
+        "rawValue": true,
+        "color": "hex:828689"
+      },
+      {
+        "id": "24",
+        "type": "separator",
+        "character": "·",
+        "color": "hex:4A4F52"
+      },
+      {
+        "id": "26",
+        "type": "cache-timer",
+        "rawValue": true,
+        "color": "hex:65C1B5",
+        "metadata": {
+          "ttlSeconds": "3600",
+          "hideWhenEmpty": "true",
+          "symbolHot": "◆",
+          "symbolFresh": "▓",
+          "symbolDraining": "▒",
+          "symbolUrgent": "░",
+          "symbolCold": "×"
+        }
+      },
+      {
+        "id": "27",
+        "type": "cache-hit-rate",
+        "rawValue": true,
+        "color": "hex:65C1B5",
+        "metadata": {
+          "hideWhenEmpty": "true"
+        }
+      },
+      {
+        "id": "16",
+        "type": "custom-text",
+        "customText": "·",
+        "color": "hex:4A4F52"
+      },
+      {
+        "id": "17",
+        "type": "custom-text",
+        "customText": "5h",
+        "color": "hex:828689"
+      },
+      {
+        "id": "18",
+        "type": "session-usage",
+        "rawValue": true,
+        "color": "hex:65C1B5",
+        "metadata": {
+          "display": "slider",
+          "cursor": "true"
+        }
+      },
+      {
+        "id": "19",
+        "type": "reset-timer",
+        "rawValue": true,
+        "color": "hex:828689",
+        "metadata": {
+          "compact": "true"
+        }
+      },
+      {
+        "id": "20",
+        "type": "custom-text",
+        "customText": "·",
+        "color": "hex:4A4F52"
+      },
+      {
+        "id": "21",
+        "type": "custom-text",
+        "customText": "7d",
+        "color": "hex:828689"
+      },
+      {
+        "id": "22",
+        "type": "weekly-usage",
+        "rawValue": true,
+        "color": "hex:65C1B5",
+        "metadata": {
+          "display": "slider",
+          "cursor": "true"
+        }
+      },
+      {
+        "id": "23",
+        "type": "weekly-reset-timer",
+        "rawValue": true,
+        "color": "hex:828689",
+        "metadata": {
+          "compact": "true"
         }
       }
     ]
