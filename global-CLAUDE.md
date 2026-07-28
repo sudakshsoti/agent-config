@@ -84,6 +84,14 @@ shortcut is expensive.
 The Agent tool takes `model` but has no `effort` parameter. Only `Workflow`'s
 internal `agent()` accepts `effort`.
 
+## Handoffs and plans
+
+Write `/handoff` output to a tracked `handoff/` directory at the repo root, not
+`.gitignore`d. Write plans (from `/writing-plans`, plan mode, or `/self-review`)
+to a tracked `plans/` directory at the repo root. Create the directory if it
+doesn't exist. Both are project history, not scratch: they belong in git, not
+`/tmp` or a scratchpad.
+
 ## Defaults when a project has no rule of its own
 
 - `pnpm`, not `npm`.
