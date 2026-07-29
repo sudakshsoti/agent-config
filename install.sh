@@ -1,22 +1,21 @@
 #!/usr/bin/env bash
 #
-# install.sh — wire this repo into ~/.claude (and mirror skills into ~/.codex)
+# install.sh — wire this repo into ~/.claude (and mirror skills into ~/.agents)
 #
 # Symlinks (repo is the live source of truth; edits apply instantly):
 #   skills/<name>/  -> ~/.claude/skills/<name>
+#   skills/<name>/  -> ~/.agents/skills/<name>   (only if Codex is installed)
+#     The shared cross-agent skills root. Codex scans it alongside its own
+#     ~/.codex/skills, and follows symlinked directories fine — so one link
+#     serves Claude, Codex and anything else reading ~/.agents, live.
+#     Do NOT also install into ~/.codex/skills: a skill present in both roots
+#     is listed TWICE and burns double its share of Codex's skills context
+#     budget (it warns about truncating descriptions when that fills up).
+#     Step 1b removes copies left there by the older mirror mechanism.
 #   agents/<name>.md -> ~/.claude/agents/<name>.md
 #   commands/<name>.md -> ~/.claude/commands/<name>.md
 #   hooks/<name> -> ~/.claude/hooks/<name>
 #   global-CLAUDE.md -> ~/.claude/CLAUDE.md
-#
-# Copies, refreshed every run (NOT symlinks):
-#   skills/<name>/ -> ~/.codex/skills/<name>
-#     Codex's skill scanner ignores symlinked directories, so the mirror must
-#     be a real copy. Trade-off: editing a SKILL.md does NOT reach Codex live —
-#     re-run ./install.sh to push edits. (Claude stays live via the symlink.)
-#     Each copy gets a .agent-config-managed marker so --prune can clean up
-#     copies of deleted skills without touching ~/.codex/skills/.system or
-#     other hand-installed Codex skills.
 #
 # Copies, only if missing (the owning tool rewrites these itself, so a symlink
 # would break; never clobbers an existing file):
@@ -39,8 +38,8 @@
 #
 # Idempotent; safe to re-run. Run once after cloning on a new machine.
 #
-#   ./install.sh                  # link skills+agents, copy skills into Codex, copy settings if absent, sync plugins
-#   ./install.sh --prune          # also remove dangling Claude symlinks + orphaned Codex copies
+#   ./install.sh                  # link skills+agents (Claude + shared ~/.agents), copy settings if absent, sync plugins
+#   ./install.sh --prune          # also remove dangling symlinks for deleted skills/agents
 #   ./install.sh --no-plugins     # skip the `claude plugin` sync step
 #   ./install.sh --force-statusline # redeploy ccstatusline-settings.json over an existing live file
 #   ./install.sh --force-ccline   # redeploy ccline-config.toml over an existing live file
@@ -86,10 +85,14 @@ case "$REPO" in
 esac
 
 mkdir -p "$CLAUDE/skills" "$CLAUDE/agents" "$CLAUDE/commands" "$CLAUDE/hooks"
-# Mirror skills into Codex too, but only if Codex is actually installed
-# (its skills dir already exists) — never create ~/.codex on a Claude-only box.
-CODEX_SKILLS=""
-[ -d "$CODEX/skills" ] && CODEX_SKILLS="$CODEX/skills"
+# Mirror skills into the shared ~/.agents/skills root, but only if Codex is
+# actually installed (its own dir already exists) — never create ~/.agents on a
+# Claude-only box. Codex scans BOTH ~/.codex/skills and ~/.agents/skills, so
+# installing into both roots makes every skill appear twice; we use only the
+# shared one. See the mirror note in CLAUDE.md.
+AGENTS_SKILLS=""
+[ -d "$CODEX" ] && AGENTS_SKILLS="$HOME/.agents/skills"
+[ -n "$AGENTS_SKILLS" ] && mkdir -p "$AGENTS_SKILLS"
 MARKER=".agent-config-managed"
 linked=0 skipped=0 copied=0 mirrored=0 pruned=0 plugins=0
 
@@ -109,33 +112,53 @@ link_into() { # link_into <source> <dest-link>
   linked=$((linked + 1))
 }
 
-copy_into() { # copy_into <source-dir> <dest-dir> — refreshed every run
+mirror_into() { # mirror_into <source-dir> <dest-link> — shared ~/.agents root
   local src="$1" dest="$2" name
   name="$(basename "$dest")"
-  # A symlink here is from an older install — drop it and replace with a copy.
-  # A real dir without our marker is hand-installed; never clobber it.
-  if [ ! -L "$dest" ] && [ -e "$dest" ] && [ ! -f "$dest/$MARKER" ]; then
-    echo "⚠️  SKIP $name (codex) — an unmanaged entry exists at $dest."
-    echo "    Move it aside first, then re-run."
-    skipped=$((skipped + 1))
-    return
+  # A real dir here is either a leftover copy from the old mirror mechanism
+  # (marked) or a hand-installed skill (unmarked). Reclaim ours; never clobber
+  # theirs.
+  if [ ! -L "$dest" ] && [ -d "$dest" ]; then
+    if [ -f "$dest/$MARKER" ]; then
+      rm -rf "$dest"
+    else
+      echo "⚠️  SKIP $name (agents) — an unmanaged entry exists at $dest."
+      echo "    Move it aside first, then re-run."
+      skipped=$((skipped + 1))
+      return
+    fi
   fi
-  rm -rf "$dest"
-  cp -R "$src" "$dest"
-  : > "$dest/$MARKER"
-  echo "copied  $name (codex)"
+  rm -f "$dest"
+  ln -s "$src" "$dest"
+  echo "linked  $name (agents)"
   mirrored=$((mirrored + 1))
 }
 
 # 1. Skills: every directory holding a SKILL.md.
-#    Symlinked into ~/.claude (live source of truth) and COPIED into ~/.codex
-#    (Codex ignores symlinked skill dirs) when Codex is installed — same
-#    SKILL.md format works on both surfaces.
+#    Symlinked into ~/.claude and into the shared ~/.agents/skills root that
+#    Codex (and other agents) scan — the repo stays the live source of truth on
+#    every surface, so editing a SKILL.md takes effect without re-running this.
 for dir in "$REPO"/skills/*/; do
   [ -f "$dir/SKILL.md" ] || continue
   link_into "${dir%/}" "$CLAUDE/skills/$(basename "$dir")"
-  [ -n "$CODEX_SKILLS" ] && copy_into "${dir%/}" "$CODEX_SKILLS/$(basename "$dir")"
+  [ -n "$AGENTS_SKILLS" ] && mirror_into "${dir%/}" "$AGENTS_SKILLS/$(basename "$dir")"
 done
+
+# 1b. Migration: drop copies left in ~/.codex/skills by the old mirror.
+#     Codex scans ~/.codex/skills AND ~/.agents/skills, so a skill present in
+#     both is listed twice and eats double its share of the skills context
+#     budget. Unconditional (not gated on --prune) because leaving them is the
+#     bug, not merely stale. Only ever removes dirs carrying our own marker —
+#     .system and hand-installed Codex skills lack it and are untouched.
+if [ -d "$CODEX/skills" ]; then
+  for d in "$CODEX"/skills/*/; do
+    d="${d%/}"
+    [ -f "$d/$MARKER" ] || continue
+    rm -rf "$d"
+    echo "removed $(basename "$d") (codex copy, now served from ~/.agents)"
+    pruned=$((pruned + 1))
+  done
+fi
 
 # 2. Agents: every markdown file in agents/
 for file in "$REPO"/agents/*.md; do
@@ -261,18 +284,18 @@ if [ "$PRUNE" = "1" ]; then
         fi ;;
     esac
   done
-  # Codex: our managed copies whose repo skill no longer exists. The marker
-  # guards .system and hand-installed Codex skills, which lack it.
-  if [ -n "$CODEX_SKILLS" ]; then
-    for d in "$CODEX_SKILLS"/*/; do
-      d="${d%/}"
-      [ -f "$d/$MARKER" ] || continue
-      name="$(basename "$d")"
-      if [ ! -d "$REPO/skills/$name" ]; then
-        rm -rf "$d"
-        echo "pruned  $name (codex, orphaned)"
-        pruned=$((pruned + 1))
-      fi
+  # Shared root: dangling symlinks pointing into this repo (deleted skill).
+  if [ -n "$AGENTS_SKILLS" ]; then
+    for link in "$AGENTS_SKILLS"/*; do
+      [ -L "$link" ] || continue
+      case "$(readlink "$link")" in
+        "$REPO"/*)
+          if [ ! -e "$link" ]; then
+            rm -f "$link"
+            echo "pruned  $(basename "$link") (agents, dangling)"
+            pruned=$((pruned + 1))
+          fi ;;
+      esac
     done
   fi
 fi
