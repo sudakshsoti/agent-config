@@ -171,10 +171,14 @@ function setActive(i) {
     else el.removeAttribute('aria-current');
   });
   moveHighlight();
-  const url = new URL(location);
-  url.searchParams.set('v', i + 1);
-  history.replaceState(null, '', url);
   mount(i);
+  // Opened as file:// (AirDropped to a phone, say), replaceState throws
+  // SecurityError. Render first, sync the URL only where it is allowed.
+  try {
+    const url = new URL(location.href);
+    url.searchParams.set('v', i + 1);
+    history.replaceState(null, '', url);
+  } catch (e) { /* no deep link off a local file, not worth blanking the page */ }
 }
 
 items.forEach((el, i) => el.addEventListener('click', () => setActive(i)));
