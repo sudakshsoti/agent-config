@@ -17,9 +17,19 @@
 marketplace anthropics/claude-plugins-official
 marketplace anthropics/claude-plugins-community
 marketplace blader/humanizer
+marketplace ayghri/i-have-adhd
 
 plugin superpowers@claude-plugins-official
 plugin frontend-design@claude-plugins-official
 plugin vercel@claude-plugins-official
 plugin claude-code-setup@claude-plugins-official
 plugin humanizer@humanizer
+
+# Response-shaping ruleset for an ADHD reader. The skill is
+# `disable-model-invocation: true`, so it is /i-have-adhd only. Its SessionStart
+# hook can inject the full ruleset every session, but only if
+# ~/.claude/.i-have-adhd-always exists — deliberately NOT created, since that
+# costs ~1,600 tokens per startup/clear/compact. The standing version lives
+# compressed in global-CLAUDE.md's "Response shape" section instead; this plugin
+# is the on-demand escalation.
+plugin i-have-adhd@i-have-adhd
