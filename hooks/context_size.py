@@ -1,17 +1,14 @@
 """Measure how much context a session is carrying, and where the line sits.
 
-Two consumers need this number and must never disagree about it: the
-`context-budget.py` UserPromptSubmit hook (which tells Claude to wrap up) and
-`scripts/ctx-flag.py` (which flags the same state on the status line). Two
-copies of THRESHOLD would drift, and a status line that says "fine" while the
-hook says "clear now" is worse than neither.
+The `context-budget.py` UserPromptSubmit hook is the sole consumer of this
+number (it tells Claude to wrap up). Keeping THRESHOLD here rather than
+duplicated in the hook avoids a second copy drifting out of sync.
 
 The formula is input-only — `input_tokens + cache_creation + cache_read`,
 never `output_tokens`. That is not a choice: it is what Claude Code's own
 `context_window.used_percentage` uses (documented at
-code.claude.com/docs/en/statusline), and what ccstatusline computes for its
-context widgets. Adding output here would put this number above every other
-context reading on screen.
+code.claude.com/docs/en/statusline). Adding output here would put this number
+above every other context reading on screen.
 
 Importable, not runnable. Underscored filename so `import context_size` works;
 `context-budget.py` keeps its hyphen because settings.json invokes it by path.

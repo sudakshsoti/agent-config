@@ -16,20 +16,15 @@
 #   commands/<name>.md -> ~/.claude/commands/<name>.md
 #   hooks/<name> -> ~/.claude/hooks/<name>
 #   global-CLAUDE.md -> ~/.claude/CLAUDE.md
+#   claude-powerline.json -> ~/.claude/claude-powerline.json
+#     the active statusline as of 2026-07-31 (@owloops/claude-powerline).
+#     Symlinked, not copied — the binary only ever reads its config, there is
+#     no companion TUI that rewrites it in place — so there is nothing to sync
+#     back and repo edits go live immediately.
 #
 # Copies, only if missing (the owning tool rewrites these itself, so a symlink
 # would break; never clobbers an existing file):
 #   settings.json             -> ~/.claude/settings.json
-#   ccstatusline-settings.json -> ~/.config/ccstatusline/settings.json
-#     (pass --force-statusline to overwrite an existing live file with the
-#     repo's copy — needed to actually deploy a repo-side layout edit)
-#   ccline-config.toml -> ~/.claude/ccline/config.toml
-#     the active statusline as of 2026-07-27 (CCometixLine, via `ccline`,
-#     installed separately with `npm i -g @cometix/ccline`). ccstatusline is
-#     kept wired above only as a rollback path — statusLine in settings.json
-#     now points at `ccline`, not `ccstatusline`.
-#     (pass --force-ccline to overwrite an existing live file with the
-#     repo's copy)
 #
 # Plugins (declared in plugins.txt, applied via the `claude` CLI — NOT vendored):
 #   marketplace/plugin lines -> `claude plugin marketplace add` / `install`
@@ -41,8 +36,6 @@
 #   ./install.sh                  # link skills+agents (Claude + shared ~/.agents), copy settings if absent, sync plugins
 #   ./install.sh --prune          # also remove dangling symlinks for deleted skills/agents
 #   ./install.sh --no-plugins     # skip the `claude plugin` sync step
-#   ./install.sh --force-statusline # redeploy ccstatusline-settings.json over an existing live file
-#   ./install.sh --force-ccline   # redeploy ccline-config.toml over an existing live file
 #
 set -euo pipefail
 
@@ -52,16 +45,12 @@ CODEX="$HOME/.codex"
 PRUNE=0
 FORCE=0
 PLUGINS=1
-FORCE_STATUSLINE=0
-FORCE_CCLINE=0
 for arg in "$@"; do
   case "$arg" in
     --prune) PRUNE=1 ;;
     --force) FORCE=1 ;;
     --no-plugins) PLUGINS=0 ;;
-    --force-statusline) FORCE_STATUSLINE=1 ;;
-    --force-ccline) FORCE_CCLINE=1 ;;
-    *) echo "unknown option: $arg (expected --prune, --force, --no-plugins, --force-statusline and/or --force-ccline)"; exit 2 ;;
+    *) echo "unknown option: $arg (expected --prune, --force, --no-plugins)"; exit 2 ;;
   esac
 done
 
@@ -202,41 +191,12 @@ if [ ! -e "$CLAUDE/$f" ]; then
   copied=$((copied + 1))
 fi
 
-# 4b. ccstatusline layout: same copy-if-missing rule, same reason. The
-#     ccstatusline TUI rewrites ~/.config/ccstatusline/settings.json in place,
-#     so a symlink would let it write back into the repo unreviewed. Edit the
-#     layout with the TUI, then run ./sync.sh to pull it back here.
-#     --force-statusline overwrites the live file even when it already exists,
-#     for the opposite direction: pushing a repo-side layout edit out live.
-CCSL="$HOME/.config/ccstatusline"
-if [ ! -e "$CCSL/settings.json" ]; then
-  mkdir -p "$CCSL"
-  cp "$REPO/ccstatusline-settings.json" "$CCSL/settings.json"
-  echo "copied  ccstatusline-settings.json"
-  copied=$((copied + 1))
-elif [ "$FORCE_STATUSLINE" = "1" ]; then
-  cp "$REPO/ccstatusline-settings.json" "$CCSL/settings.json"
-  echo "forced  ccstatusline-settings.json (overwrote existing live file)"
-  copied=$((copied + 1))
-fi
-
-# 4c. CCometixLine config: same copy-if-missing rule, same reason. Its own
-#     `ccline -c` TUI rewrites ~/.claude/ccline/config.toml in place, so a
-#     symlink would let it write back into the repo unreviewed. This is the
-#     tool settings.json's statusLine actually invokes as of 2026-07-27 —
-#     `npm i -g @cometix/ccline` installs the `ccline` binary separately;
-#     install.sh does not install it.
-CCLINE_DIR="$HOME/.claude/ccline"
-if [ ! -e "$CCLINE_DIR/config.toml" ]; then
-  mkdir -p "$CCLINE_DIR"
-  cp "$REPO/ccline-config.toml" "$CCLINE_DIR/config.toml"
-  echo "copied  ccline-config.toml"
-  copied=$((copied + 1))
-elif [ "$FORCE_CCLINE" = "1" ]; then
-  cp "$REPO/ccline-config.toml" "$CCLINE_DIR/config.toml"
-  echo "forced  ccline-config.toml (overwrote existing live file)"
-  copied=$((copied + 1))
-fi
+# 4b. claude-powerline config: symlinked, not copy-if-missing, unlike
+#     settings.json above. claude-powerline never writes its own config — there
+#     is no companion TUI that could write back into the repo unreviewed — so a
+#     symlink means a repo edit goes live immediately with no re-run and
+#     nothing to sync back.
+link_into "$REPO/claude-powerline.json" "$CLAUDE/claude-powerline.json"
 
 # 5. Plugins: reproduce the marketplace + plugin set from plugins.txt via the
 #    `claude` CLI. Content is NOT vendored — these commands add the marketplaces
