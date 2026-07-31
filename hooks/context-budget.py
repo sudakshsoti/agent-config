@@ -6,8 +6,7 @@ Measured on this machine (519 sessions, 33,935 API calls): a token added
 mid-session is re-billed ~33x as cache read, and the 35% of sessions passing
 100K carry 78% of all cost. Drop THRESHOLD to 100000 to track the data.
 
-THRESHOLD and the measurement itself live in context_size.py, shared with the
-status line's ctx-flag.py so the two can never disagree about when to break.
+THRESHOLD and the measurement itself live in context_size.py.
 
 UserPromptSubmit hook. Fails open, never blocks a prompt.
 """

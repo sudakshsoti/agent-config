@@ -11,7 +11,7 @@
 # ~/.claude/settings.local.json or accept that they stay local-only.
 #
 # claude-powerline.json is symlinked, so live edits already write through
-# into the repo—no pull-back needed.
+# into the repo, so no pull-back is needed.
 #
 set -euo pipefail
 
