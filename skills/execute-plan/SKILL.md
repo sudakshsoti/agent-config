@@ -25,18 +25,40 @@ Repeat until every checkbox is ticked:
    its commit hash (`git log --oneline`).
 3. **Pick the model tier** for this item (see _Choosing the model per item_ below),
    then **dispatch ONE subagent** (Task tool) with that `model` to implement
-   **just that single item**:
-   - Pass it the exact item text plus the plan file path for surrounding context.
-   - Instruct it to: implement the item **test-first when it changes behavior**
-     (follow test-driven-development — write the failing test, watch it fail for
-     the right reason, write minimal code, watch it pass; see _Verifying each item_
+   **just that single item**. Write the dispatch as a **self-contained handoff
+   packet** — assume the worker has never seen this conversation, so everything it
+   needs is in the prompt:
+   - **Context**: the repo path, the exact item text, and the plan file path (so it
+     can read surrounding items for context, not act on them).
+   - **Scope and out-of-scope**: do **only this one item**, then stop. Name the
+     sibling items or shared files it must _not_ touch, so it doesn't wander.
+   - **What to do**: implement the item **test-first when it changes behavior**
+     (follow test-driven-development — write the failing test, watch it fail for the
+     right reason, write minimal code, watch it pass; see _Verifying each item_
      below), verify, then `git commit` with a descriptive message naming the item.
-   - It must **return the observed verify evidence** — the red→green test transcript,
-     or the clean build/inspection result — not just "done".
-   - It must do **only this one item** and then stop.
+   - **Verify command(s)**: the exact command to run for this item's evidence.
+   - **Return format**: the observed verify evidence — the red→green test transcript,
+     or the clean build/inspection result — plus the files changed and the commit
+     message/hash. Not just "done".
+   - **Stop conditions**: the bail-out triggers below.
 4. When the subagent returns, **tick that item's box** in the plan file
    (`- [ ]` → `- [x]`) and commit that tick if it isn't already in the item's commit.
 5. Go back to step 1.
+
+### Stop conditions for the worker
+
+Carry these into every handoff packet. The worker **stops and reports what it
+found rather than committing** if:
+
+- the live code does not match an assumption in the handoff,
+- a verification command fails twice after a reasonable retry or fix,
+- the item turns out to need files outside its stated scope,
+- it cannot produce concrete evidence for its claim.
+
+A worker that stops here isn't a failure — it's a worker refusing to commit a
+guess. When one comes back stopped, you decide: re-dispatch one tier higher (see
+_Retry up a tier on failure_), amend the item, or halt the run (see _Stop early
+only_ under Rules). Do not tick the box.
 
 ## Choosing the model per item
 
@@ -101,6 +123,12 @@ Don't force a test onto a mechanical item, and don't wave a behavior item throug
   any other.
 - **Never skip** the verify or the commit. The commit is the checkpoint that makes
   each step recoverable — and an _unverified_ commit is not a checkpoint.
+- **Inspect the evidence, don't just forward it.** What the worker returns is
+  evidence to check, not a verdict to trust. Scale the check to the item's risk:
+  for a high-stakes `opus`/`sonnet` item, reopen a cited file, skim the diff, or
+  re-run the verify that matters before you tick the box; a mechanical `haiku` item
+  can be trusted on its returned evidence. Same principle as _match the discipline
+  to the item_ — a glance at the transcript is not a review.
 - **Do not ask for approval between items.** Keep going autonomously.
 - **Stop early only** if an item is genuinely ambiguous, a verification fails, or a
   commit fails. When you stop, say exactly which item and why, and leave the plan
