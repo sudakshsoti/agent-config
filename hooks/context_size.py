@@ -7,9 +7,8 @@ duplicated in the hook avoids a second copy drifting out of sync.
 The formula is input-only — `input_tokens + cache_creation + cache_read`,
 never `output_tokens`. That is not a choice: it is what Claude Code's own
 `context_window.used_percentage` uses (documented at
-code.claude.com/docs/en/statusline), and what ccstatusline computes for its
-context widgets. Adding output here would put this number above every other
-context reading on screen.
+code.claude.com/docs/en/statusline). Adding output here would put this number
+above every other context reading on screen.
 
 Importable, not runnable. Underscored filename so `import context_size` works;
 `context-budget.py` keeps its hyphen because settings.json invokes it by path.

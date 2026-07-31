@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # test-memory-consolidate.sh — behaviour tests for hooks/memory-consolidate.py
 #
-# Same reason test-ctx-flag.sh exists: this hook fails SILENTLY by design. A
+# Same reason test-context-size.sh exists: this hook fails SILENTLY by design. A
 # broken one and a quiet one are indistinguishable from the outside, and this
 # one has side effects (a background process, a lock, a vault commit) rather
 # than a visible widget, so "it printed nothing" proves even less than usual.
@@ -363,7 +363,7 @@ echo "settings.json wiring"
 
 # The hook can be perfect and still never run. settings.json invokes it by an
 # absolute path baked to this checkout, so a moved repo silently disables it --
-# the same trap ccstatusline's commandPath has, and the same reason to test it.
+# invisibly, since a disabled hook and a quiet one look identical.
 cmd=$(jq -r '.hooks.SessionEnd[]?.hooks[]? | select(.command | test("memory-consolidate")) | .command' \
       "$repo_root/settings.json" 2>/dev/null)
 if [[ -n "$cmd" ]]; then
