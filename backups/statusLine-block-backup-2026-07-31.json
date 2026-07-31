@@ -1,0 +1,6 @@
+{
+  "type": "command",
+  "command": "ccline",
+  "padding": 0,
+  "refreshInterval": 10
+}

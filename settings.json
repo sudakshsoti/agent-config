@@ -227,7 +227,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "ccline",
+    "command": "claude-powerline --style=powerline",
     "padding": 0,
     "refreshInterval": 10
   },
