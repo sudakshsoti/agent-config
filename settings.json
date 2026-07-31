@@ -18,17 +18,66 @@
       "Bash(chezmoi managed)",
       "mcp__claude-in-chrome__find",
       "mcp__claude-in-chrome__read_page",
-      "mcp__claude-in-chrome__tabs_context_mcp"
+      "mcp__claude-in-chrome__tabs_context_mcp",
+      "mcp__claude_ai_Supabase__execute_sql",
+      "mcp__claude_ai_Supabase__list_tables",
+      "mcp__claude_ai_Supabase__list_extensions",
+      "mcp__claude_ai_Supabase__list_migrations",
+      "mcp__claude_ai_Supabase__list_projects",
+      "mcp__claude_ai_Supabase__list_organizations",
+      "mcp__claude_ai_Supabase__list_branches",
+      "mcp__claude_ai_Supabase__list_edge_functions",
+      "mcp__claude_ai_Supabase__get_project",
+      "mcp__claude_ai_Supabase__get_project_url",
+      "mcp__claude_ai_Supabase__get_organization",
+      "mcp__claude_ai_Supabase__get_edge_function",
+      "mcp__claude_ai_Supabase__get_advisors",
+      "mcp__claude_ai_Supabase__get_logs",
+      "mcp__claude_ai_Supabase__get_cost",
+      "mcp__claude_ai_Supabase__generate_typescript_types",
+      "mcp__claude_ai_Supabase__search_docs"
     ],
     "defaultMode": "auto"
   },
-  "model": "sonnet",
   "skillOverrides": {
     "composition-patterns": "off",
     "web-design-guidelines": "off",
     "cross-post": "off",
     "reading-companion": "off",
-    "gtd": "off"
+    "gtd": "off",
+    "firecrawl": "off",
+    "firecrawl-build": "off",
+    "firecrawl-build-interact": "off",
+    "firecrawl-build-onboarding": "off",
+    "firecrawl-build-scrape": "off",
+    "firecrawl-build-search": "off",
+    "firecrawl-company-directories": "off",
+    "firecrawl-competitive-intel": "off",
+    "firecrawl-crawl": "off",
+    "firecrawl-dashboard-reporting": "off",
+    "firecrawl-deep-research": "off",
+    "firecrawl-demo-walkthrough": "off",
+    "firecrawl-download": "off",
+    "firecrawl-interact": "off",
+    "firecrawl-knowledge-base": "off",
+    "firecrawl-knowledge-ingest": "off",
+    "firecrawl-lead-gen": "off",
+    "firecrawl-lead-research": "off",
+    "firecrawl-map": "off",
+    "firecrawl-market-research": "off",
+    "firecrawl-monitor": "off",
+    "firecrawl-parse": "off",
+    "firecrawl-qa": "off",
+    "firecrawl-research-index": "off",
+    "firecrawl-research-papers": "off",
+    "firecrawl-search": "off",
+    "firecrawl-seo-audit": "off",
+    "firecrawl-shop": "off",
+    "firecrawl-website-design-clone": "off",
+    "firecrawl-workflows": "off",
+    "clinical-reasoning": "off",
+    "torbox-ops": "off",
+    "homelab-triage": "off"
   },
   "hooks": {
     "Notification": [
@@ -236,7 +285,8 @@
     "frontend-design@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
     "vercel@claude-plugins-official": true,
-    "humanizer@humanizer": true
+    "humanizer@humanizer": true,
+    "i-have-adhd@i-have-adhd": true
   },
   "extraKnownMarketplaces": {
     "claude-code-warp": {
@@ -262,12 +312,19 @@
         "source": "github",
         "repo": "blader/humanizer"
       }
+    },
+    "i-have-adhd": {
+      "source": {
+        "source": "github",
+        "repo": "ayghri/i-have-adhd"
+      }
     }
   },
   "spinnerTipsEnabled": false,
-  "effortLevel": "high",
+  "effortLevel": "medium",
   "askUserQuestionTimeout": "never",
   "autoUpdatesChannel": "latest",
+  "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
   "editorMode": "normal",
   "preferredNotifChannel": "notifications_disabled",
