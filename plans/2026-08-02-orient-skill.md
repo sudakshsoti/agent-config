@@ -204,7 +204,7 @@ scalar (`|` or `>-`) or Codex's strict YAML parser fails the whole skill.
   self-contained enough to paste with no surrounding context.
   *(Tier: sonnet)*
 
-- [ ] **9. `SKILL.md`** — the skill itself, ~140 lines, matching the house shape of
+- [x] **9. `SKILL.md`** — the skill itself, ~140 lines, matching the house shape of
   `skills/improve-animations/SKILL.md` (read it first): Operating Posture → Hard
   Rules → numbered Workflow phases → Invocation Variants table → Tone. Frontmatter:
   `name: orient`, `user-invocable: true`, and a **block-scalar** `description`
