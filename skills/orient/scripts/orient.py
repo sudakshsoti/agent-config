@@ -1,22 +1,27 @@
 #!/usr/bin/env python3
 """orient.py — build and check the /orient payload.
 
-`validate` and `build` exist so far; `status` is a later item in
-plans/2026-08-02-orient-skill.md. `validate` is the mechanical gate that
-stops a confident wrong answer reaching the rendered page: the model can
-write a `goal` or `decision` with any confidence word it likes, and it can
-cite a `ref` that doesn't actually say what it claims -- `validate` is what
-catches that before shell.html ever sees it. `build` runs that gate, then
-splices the payload into the fixed shell and writes the finished page. See
-skills/orient/references/BLOCKS.md for the schema this enforces.
+`validate` is the mechanical gate that stops a confident wrong answer
+reaching the rendered page: the model can write a `goal` or `decision` with
+any confidence word it likes, and it can cite a `ref` that doesn't actually
+say what it claims -- `validate` is what catches that before shell.html ever
+sees it. `build` runs that gate, then splices the payload into the fixed
+shell and writes the finished page. `status` reads an already-built
+orient/payload.json back and reports how stale it is against the current
+working tree -- age, commits behind, and which of its `sources[]` paths have
+since changed -- so a preflight phase can decide whether the existing doc is
+still worth trusting. See skills/orient/references/BLOCKS.md for the schema
+this enforces.
 
   python3 orient.py validate <payload.json> [--repo-root ROOT]
   python3 orient.py build <payload.json> [--repo-root ROOT]
+  python3 orient.py status [--repo-root ROOT]
 
 Stdlib only, matching scripts/lint-skills.py.
 """
 
 import argparse
+import datetime
 import json
 import os
 import re
@@ -319,6 +324,49 @@ def _output_is_dirty(repo_root, rel_path):
     return bool(proc.stdout.strip())
 
 
+def _run_git(args, repo_root):
+    """Run `git <args>` in repo_root. Returns (ok, stdout_text_or_reason).
+
+    ok is False on a missing git binary, a directory with no git on PATH,
+    a directory that isn't a git repo at all, or any nonzero exit (e.g.
+    `rev-list`/`diff` against a sha that predates a shallow clone's
+    history, which git reports as a bad revision) -- `status` treats every
+    one of those as the same "can't tell" degrade path, not a crash.
+    """
+    try:
+        proc = subprocess.run(
+            ["git"] + args, cwd=repo_root, capture_output=True, text=True
+        )
+    except OSError as e:
+        return False, str(e)
+    if proc.returncode != 0:
+        return False, (proc.stderr.strip() or "git command failed")
+    return True, proc.stdout
+
+
+def _is_git_repo(repo_root):
+    ok, out = _run_git(["rev-parse", "--is-inside-work-tree"], repo_root)
+    return ok and out.strip() == "true"
+
+
+def _parse_iso8601(text):
+    """Parse repo.builtAt into an aware datetime, or None if it's missing
+    or malformed. Handles the trailing 'Z' that datetime.fromisoformat only
+    started accepting directly in 3.11 -- rewriting it to '+00:00' keeps
+    this working on older stdlib.
+    """
+    if not isinstance(text, str) or not text:
+        return None
+    candidate = text[:-1] + "+00:00" if text.endswith("Z") else text
+    try:
+        dt = datetime.datetime.fromisoformat(candidate)
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=datetime.timezone.utc)
+    return dt
+
+
 def cmd_build(args):
     try:
         with open(args.payload, "r", encoding="utf-8") as f:
@@ -433,6 +481,103 @@ def cmd_validate(args):
     return 0
 
 
+# The first few changed sources named on their own lines before falling
+# back to a "(+N more)" count -- the plan asks for "listing the first few
+# by name", not a dump of every path, since this output is read by a model
+# during preflight and needs to stay skimmable.
+_STATUS_SOURCES_SHOWN = 5
+
+
+def cmd_status(args):
+    repo_root = args.repo_root or os.getcwd()
+    payload_path = os.path.join(repo_root, "orient", "payload.json")
+
+    try:
+        with open(payload_path, "r", encoding="utf-8") as f:
+            raw = f.read()
+    except OSError:
+        print(
+            "orient status: no orient doc yet -- %s does not exist. "
+            "Run `orient.py build` first." % payload_path
+        )
+        return 0
+
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as e:
+        sys.stderr.write(
+            "orient status: FAIL  %s is not valid JSON: %s\n" % (payload_path, e)
+        )
+        return 1
+
+    if not isinstance(payload, dict):
+        sys.stderr.write("orient status: FAIL  %s is not a JSON object\n" % payload_path)
+        return 1
+
+    repo = payload.get("repo")
+    if not isinstance(repo, dict):
+        repo = {}
+    sources = payload.get("sources")
+    if not isinstance(sources, list):
+        sources = []
+
+    print("orient status: %s" % payload_path)
+
+    dt = _parse_iso8601(repo.get("builtAt"))
+    if dt is not None:
+        age_days = (datetime.datetime.now(datetime.timezone.utc) - dt).days
+        print(
+            "  built:           %s (%d day%s ago)"
+            % (repo.get("builtAt"), age_days, "" if age_days == 1 else "s")
+        )
+    else:
+        print("  built:           unknown -- repo.builtAt is missing or unparseable")
+
+    sha = repo.get("sha")
+    if not sha or not isinstance(sha, str):
+        print(
+            "  sha:             none recorded in payload.repo.sha -- "
+            "cannot compute commits behind or changed sources"
+        )
+        return 0
+    print("  sha:             %s" % sha)
+
+    if not _is_git_repo(repo_root):
+        print("  commits behind:  unknown -- %s is not a git repository" % repo_root)
+        print("  changed sources: unknown -- %s is not a git repository" % repo_root)
+        return 0
+
+    behind_ok, behind_out = _run_git(["rev-list", "--count", "%s..HEAD" % sha], repo_root)
+    if behind_ok:
+        print("  commits behind:  %s" % behind_out.strip())
+    else:
+        print(
+            "  commits behind:  unknown -- %s not found in this repo's history "
+            "(shallow clone?)" % sha
+        )
+
+    diff_ok, diff_out = _run_git(["diff", "--name-only", "%s..HEAD" % sha], repo_root)
+    if not diff_ok:
+        print(
+            "  changed sources: unknown -- %s not found in this repo's history "
+            "(shallow clone?)" % sha
+        )
+        return 0
+
+    changed_paths = {line for line in diff_out.splitlines() if line.strip()}
+    changed_sources = sorted(p for p in sources if p in changed_paths)
+    print(
+        "  changed sources: %d/%d since build" % (len(changed_sources), len(sources))
+    )
+    for path in changed_sources[:_STATUS_SOURCES_SHOWN]:
+        print("    - %s" % path)
+    remaining = len(changed_sources) - _STATUS_SOURCES_SHOWN
+    if remaining > 0:
+        print("    (+%d more)" % remaining)
+
+    return 0
+
+
 def main(argv):
     parser = argparse.ArgumentParser(prog="orient.py")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -456,6 +601,17 @@ def main(argv):
         help="repo root ref paths are resolved against and orient/ is written under (default: cwd)",
     )
     p_build.set_defaults(func=cmd_build)
+
+    p_status = sub.add_parser(
+        "status",
+        help="report staleness of an existing orient/payload.json against the working tree",
+    )
+    p_status.add_argument(
+        "--repo-root",
+        default=None,
+        help="repo root to read orient/payload.json from and run git against (default: cwd)",
+    )
+    p_status.set_defaults(func=cmd_status)
 
     args = parser.parse_args(argv[1:])
     return args.func(args)

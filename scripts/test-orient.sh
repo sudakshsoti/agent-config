@@ -402,5 +402,223 @@ else
 fi
 
 echo
+echo "orient.py status"
+
+# --- shared fixture writer -------------------------------------------------
+#
+# status reads orient/payload.json directly, so these tests hand-write it
+# rather than going through `build` (which would additionally require every
+# ref to resolve against real files -- irrelevant to what status checks).
+# sha="" omits repo.sha entirely, covering the "absent" half of "null or
+# absent" from a single writer.
+write_status_payload() {  # write_status_payload <root> <sha-or-empty> <builtAt> <sources-json-array>
+  local root="$1" sha="$2" built="$3" sources="$4"
+  mkdir -p "$root/orient"
+  python3 - "$root/orient/payload.json" "$sha" "$built" "$sources" <<'PY'
+import json
+import sys
+
+out_path, sha, built, sources_json = sys.argv[1:5]
+sources = json.loads(sources_json)
+repo = {
+    "builtAt": built,
+    "branch": "main",
+    "commitCount": None,
+    "remoteUrl": None,
+    "vcs": "git",
+}
+if sha:
+    repo["sha"] = sha
+payload = {
+    "repo": repo,
+    "axis": "test axis",
+    "sources": sources,
+    "tools": {"used": [], "absent": []},
+    "blocks": [{"type": "callout", "summary": "test payload", "tone": "note"}],
+}
+with open(out_path, "w", encoding="utf-8") as f:
+    json.dump(payload, f)
+PY
+}
+
+now_iso() { date -u +%Y-%m-%dT%H:%M:%SZ; }
+
+# --- missing orient/payload.json: informational, not an error --------------
+status_missing="$tmp/status-missing"
+mkdir -p "$status_missing"
+git -C "$status_missing" init -q
+git -C "$status_missing" config user.email "orient-test@example.com"
+git -C "$status_missing" config user.name "orient test"
+
+status_missing_out=$(python3 "$script" status --repo-root "$status_missing" 2>&1)
+status_missing_status=$?
+ok=1
+[[ $status_missing_status -eq 0 ]] || ok=0
+[[ "$status_missing_out" == *"no orient doc yet"* ]] || ok=0
+if [[ $ok -eq 1 ]]; then
+  echo "  ok    status degrades cleanly when orient/payload.json does not exist"
+  pass=$((pass + 1))
+else
+  echo "  FAIL  status degrades cleanly when orient/payload.json does not exist (exit=$status_missing_status output=$(printf '%q' "$status_missing_out"))"
+  fail=$((fail + 1))
+fi
+
+# --- non-git directory: age still reported, git-derived fields degrade -----
+status_nongit="$tmp/status-nongit"
+mkdir -p "$status_nongit"
+write_status_payload "$status_nongit" "deadbeefcafe0102030405060708090a0b0c0d0e" "$(now_iso)" '["a.txt","b.txt"]'
+
+status_nongit_out=$(python3 "$script" status --repo-root "$status_nongit" 2>&1)
+status_nongit_status=$?
+ok=1
+[[ $status_nongit_status -eq 0 ]] || ok=0
+[[ "$status_nongit_out" == *"not a git repository"* ]] || ok=0
+[[ "$status_nongit_out" == *"days ago"* ]] || ok=0
+if [[ $ok -eq 1 ]]; then
+  echo "  ok    status degrades cleanly on a non-git directory"
+  pass=$((pass + 1))
+else
+  echo "  FAIL  status degrades cleanly on a non-git directory (exit=$status_nongit_status output=$(printf '%q' "$status_nongit_out"))"
+  fail=$((fail + 1))
+fi
+
+# --- sha absent from history: the shallow-clone analogue --------------------
+# A real shallow clone just makes `rev-list`/`diff` against a pre-truncation
+# sha fail the same way as an outright bogus sha does -- both are "git ran,
+# couldn't resolve the revision," so a made-up sha exercises the same path
+# without needing an actual --depth=1 clone.
+status_shallow="$tmp/status-shallow"
+mkdir -p "$status_shallow"
+git -C "$status_shallow" init -q
+git -C "$status_shallow" config user.email "orient-test@example.com"
+git -C "$status_shallow" config user.name "orient test"
+echo "hello" > "$status_shallow/a.txt"
+git -C "$status_shallow" add a.txt
+git -C "$status_shallow" commit -q -m "initial"
+
+write_status_payload "$status_shallow" "0000000000000000000000000000000000dead" "$(now_iso)" '["a.txt"]'
+
+status_shallow_out=$(python3 "$script" status --repo-root "$status_shallow" 2>&1)
+status_shallow_status=$?
+ok=1
+[[ $status_shallow_status -eq 0 ]] || ok=0
+[[ "$status_shallow_out" == *"not found in this repo's history"* ]] || ok=0
+if [[ $ok -eq 1 ]]; then
+  echo "  ok    status degrades cleanly when the baked sha is absent from history (shallow clone)"
+  pass=$((pass + 1))
+else
+  echo "  FAIL  status degrades cleanly when the baked sha is absent from history (shallow clone) (exit=$status_shallow_status output=$(printf '%q' "$status_shallow_out"))"
+  fail=$((fail + 1))
+fi
+
+# --- repo.sha null/absent: skip commits-behind and changed-sources ---------
+status_nosha="$tmp/status-nosha"
+mkdir -p "$status_nosha"
+git -C "$status_nosha" init -q
+git -C "$status_nosha" config user.email "orient-test@example.com"
+git -C "$status_nosha" config user.name "orient test"
+write_status_payload "$status_nosha" "" "$(now_iso)" '["a.txt"]'
+
+status_nosha_out=$(python3 "$script" status --repo-root "$status_nosha" 2>&1)
+status_nosha_status=$?
+ok=1
+[[ $status_nosha_status -eq 0 ]] || ok=0
+[[ "$status_nosha_out" == *"none recorded in payload.repo.sha"* ]] || ok=0
+# The "cannot compute commits behind" gloss on the sha line itself contains
+# the phrase "commits behind" -- assert on the absent *metric line*
+# ("  commits behind:  ...") specifically, not the substring, or this would
+# false-fail against its own explanatory message.
+[[ "$status_nosha_out" != *$'\n  commits behind:'* ]] || ok=0
+if [[ $ok -eq 1 ]]; then
+  echo "  ok    status degrades cleanly when repo.sha is absent from the payload"
+  pass=$((pass + 1))
+else
+  echo "  FAIL  status degrades cleanly when repo.sha is absent from the payload (exit=$status_nosha_status output=$(printf '%q' "$status_nosha_out"))"
+  fail=$((fail + 1))
+fi
+
+# --- happy path: commits behind and changed sources, untouched source excluded ---
+status_happy="$tmp/status-happy"
+mkdir -p "$status_happy"
+git -C "$status_happy" init -q
+git -C "$status_happy" config user.email "orient-test@example.com"
+git -C "$status_happy" config user.name "orient test"
+echo "a" > "$status_happy/a.txt"
+echo "b" > "$status_happy/b.txt"
+echo "c" > "$status_happy/c.txt"
+git -C "$status_happy" add a.txt b.txt c.txt
+git -C "$status_happy" commit -q -m "initial"
+happy_sha=$(git -C "$status_happy" rev-parse HEAD)
+
+write_status_payload "$status_happy" "$happy_sha" "$(now_iso)" '["a.txt","b.txt"]'
+
+# Two commits land after the payload's sha: one touches a source (a.txt),
+# one touches a file that is not in sources[] (c.txt). b.txt, also a
+# source, is never touched and must not be listed as changed.
+echo "a2" >> "$status_happy/a.txt"
+git -C "$status_happy" add a.txt
+git -C "$status_happy" commit -q -m "touch a"
+echo "c2" >> "$status_happy/c.txt"
+git -C "$status_happy" add c.txt
+git -C "$status_happy" commit -q -m "touch c"
+
+status_happy_out=$(python3 "$script" status --repo-root "$status_happy" 2>&1)
+status_happy_status=$?
+ok=1
+[[ $status_happy_status -eq 0 ]] || ok=0
+[[ "$status_happy_out" == *"commits behind:  2"* ]] || ok=0
+[[ "$status_happy_out" == *"changed sources: 1/2"* ]] || ok=0
+[[ "$status_happy_out" == *"- a.txt"* ]] || ok=0
+[[ "$status_happy_out" != *"c.txt"* ]] || ok=0
+[[ "$status_happy_out" != *"- b.txt"* ]] || ok=0
+if [[ $ok -eq 1 ]]; then
+  echo "  ok    status reports commits behind and changed sources, excluding an untouched source"
+  pass=$((pass + 1))
+else
+  echo "  FAIL  status reports commits behind and changed sources, excluding an untouched source (exit=$status_happy_status output=$(printf '%q' "$status_happy_out"))"
+  fail=$((fail + 1))
+fi
+
+# --- more than a few changed sources: named ones capped, remainder counted ---
+status_cap="$tmp/status-cap"
+mkdir -p "$status_cap"
+git -C "$status_cap" init -q
+git -C "$status_cap" config user.email "orient-test@example.com"
+git -C "$status_cap" config user.name "orient test"
+sources_json='['
+for i in 1 2 3 4 5 6 7; do
+  echo "v0" > "$status_cap/f$i.txt"
+  sources_json+="\"f$i.txt\","
+done
+sources_json="${sources_json%,}]"
+git -C "$status_cap" add -A
+git -C "$status_cap" commit -q -m "initial"
+cap_sha=$(git -C "$status_cap" rev-parse HEAD)
+
+write_status_payload "$status_cap" "$cap_sha" "$(now_iso)" "$sources_json"
+
+for i in 1 2 3 4 5 6 7; do
+  echo "v1" >> "$status_cap/f$i.txt"
+done
+git -C "$status_cap" add -A
+git -C "$status_cap" commit -q -m "touch all seven"
+
+status_cap_out=$(python3 "$script" status --repo-root "$status_cap" 2>&1)
+status_cap_status=$?
+ok=1
+[[ $status_cap_status -eq 0 ]] || ok=0
+[[ "$status_cap_out" == *"changed sources: 7/7"* ]] || ok=0
+[[ "$status_cap_out" == *"(+2 more)"* ]] || ok=0
+listed=$(grep -c "^    - f" <<< "$status_cap_out")
+[[ "$listed" == "5" ]] || ok=0
+if [[ $ok -eq 1 ]]; then
+  echo "  ok    status names only the first few changed sources, then a remainder count"
+  pass=$((pass + 1))
+else
+  echo "  FAIL  status names only the first few changed sources, then a remainder count (exit=$status_cap_status output=$(printf '%q' "$status_cap_out"))"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "$pass passed, $fail failed"
 [[ $fail -eq 0 ]]
