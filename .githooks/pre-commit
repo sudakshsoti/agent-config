@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# pre-commit — the two fast checks, wired by `git config core.hooksPath .githooks`
+# (install.sh does that). Tracked in the repo rather than written into
+# .git/hooks, so it survives a clone and works from a git worktree, where
+# .git is a file and has no hooks/ directory of its own.
+#
+# Only the fast pair runs here. scripts/check.sh also runs the two test
+# scripts, and test-memory-consolidate.sh takes 30-60s (it is mostly sleeps) --
+# a commit that slow just gets bypassed with --no-verify forever after. CI
+# runs the full set.
+#
+# Bypass with `git commit --no-verify` when you genuinely mean to.
+set -uo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+status=0
+
+python3 "$repo_root/scripts/lint-skills.py" "$repo_root" || status=1
+echo
+python3 "$repo_root/scripts/check-zips.py" "$repo_root" || status=1
+
+if [[ $status -ne 0 ]]; then
+  echo
+  echo "pre-commit: refusing the commit."
+  echo "  stale/missing zip  -> ./scripts/build-zip.sh <name>   (then git add dist/<name>.zip)"
+  echo "  orphan zip         -> rm dist/<name>.zip"
+  echo "  frontmatter FAIL   -> fix skills/<name>/SKILL.md (see skills/README.md)"
+  echo "  full suite         -> ./scripts/check.sh"
+  echo "  bypass             -> git commit --no-verify"
+fi
+
+exit $status

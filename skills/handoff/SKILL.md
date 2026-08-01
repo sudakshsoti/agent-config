@@ -1,6 +1,6 @@
 ---
 name: handoff
-description:
+description: |
   Create a structured session handoff document for continuity across sessions.
   Use when ending a work session, switching contexts, or before a break.
   Captures decisions, progress, code changes, and next steps so a future session

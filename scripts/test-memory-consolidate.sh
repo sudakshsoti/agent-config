@@ -25,9 +25,16 @@ trap 'pkill -f "memory-consolidate.py --run" >/dev/null 2>&1; rm -rf "$tmp"' EXI
 
 pass=0
 fail=0
+skipped=0
 
 ok()   { echo "  ok    $1"; pass=$((pass + 1)); }
 bad()  { echo "  FAIL  $1"; echo "        $2"; fail=$((fail + 1)); }
+# Two checks below reach outside the repo, into the live ~/.claude install.
+# On this machine that is the whole point; in CI there is no install at all,
+# so asserting there would just make the suite permanently red for a reason
+# that says nothing about the hook. Counted apart from pass so a skip can
+# never be mistaken for a green.
+skip() { echo "  skip  $1 ($2)"; skipped=$((skipped + 1)); }
 
 # Throwaway vault: the hook refuses to fire unless <vault>/.git exists, and the
 # stub never writes to it, but it must look real enough to pass that check.
@@ -375,13 +382,18 @@ fi
 # The command is a shell string with "$HOME" unexpanded, so resolve it the way
 # the shell would. -f follows symlinks, so a dangling ~/.claude/hooks link --
 # what a moved checkout leaves behind -- fails here rather than silently
-# disabling the hook.
-wired=$(python3 -c 'import os,shlex,sys; p=shlex.split(sys.argv[1]); print(os.path.expandvars(p[-1]) if p else "")' "$cmd" 2>/dev/null)
-if [[ -n "$wired" && -f "$wired" ]]; then
-  ok "the wired path resolves to a real file: $wired"
+# disabling the hook. Only meaningful where ~/.claude actually exists: the
+# wired path lives there, so on a runner with no install this asserts nothing.
+if [[ -f "$HOME/.claude/settings.json" ]]; then
+  wired=$(python3 -c 'import os,shlex,sys; p=shlex.split(sys.argv[1]); print(os.path.expandvars(p[-1]) if p else "")' "$cmd" 2>/dev/null)
+  if [[ -n "$wired" && -f "$wired" ]]; then
+    ok "the wired path resolves to a real file: $wired"
+  else
+    bad "the wired path resolves to a real file" \
+        "settings.json points at '$wired', which is not a file. Did this checkout move? Re-run ./install.sh"
+  fi
 else
-  bad "the wired path resolves to a real file" \
-      "settings.json points at '$wired', which is not a file. Did this checkout move? Re-run ./install.sh"
+  skip "the wired path resolves to a real file" "no ~/.claude install on this machine"
 fi
 
 # The other SessionEnd entries are managed by other tooling. Losing one is a
@@ -395,17 +407,26 @@ else
       "found $others of 2"
 fi
 
-# And the live copy must match, since settings.json here is a copy, not a symlink.
+# And the live copy must match, since settings.json here is a copy, not a
+# symlink. Nothing to compare against on a machine with no install (CI).
 live="$HOME/.claude/settings.json"
-live_cmd=$(jq -r '.hooks.SessionEnd[]?.hooks[]? | select(.command | test("memory-consolidate")) | .command' \
-           "$live" 2>/dev/null)
-if [[ "$live_cmd" == "$cmd" && -n "$live_cmd" ]]; then
-  ok "~/.claude/settings.json carries the same wiring"
+if [[ -f "$live" ]]; then
+  live_cmd=$(jq -r '.hooks.SessionEnd[]?.hooks[]? | select(.command | test("memory-consolidate")) | .command' \
+             "$live" 2>/dev/null)
+  if [[ "$live_cmd" == "$cmd" && -n "$live_cmd" ]]; then
+    ok "~/.claude/settings.json carries the same wiring"
+  else
+    bad "~/.claude/settings.json carries the same wiring" \
+        "live='$live_cmd' repo='$cmd' — settings.json is a copy; update both (see sync.sh)"
+  fi
 else
-  bad "~/.claude/settings.json carries the same wiring" \
-      "live='$live_cmd' repo='$cmd' — settings.json is a copy; update both (see sync.sh)"
+  skip "~/.claude/settings.json carries the same wiring" "no ~/.claude/settings.json on this machine"
 fi
 
 echo
-echo "$pass passed, $fail failed"
+if [[ $skipped -gt 0 ]]; then
+  echo "$pass passed, $fail failed, $skipped skipped"
+else
+  echo "$pass passed, $fail failed"
+fi
 [[ $fail -eq 0 ]]
