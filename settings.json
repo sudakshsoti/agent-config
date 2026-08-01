@@ -276,7 +276,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "claude-powerline --style=minimal",
+    "command": "/Users/sudakshsoti/dev/agent-config/scripts/statusline.sh",
     "padding": 0,
     "refreshInterval": 10
   },
