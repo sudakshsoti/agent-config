@@ -91,7 +91,7 @@ scalar (`|` or `>-`) or Codex's strict YAML parser fails the whole skill.
   **Verify:** `./scripts/test-orient.sh` passes; `./scripts/check.sh` passes.
   *(Tier: sonnet)*
 
-- [ ] **3. `assets/shell.html`** — the fixed renderer, target 250–300 lines,
+- [x] **3. `assets/shell.html`** — the fixed renderer, target 250–300 lines,
   entirely self-contained: inlined CSS and JS, zero network requests, an empty
   `<script id="orient-data" type="application/json">` island, and a generic
   `render(data)` that handles all ten block types. Requirements: every block is a
@@ -290,3 +290,10 @@ Not checklist items: these need the skill actually run end to end, interactively
   `consequence`, kept distinct from the confidence ladder's `signals` array.
 - `prose` and `callout` carry their full text in `summary` and render flat, per
   the "no empty disclosure" rule. They have no separate detail field.
+- The data island ships as `<script id="orient-data" type="application/json">{}</script>`
+  — `{}`, not empty, so an un-built `shell.html` opened directly does not throw in
+  `JSON.parse` and keeps the console clean. `build` replaces the island's inner text.
+- `shell.html` came out at 342 lines rather than the 250–300 target; the overage is
+  the print-palette reset, the non-git degradation path, and the flow edge geometry.
+- Print force-open is CSS (`::details-content`) **plus** a `beforeprint` handler,
+  because CSS alone cannot redraw the `flow` SVG edges, which are measured from layout.
