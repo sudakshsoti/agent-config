@@ -63,7 +63,7 @@ scalar (`|` or `>-`) or Codex's strict YAML parser fails the whole skill.
 
 ## Checklist
 
-- [ ] **1. Schema contract** — write `skills/orient/references/BLOCKS.md` (the
+- [x] **1. Schema contract** — write `skills/orient/references/BLOCKS.md` (the
   payload contract, field by field, for all ten block types above, including the
   `confidence` enum, the `ref` shape `{path, line, quote?, note?}`, and the
   top-level `{repo: {sha, builtAt, branch, commitCount, remoteUrl, vcs}, axis,
@@ -280,3 +280,13 @@ Not checklist items: these need the skill actually run end to end, interactively
 7. **The real test:** read the guide for a repo you wrote and check whether it
    tells you something you'd forgotten. If it only tells you what `ls` would, the
    fix is in `references/INTENT.md`, not in the renderer.
+
+---
+
+## Decisions made during the build (later items must honour these)
+
+- `flag.severity` is a closed enum `low|medium|high`.
+- `decision` uses the ADR field names `context` / `decision` / `evidence` /
+  `consequence`, kept distinct from the confidence ladder's `signals` array.
+- `prose` and `callout` carry their full text in `summary` and render flat, per
+  the "no empty disclosure" rule. They have no separate detail field.
