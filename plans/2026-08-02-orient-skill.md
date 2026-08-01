@@ -233,7 +233,7 @@ scalar (`|` or `>-`) or Codex's strict YAML parser fails the whole skill.
   **Verify:** `python3 scripts/lint-skills.py` passes; body is under ~5k tokens.
   *(Tier: opus)*
 
-- [ ] **10. Register the skill** — add one line to the `## Current skills` list in
+- [x] **10. Register the skill** — add one line to the `## Current skills` list in
   `skills/README.md` in the existing format and bump the count in the sentence
   above it (currently 28 → 29; **check the live number first**, do not trust this
   plan). Out of scope: any other edit to that file.
