@@ -276,7 +276,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "claude-powerline --style=powerline",
+    "command": "claude-powerline --style=minimal",
     "padding": 0,
     "refreshInterval": 10
   },
@@ -321,7 +321,7 @@
     }
   },
   "spinnerTipsEnabled": false,
-  "effortLevel": "medium",
+  "effortLevel": "high",
   "askUserQuestionTimeout": "never",
   "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
