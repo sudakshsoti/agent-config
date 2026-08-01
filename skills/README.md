@@ -43,26 +43,38 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-- `clinical-reasoning` — Structured clinical decision-making (Indian guidelines, drug interactions, red flags).
+The 28 skills below are the installed set. Anything under `skills/_archive/` is
+kept for reference only and is deliberately not installed — see
+[`_archive/README.md`](_archive/README.md).
+
+- `animation-vocabulary` — Reverse-lookup glossary: describe a motion effect, get its exact name.
+- `apple-design` — Apple's interface and fluid-motion approach translated for the web: gestures, springs, materials, type.
 - `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
-- `composition-patterns` — React composition patterns (compound components, render props, context) that scale.
-- `cross-post` — Repurpose sudaksh.io writing/projects into LinkedIn + Medium drafts. Drafts only.
 - `design-craft` — Typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
+- `design-foil` — Industry-agnostic strategy + UX advisor: brainstorm, critique, strategy docs, teardowns.
+- `emil-design-eng` — Emil Kowalski's philosophy on UI polish, component design, and animation judgement.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
-- `gtd` — GTD productivity mentor: inbox processing, weekly reviews, daily planning, focus coaching.
+- `explain-this` — Explain the plan or the finished work in plain English, then teach the one concept behind it. `/explain-this`.
+- `find-animation-opportunities` — Find places that don't animate but should, with exact values. Read-only; proposes, doesn't implement.
+- `find-skills` — Discover and install agent skills when asked "is there a skill for X".
 - `handoff` — Structured session-handoff docs for continuity across sessions.
+- `homelab-backlog` — Run the homelab/finance backlog in Linear (team OKLCH): capture, triage, grooming, acceptance criteria.
+- `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, including the safe rclone-torbox recreate.
+- `improve-animations` — Survey a codebase's motion code and produce a prioritised audit plus implementation plans. Read-only.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
 - `merge` — Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`.
 - `n8n-deploy` — RIGID homelab procedure: deploy/edit n8n workflows via the sqlite3 dance without clobbering the DB.
 - `obsidian-markdown` — Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.
+- `peer-review` — Adversarial cross-lineage review of an engineering plan written by another agent. `/peer-review`.
+- `pick-ui-library` — Pick the right frontend library for a task from a curated, opinionated list. `/pick-ui-library`.
 - `pr` — Open a GitHub PR via `gh` — title from commits, why-first body, no AI footer. `/pr`.
 - `prose-editor` — Critique + rewrite personal essays to a high editorial bar.
+- `prototype` — Build several genuinely different versions of a UI piece behind a visual picker. `/prototype`.
 - `push` — Safe push — sets upstream, shows outgoing commits, `--force-with-lease`, warns on main. `/push`.
-- `reading-companion` — Obsidian-vault reading companion: pick/track books, capture quotes & writing seeds.
-- `torbox-ops` — RIGID homelab procedure: recover the TorBox/rclone/decypharr symlink chain (FUSE, reconciler, retention).
+- `review-animations` — Review animation code against a high craft bar; approval is earned. `/review-animations`.
+- `self-review` — Self-review the plan you just proposed via the plan-critic subagent, then revise it. `/self-review`.
 - `ux-writing` — User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.
 - `value-connect` — Strategy + UX advisor for enterprise/healthcare design: brainstorm, audit, design-process artifacts.
-- `web-design-guidelines` — Review UI code against the Web Interface Guidelines (accessibility, UX).
 
 ## Installing per surface
 
