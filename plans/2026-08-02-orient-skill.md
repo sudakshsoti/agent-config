@@ -241,7 +241,7 @@ scalar (`|` or `>-`) or Codex's strict YAML parser fails the whole skill.
   one added line and the one changed number.
   *(Tier: haiku)*
 
-- [ ] **11. Install and package** — run `./install.sh` and confirm the new symlinks
+- [x] **11. Install and package** — run `./install.sh` and confirm the new symlinks
   resolve in both `~/.claude/skills/orient` and `~/.agents/skills/orient`
   (`readlink` them — do not assume). Then `./scripts/build-zip.sh orient` and
   commit `dist/orient.zip`. Note for the future: `shell.html` and `orient.py` are
