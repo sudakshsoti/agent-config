@@ -139,7 +139,7 @@ scalar (`|` or `>-`) or Codex's strict YAML parser fails the whole skill.
   **Verify:** `./scripts/test-orient.sh` passes, including the non-git case.
   *(Tier: sonnet)*
 
-- [ ] **6. `references/EVIDENCE.md`** — the Phase 1 deterministic command menu,
+- [x] **6. `references/EVIDENCE.md`** — the Phase 1 deterministic command menu,
   every command with a named fallback for when its tool is absent. Must record
   that on this machine `scc`, `tokei`, `cloc`, `graphviz`, `pydeps` and `code2flow`
   are **absent** while `git`, `rg`, `gh`, `jq`, `node` and `python3` are present,
