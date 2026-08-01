@@ -128,7 +128,7 @@ scalar (`|` or `>-`) or Codex's strict YAML parser fails the whole skill.
   result in a browser — renders identically to item 3's hand-splice, console clean.
   *(Tier: sonnet)*
 
-- [ ] **5. `orient.py status`** — add the `status` subcommand: read the baked `sha`
+- [x] **5. `orient.py status`** — add the `status` subcommand: read the baked `sha`
   from an existing `orient/payload.json` and report age in days, commits behind
   (`git rev-list --count <sha>..HEAD`), and — the number that actually matters —
   how many of the paths in `sources[]` have changed since, via
