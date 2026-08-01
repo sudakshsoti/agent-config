@@ -112,7 +112,7 @@ scalar (`|` or `>-`) or Codex's strict YAML parser fails the whole skill.
   works, `?open=all` works, print preview shows everything, console is clean.
   *(Tier: opus — this is the one piece whose quality the whole output rides on)*
 
-- [ ] **4. `orient.py build`** — add the `build` subcommand: run `validate`, splice
+- [x] **4. `orient.py build`** — add the `build` subcommand: run `validate`, splice
   the payload into `shell.html` (located via `__file__`, never `cwd`), escaping
   `</` inside the data island so a repo containing a literal `</script>` cannot
   kill the page, and write `<target>/orient/index.html` + `orient/payload.json`.
@@ -297,3 +297,11 @@ Not checklist items: these need the skill actually run end to end, interactively
   the print-palette reset, the non-git degradation path, and the flow edge geometry.
 - Print force-open is CSS (`::details-content`) **plus** a `beforeprint` handler,
   because CSS alone cannot redraw the `flow` SVG edges, which are measured from layout.
+- The self-containment check is a real `html.parser.HTMLParser` walk, not a grep:
+  `HTMLParser` treats `<script>` contents as opaque text, so a URL quoted inside the
+  data island is structurally incapable of being seen as a tag attribute.
+- **`refs dropped` in the build summary is always 0 at the script layer**, because
+  `build` runs the strict `validate` gate first and bails before splicing. Dropping a
+  block after two failed fix-and-retry rounds is the *model's* job (item 9, phase 4),
+  so item 9 must make the model record its own drops into the payload — the script
+  will never populate that line on its own.
