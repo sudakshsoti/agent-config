@@ -37,7 +37,9 @@ immediately — just commit when happy. `settings.json` is a **copy**
 
 No secrets in this repo, even though it's private:
 
-- `sync.sh` strips the `env` block from `settings.json` automatically.
+- `sync.sh` strips the `env` block from `settings.json` automatically, along
+  with any hook commands belonging to other tools (machine state, not
+  configuration).
 - Machine-local config and API keys belong in `~/.claude/settings.local.json`
   (merged with `settings.json` by Claude Code, never tracked here).
 - Never put a token in a `SKILL.md`.

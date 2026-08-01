@@ -32,7 +32,7 @@ Two different mechanisms, chosen per file type — get this wrong and you either
 - **Plugins are declared in `plugins.txt`, never vendored.** Each line is a marketplace (`anthropics/claude-plugins-official`, etc.) or a `plugin@marketplace`; `install.sh` replays them through the `claude plugin` CLI (`marketplace add` / `install`), which is idempotent and pulls the **latest** version. The plugin _content_ lives under `~/.claude/plugins/` (untracked, auto-updated upstream) — the repo tracks only _which_ plugins, so a fresh machine reproduces the set. This is why "update superpowers" is not a repo edit: it's a plugin that auto-updates from its marketplace. Sync step is skipped if `claude` isn't on PATH, or with `--no-plugins`. To add/remove a plugin, edit `plugins.txt` and re-run `./install.sh`.
 
 ```bash
-./install.sh              # link skills/agents + claude-powerline.json into ~/.claude and ~/.agents/skills, copy settings if absent, sync plugins. Idempotent.
+./install.sh              # link skills/agents/commands/hooks + claude-powerline.json into ~/.claude and ~/.agents/skills, copy settings if absent, sync plugins. Idempotent.
 ./install.sh --prune      # also remove dangling symlinks (both roots) for deleted skills/agents
 ./install.sh --no-plugins # skip the `claude plugin` sync step (e.g. offline, or claude not on PATH)
 ./install.sh --force      # install anyway from a path that looks like an ephemeral worktree, which is otherwise refused
@@ -47,7 +47,7 @@ Run `./install.sh` after adding or renaming a skill. **Editing** one needs no re
 
 No secrets in git, even though the repo is private:
 
-- `sync.sh` strips the `env` block from `settings.json` (`jq 'del(.env)'`) on the way in. API keys live in `~/.claude/settings.local.json`, which Claude Code merges at runtime and which is never tracked here.
+- `sync.sh` strips the `env` block from `settings.json` on the way in, plus any hook commands belonging to other tools (matched on the `supacode-managed-hook` marker and the `SUPERSET_HOME_DIR` env var) — those are machine state from whatever's installed locally, not configuration this repo should carry. API keys live in `~/.claude/settings.local.json`, which Claude Code merges at runtime and which is never tracked here.
 - **Never put a token in a `SKILL.md`** — it commits in plaintext. (One historically leaked in the related `claude-projects` repo's git history.)
 
 ## Authoring skills
@@ -57,7 +57,7 @@ Each skill is a directory under `skills/` with a required `SKILL.md` (YAML front
 - Frontmatter requires `name` (≤64 chars, `[a-z0-9-]`, **must equal the directory name** — rename both together) and `description` (≤1024 chars). `user-invocable: true` makes it a `/<name>` slash command.
 - **`description` is the only text always in context** — it is the discovery surface. Triggers (the phrases/situations that should fire the skill) belong here. If a skill isn't triggering, sharpen the description, not the body.
 - Keep the `SKILL.md` body under ~5k tokens. Push bulk (long protocols, schemas, reference tables) into `references/foo.md` and link by relative path — it loads only on demand.
-- `scripts/` are invoked via bash from within the skill; reference them by their installed path (e.g. `.claude/skills/gtd/scripts/state.sh`), since that's where the symlink puts them.
+- `scripts/` are invoked via bash from within the skill; reference them by their installed path (`.claude/skills/<name>/scripts/<script>`), since that's where the symlink puts them.
 
 Same format works on Claude Code, Claude.ai (zip upload), and the Claude API — but skills do **not** sync between surfaces; install each separately. See `skills/README.md` for per-surface install details.
 

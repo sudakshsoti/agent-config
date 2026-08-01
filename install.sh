@@ -26,6 +26,10 @@
 # would break; never clobbers an existing file):
 #   settings.json             -> ~/.claude/settings.json
 #
+# Git hooks (repo-local config, not ~/.claude):
+#   core.hooksPath -> .githooks   (tracked, so it survives a clone; .git/hooks
+#   is unusable from a worktree, where .git is a file rather than a directory)
+#
 # Plugins (declared in plugins.txt, applied via the `claude` CLI — NOT vendored):
 #   marketplace/plugin lines -> `claude plugin marketplace add` / `install`
 #   Idempotent no-ops if already present. Skipped if `claude` isn't on PATH,
@@ -197,6 +201,15 @@ fi
 #     symlink means a repo edit goes live immediately with no re-run and
 #     nothing to sync back.
 link_into "$REPO/claude-powerline.json" "$CLAUDE/claude-powerline.json"
+
+# 4c. Git hooks: point git at the tracked .githooks/ instead of .git/hooks, so
+#     the pre-commit lint arrives with a clone and works from a worktree (where
+#     .git is a file and has no hooks/ directory to write into). Relative on
+#     purpose — it resolves per checkout.
+if git -C "$REPO" rev-parse --git-dir >/dev/null 2>&1; then
+  git -C "$REPO" config core.hooksPath .githooks
+  echo "wired   core.hooksPath -> .githooks"
+fi
 
 # 5. Plugins: reproduce the marketplace + plugin set from plugins.txt via the
 #    `claude` CLI. Content is NOT vendored — these commands add the marketplaces
