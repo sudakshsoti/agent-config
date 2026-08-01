@@ -76,7 +76,7 @@ scalar (`|` or `>-`) or Codex's strict YAML parser fails the whole skill.
   prints all ten type names, and every type documented in `BLOCKS.md` appears.
   *(Tier: sonnet)*
 
-- [ ] **2. `orient.py validate` + test harness** — write
+- [x] **2. `orient.py validate` + test harness** — write
   `skills/orient/scripts/orient.py` with only the `validate` subcommand, plus
   `scripts/test-orient.sh` at the repo root, and wire that script into
   `scripts/check.sh` alongside the existing hook tests. Stdlib only. **Test-first**:
