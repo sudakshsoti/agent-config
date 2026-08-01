@@ -43,7 +43,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-The 28 skills below are the installed set. Anything under `skills/_archive/` is
+The 29 skills below are the installed set. Anything under `skills/_archive/` is
 kept for reference only and is deliberately not installed — see
 [`_archive/README.md`](_archive/README.md).
 
@@ -65,6 +65,7 @@ kept for reference only and is deliberately not installed — see
 - `merge` — Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`.
 - `n8n-deploy` — RIGID homelab procedure: deploy/edit n8n workflows via the sqlite3 dance without clobbering the DB.
 - `obsidian-markdown` — Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.
+- `orient` — HTML guide to a repo — what it is, what decisions shaped it, and where sprawl lives. Every claim cited to file:line. `/orient`.
 - `peer-review` — Adversarial cross-lineage review of an engineering plan written by another agent. `/peer-review`.
 - `pick-ui-library` — Pick the right frontend library for a task from a curated, opinionated list. `/pick-ui-library`.
 - `pr` — Open a GitHub PR via `gh` — title from commits, why-first body, no AI footer. `/pr`.

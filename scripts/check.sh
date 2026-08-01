@@ -41,6 +41,7 @@ run "lint-skills.py"              python3 "$repo_root/scripts/lint-skills.py" "$
 run "check-zips.py"               python3 "$repo_root/scripts/check-zips.py" "$repo_root"
 run "test-context-size.sh"        "$repo_root/scripts/test-context-size.sh"
 run "test-memory-consolidate.sh"  "$repo_root/scripts/test-memory-consolidate.sh"
+run "test-orient.sh"              "$repo_root/scripts/test-orient.sh"
 
 echo "check.sh"
 printf '%s\n' "${results[@]}"

@@ -1,0 +1,176 @@
+{
+  "repo": {
+    "sha": "a1b2c3d",
+    "builtAt": "2026-08-02T10:15:00Z",
+    "branch": "main",
+    "commitCount": 142,
+    "remoteUrl": "https://github.com/example-user/spool",
+    "vcs": "git"
+  },
+  "axis": "By data flow (scan -> dedupe -> transcode -> sync), chosen because the repo has one pipeline photos move through end to end, and every file exists to serve one stage of it rather than a separate module boundary.",
+  "sources": [
+    "README.md",
+    "spool/cli.py",
+    "spool/scanner.py",
+    "spool/dedupe.py",
+    "spool/transcode.py",
+    "spool/sync.py",
+    "spool/config.py",
+    "spool/legacy_uploader.py",
+    "docs/setup.md",
+    "docs/raspberry-pi-notes.md",
+    "requirements.txt"
+  ],
+  "tools": { "used": ["git", "rg"], "absent": ["scc", "cloc"] },
+  "blocks": [
+    {
+      "type": "section",
+      "question": "What is all this?",
+      "summary": "A CLI that copies photos off a phone dump folder onto a home NAS, deduped and dated.",
+      "blocks": [
+        {
+          "type": "goal",
+          "summary": "spool exists so that photos dumped from a phone reach the NAS deduped and dated without touching Lightroom.",
+          "confidence": "stated",
+          "refs": [
+            { "path": "README.md", "line": 3, "quote": "spool exists so I never have to open Lightroom just to dedupe a phone dump." }
+          ]
+        },
+        {
+          "type": "prose",
+          "summary": "Everything past the scan stage assumes macOS; there is no Linux code path for transcoding.",
+          "refs": [{ "path": "spool/transcode.py", "line": 12 }]
+        },
+        {
+          "type": "flow",
+          "summary": "New files land in the phone dump folder and come out as dated JPEGs on the NAS.",
+          "trigger": "A file appears under ~/PhoneDump (SD card or phone USB mount).",
+          "stages": [
+            { "index": 0, "name": "scan", "detail": "Walks the dump folder for files newer than the last recorded run." },
+            { "index": 1, "name": "dedupe", "detail": "Hashes each file's content and drops anything already synced." },
+            { "index": 2, "name": "transcode", "detail": "Converts HEIC to JPEG.", "warn": "Shells out to macOS `sips`; on Linux it silently copies the raw .heic through untouched instead of failing." },
+            { "index": 3, "name": "sync", "detail": "rsync over SSH into a YYYY/MM folder on the NAS." }
+          ],
+          "output": "Date-bucketed JPEG folders on the NAS, verified against a source hash log."
+        },
+        {
+          "type": "map",
+          "summary": "Three areas: ingest, dedupe-and-transcode, delivery.",
+          "areas": [
+            {
+              "name": "Ingest",
+              "blurb": "Finds new files and reads local config.",
+              "files": [
+                { "path": "spool/scanner.py", "role": "Walks the dump folder for unseen files." },
+                { "path": "spool/config.py", "role": "Loads NAS host, key path, and dump folder from ~/.spoolrc." }
+              ]
+            },
+            {
+              "name": "Dedupe and transcode",
+              "blurb": "Content-hashes files and converts HEIC to JPEG before anything leaves the machine.",
+              "files": [
+                { "path": "spool/dedupe.py", "role": "Content-hash dedupe against the local sync log." },
+                { "path": "spool/transcode.py", "role": "HEIC to JPEG via macOS `sips`." }
+              ]
+            },
+            {
+              "name": "Delivery",
+              "blurb": "Gets bytes onto the NAS and records what shipped.",
+              "files": [
+                { "path": "spool/sync.py", "role": "rsync over SSH into a dated NAS folder." },
+                { "path": "spool/cli.py", "role": "Entry point; wires the four stages together." }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "question": "What did past-me decide and why?",
+      "summary": "Two decisions still hold; one dedupe key was replaced after it caused silent overwrites.",
+      "blocks": [
+        {
+          "type": "decision",
+          "summary": "Sync runs over SSH + rsync, not Synology's own cloud-sync client.",
+          "status": "holding",
+          "confidence": "stated",
+          "context": "Synology Drive's cloud sync silently drops files over 2 GB.",
+          "decision": "Shell out to rsync over an SSH keypair provisioned on the NAS.",
+          "evidence": "README states the reason directly.",
+          "consequence": "One more moving part (SSH key management) in exchange for no silent drops.",
+          "refs": [
+            { "path": "README.md", "line": 9, "quote": "we use rsync over SSH because Synology's cloud sync silently drops files over 2 GB" }
+          ]
+        },
+        {
+          "type": "decision",
+          "summary": "Dedupe key switched from filename to content hash after phones with wrong clocks caused silent overwrites.",
+          "status": "reversed",
+          "confidence": "evidenced",
+          "context": "Filename + EXIF timestamp was the original dedupe key.",
+          "decision": "Dedupe now hashes file content instead.",
+          "evidence": "No commit message states the reason, but the code and history only make sense under this reading.",
+          "consequence": "Slower dedupe pass on large dumps, but two files can no longer be silently treated as the same photo.",
+          "signals": [
+            "dedupe.py imports hashlib and has no remaining reference to EXIF timestamps.",
+            "tests/test_dedupe.py asserts two files with identical names but different bytes are both kept."
+          ]
+        },
+        {
+          "type": "table",
+          "summary": "One dependency was added after the initial commit, a dated decision.",
+          "headers": ["Date", "Package", "Why"],
+          "rows": [
+            ["2025-11-02", "pillow-heif", "Tried to replace the shelled-out sips call with native HEIC decode; partially reverted, see the transcode flow warning."]
+          ]
+        },
+        {
+          "type": "question",
+          "summary": "Does the nightly sync still run from the Synology task scheduler, or did it move to a Pi?",
+          "why": "install-nas-cron.sh assumes DSM's own scheduler, but a stray notes file suggests the job moved; nothing in the repo confirms which host runs it now.",
+          "guess": {
+            "text": "Probably moved to the Pi given the notes file, but unconfirmed.",
+            "refs": [{ "path": "docs/raspberry-pi-notes.md" }]
+          }
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "question": "Where is the sprawl?",
+      "summary": "One dead file, one doc claiming a flag that no longer exists, and an unexplained size floor in dedupe.",
+      "blocks": [
+        {
+          "type": "callout",
+          "summary": "This document was built from a1b2c3d; anything merged after that date isn't reflected.",
+          "tone": "warn"
+        },
+        {
+          "type": "flag",
+          "summary": "legacy_uploader.py is dead: nothing imports it and the CLI it backed was removed.",
+          "kind": "orphan",
+          "severity": "low",
+          "refs": [{ "path": "spool/legacy_uploader.py", "note": "no incoming imports repo-wide" }],
+          "handoff": "maintainability-review"
+        },
+        {
+          "type": "flag",
+          "summary": "docs/setup.md documents a --dry-run flag that cli.py no longer defines.",
+          "kind": "doc-drift",
+          "severity": "medium",
+          "refs": [
+            { "path": "docs/setup.md", "line": 22, "quote": "run with --dry-run to preview without writing to the NAS" },
+            { "path": "spool/cli.py", "note": "argparse setup has no --dry-run entry" }
+          ],
+          "handoff": "maintainability-review"
+        },
+        {
+          "type": "question",
+          "summary": "Why does dedupe.py skip files under 10 KB?",
+          "why": "The size floor looks deliberate (a named constant, MIN_PHOTO_BYTES) but no commit message or comment explains the threshold, and it could be silently dropping legitimate screenshots."
+        }
+      ]
+    }
+  ]
+}
