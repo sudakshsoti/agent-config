@@ -175,5 +175,232 @@ JSON
 check "ref quote not verbatim fails" "quote.txt" "$quote_mismatch" "$refroot"
 
 echo
+echo "orient.py build"
+
+# --- splice against the fixture: island must hold the exact payload ---
+#
+# Reuses the $spool repo-root built above -- its refs already resolve
+# against example-payload.json, so this exercises validate-then-splice
+# together rather than duplicating the fixture.
+build_out=$(python3 "$script" build "$fixture" --repo-root "$spool" 2>&1)
+build_status=$?
+if [[ $build_status -eq 0 ]]; then
+  echo "  ok    build exits 0 on the valid fixture"
+  pass=$((pass + 1))
+else
+  echo "  FAIL  build exits 0 on the valid fixture (exit=$build_status, output=$(printf '%q' "$build_out"))"
+  fail=$((fail + 1))
+fi
+
+index="$spool/orient/index.html"
+payload_out="$spool/orient/payload.json"
+if [[ -f "$index" && -f "$payload_out" ]]; then
+  echo "  ok    build writes orient/index.html and orient/payload.json"
+  pass=$((pass + 1))
+else
+  echo "  FAIL  build writes orient/index.html and orient/payload.json (index=$([[ -f "$index" ]] && echo present || echo missing), payload=$([[ -f "$payload_out" ]] && echo present || echo missing))"
+  fail=$((fail + 1))
+fi
+
+if [[ "$build_out" == *"blocks:"* && "$build_out" == *"provenance:"* ]]; then
+  echo "  ok    build prints the honest summary (blocks + provenance)"
+  pass=$((pass + 1))
+else
+  echo "  FAIL  build prints the honest summary (blocks + provenance) (output=$(printf '%q' "$build_out"))"
+  fail=$((fail + 1))
+fi
+
+roundtrip_out=$(python3 - "$index" "$fixture" <<'PY' 2>&1
+import json
+import re
+import sys
+
+html = open(sys.argv[1], encoding="utf-8").read()
+m = re.search(r'<script id="orient-data" type="application/json">(.*?)</script>', html, re.DOTALL)
+if not m:
+    print("ISLAND NOT FOUND")
+    sys.exit(1)
+try:
+    data = json.loads(m.group(1))
+except json.JSONDecodeError as e:
+    print("ISLAND DID NOT PARSE: %s" % e)
+    sys.exit(1)
+expected = json.load(open(sys.argv[2], encoding="utf-8"))
+if data != expected:
+    print("ISLAND CONTENT MISMATCH")
+    sys.exit(1)
+print("MATCH")
+PY
+)
+roundtrip_status=$?
+if [[ $roundtrip_status -eq 0 && "$roundtrip_out" == "MATCH" ]]; then
+  echo "  ok    data island round-trips the exact payload"
+  pass=$((pass + 1))
+else
+  echo "  FAIL  data island round-trips the exact payload ($roundtrip_out)"
+  fail=$((fail + 1))
+fi
+
+# --- a payload containing a literal </script> must not kill the page ---
+#
+# Without the '</' -> '<\/' escape, this text would terminate the data
+# island's script tag early and leave the rest of the document -- including
+# the render script -- as broken markup.
+script_breakout="$tmp/script-breakout.json"
+cat > "$script_breakout" <<'JSON'
+{
+  "blocks": [
+    { "type": "callout", "summary": "Contains a literal </script> tag right in the text, which must not break the page.", "tone": "note" }
+  ]
+}
+JSON
+
+breakout_root="$tmp/breakout-root"
+mkdir -p "$breakout_root"
+
+breakout_out=$(python3 "$script" build "$script_breakout" --repo-root "$breakout_root" 2>&1)
+breakout_status=$?
+if [[ $breakout_status -eq 0 ]]; then
+  echo "  ok    build succeeds on a payload containing a literal </script>"
+  pass=$((pass + 1))
+else
+  echo "  FAIL  build succeeds on a payload containing a literal </script> (exit=$breakout_status, output=$(printf '%q' "$breakout_out"))"
+  fail=$((fail + 1))
+fi
+
+breakout_check=$(python3 - "$breakout_root/orient/index.html" "$script_breakout" <<'PY' 2>&1
+import json
+import re
+import sys
+from html.parser import HTMLParser
+
+html = open(sys.argv[1], encoding="utf-8").read()
+
+
+class Counter(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.script_tags = 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "script":
+            self.script_tags += 1
+
+
+counter = Counter()
+counter.feed(html)
+
+m = re.search(r'<script id="orient-data" type="application/json">(.*?)</script>', html, re.DOTALL)
+if not m:
+    print("ISLAND NOT FOUND")
+    sys.exit(1)
+try:
+    data = json.loads(m.group(1))
+except json.JSONDecodeError as e:
+    print("ISLAND DID NOT PARSE: %s" % e)
+    sys.exit(1)
+expected = json.load(open(sys.argv[2], encoding="utf-8"))
+if data != expected:
+    print("ISLAND MISMATCH")
+    sys.exit(1)
+if counter.script_tags != 2:
+    print("SCRIPT TAG COUNT %d (want 2: data island + render script)" % counter.script_tags)
+    sys.exit(1)
+print("OK")
+PY
+)
+breakout_check_status=$?
+if [[ $breakout_check_status -eq 0 && "$breakout_check" == "OK" ]]; then
+  echo "  ok    literal </script> in the payload still yields a parsing island and an intact page"
+  pass=$((pass + 1))
+else
+  echo "  FAIL  literal </script> in the payload still yields a parsing island and an intact page ($breakout_check)"
+  fail=$((fail + 1))
+fi
+
+# --- self-containment false positive: a README full of URLs must still build ---
+#
+# The check must walk markup nodes only (script/link/img with an external
+# src/href), never grep the raw file for https?://, or this quoted text
+# would be mistaken for an external resource load.
+url_heavy="$tmp/url-heavy.json"
+cat > "$url_heavy" <<'JSON'
+{
+  "blocks": [
+    {
+      "type": "prose",
+      "summary": "The README documents installs at https://example.com/install, mirrors at https://mirror.example.org/readme-heavy, docs at https://docs.example.com/readme-heavy/start, a badge linking https://github.com/example/readme-heavy-repo, and a PyPI page at https://pypi.org/project/readme-heavy -- none of these are markup nodes, just quoted text."
+    }
+  ]
+}
+JSON
+
+url_root="$tmp/url-root"
+mkdir -p "$url_root"
+
+url_out=$(python3 "$script" build "$url_heavy" --repo-root "$url_root" 2>&1)
+url_status=$?
+if [[ $url_status -eq 0 ]]; then
+  echo "  ok    self-containment check does not false-positive on URLs quoted in payload text"
+  pass=$((pass + 1))
+else
+  echo "  FAIL  self-containment check does not false-positive on URLs quoted in payload text (exit=$url_status, output=$(printf '%q' "$url_out"))"
+  fail=$((fail + 1))
+fi
+
+# --- refuse to overwrite an orient/index.html with uncommitted local edits ---
+dirty_root="$tmp/dirty-repo"
+mkdir -p "$dirty_root"
+git -C "$dirty_root" init -q
+git -C "$dirty_root" config user.email "orient-test@example.com"
+git -C "$dirty_root" config user.name "orient test"
+
+minimal_payload="$tmp/minimal.json"
+cat > "$minimal_payload" <<'JSON'
+{
+  "blocks": [
+    { "type": "callout", "summary": "Minimal payload for the dirty-output-file refusal test.", "tone": "note" }
+  ]
+}
+JSON
+
+first_out=$(python3 "$script" build "$minimal_payload" --repo-root "$dirty_root" 2>&1)
+first_status=$?
+git -C "$dirty_root" add orient/index.html orient/payload.json
+git -C "$dirty_root" commit -q -m "orient: initial build"
+
+# rebuilding a clean, committed output must still be allowed
+clean_rebuild_out=$(python3 "$script" build "$minimal_payload" --repo-root "$dirty_root" 2>&1)
+clean_rebuild_status=$?
+
+# hand-edit the committed output without committing again
+printf '\n<!-- hand edit -->\n' >> "$dirty_root/orient/index.html"
+
+dirty_out=$(python3 "$script" build "$minimal_payload" --repo-root "$dirty_root" 2>&1)
+dirty_status=$?
+
+ok=1
+[[ $first_status -eq 0 ]] || ok=0
+[[ $clean_rebuild_status -eq 0 ]] || ok=0
+[[ $dirty_status -ne 0 ]] || ok=0
+[[ "$dirty_out" == *"uncommitted"* ]] || ok=0
+[[ "$dirty_out" == *"orient/index.html"* ]] || ok=0
+if [[ $ok -eq 1 ]]; then
+  echo "  ok    build refuses to overwrite orient/index.html with uncommitted local edits"
+  pass=$((pass + 1))
+else
+  echo "  FAIL  build refuses to overwrite orient/index.html with uncommitted local edits (first_status=$first_status clean_rebuild_status=$clean_rebuild_status dirty_status=$dirty_status output=$(printf '%q' "$dirty_out"))"
+  fail=$((fail + 1))
+fi
+
+if grep -q "hand edit" "$dirty_root/orient/index.html"; then
+  echo "  ok    a refused build leaves the dirty file untouched"
+  pass=$((pass + 1))
+else
+  echo "  FAIL  a refused build leaves the dirty file untouched"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "$pass passed, $fail failed"
 [[ $fail -eq 0 ]]

@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """orient.py — build and check the /orient payload.
 
-Only the `validate` subcommand exists so far; `build` and `status` are later
-items in plans/2026-08-02-orient-skill.md. This is the mechanical gate that
+`validate` and `build` exist so far; `status` is a later item in
+plans/2026-08-02-orient-skill.md. `validate` is the mechanical gate that
 stops a confident wrong answer reaching the rendered page: the model can
 write a `goal` or `decision` with any confidence word it likes, and it can
 cite a `ref` that doesn't actually say what it claims -- `validate` is what
-catches that before shell.html ever sees it. See
+catches that before shell.html ever sees it. `build` runs that gate, then
+splices the payload into the fixed shell and writes the finished page. See
 skills/orient/references/BLOCKS.md for the schema this enforces.
 
   python3 orient.py validate <payload.json> [--repo-root ROOT]
+  python3 orient.py build <payload.json> [--repo-root ROOT]
 
 Stdlib only, matching scripts/lint-skills.py.
 """
@@ -17,7 +19,10 @@ Stdlib only, matching scripts/lint-skills.py.
 import argparse
 import json
 import os
+import re
+import subprocess
 import sys
+from html.parser import HTMLParser
 
 BLOCK_TYPES = {
     "section",
@@ -152,6 +157,253 @@ def validate_payload(payload, repo_root):
     return errors
 
 
+def _walk_all_blocks(blocks):
+    """Yield every block, recursing into section.blocks -- the same shape
+    _walk_blocks validates against, but flattened for the build summary
+    rather than collecting errors."""
+    for block in blocks or []:
+        if not isinstance(block, dict):
+            continue
+        yield block
+        if block.get("type") == "section":
+            for sub in _walk_all_blocks(block.get("blocks", [])):
+                yield sub
+
+
+def _summarize(payload):
+    """The honest-summary numbers `cmd_build` prints: how many blocks, how
+    many refs were verified, the provenance split, and the tools ledger.
+
+    `refs_dropped` is always empty under the current contract: `build` runs
+    `validate_payload` first and bails on any error, so by the time this
+    runs, every ref that reached here already resolved. The field stays in
+    the summary shape anyway -- printing an empty list is the honest answer,
+    not an omission, and keeps the summary format stable if a future,
+    looser build mode ever does drop blocks instead of refusing outright.
+    """
+    blocks = list(_walk_all_blocks(payload.get("blocks", [])))
+    total_refs = 0
+    for block in blocks:
+        total_refs += len(_refs_in_block(block))
+
+    stated = sum(
+        1 for b in blocks if b.get("type") in CONFIDENCE_TYPES and b.get("confidence") == "stated"
+    )
+    evidenced = sum(
+        1
+        for b in blocks
+        if b.get("type") in CONFIDENCE_TYPES and b.get("confidence") == "evidenced"
+    )
+    questions = sum(1 for b in blocks if b.get("type") == "question")
+
+    tools = payload.get("tools") or {}
+    return {
+        "blocks": len(blocks),
+        "refs_total": total_refs,
+        "refs_verified": total_refs,
+        "refs_dropped": [],
+        "stated": stated,
+        "evidenced": evidenced,
+        "questions": questions,
+        "tools_used": list(tools.get("used") or []),
+        "tools_absent": list(tools.get("absent") or []),
+    }
+
+
+def _shell_html_path():
+    """Locate assets/shell.html relative to this script's own real location,
+    never cwd -- at runtime cwd is the *target* repo being documented, not
+    the skill.
+
+    Resolved through os.path.realpath deliberately: this script is reached
+    in production through a symlinked directory
+    (~/.claude/skills/orient -> this checkout's skills/orient), and may in
+    principle be reached through a symlinked file too. realpath collapses
+    either kind of symlink down to the real path on disk before we go
+    looking for ../assets/shell.html, so the lookup is correct regardless of
+    which link shape is in play at the call site.
+    """
+    here = os.path.dirname(os.path.realpath(__file__))
+    return os.path.join(here, "..", "assets", "shell.html")
+
+
+_ISLAND_RE = re.compile(
+    r'(<script id="orient-data" type="application/json">)(.*?)(</script>)', re.DOTALL
+)
+
+
+def _escape_data_island(json_text):
+    """Escape '</' as '<\\/' so a payload quoting a literal '</script>'
+    cannot terminate the data island's script tag early and kill the rest of
+    the page. JSON parsers treat '\\/' as an escaped '/', so this round-trips
+    losslessly through JSON.parse -- it changes the bytes on disk, not the
+    value the page reads back.
+    """
+    return json_text.replace("</", "<\\/")
+
+
+def splice_payload(shell_html, payload):
+    """Return shell_html with the (validated) payload spliced into the
+    `orient-data` island, `</` escaped so the splice can't break the page.
+    """
+    json_text = _escape_data_island(json.dumps(payload, indent=2, ensure_ascii=False))
+    matches = list(_ISLAND_RE.finditer(shell_html))
+    if len(matches) != 1:
+        raise ValueError(
+            "expected exactly one orient-data script island in shell.html, found %d"
+            % len(matches)
+        )
+    start, end = matches[0].start(2), matches[0].end(2)
+    return shell_html[:start] + json_text + shell_html[end:]
+
+
+class _SelfContainmentChecker(HTMLParser):
+    """Walks actual markup nodes only. HTMLParser treats <script> and
+    <style> contents as opaque CDATA-like text (handle_data, never
+    handle_starttag) until their closing tag, so a URL quoted inside the
+    JSON data island -- which lives as the *text* of a <script> element --
+    is never seen as a tag attribute here. That is the property the
+    self-containment false-positive test in test-orient.sh pins down: this
+    must not degrade into a whole-file grep for https?://.
+    """
+
+    _EXTERNAL = re.compile(r"^https?://", re.IGNORECASE)
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.violations = []
+
+    def _external(self, url):
+        return bool(url) and self._EXTERNAL.match(url) is not None
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == "script" and self._external(attrs.get("src")):
+            self.violations.append("<script src=%r>" % attrs.get("src"))
+        elif tag == "link" and self._external(attrs.get("href")):
+            self.violations.append("<link href=%r>" % attrs.get("href"))
+        elif tag == "img" and self._external(attrs.get("src")):
+            self.violations.append("<img src=%r>" % attrs.get("src"))
+
+
+def check_self_contained(html_text):
+    """Return a list of external markup-node violations, empty if none.
+    <a href> is deliberately not checked -- BLOCKS.md is explicit that
+    external links there are fine; only script/link/img loads reach out."""
+    parser = _SelfContainmentChecker()
+    parser.feed(html_text)
+    return parser.violations
+
+
+def _output_is_dirty(repo_root, rel_path):
+    """True if <repo_root>/<rel_path> has uncommitted state relative to git
+    -- modified, staged, or untracked all count, since any of them means a
+    blind overwrite could clobber something not yet in history.
+
+    A target that isn't a git repo, or has no git on PATH, can't be
+    protected this way: that degrades to "not dirty" so build can still run
+    somewhere with no version control, rather than refusing to ever build
+    there.
+    """
+    try:
+        proc = subprocess.run(
+            ["git", "status", "--porcelain", "--", rel_path],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+        )
+    except OSError:
+        return False
+    if proc.returncode != 0:
+        return False
+    return bool(proc.stdout.strip())
+
+
+def cmd_build(args):
+    try:
+        with open(args.payload, "r", encoding="utf-8") as f:
+            raw = f.read()
+    except OSError as e:
+        sys.stderr.write("orient build: FAIL  cannot read %s: %s\n" % (args.payload, e))
+        return 1
+
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as e:
+        sys.stderr.write("orient build: FAIL  %s is not valid JSON: %s\n" % (args.payload, e))
+        return 1
+
+    repo_root = args.repo_root or os.getcwd()
+    errors = validate_payload(payload, repo_root)
+    if errors:
+        sys.stderr.write(
+            "orient build: FAIL  %d problem(s) in %s\n" % (len(errors), args.payload)
+        )
+        for e in errors:
+            sys.stderr.write("  - %s\n" % e)
+        return 1
+
+    out_dir = os.path.join(repo_root, "orient")
+    index_path = os.path.join(out_dir, "index.html")
+    index_rel = os.path.join("orient", "index.html")
+    if os.path.exists(index_path) and _output_is_dirty(repo_root, index_rel):
+        sys.stderr.write(
+            "orient build: FAIL  %s has uncommitted local edits; "
+            "commit or discard them before rebuilding: %s\n" % (index_rel, index_path)
+        )
+        return 1
+
+    shell_path = _shell_html_path()
+    try:
+        with open(shell_path, "r", encoding="utf-8") as f:
+            shell_html = f.read()
+    except OSError as e:
+        sys.stderr.write("orient build: FAIL  cannot read shell.html at %s: %s\n" % (shell_path, e))
+        return 1
+
+    try:
+        spliced = splice_payload(shell_html, payload)
+    except ValueError as e:
+        sys.stderr.write("orient build: FAIL  %s\n" % e)
+        return 1
+
+    # Checked on the in-memory string, before anything is written, so a
+    # violation never leaves a half-built orient/ directory behind.
+    violations = check_self_contained(spliced)
+    if violations:
+        sys.stderr.write(
+            "orient build: FAIL  %d self-containment violation(s) -- an external "
+            "resource was found in markup:\n" % len(violations)
+        )
+        for v in violations:
+            sys.stderr.write("  - %s\n" % v)
+        return 1
+
+    os.makedirs(out_dir, exist_ok=True)
+    with open(index_path, "w", encoding="utf-8") as f:
+        f.write(spliced)
+    with open(os.path.join(out_dir, "payload.json"), "w", encoding="utf-8") as f:
+        f.write(json.dumps(payload, indent=2, ensure_ascii=False))
+        f.write("\n")
+
+    summary = _summarize(payload)
+    print("orient build: ok  %s" % index_path)
+    print("  blocks:        %d" % summary["blocks"])
+    print(
+        "  refs verified: %d/%d (%d dropped)"
+        % (summary["refs_verified"], summary["refs_total"], len(summary["refs_dropped"]))
+    )
+    for dropped in summary["refs_dropped"]:
+        print("    - %s" % dropped)
+    print(
+        "  provenance:    %d stated, %d evidenced, %d question(s)"
+        % (summary["stated"], summary["evidenced"], summary["questions"])
+    )
+    print("  tools used:    %s" % (", ".join(summary["tools_used"]) or "(none)"))
+    print("  tools absent:  %s" % (", ".join(summary["tools_absent"]) or "(none)"))
+    return 0
+
+
 def cmd_validate(args):
     try:
         with open(args.payload, "r", encoding="utf-8") as f:
@@ -193,6 +445,17 @@ def main(argv):
         help="repo root ref paths are resolved against (default: cwd)",
     )
     p_validate.set_defaults(func=cmd_validate)
+
+    p_build = sub.add_parser(
+        "build", help="validate a payload, splice it into shell.html, and write orient/"
+    )
+    p_build.add_argument("payload", help="path to the payload JSON file")
+    p_build.add_argument(
+        "--repo-root",
+        default=None,
+        help="repo root ref paths are resolved against and orient/ is written under (default: cwd)",
+    )
+    p_build.set_defaults(func=cmd_build)
 
     args = parser.parse_args(argv[1:])
     return args.func(args)
