@@ -44,7 +44,7 @@ Run `./install.sh` after adding or renaming a skill. **Editing** one needs no re
 
 No secrets in git, even though the repo is private:
 
-- `sync.sh` strips the `env` block from `settings.json` (`jq 'del(.env)'`) on the way in. API keys live in `~/.claude/settings.local.json`, which Claude Code merges at runtime and which is never tracked here.
+- `sync.sh` strips the `env` block from `settings.json` on the way in, plus any hook commands belonging to other tools (matched on the `supacode-managed-hook` marker and the `SUPERSET_HOME_DIR` env var) — those are machine state from whatever's installed locally, not configuration this repo should carry. API keys live in `~/.claude/settings.local.json`, which Claude Code merges at runtime and which is never tracked here.
 - **Never put a token in a `SKILL.md`** — it commits in plaintext. (One historically leaked in the related `claude-projects` repo's git history.)
 
 ## Authoring skills

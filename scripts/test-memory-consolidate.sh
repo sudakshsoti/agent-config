@@ -396,15 +396,33 @@ else
   skip "the wired path resolves to a real file" "no ~/.claude install on this machine"
 fi
 
-# The other SessionEnd entries are managed by other tooling. Losing one is a
-# silent breakage of somebody else's integration, so assert they survived.
-others=$(jq '[.hooks.SessionEnd[]?.hooks[]? | select(.command | test("SUPERSET_HOME_DIR") or test("supacode-managed-hook"))] | length' \
+# The other hook entries (any event, not just SessionEnd) belong to other
+# tools' installs on this machine -- machine state, not configuration -- so
+# sync.sh strips them on the way in. A reappearance here means someone edited
+# settings.json by hand instead of through sync.sh, or the strip filter
+# regressed.
+others=$(jq '[.hooks[]?[]?.hooks[]? | select(.command | test("SUPERSET_HOME_DIR") or test("supacode-managed-hook"))] | length' \
          "$repo_root/settings.json" 2>/dev/null)
-if [[ "$others" == "2" ]]; then
-  ok "the pre-existing SessionEnd hooks (superset, supacode) are intact"
+if [[ "$others" == "0" ]]; then
+  ok "third-party managed hooks (superset, supacode) are stripped"
 else
-  bad "the pre-existing SessionEnd hooks (superset, supacode) are intact" \
-      "found $others of 2"
+  bad "third-party managed hooks (superset, supacode) are stripped" \
+      "found $others, want 0"
+fi
+
+# The strip must not be over-aggressive: the three first-party hooks this repo
+# actually wires must still be present. A filter that strips everything would
+# otherwise pass the check above silently.
+firstparty=$(jq '[.hooks[]?[]?.hooks[]?.command | select(
+                test("memory-consolidate\\.py") or
+                test("herdr-agent-state\\.sh") or
+                test("context-budget\\.py"))] | length' \
+             "$repo_root/settings.json" 2>/dev/null)
+if [[ "$firstparty" == "3" ]]; then
+  ok "the three first-party hooks (memory-consolidate, herdr-agent-state, context-budget) survived the strip"
+else
+  bad "the three first-party hooks (memory-consolidate, herdr-agent-state, context-budget) survived the strip" \
+      "found $firstparty of 3"
 fi
 
 # And the live copy must match, since settings.json here is a copy, not a
