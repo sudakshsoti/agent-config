@@ -159,7 +159,7 @@ scalar (`|` or `>-`) or Codex's strict YAML parser fails the whole skill.
   in exactly the documented way); no command exceeds its stated `head` cap.
   *(Tier: sonnet)*
 
-- [ ] **7. `references/INTENT.md`** — the intent-derivation procedure, the hardest
+- [x] **7. `references/INTENT.md`** — the intent-derivation procedure, the hardest
   and most load-bearing part of the skill. Must contain, in this order: (a) the
   **decomposition-axis rule** — choose one of *by subsystem / by user journey / by
   data flow / by lifecycle stage*, it **may not default to top-level directories**
@@ -305,3 +305,14 @@ Not checklist items: these need the skill actually run end to end, interactively
   block after two failed fix-and-retry rounds is the *model's* job (item 9, phase 4),
   so item 9 must make the model record its own drops into the payload — the script
   will never populate that line on its own.
+- **The inferred-floor notice rides on the `axis` string**, not a new schema field:
+  `shell.html:293` renders `data.axis` as the only free-text header slot, so INTENT.md
+  appends a provenance clause to it rather than inventing a field or a second
+  mechanism. The axis name still leads the string, so "three repos, three axis
+  values" stays observable.
+- Axis selection needs probes 1 and 2 as inputs, so INTENT.md is *written* in the
+  mandated (a)–(e) order but *executed* as: probes 1–2, choose axis, probes 3–6.
+- Axis ties break mechanically: sketch headings under each qualifying axis, assign
+  the candidate `decision` blocks, take the axis with the fewest orphaned decisions.
+- "Independent signals" for `evidenced` means: they would not both disappear if you
+  deleted one file. Two lines of the same README are one signal.
