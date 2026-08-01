@@ -187,7 +187,7 @@ scalar (`|` or `>-`) or Codex's strict YAML parser fails the whole skill.
   sentence for `agent-config` that passes the category test.
   *(Tier: opus — this is where the skill's value actually lives)*
 
-- [ ] **8. `references/SCOUTS.md`** — the four scout briefs, written verbatim and
+- [x] **8. `references/SCOUTS.md`** — the four scout briefs, written verbatim and
   ready to paste into an Agent prompt. S1 entrypoints and runtime; S2 edges and
   fragility (env vars read, secrets referenced **by name only, never by value**,
   outbound calls, writes, ports, and every swallowed failure — bare `except`,
