@@ -35,7 +35,7 @@
           "context": {
             "enabled": true,
             "displayStyle": "text",
-            "showPercentageOnly": true,
+            "showPercentageOnly": false,
             "percentageMode": "used",
             "autocompactBuffer": 33000,
             "showIcon": true
