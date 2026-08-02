@@ -63,14 +63,24 @@ Tell it to stop and report rather than commit a guess: when live code contradict
 the packet, when verify keeps failing, when the item needs files outside its
 scope, or when it can't produce evidence.
 
-## Choosing the worker model
+## Choosing the worker
 
-Your judgment, per item: the cheapest model that will get it right. `sonnet` is
-the default, `haiku` for items with no judgment in them, `opus` only for
-architecture, tricky logic, or an item whose scope you can't pin down. Escalate a
-tier when you're unsure, when the plan flags an item as risky, and when a worker
-fails or comes back confused. Name the tier and your reason in a clause as you
-go, so the routing is auditable.
+Your judgment, per item: the cheapest worker that will get it right, using
+whichever lever your surface gives you.
+
+- **Claude Code** — the dispatch takes a model. `sonnet` is the default, `haiku`
+  for items with no judgment in them, `opus` only for architecture, tricky logic,
+  or an item whose scope you can't pin down from its text.
+- **Codex** (`spawn_agent`) and **Grok** (subagents are on unless
+  `--no-subagents`) — one model in practice, so reasoning effort is the lever:
+  low for mechanical items, the surface default otherwise.
+
+If your surface won't let you set either per subagent, dispatch anyway. A fresh
+context scoped to one item is most of the win; the routing is the saving on top.
+
+Escalate when you're unsure, when the plan flags an item as risky, and when a
+worker fails or comes back confused. Name what you routed to and why in a clause,
+so the routing is auditable.
 
 ## Rules
 
