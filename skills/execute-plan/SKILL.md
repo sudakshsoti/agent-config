@@ -1,6 +1,6 @@
 ---
 name: execute-plan
-description: Autonomously execute a markdown checklist plan file — one fresh subagent per item, routed to the cheapest model that can do it (haiku/sonnet/opus), run in parallel where items don't overlap, verified and committed after each. Use when the user points at a PLAN.md (or any markdown checklist) and wants it run hands-off with a clean context per slice. Deliberately light — no per-item review gate, no TDD protocol inlined. For rigorous work, tell the worker to use superpowers:test-driven-development; for spec-compliance plus code-quality review after each task, use subagent-driven-development instead.
+description: Autonomously execute a markdown checklist plan file — one fresh subagent per item, routed to the cheapest model that can do it (haiku/sonnet/opus), run in parallel where items don't overlap, verified and committed after each. Use when the user points at a PLAN.md (or any markdown checklist) and wants it run hands-off with a clean context per slice. Deliberately light — for low-risk, mechanical checklists: each item is verified by running a command, with no per-item review gate and no test-first discipline. For high-stakes work, or spec-compliance plus code-quality review after each task, use subagent-driven-development instead.
 allowed-tools: Read, Edit, Bash(git*), Task, Glob, Grep
 ---
 
@@ -57,9 +57,9 @@ The worker has not seen this conversation. Keep the packet short but complete:
 - **Scope**: this item only, then stop. Name sibling items or shared files it must
   not touch.
 - **Verify command**: the exact command that produces evidence for this item.
-- **Rigour**: for anything that changes behaviour, tell it to use
-  `superpowers:test-driven-development` — red before green, seen not assumed. For
-  mechanical items say so explicitly, so it doesn't invent tests.
+- **Tests**: name the existing tests the item must keep green. If the item needs a
+  new test, the plan should have said so and the packet should quote it — a worker
+  here doesn't invent test strategy.
 - **Return**: verify output, files changed, commit hash. Not "done".
 - **Stop instead of committing** if: live code contradicts the packet, verify fails
   twice, the item needs files outside scope, or it can't produce evidence.
