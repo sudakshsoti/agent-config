@@ -65,18 +65,12 @@ scope, or when it can't produce evidence.
 
 ## Choosing the worker model
 
-Cheapest tier that will get it right:
-
-- **`haiku`** — no judgment in it: renames, copy/config/version edits, file moves,
-  formatting, boilerplate.
-- **`sonnet`** — the default. Normal feature slices, straightforward refactors,
-  tests for defined behaviour, wiring that follows an existing pattern.
-- **`opus`** — architecture, public interfaces, tricky logic, security-sensitive
-  code, or an item whose scope you can't pin down from its text.
-
-Escalate when unsure, when the plan flags an item as risky, and when a worker
-fails or comes back confused. Say the tier and a one-clause reason as you go, so
-the routing is auditable.
+Your judgment, per item: the cheapest model that will get it right. `sonnet` is
+the default, `haiku` for items with no judgment in them, `opus` only for
+architecture, tricky logic, or an item whose scope you can't pin down. Escalate a
+tier when you're unsure, when the plan flags an item as risky, and when a worker
+fails or comes back confused. Name the tier and your reason in a clause as you
+go, so the routing is auditable.
 
 ## Rules
 
