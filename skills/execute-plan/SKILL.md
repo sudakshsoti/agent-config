@@ -1,6 +1,6 @@
 ---
 name: execute-plan
-description: Autonomously execute a markdown checklist plan file — one fresh subagent per item, routed to the cheapest model that can do it (haiku/sonnet/opus), run in parallel where items don't overlap, verified and committed after each. Use when the user points at a PLAN.md (or any markdown checklist) and wants it run hands-off with a clean context per slice. Deliberately light — for low-risk, mechanical checklists: each item is verified by running a command, with no per-item review gate and no test-first discipline. For high-stakes work, or spec-compliance plus code-quality review after each task, use subagent-driven-development instead.
+description: Autonomously execute a markdown checklist plan file — one fresh subagent per item, routed to the cheapest model that can do it (haiku/sonnet/opus), run in parallel where items don't overlap, verified and committed after each. Use when the user points at a PLAN.md (or any markdown checklist) and wants it run hands-off with a clean context per slice. Deliberately light — the orchestrator judges how much rigour each item needs, and there is no per-item review gate. For spec-compliance plus code-quality review after every task, use subagent-driven-development instead.
 allowed-tools: Read, Edit, Bash(git*), Task, Glob, Grep
 ---
 
@@ -8,68 +8,64 @@ allowed-tools: Read, Edit, Bash(git*), Task, Glob, Grep
 
 You are the **orchestrator**. Drive a checklist plan to completion by delegating
 each item to a fresh subagent. Your own context stays small — that is the point.
-Do not read source files, run the builds, or write the code yourself.
+Don't read source files, run the builds, or write the code yourself.
 
 Plan path is in `$ARGUMENTS`; default `PLAN.md`, else glob `*PLAN*.md` and say
 which one you found.
 
+Most of what follows is calibration, not procedure. Three things are not yours to
+decide: evidence before you tick a box, a commit per item, and path-limited
+commits in a parallel batch. Everything else is your judgment.
+
 ## The loop
 
 1. **Read the plan once.** Copy the unchecked items into a todo list and work from
-   that. Do not re-read the whole file every iteration — re-read only if a worker
-   reports the plan is wrong.
-2. For the next unchecked item (file order), **pick a worker model** and dispatch
-   **one** subagent for **that item only**.
-3. On return: tick the box (`- [ ]` → `- [x]`) and commit the tick if the worker
-   didn't. Next item.
-4. No items left → stop, report each item with its commit hash.
+   that. Re-read only if a worker reports the plan is wrong.
+2. Dispatch the next unchecked item (file order) to a worker, or a batch of items
+   that don't overlap.
+3. On return: tick the boxes and commit the ticks if the workers didn't.
+4. Nothing left → stop, report each item with its commit hash.
 
-**Batch trivial runs.** Consecutive items that are all mechanical and touch
-disjoint files can go to a single `haiku` worker as an ordered list, committing
-per item.
+## Running in parallel
 
-## Running items in parallel
+Look ahead a few items and dispatch the ones that don't touch the same files
+together, as Task calls in a **single message**. Keep the fan-out small enough
+that you can actually read the returns.
 
-Your judgment. Look ahead at the next few unchecked items and dispatch them
-together — all Task calls in a **single message** — when you can see they don't
-overlap. Three or four at a time; past that the returns get hard to read.
+Serial when they'd collide, when the plan states an order, when one item consumes
+another's output, or when you can't tell what an item touches. Uncertain means
+serial — a collision costs more than the sequential run saves.
 
-Overlap means the same file, not the same area. Also serial if: the plan states a
-dependency order, a later item builds on an earlier one's output, the items share
-a test fixture / port / database / snapshot file, or you simply can't tell what an
-item touches. **Uncertain means serial** — a collision costs more than the
-sequential run saves.
+Parallel workers stage **by explicit path**: `git commit -- <paths> -m "…"`, never
+`git add -A` or `commit -a`, which would sweep a sibling's half-written files into
+the wrong commit. Path-limited commits ignore the shared index, so a lock
+collision costs one retry. This one goes in every packet of a batch.
 
-Parallel workers must stage **by explicit path**: `git commit -- <paths> -m "…"`,
-never `git add -A` or `commit -a`, which would sweep a sibling's half-written
-files into the wrong commit. Path-limited commits ignore the shared index, so a
-lock collision is at worst one retry. Put that instruction in every packet of a
-parallel batch.
+If one worker in a batch fails, the others still count — re-dispatch the failure.
 
-Tick the whole batch's boxes in one edit when the batch returns. If one worker in
-a batch fails, the others still count — re-dispatch just the failure.
+Consecutive mechanical items are also worth handing to a single `haiku` worker as
+an ordered list, committing per item.
 
 ## The handoff packet
 
-The worker has not seen this conversation. Keep the packet short but complete:
+The worker hasn't seen this conversation, so the packet carries everything: repo
+path, plan file path, the exact item text, and what's out of scope (sibling items
+or shared files it must not touch — this item only, then stop).
 
-- **Repo path, plan file path, and the exact item text.**
-- **Scope**: this item only, then stop. Name sibling items or shared files it must
-  not touch.
-- **Verify command**: the exact command that produces evidence for this item.
-- **Tests**: name the existing tests the item must keep green. If the item needs a
-  new test, the plan should have said so and the packet should quote it — a worker
-  here doesn't invent test strategy.
-- **Return**: verify output, files changed, commit hash. Not "done".
-- **Stop instead of committing** if: live code contradicts the packet, verify fails
-  twice, the item needs files outside scope, or it can't produce evidence.
+Say how you want the work proved and what to return: the verify output, files
+changed, commit hash. Not "done". Whether that proof is a test, an existing suite
+staying green, or a clean build and a read of the diff is your call, item by item
+— a plan of renames doesn't need tests and a plan of behaviour changes isn't
+served by a build check. If you want a test written, say which and why; a worker
+here shouldn't be inventing test strategy on its own.
 
-Then commit with a message naming the item — path-limited (`git commit -- <paths>`)
-whenever the item ran as part of a parallel batch.
+Tell it to stop and report rather than commit a guess: when live code contradicts
+the packet, when verify keeps failing, when the item needs files outside its
+scope, or when it can't produce evidence.
 
 ## Choosing the worker model
 
-Your judgment, per item, cheapest tier that will get it right:
+Cheapest tier that will get it right:
 
 - **`haiku`** — no judgment in it: renames, copy/config/version edits, file moves,
   formatting, boilerplate.
@@ -78,20 +74,20 @@ Your judgment, per item, cheapest tier that will get it right:
 - **`opus`** — architecture, public interfaces, tricky logic, security-sensitive
   code, or an item whose scope you can't pin down from its text.
 
-Escalate one tier when unsure, when the plan flags an item as risky, and when a
-worker fails or comes back confused (re-dispatch the same item higher). Say the
-tier and a one-clause reason in your narration, so routing is auditable.
+Escalate when unsure, when the plan flags an item as risky, and when a worker
+fails or comes back confused. Say the tier and a one-clause reason as you go, so
+the routing is auditable.
 
 ## Rules
 
-- **Never skip verify or commit.** The commit is the recoverable checkpoint; an
-  unverified commit is not one.
-- **Trust returned evidence.** Read what the worker returned; don't re-open its
-  files or re-run its commands. If the return has no concrete evidence, that's a
-  failed item — re-dispatch, don't go investigate it yourself.
+- **Evidence, then the tick.** The commit is what makes each step recoverable, and
+  an unverified commit isn't a checkpoint. A return with no concrete evidence is a
+  failed item — re-dispatch it.
+- **Trust what comes back.** Read the return; don't re-open the worker's files or
+  re-run its commands. Investigating for yourself is how this skill's context
+  bloats and stops being worth running.
 - **Don't ask for approval between items.** Keep going.
-- **Stop early only** if an item is genuinely ambiguous or a verify/commit fails.
-  Say which item and why, and leave the plan file reflecting real progress so a
-  later run resumes from the first `- [ ]`.
-- Honour any dependency order or authorisation note the plan states, and carry it
-  into the packet.
+- Stop early if an item is genuinely ambiguous or a commit fails. Say which item
+  and why, and leave the plan file reflecting real progress so a later run resumes
+  from the first `- [ ]`.
+- Honour any dependency order or authorisation note the plan states.
