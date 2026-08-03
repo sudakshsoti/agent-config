@@ -39,6 +39,7 @@
     ],
     "defaultMode": "auto"
   },
+  "model": "sonnet",
   "skillOverrides": {
     "composition-patterns": "off",
     "web-design-guidelines": "off",
@@ -80,6 +81,30 @@
     "homelab-triage": "off"
   },
   "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash|mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$HOME/.claude/hooks/trim-tool-output.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/cbm-code-discovery-gate",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "SessionEnd": [
       {
         "matcher": "",
@@ -102,6 +127,42 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/cbm-session-reminder"
+          }
+        ]
+      },
+      {
+        "matcher": "resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/cbm-session-reminder"
+          }
+        ]
+      },
+      {
+        "matcher": "clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/cbm-session-reminder"
+          }
+        ]
+      },
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/cbm-session-reminder"
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -111,6 +172,17 @@
             "type": "command",
             "command": "python3 \"$HOME/.claude/hooks/context-budget.py\"",
             "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/cbm-subagent-reminder"
           }
         ]
       }
@@ -163,7 +235,7 @@
     }
   },
   "spinnerTipsEnabled": false,
-  "effortLevel": "high",
+  "effortLevel": "medium",
   "askUserQuestionTimeout": "never",
   "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
@@ -194,5 +266,9 @@
       "Internal sharing / snippet hosting: none configured. No public paste or gist service is trusted; nothing from this environment should be posted to one.",
       "Data retention / declassification: the paid MonoLisa and Berkeley Mono font binaries in the dotfiles repo, and the employer-internal Artifactory host and corporate CA path gated behind the `work` machine block in dot_zshrc.tmpl, must never leave that private repository."
     ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "/Users/sudakshsoti/dev/agent-config/scripts/subagent-statusline.sh"
   }
 }
