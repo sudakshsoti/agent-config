@@ -2,9 +2,9 @@
 """Warn when session context crosses a threshold.
 
 Long sessions should be broken at a task boundary rather than run to 300K+.
-Measured on this machine (519 sessions, 33,935 API calls): a token added
-mid-session is re-billed ~33x as cache read, and the 35% of sessions passing
-100K carry 78% of all cost. Drop THRESHOLD to 100000 to track the data.
+Measured on this machine (4 Aug 2026): a token added mid-session is re-read
+~29x, and 61% of sessions peak above 100K context while carrying 94% of all
+token spend.
 
 THRESHOLD and the measurement itself live in context_size.py.
 
@@ -49,14 +49,22 @@ def main():
     except Exception:
         pass
 
+    if step <= 0:
+        system_message = f"Context {ctx // 1000}K - good point to /clear."
+    elif step == 1:
+        system_message = f"Context {ctx // 1000}K - really, /clear soon."
+    else:
+        system_message = f"Context {ctx // 1000}K - stop and /clear now."
+
     print(json.dumps({
+        "systemMessage": system_message,
         "hookSpecificOutput": {
             "hookEventName": "UserPromptSubmit",
             "additionalContext": (
                 f"Context is at ~{ctx // 1000}K tokens, past the "
                 f"{THRESHOLD // 1000}K break threshold. Everything already in "
-                f"context is re-billed on every remaining call this session "
-                f"(~33x on average here). Finish the current item, commit it, "
+                f"context is re-read on every remaining call this session "
+                f"(~29x on average here). Finish the current item, commit it, "
                 f"then tell the user this is a good point to /clear (or "
                 f"/handoff then /clear if continuity is needed). Do not start "
                 f"new exploratory work in this session; delegate any further "
