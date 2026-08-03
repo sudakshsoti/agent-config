@@ -82,9 +82,9 @@ something custom if research confirms nothing already exists.
 ## Context economy
 
 Anything that lands in context is re-billed on every later call in the session.
-Measured on this machine: a token added mid-session is re-read about 33 times, and
-the 35% of sessions that pass 100K account for 78% of all spend. Volume matters far
-more than it looks.
+Measured on this machine: a token added mid-session is re-read about 29 times, and
+the 61% of sessions that pass 100K account for 94% of all spend. Volume matters far
+more than it looks, and the tail is now most of the spend.
 
 Delegate exploration. Locating where something lives, "which files use X", checking
 one detail in a file you are not about to edit: dispatch `Explore` or a
@@ -93,13 +93,18 @@ subagent returns ~300 tokens for work that would inject thousands inline.
 
 Read a file inline only when about to edit it.
 
+Cap what a command returns. Pipe through `head`, `tail`, `grep`, `jq`, or
+`--quiet`. Never dump a whole log, a whole JSON blob, or an unfiltered `find`.
+Output over 20K chars is trimmed by a hook and spilled to a file — that is a
+backstop, not a licence to skip filtering.
+
 Do not re-print code that was just written or edited. State what changed in a
 sentence and reference `file:line`. Output is billed at 5x input, then re-read on
 every later turn, so verbosity compounds.
 
-At a task boundary past ~180K, stop and `/clear` rather than pushing on. Use
+At a task boundary past ~90K, stop and `/clear` rather than pushing on. Use
 `/handoff` then `/clear` when continuity matters. Avoid `/compact`: it costs a full
-context read plus summary output, which never pays back against a ~38K floor.
+context read plus summary output, which never pays back against a ~55K floor.
 
 ## Subagent model economy
 
