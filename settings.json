@@ -119,16 +119,6 @@
     ],
     "SessionStart": [
       {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/herdr-agent-state.sh\" session",
-            "timeout": 10
-          }
-        ]
-      },
-      {
         "matcher": "startup",
         "hooks": [
           {
@@ -262,7 +252,7 @@
       "CI/CD deploy targets: the homelab box itself is the deploy target, and it is trusted. Deploying means rsyncing /opt/stacks and running docker compose up -d / restart over SSH. These are first-party operations on hardware the user owns, not deploys into a shared or multi-tenant production environment.",
       "Protected deployment namespaces / environments: none. The homelab is a personal single-tenant box with no other users or tenants, so it should not be treated as a sensitive production namespace merely because it serves live traffic.",
       "Secrets management: 1Password via the `op` CLI (Personal vault) and age-encrypted blobs committed as ciphertext inside the private dotfiles repo. Reading a secret with `op read`, and decrypting with the age identity at ~/.config/chezmoi/key.txt during `chezmoi apply`, are the intended everyday mechanisms and are expected to happen without escalation.",
-      "Org-specific CLIs: chezmoi (dotfiles source-of-truth; `chezmoi diff`/`status`/`managed`/`apply` are routine), herdr (terminal multiplexer), op (1Password), gh, rclone, docker, supabase, and vercel.",
+      "Org-specific CLIs: chezmoi (dotfiles source-of-truth; `chezmoi diff`/`status`/`managed`/`apply` are routine), op (1Password), gh, rclone, docker, supabase, and vercel.",
       "Internal sharing / snippet hosting: none configured. No public paste or gist service is trusted; nothing from this environment should be posted to one.",
       "Data retention / declassification: the paid MonoLisa and Berkeley Mono font binaries in the dotfiles repo, and the employer-internal Artifactory host and corporate CA path gated behind the `work` machine block in dot_zshrc.tmpl, must never leave that private repository."
     ]

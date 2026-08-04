@@ -410,19 +410,18 @@ else
       "found $others, want 0"
 fi
 
-# The strip must not be over-aggressive: the three first-party hooks this repo
+# The strip must not be over-aggressive: the two first-party hooks this repo
 # actually wires must still be present. A filter that strips everything would
 # otherwise pass the check above silently.
 firstparty=$(jq '[.hooks[]?[]?.hooks[]?.command | select(
                 test("memory-consolidate\\.py") or
-                test("herdr-agent-state\\.sh") or
                 test("context-budget\\.py"))] | length' \
              "$repo_root/settings.json" 2>/dev/null)
-if [[ "$firstparty" == "3" ]]; then
-  ok "the three first-party hooks (memory-consolidate, herdr-agent-state, context-budget) survived the strip"
+if [[ "$firstparty" == "2" ]]; then
+  ok "the two first-party hooks (memory-consolidate, context-budget) survived the strip"
 else
-  bad "the three first-party hooks (memory-consolidate, herdr-agent-state, context-budget) survived the strip" \
-      "found $firstparty of 3"
+  bad "the two first-party hooks (memory-consolidate, context-budget) survived the strip" \
+      "found $firstparty of 2"
 fi
 
 # And the live copy must match, since settings.json here is a copy, not a
