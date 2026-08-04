@@ -43,7 +43,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-The 29 skills below are the installed set. Anything under `skills/_archive/` is
+The 30 skills below are the installed set. Anything under `skills/_archive/` is
 kept for reference only and is deliberately not installed — see
 [`_archive/README.md`](_archive/README.md).
 
@@ -52,6 +52,7 @@ kept for reference only and is deliberately not installed — see
 - `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
 - `design-craft` — Typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
 - `design-foil` — Industry-agnostic strategy + UX advisor: brainstorm, critique, strategy docs, teardowns.
+- `discovery-first` — Light discovery pass for vague/subjective/exploratory requests: frame the problem, name unknowns, recommend a direction, then implement. `/discovery-first`.
 - `emil-design-eng` — Emil Kowalski's philosophy on UI polish, component design, and animation judgement.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
 - `explain-this` — Explain the plan or the finished work in plain English, then teach the one concept behind it. `/explain-this`.
