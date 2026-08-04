@@ -42,6 +42,17 @@ run "check-zips.py"               python3 "$repo_root/scripts/check-zips.py" "$r
 run "test-context-size.sh"        "$repo_root/scripts/test-context-size.sh"
 run "test-memory-consolidate.sh"  "$repo_root/scripts/test-memory-consolidate.sh"
 run "test-orient.sh"              "$repo_root/scripts/test-orient.sh"
+run "test-agent-instructions.py" python3 "$repo_root/scripts/test-agent-instructions.py"
+
+# CI has only this checkout, not the sibling repositories in ~/dev. The
+# fixture suite above always runs; the live cohort audit is a local check.
+if [[ "${CI:-}" != "true" || "${RUN_LIVE_COHORT_CHECK:-}" == "1" ]]; then
+  run "managed repository instructions" \
+    python3 "$repo_root/scripts/check-agent-instructions.py" \
+      --manifest "$repo_root/config/repository-instructions.json" \
+      --cohort-root "${AGENT_COHORT_ROOT:-$(dirname "$repo_root")}" \
+      --skip-deferred
+fi
 
 echo "check.sh"
 printf '%s\n' "${results[@]}"
