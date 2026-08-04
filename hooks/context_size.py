@@ -18,8 +18,8 @@ import glob
 import json
 import os
 
-THRESHOLD = 180_000   # absolute and cost-driven, so it does not scale with a larger context window
-BUCKET = 50_000       # the hook re-warns each time it climbs another BUCKET
+THRESHOLD = 90_000   # absolute and cost-driven, so it does not scale with a larger context window
+BUCKET = 40_000       # the hook re-warns each time it climbs another BUCKET
 
 
 def _sum_usage(usage):
