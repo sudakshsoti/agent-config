@@ -354,13 +354,13 @@ product-source mutation.
 **Produces:** One strategy skill that stays industry-agnostic by default and
 loads the full healthcare/enterprise pack only when relevant.
 
-- [ ] **Step 1: Preserve the generic shell**
+- [x] **Step 1: Preserve the generic shell**
 
   Keep `design-foil`'s business-model grounding, Brainstorm, Audit and Design
   Process modes, generic principles, frameworks and templates. Remove the
   instruction to invoke `value-connect` separately.
 
-- [ ] **Step 2: Build the complete healthcare pack**
+- [x] **Step 2: Build the complete healthcare pack**
 
   Move durable VBC economics, quality, regulatory, care-delivery and competitor
   material into `healthcare-domain.md`. Move Pop-I/Value Connect operator
@@ -369,7 +369,7 @@ loads the full healthcare/enterprise pack only when relevant.
   healthcare audit principles and templates/prompts separate from their generic
   equivalents.
 
-- [ ] **Step 3: Add conditional routing**
+- [x] **Step 3: Add conditional routing**
 
   When the request involves US healthcare, value-based care, Optum, UHG,
   Value Connect, Pop-I, payers, providers, registries, quality measures or care
@@ -377,13 +377,13 @@ loads the full healthcare/enterprise pack only when relevant.
   load them. Time-sensitive regulatory, competitor and benchmark claims require
   live primary-source verification.
 
-- [ ] **Step 4: Archive `value-connect` after a destination audit**
+- [x] **Step 4: Archive `value-connect` after a destination audit**
 
   Compare its main file and three references against the new healthcare pack.
   Archive only after every unique operator, domain, career and template section
   has a named destination.
 
-- [ ] **Step 5: Verify and commit**
+- [x] **Step 5: Verify and commit**
 
   Run:
 

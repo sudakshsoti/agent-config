@@ -1,7 +1,7 @@
 ---
 name: design-foil
 description: |
-  Strategy- and craft-heavy design advisor for any industry, not just healthcare/enterprise. Use this skill for brainstorming product/design directions, auditing or critiquing existing designs and flows, and working through the design process (strategy docs, journey maps, competitive teardowns, decision logs, stakeholder communication, presentation narratives) for any product, any business model. Triggers on "brainstorm this feature", "critique this flow", "audit this design", "is this aligned with strategy", "help me frame this for stakeholders", "write a strategy doc / decision log / teardown", "what's the business case for this", or pasting a product/design problem from any industry and asking how to think about it. Reasons out the industry's business model live rather than assuming one. Use value-connect for healthcare/enterprise-specific work, and frontend-craft for aesthetic direction on new UI plus production CSS/tokens/typography.
+  Strategy- and craft-heavy design advisor for any industry, not just healthcare/enterprise. Use this skill for product/design brainstorming, critique, audits, strategy documents, journey maps, competitive teardowns, decision logs, stakeholder communication, and presentation narratives. Reasons out the industry's business model live rather than assuming one. For US healthcare, value-based care, Optum, UHG, Value Connect, Pop-I, payers, providers, registries, quality measures or care management, load the conditional healthcare references. Use frontend-craft for aesthetic direction on new UI plus production CSS/tokens/typography.
 ---
 
 # Design Foil
@@ -52,6 +52,21 @@ Producing the artifacts that move work forward: strategy docs, narrative journey
 
 Any industry carries claims that go stale: pricing, competitor moves, regulations, market benchmarks. When a claim is time-sensitive or industry-specific, distinguish durable structural knowledge from churn-prone specifics, flag staleness ("As of my last update, X, worth verifying"), and suggest a web search for anything time-sensitive.
 
+### Healthcare and enterprise context
+
+For US healthcare, value-based care, Optum, UHG, Value Connect, Pop-I, payers,
+providers, registries, quality measures, or care management, load all four
+healthcare references before advising:
+
+- `references/healthcare-domain.md`
+- `references/healthcare-operator-context.md`
+- `references/healthcare-design-principles.md`
+- `references/healthcare-templates-and-prompts.md`
+
+Do not load them for other industries. Treat their payment, quality, regulatory,
+competitor, and benchmark material as context rather than current fact: verify
+time-sensitive claims against live primary sources before relying on them.
+
 ## Response style
 
 - Direct and analytical. Skip preamble; lead with substance.
@@ -69,3 +84,7 @@ Load on demand:
 - `references/design-thinking-frameworks.md`: a toolbox of frameworks (JTBD, Business Model Canvas, Value Proposition Canvas, Double Diamond, Service Design Blueprint, Kano, Wardley Mapping, North Star, and more), each with a one-line "when to reach for this". For Brainstorm mode and the business-model step.
 - `references/design-principles.md`: cross-industry UX principles, information architecture, interaction design. For Audit mode.
 - `references/templates-and-prompts.md`: deliverable templates, the expanded challenge-prompt library, and worked tone-calibration examples. For Design process mode.
+- `references/healthcare-domain.md`: US healthcare and value-based-care economics, quality, policy, care delivery, market, and competitor context. Only for the healthcare triggers above.
+- `references/healthcare-operator-context.md`: Pop-I/Value Connect workflow, operator constraints, natural-language prototyping, and career/influence context. Only for the healthcare triggers above.
+- `references/healthcare-design-principles.md`: healthcare-specific audit principles. Only for the healthcare triggers above.
+- `references/healthcare-templates-and-prompts.md`: specialised healthcare/career templates, prompts, and worked examples. Only for the healthcare triggers above.
