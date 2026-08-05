@@ -187,7 +187,7 @@
   "enabledPlugins": {
     "claude-code-setup@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": false,
     "vercel@claude-plugins-official": true,
     "humanizer@humanizer": true,
     "i-have-adhd@i-have-adhd": true
@@ -243,12 +243,12 @@
     ],
     "environment": [
       "$defaults",
-      "Organization: individual developer, no employer context on this machine (hostname OKLCH, a personal Mac). Primary use: software development plus personal infrastructure automation — dotfiles management, a self-hosted homelab, and small web projects.",
+      "Organization: individual developer, no employer context on this machine (hostname OKLCH, a personal Mac). Primary use: software development plus personal infrastructure automation \u2014 dotfiles management, a self-hosted homelab, and small web projects.",
       "Source control: github.com/sudakshsoti is the source-control trust boundary and every repository under it is the user's own. Visibility still governs content independently of account trust: a public repository under this account is a publication destination like any other, and account ownership does not clear private material into one.",
       "Repository visibility: github.com/sudakshsoti/dotfiles is private and carries paid non-redistributable font binaries plus employer-internal config. It is a routine push target for first-party dotfiles work; what it must never be is a source for anything sent to a public destination, and its visibility must never change.",
       "Cloud provider(s): Hetzner (the homelab VPS), Vercel, and Supabase. Tailscale provides the private network between machines.",
       "Trusted internal domains: *.sudaksh.com (all subdomains are the user's own self-hosted services behind Caddy), and the homelab host reachable over Tailscale at 100.113.191.93 and via the `homelab` SSH alias.",
-      "Key internal services: the homelab box — a single-tenant Hetzner VPS the user owns outright — running Docker Compose stacks under /opt/stacks, a Caddy reverse proxy, n8n at n8n.sudaksh.com, ntfy at ntfy.sudaksh.com, and a self-hosted media stack (sonarr, radarr, prowlarr, bazarr, decypharr, rclone/TorBox). SSH into it, reading and editing /opt/stacks files, inspecting docker state, and reading logs are all routine.",
+      "Key internal services: the homelab box \u2014 a single-tenant Hetzner VPS the user owns outright \u2014 running Docker Compose stacks under /opt/stacks, a Caddy reverse proxy, n8n at n8n.sudaksh.com, ntfy at ntfy.sudaksh.com, and a self-hosted media stack (sonarr, radarr, prowlarr, bazarr, decypharr, rclone/TorBox). SSH into it, reading and editing /opt/stacks files, inspecting docker state, and reading logs are all routine.",
       "CI/CD deploy targets: the homelab box itself is the deploy target, and it is trusted. Deploying means rsyncing /opt/stacks and running docker compose up -d / restart over SSH. These are first-party operations on hardware the user owns, not deploys into a shared or multi-tenant production environment.",
       "Protected deployment namespaces / environments: none. The homelab is a personal single-tenant box with no other users or tenants, so it should not be treated as a sensitive production namespace merely because it serves live traffic.",
       "Secrets management: 1Password via the `op` CLI (Personal vault) and age-encrypted blobs committed as ciphertext inside the private dotfiles repo. Reading a secret with `op read`, and decrypting with the age identity at ~/.config/chezmoi/key.txt during `chezmoi apply`, are the intended everyday mechanisms and are expected to happen without escalation.",

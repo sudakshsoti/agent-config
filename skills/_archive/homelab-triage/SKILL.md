@@ -17,7 +17,7 @@ description: |
 Systematic incident response for the homelab. The discipline: **read history first, run a
 fixed first-look sweep, map the symptom to the owning subsystem, get exact log output
 before naming a root cause, then leave a paper trail.** Don't patch symptoms — find the
-root cause (see superpowers:systematic-debugging).
+root cause (see systematic-debugging).
 
 ## Step 0 — read history first
 
