@@ -50,7 +50,7 @@ kept for reference only and is deliberately not installed — see
 - `animation-vocabulary` — Reverse-lookup glossary: describe a motion effect, get its exact name.
 - `apple-design` — Apple's interface and fluid-motion approach translated for the web: gestures, springs, materials, type.
 - `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
-- `design-craft` — Typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
+- `frontend-craft` — Visual direction for new UI, plus typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
 - `design-foil` — Industry-agnostic strategy + UX advisor: brainstorm, critique, strategy docs, teardowns.
 - `discovery-first` — Light discovery pass for vague/subjective/exploratory requests: frame the problem, name unknowns, recommend a direction, then implement. `/discovery-first`.
 - `emil-design-eng` — Emil Kowalski's philosophy on UI polish, component design, and animation judgement.

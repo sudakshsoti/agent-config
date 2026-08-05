@@ -1,6 +1,6 @@
 ---
 name: frontend-craft
-description: Visual direction and typographic craft for building or reshaping UI — picking an aesthetic that doesn't read as templated default, then backing it with real type systems, OKLCH ramps and production CSS. Loads when building a new screen, component, landing page or prototype; when reshaping an existing UI's look; when the task involves @theme blocks, design tokens, @font-face stacks, font-feature-settings, font-variation-settings, OKLCH values, type pairing or type scale construction; when critiquing visual hierarchy; or on filenames like app.css, globals.css, theme.css, tokens.css, tailwind.config.ts. Also loads for foundry recommendations. Supersedes design-craft.
+description: Visual direction and typographic craft for building or reshaping UI — picking an aesthetic that doesn't read as templated default, then backing it with real type systems, OKLCH ramps and production CSS. Loads when building a new screen, component, landing page or prototype; when reshaping an existing UI's look; when the task involves @theme blocks, design tokens, @font-face stacks, font-feature-settings, font-variation-settings, OKLCH values, type pairing or type scale construction; when critiquing visual hierarchy; or on filenames like app.css, globals.css, theme.css, tokens.css, tailwind.config.ts. Also loads for foundry recommendations.
 ---
 
 # Frontend craft

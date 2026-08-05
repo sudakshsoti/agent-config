@@ -8,12 +8,14 @@ production CSS, operator context). Adds an enumerated direction list with a `nod
 picker, a banned-defaults list, and a non-negotiables checklist for states, contrast and
 390px.
 
-Supersedes `design-craft`, which stays in place until the overlap pass below.
+`design-craft` is deleted, its type and colour material folded in whole. The `design-craft`
+subagent is renamed to `frontend-craft`; `design-foil`, `value-connect` and both READMEs now
+point at the new name.
 
 ## Deferred to a separate worktree
 
-**Overlap removal.** Thirteen frontend-adjacent entries reach Codex today: `apple-design`,
-`emil-design-eng`, `design-craft`, `design-foil`, `prototype`, `pick-ui-library`,
+**Overlap removal.** Twelve frontend-adjacent entries still reach Codex: `apple-design`,
+`emil-design-eng`, `frontend-craft`, `design-foil`, `prototype`, `pick-ui-library`,
 `ux-writing`, four animation skills, `html-doc`, and the enabled
 `frontend-design@claude-plugins-official` plugin. Codex caps skills at 2% of context and
 truncates descriptions once that fills, so overlap degrades discovery library-wide.
