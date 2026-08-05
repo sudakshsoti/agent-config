@@ -43,14 +43,14 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-The 30 skills below are the installed set. Anything under `skills/_archive/` is
+The 31 skills below are the installed set. Anything under `skills/_archive/` is
 kept for reference only and is deliberately not installed — see
 [`_archive/README.md`](_archive/README.md).
 
 - `animation-vocabulary` — Reverse-lookup glossary: describe a motion effect, get its exact name.
 - `apple-design` — Apple's interface and fluid-motion approach translated for the web: gestures, springs, materials, type.
 - `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
-- `design-craft` — Typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
+- `frontend-craft` — Visual direction for new UI, plus typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
 - `design-foil` — Industry-agnostic strategy + UX advisor: brainstorm, critique, strategy docs, teardowns.
 - `discovery-first` — Light discovery pass for vague/subjective/exploratory requests: frame the problem, name unknowns, recommend a direction, then implement. `/discovery-first`.
 - `emil-design-eng` — Emil Kowalski's philosophy on UI polish, component design, and animation judgement.
@@ -61,6 +61,7 @@ kept for reference only and is deliberately not installed — see
 - `handoff` — Structured session-handoff docs for continuity across sessions.
 - `homelab-backlog` — Run the homelab/finance backlog in Linear (team OKLCH): capture, triage, grooming, acceptance criteria.
 - `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, including the safe rclone-torbox recreate.
+- `html-doc` — Turn notes, briefs and reports into one polished self-contained HTML document instead of a `.md`. `/html-doc`.
 - `improve-animations` — Survey a codebase's motion code and produce a prioritised audit plus implementation plans. Read-only.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
 - `merge` — Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`.
