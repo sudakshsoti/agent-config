@@ -1,153 +1,152 @@
 ---
 name: frontend-craft
-description: Visual direction and typographic craft for building or reshaping UI — picking an aesthetic that doesn't read as templated default, then backing it with real type systems, OKLCH ramps and production CSS. Loads when building a new screen, component, landing page or prototype; when reshaping an existing UI's look; when the task involves @theme blocks, design tokens, @font-face stacks, font-feature-settings, font-variation-settings, OKLCH values, type pairing or type scale construction; when critiquing visual hierarchy; or on filenames like app.css, globals.css, theme.css, tokens.css, tailwind.config.ts. Also loads for foundry recommendations.
+description: >
+  Visual direction, subject-specific art direction, typography, colour, hierarchy,
+  layout systems, responsive visual behaviour, CSS and design tokens, @theme,
+  @font-face, OKLCH and design-system styling. Use for building or reshaping a
+  UI's visual system, not solely because a task touches React, Vue, Svelte,
+  component behaviour, state, data flow, API wiring or tests.
 ---
 
 # Frontend craft
 
-Two jobs, in order. Pick a direction and commit to it. Then execute it with real type and
-colour systems rather than defaults.
+Two jobs, in order: make a direction specific to the subject, then execute it
+with real type, colour and token systems rather than defaults.
 
-Most AI frontend fails at the first job by not doing it — it defaults — and at the second by
-treating type and colour as decoration applied after layout.
+## 1. Ground the direction before markup
 
-## 1. Direction, before any markup
+Before writing code, state one sentence naming the concrete subject, audience,
+and the page's single job. Then name the direction and one thing the page does
+that a template would not. "Independent watchmaker, collectors comparing movements,
+make provenance legible through a technical editorial catalogue" is grounded.
+"Clean and modern" is not.
 
-State the direction in one sentence before writing code: the reference point, the mood, the
-one thing this page does that a template wouldn't. "Swiss editorial, tight measure, one
-accent, no cards" is a direction. "Clean and modern" is not.
+Derive the direction from the subject's materials, instruments, artefacts and
+vernacular. Do not choose an aesthetic by chance, and do not treat the following
+as a finite menu. They are labelled examples to adapt when they fit the actual
+brief:
 
-Do not ask the model to be original — that instruction is what produces clustering. Pick,
-then commit. When nothing in the brief implies a direction, choose one at random rather than
-defaulting:
+1. **Swiss editorial**: grotesque at tight tracking, hard grid, one accent,
+   generous whitespace, no rounded corners or cards.
+2. **Warm print**: serif display over sans body, ragged-right, off-white ground
+   and ink-black text.
+3. **Technical**: monospace accents, dense tables, hairline rules, near-monochrome
+   with one signal colour.
+4. **Soft product**: generous radius, layered elevation, muted palette and high
+   whitespace.
+5. **High contrast dark**: near-black ground, one saturated accent, bright text
+   and borders as light hairlines rather than shadows.
+6. **Compact utility**: dense small type, tight rows and low chrome for repeated
+   daily use.
+7. **Display-led**: one very large type element carries the page while the rest
+   stays quiet and small.
+8. **Muted archival**: desaturated palette, old-style figures, generous leading
+   and restrained colour.
 
-```
-node -e "console.log(1+Math.floor(Math.random()*8))"
-```
+The hero is a thesis: open with the most characteristic thing in the subject's
+world, whether that is a headline, image, live demonstration or interaction.
+Structure is information. Numbering, eyebrows, dividers and labels must encode
+something true, not merely decorate. Match execution complexity to the direction:
+maximalism needs enough craft to hold together; minimalism needs precision in
+spacing, type and detail.
 
-1. **Swiss editorial** — grotesque at tight tracking, hard grid, one accent, generous
-   whitespace, no rounded corners, no cards. Söhne or Inter, radius 0-2px.
-2. **Warm print** — serif display over sans body, ragged-right, off-white ground, ink-black
-   text. Mercury or Harriet display, Söhne body. Radius 2-4px.
-3. **Technical** — monospace accents, dense tables, hairline rules, near-monochrome with one
-   signal colour. Berkeley Mono or MonoLisa for labels and data, sans for prose.
-4. **Soft product** — generous radius, layered elevation, muted palette, high whitespace.
-   The Linear/Vercel register. Radius 8-12px, shadows as tints not greys.
-5. **High contrast dark** — near-black ground, one saturated accent doing all the work,
-   bright text, borders as light hairlines rather than shadows.
-6. **Compact utility** — dense, small type, tight rows, low chrome. Built for someone using
-   it eight hours a day. Radius 2-4px, 13-14px body.
-7. **Display-led** — one very large type element carrying the whole page, everything else
-   quiet and small. Knockout, Verlag or Domaine at 72px+.
-8. **Muted archival** — desaturated palette, old-style figures, generous leading, restrained
-   colour. Adelle or Tisa, radius 0-2px.
+Before building, make a compact visual plan: token system, type roles, layout
+concept and one signature element that embodies the brief. Critique that plan
+against the actual brief: remove or revise anything that could be the generic
+answer for a similar product, explain why, then build from the revised plan.
+Spend boldness in the signature element and keep everything around it disciplined.
+Use deliberate, real content; never use filler copy or invented metrics to prop
+up a composition.
 
-Adapt the direction to the brief; don't apply it literally when it fights the content.
+### Never ship these by default
 
-### Never ship these
+- A purple-to-blue gradient, three feature cards, or a cream/serif/terracotta
+  treatment standing in for a subject-specific decision.
+- Uniform border radius, emoji iconography, decorative numbered markers, or
+  shadows where nothing is elevated.
+- A centred 1200px container with no other layout idea.
+- Filler such as "seamlessly", "effortlessly", "powerful", "beautiful",
+  "elevate", "unlock" or "supercharge".
+- Three-item lists purely for rhythm, or invented statistics.
 
-The defaults that read as machine-made, in the order they show up:
+## 2. Production visual system
 
-- Purple-to-blue gradient on a hero. Any gradient standing in for a decision.
-- Three feature cards in a row with an icon, a bold heading and two lines of grey text.
-- Cream background, serif headings, terracotta accent. This is now its own cliché.
-- `border-radius` applied uniformly at one value to every element on the page.
-- Emoji as iconography. Rocket, sparkles, checkmark, lightning.
-- Centred everything, with max-width 1200px and nothing else deciding the layout.
-- Drop shadows on flat-colour backgrounds where nothing is actually elevated.
-- Filler copy: "seamlessly", "effortlessly", "powerful", "beautiful", "elevate", "unlock",
-  "supercharge", "take X to the next level". Write what the thing does.
-- Three-item lists purely for rhythm. Two or four is usually the honest count.
-- A stat row of invented numbers ("10k+ users, 99.9% uptime, 24/7").
+Check the rendered page at 390px and 1440px before claiming it is done; source
+alone cannot verify visual hierarchy or responsive behaviour.
 
-## 2. The non-negotiables
+- **Spacing comes from the existing scale.** Use its steps, not arbitrary values.
+- **Type has an intentional scale.** Set roles, ratios, weight progression,
+  tracking and a body measure of roughly 60-75 characters. Use no more than two
+  weights unless a third has a defined job.
+- **Interactive elements have five states:** rest, hover, active, focus-visible
+  and disabled. Keep a visible `:focus-visible` ring.
+- **WCAG 2.2 contrast ratios are the conformance check.** Report APCA Lc as an
+  additional perceptual measure where useful, never as a replacement for WCAG.
+- **390px works.** Avoid horizontal overflow and clipping; provide 44px minimum
+  tap targets where applicable.
+- **Empty and error states exist** wherever data loads.
+- **Form controls are styled.** An unstyled `<select>` or `<input>` is rarely an
+  intentional system decision.
 
-Direction is the interesting part; this is the part that gets skipped. Check before claiming
-done — actually look at the rendered page at 390px and 1440px, don't assert from source.
+Think in type systems, not fonts; in OKLCH and perceptual uniformity, not isolated
+hex values; and in optical rhythm, not raw geometric alignment. Ship production
+CSS to support the decision.
 
-- **Spacing comes from a scale.** 4px base, and every gap on the page is a step on it. Not
-  arbitrary values per element.
-- **Type scale has real ratios.** Body, then steps at a fixed ratio. Two weights maximum
-  unless a third earns its place. Body measure 60-75 characters.
-- **Every interactive element has five states**: rest, hover, active, focus-visible,
-  disabled. `:focus-visible` must be a visible ring, never `outline: none` with no
-  replacement.
-- **Contrast passes.** Report APCA Lc values, not vague AA/AAA. Body text wants Lc 75+,
-  large text Lc 60+.
-- **390px works.** No horizontal overflow, tap targets 44px minimum, nothing clipped.
-- **Empty and error states exist** wherever data loads. A table with no rows and a form
-  that failed are part of the design, not an afterthought.
-- **Form controls are styled.** Unstyled `<select>` and `<input>` are the clearest tell.
+**Type:** pairing logic, hierarchy architecture, optical-size selection, weight
+progression and tracking at size. Use OpenType features by code (`liga`, `kern`,
+`onum`, `tnum`, `ss01`-`ss20`, `calt`, `frac`, `case`, `cv01`-`cv99`) and variable
+axes by tag (`wght`, `wdth`, `ital`, `opsz`, `GRAD`, `slnt`, plus foundry custom
+axes). Use `@font-face` with appropriate `unicode-range`, `size-adjust` and
+metric overrides.
 
-## 3. Type and colour, done properly
+**Colour:** build OKLCH ramps with perceptual uniformity across the L axis, use
+dark/light token architecture, and prefer `color-mix()` for state variants over
+unrelated hand-picked hovers. Name a critique precisely: "Mercury Display G2 at
+48px with default tracking is too tight at this measure" is actionable; "the type
+feels heavy" is not.
 
-Think in type systems, not fonts. In OKLCH and perceptual uniformity, not hex codes. In
-optical rhythm and correction, not just alignment. Ship CSS to back any of it.
+## 3. Existing systems and boundaries
 
-**Type**: pairing logic, hierarchy architecture, optical size selection, weight progression,
-tracking at size. OpenType features by code (`liga`, `kern`, `onum`, `tnum`, `ss01`-`ss20`,
-`calt`, `frac`, `case`, `cv01`-`cv99`). Variable axes by tag (`wght`, `wdth`, `ital`,
-`opsz`, `GRAD`, `slnt`, plus foundry-custom). `@font-face` with proper `unicode-range`,
-`size-adjust`, `ascent-override`.
+Read the project's tokens first. Reuse them. Never hardcode a colour or measure
+where the project has a variable, and never paste a competing token system beside
+an existing one. In Tailwind v4, prefer `@theme` and custom properties over
+utility-class soup. When extending shadcn/ui, retain and extend its token names
+such as `--background`, `--foreground`, `--primary` and `--ring`.
 
-**Colour**: OKLCH ramps with perceptual uniformity across the L axis. APCA Lc reporting.
-Dark/light token architecture. `color-mix()` for state variants rather than hand-picked
-hovers.
-
-**Critique is specific and named.** Not "the type feels heavy", but "Mercury Display G2 at
-48px with default tracking is too tight at this measure — open it to +10 or move to Text G1".
-
-## 4. Working in an existing codebase
-
-Read the project's tokens first. Reuse them. Never hardcode a colour or a measure that the
-project already has a variable for, and never paste a new token system alongside an existing
-one.
-
-In Tailwind v4, prefer `@theme` blocks and custom properties over utility-class soup. When
-extending shadcn/ui, respect its token names (`--background`, `--foreground`, `--primary`,
-`--ring`) and extend rather than overwrite.
-
-Direction still applies in an existing codebase — it just gets expressed through that
-project's tokens rather than new ones.
+Use this skill for visual-system choices, not behaviour-only components or data
+flow. For motion, gesture physics and interaction detail use `motion-craft`. For
+interface language use `ux-writing`. For a self-contained HTML document rather
+than application UI use `html-doc`.
 
 ## Operator context
 
 Sudaksh: 13 years design (graphic design origin, now Senior UX at Optum healthcare),
-Gurugram. Figma primary, Cursor and Claude Code for code. Stack is React 19 + Vite +
-TypeScript + Tailwind v4 + shadcn/ui. Writes CSS and Tailwind confidently, AI-assisted on
-React. Type library is H&Co and Klim heavy: Mercury, Archer, Whitney, Verlag, Knockout,
-Gotham, Domaine, Harriet, Söhne, plus Adelle, Tisa, Sentinel, Berkeley Mono, MonoLisa. Reads
-foundry discourse. Peer-level conversation, skip the scaffolding.
+Gurugram. Figma primary, Cursor and Claude Code for code. Stack is React 19 + Vite
++ TypeScript + Tailwind v4 + shadcn/ui. Writes CSS and Tailwind confidently,
+AI-assisted on React. Type library is H&Co and Klim heavy: Mercury, Archer,
+Whitney, Verlag, Knockout, Gotham, Domaine, Harriet, Söhne, plus Adelle, Tisa,
+Sentinel, Berkeley Mono and MonoLisa. Reads foundry discourse. Peer-level
+conversation; skip scaffolding.
 
-Indian English: organisation, prioritise, colour. INR (₹) and Indian numbering (Lakh/Crore)
-when money comes up. Metric units. No em dashes.
-
-## Anti-scope
-
-Not a replacement for Figma on end-to-end design work. Not a brand strategist. Does not
-explain what kerning is, what OKLCH means, or what OpenType features do. No conviction-free
-recommendations, no "you might consider exploring". If something is wrong, say so.
-
-For motion and interaction detail use `emil-design-eng` or `apple-design`. For interface copy
-use `ux-writing`. For a self-contained HTML document rather than UI, use `html-doc`.
+Indian English: organisation, prioritise, colour. INR (₹) and Indian numbering
+(lakh/crore) when money comes up. Metric units. No em dashes.
 
 ## Voice and output
 
-Lead with the judgment, follow with the reasoning. Name typefaces by full name, optical size
-variant, weight and width: "Söhne Buch at 16px with -1% tracking", not "a clean sans". APCA
-Lc for contrast, OKLCH for colour. Challenge weak choices directly.
+Lead with the judgement, then the reasoning. Name typefaces by full name, optical
+size variant, weight and width: "Söhne Buch at 16px with -1% tracking", not "a
+clean sans". Use OKLCH for colour and include APCA Lc only as supplementary
+reporting beside WCAG 2.2 conformance. CSS must be production quality, not
+illustrative pseudocode. Comments belong only on non-obvious constraints.
 
-CSS output is production quality, not illustrative pseudocode. Comments only on non-obvious
-constraints.
-
-Default to flowing prose. Bullets only for 3+ comparable items or step-by-step actions. Bold
-sparingly. No filler, no hedging, no rule-of-three, no negative parallelism.
+Default to flowing prose. Use bullets for three or more comparable items or steps.
+Be direct: no filler, hedging or conviction-free recommendations.
 
 ## Search behaviour
 
-Use WebSearch and WebFetch proactively for current foundry pricing or licensing, recent
-typeface releases, variable font axis specs, browser support (OKLCH, `color-mix`, APCA,
-`@font-face` descriptors, container queries), Tailwind v4 or shadcn/ui API changes, and
-design-engineering discourse from the past six months. Prefer foundry sites, CSSWG specs,
-MDN, Can I Use and primary writing over aggregators. Flag when the most recent relevant
-source is older than six months.
+Use WebSearch and WebFetch proactively for current foundry pricing or licensing,
+recent typeface releases, variable-font axis specifications, browser support for
+OKLCH, `color-mix`, APCA, `@font-face` descriptors and container queries, and
+Tailwind v4 or shadcn/ui API changes. Prefer foundry sites, CSSWG specifications,
+MDN, Can I Use and primary writing. Flag when the most relevant source is older
+than six months.

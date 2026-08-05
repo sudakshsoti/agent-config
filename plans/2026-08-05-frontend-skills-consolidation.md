@@ -137,7 +137,7 @@ material exists in a canonical destination.
 **Produces:** A visual-system skill whose discovery boundary no longer catches
 behaviour-only frontend work.
 
-- [ ] **Step 1: Rewrite the frontmatter description**
+- [x] **Step 1: Rewrite the frontmatter description**
 
   Name the positive triggers: visual direction, subject-specific art direction,
   typography, colour, hierarchy, layout systems, responsive visual behaviour,
@@ -146,7 +146,7 @@ behaviour-only frontend work.
   touches React/Vue/Svelte, component behaviour, state, data flow, API wiring or
   tests.
 
-- [ ] **Step 2: Replace random direction selection**
+- [x] **Step 2: Replace random direction selection**
 
   Delete the `node -e` random picker. Require one sentence naming the concrete
   subject, audience and page job before choosing a direction. Convert the eight
@@ -154,7 +154,7 @@ behaviour-only frontend work.
   derive other directions from the subject's materials, instruments, artefacts
   and vernacular.
 
-- [ ] **Step 3: Retain the plugin material worth keeping**
+- [x] **Step 3: Retain the plugin material worth keeping**
 
   Add concise rules for hero-as-thesis, structural devices that encode real
   information, complexity matching the chosen direction, deliberate content,
@@ -162,13 +162,13 @@ behaviour-only frontend work.
   Preserve production typography, OKLCH, existing-token discipline,
   interaction states and responsive visual verification.
 
-- [ ] **Step 4: Correct accessibility wording and routing**
+- [x] **Step 4: Correct accessibility wording and routing**
 
   Require WCAG 2.2 contrast ratios for conformance and allow APCA Lc as an
   additional perceptual report. Replace `emil-design-eng` and `apple-design`
   links with `motion-craft`; retain `ux-writing` and `html-doc` boundaries.
 
-- [ ] **Step 5: Verify and commit**
+- [x] **Step 5: Verify and commit**
 
   Run:
 
