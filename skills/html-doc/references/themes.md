@@ -35,6 +35,11 @@ mono labels, wide column.
   --wide:    82rem;
   --leading: 1.5;
 
+  --text-base: 1rem;
+  --text-h1:   1.75rem;
+  --text-h2:   1.25rem;
+  --text-h3:   1rem;
+
   --s1: 0.25rem;
   --s2: 0.5rem;
   --s3: 0.75rem;
@@ -92,6 +97,11 @@ section rhythm than manuscript.
   --wide:    78rem;
   --leading: 1.6;
 
+  --text-base: 1.125rem;
+  --text-h1:   2rem;
+  --text-h2:   1.4rem;
+  --text-h3:   1.08rem;
+
   --s1: 0.25rem;
   --s2: 0.5rem;
   --s3: 0.75rem;
@@ -120,8 +130,9 @@ section rhythm than manuscript.
 Contrast: `#1c2420` on `#f7f8fa` is **14.94:1**; `#e2e8e4` on `#161a18` is **14.14:1**. Muted
 clears at 5.61:1 and 6.80:1, the accent at 5.94:1 and 8.23:1.
 
-Smaller `--s5` and `--s6` give the denser section rhythm. Type size is not tokenised in
-`base.html`, so no theme can change the type scale.
+Smaller `--s5` and `--s6` give the denser section rhythm. A slightly larger `--text-base`
+than manuscript's `1.0625rem` carries the brief's read-once-at-arm's-length feel; `console`
+goes the other way at `1rem` because a reference sheet is scanned, not read.
 
 ## Adding a theme
 
