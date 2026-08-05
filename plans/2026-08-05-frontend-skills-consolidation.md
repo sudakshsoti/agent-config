@@ -422,21 +422,21 @@ loads the full healthcare/enterprise pack only when relevant.
 **Produces:** Eight discoverable frontend/design skills, no retired-name routes,
 and a reversible live migration.
 
-- [ ] **Step 1: Update every active cross-reference**
+- [x] **Step 1: Update every active cross-reference**
 
   Route prototype implementation to `frontend-craft` and `motion-craft`, and
   prototype motion review to `motion-review`. Route HTML application/landing-page
   work to `frontend-craft` or explicit `prototype`, not `frontend-design`.
   Search all active skill files for every retired name and correct each hit.
 
-- [ ] **Step 2: Update the catalogue documentation**
+- [x] **Step 2: Update the catalogue documentation**
 
   Replace the seven retired repo-installed names with `motion-craft` and
   `motion-review`; remove `value-connect`; retain the four separate utilities;
   state that `html-doc` and `discovery-first` remain adjacent but outside the
   eight-skill frontend/design count. Update the installed total from 31 to 26.
 
-- [ ] **Step 3: Run tracked static verification and commit**
+- [x] **Step 3: Run tracked static verification and commit**
 
   Run:
 

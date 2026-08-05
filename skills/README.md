@@ -43,28 +43,25 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-The 31 skills below are the installed set. Anything under `skills/_archive/` is
+The 26 skills below are the installed set. Anything under `skills/_archive/` is
 kept for reference only and is deliberately not installed — see
 [`_archive/README.md`](_archive/README.md).
 
-- `animation-vocabulary` — Reverse-lookup glossary: describe a motion effect, get its exact name.
-- `apple-design` — Apple's interface and fluid-motion approach translated for the web: gestures, springs, materials, type.
 - `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
 - `frontend-craft` — Visual direction for new UI, plus typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
 - `design-foil` — Industry-agnostic strategy + UX advisor: brainstorm, critique, strategy docs, teardowns.
 - `discovery-first` — Light discovery pass for vague/subjective/exploratory requests: frame the problem, name unknowns, recommend a direction, then implement. `/discovery-first`.
-- `emil-design-eng` — Emil Kowalski's philosophy on UI polish, component design, and animation judgement.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
 - `explain-this` — Explain the plan or the finished work in plain English, then teach the one concept behind it. `/explain-this`.
-- `find-animation-opportunities` — Find places that don't animate but should, with exact values. Read-only; proposes, doesn't implement.
 - `find-skills` — Discover and install agent skills when asked "is there a skill for X".
 - `handoff` — Structured session-handoff docs for continuity across sessions.
 - `homelab-backlog` — Run the homelab/finance backlog in Linear (team OKLCH): capture, triage, grooming, acceptance criteria.
 - `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, including the safe rclone-torbox recreate.
 - `html-doc` — Turn notes, briefs and reports into one polished self-contained HTML document instead of a `.md`. `/html-doc`.
-- `improve-animations` — Survey a codebase's motion code and produce a prioritised audit plus implementation plans. Read-only.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
 - `merge` — Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`.
+- `motion-craft` — Implement motion, gesture physics and component interaction polish, or name an animation effect exactly.
+- `motion-review` — Find justified motion opportunities, audit a repo's existing motion, or review a motion diff without modifying product source.
 - `n8n-deploy` — RIGID homelab procedure: deploy/edit n8n workflows via the sqlite3 dance without clobbering the DB.
 - `obsidian-markdown` — Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.
 - `orient` — HTML guide to a repo — what it is, what decisions shaped it, and where sprawl lives. Every claim cited to file:line. `/orient`.
@@ -74,10 +71,13 @@ kept for reference only and is deliberately not installed — see
 - `prose-editor` — Critique + rewrite personal essays to a high editorial bar.
 - `prototype` — Build several genuinely different versions of a UI piece behind a visual picker. `/prototype`.
 - `push` — Safe push — sets upstream, shows outgoing commits, `--force-with-lease`, warns on main. `/push`.
-- `review-animations` — Review animation code against a high craft bar; approval is earned. `/review-animations`.
 - `self-review` — Self-review the plan you just proposed via the plan-critic subagent, then revise it. `/self-review`.
 - `ux-writing` — User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.
-- `value-connect` — Strategy + UX advisor for enterprise/healthcare design: brainstorm, audit, design-process artifacts.
+
+The eight frontend/design skills are `frontend-craft`, `motion-craft`, `motion-review`,
+`design-foil`, `prototype`, `ux-writing`, `pick-ui-library`, and
+`maintainability-review`. `html-doc` and `discovery-first` remain installed as adjacent
+document and process skills, outside that eight-skill count.
 
 ## Installing per surface
 
