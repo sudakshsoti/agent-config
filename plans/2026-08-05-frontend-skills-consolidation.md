@@ -205,7 +205,7 @@ behaviour-only frontend work.
 **Produces:** One implementation skill with `implement`, `gesture`, and
 `terminology` modes and conditionally loaded source material.
 
-- [ ] **Step 1: Reconcile the canonical standards**
+- [x] **Step 1: Reconcile the canonical standards**
 
   Build one rule set from the overlapping Emil, Apple and animation-review
   material. Resolve these conflicts rather than copying both sides:
@@ -220,7 +220,7 @@ behaviour-only frontend work.
   - Preserve justification gates, frequency costs, correct transform origins,
     reduced motion, interruption, keyboard parity and performance measurement.
 
-- [ ] **Step 2: Extract conditional references**
+- [x] **Step 2: Extract conditional references**
 
   Move the animation glossary verbatim into `animation-glossary.md`. Move Apple
   gesture physics into `gesture-physics.md`. Move Emil's component API,
@@ -229,7 +229,7 @@ behaviour-only frontend work.
   `frontend-craft`, while broad product/process critique belongs to
   `design-foil`.
 
-- [ ] **Step 3: Write the three-mode router**
+- [x] **Step 3: Write the three-mode router**
 
   `terminology` returns the best exact term first and at most two alternates,
   without implementation advice unless asked. `gesture` loads gesture physics
@@ -238,13 +238,13 @@ behaviour-only frontend work.
   project motion conventions and reduced-motion behaviour before introducing a
   new pattern.
 
-- [ ] **Step 4: Archive retired sources**
+- [x] **Step 4: Archive retired sources**
 
   Use `git mv` for all three source directories after comparing every unique
   section against the new files. The archive is the rollback and provenance
   record; active routing must not point into it.
 
-- [ ] **Step 5: Verify and commit**
+- [x] **Step 5: Verify and commit**
 
   Run:
 
