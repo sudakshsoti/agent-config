@@ -406,6 +406,15 @@ loads the full healthcare/enterprise pack only when relevant.
 
 ---
 
+### Installer repair: preserve multiline TOML assignments
+
+- [x] Reproduced the live migration failure with a multiline `[tui] status_line`
+  target: the previous merger replaced only its first line, leaving invalid TOML.
+  Added `scripts/test-apply-codex-config.py`, confirmed the expected
+  `TOMLDecodeError` before the repair, then made it pass for both multiline and
+  existing single-line assignments while preserving comments and unmanaged
+  sections. Wired the regression test into `scripts/check.sh`.
+
 ### Task 5: Repair routing, migrate the live catalogue, and verify rollback
 
 **Files:**

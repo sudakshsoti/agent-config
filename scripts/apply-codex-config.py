@@ -11,6 +11,42 @@ import tempfile
 import tomllib
 
 
+def assignment_end(block: str, start: int) -> int:
+    """Return the end offset of an assignment beginning at ``start``."""
+    value_start = block.index("=", start) + 1
+    while value_start < len(block) and block[value_start].isspace():
+        value_start += 1
+
+    opener = block[value_start:value_start + 1]
+    if opener not in {"[", "{"}:
+        return block.find("\n", value_start) if "\n" in block[value_start:] else len(block)
+
+    closer = "]" if opener == "[" else "}"
+    depth = 0
+    quote = ""
+    escaped = False
+    for offset in range(value_start, len(block)):
+        character = block[offset]
+        if quote:
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == quote:
+                quote = ""
+            continue
+        if character in {"\"", "'"}:
+            quote = character
+        elif character == opener:
+            depth += 1
+        elif character == closer:
+            depth -= 1
+            if depth == 0:
+                return offset + 1
+
+    raise ValueError("unterminated TOML assignment")
+
+
 def merge_section(target: str, section: str, values: dict[str, object], source: str) -> str:
     header = f"[{section}]"
     source_lines = source.splitlines()
@@ -30,9 +66,13 @@ def merge_section(target: str, section: str, values: dict[str, object], source: 
 
     block = section_match.group(0).rstrip()
     for key, assignment in assignments.items():
-        pattern = rf"(?m)^{re.escape(key)}\s*=.*$"
-        if re.search(pattern, block):
-            block = re.sub(pattern, assignment, block, count=1)
+        match = re.search(rf"(?m)^{re.escape(key)}\s*=", block)
+        if match:
+            block = (
+                block[: match.start()]
+                + assignment
+                + block[assignment_end(block, match.start()) :]
+            )
         else:
             block += "\n" + assignment
     block += "\n\n"
