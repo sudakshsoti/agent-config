@@ -5,7 +5,7 @@ description: |
   portable, self-contained HTML file that opens straight in a browser — an alternative
   to handing back a .md. Use when the user asks for "a report", "write this up", "a
   brief", "make this readable", "as HTML instead of markdown", or types /html-doc.
-  Documents only: for UI, app or landing-page work use frontend-design or prototype;
+  Documents only: for UI, app or landing-page work use frontend-craft or explicit prototype;
   for a repo guide use orient; for a session handoff use handoff. It writes a local
   file and never publishes to claude.ai — that is the Artifact tool.
 user-invocable: true
@@ -15,8 +15,8 @@ user-invocable: true
 
 It does ONE thing: take content that already exists (a thread, a markdown file, a
 set of notes) and emit one self-contained `.html` document that opens in a browser,
-prints cleanly and reads on a phone. It does not design interfaces (`frontend-design`,
-`prototype`), it does not explain a repo (`orient`), it does not write a session
+prints cleanly and reads on a phone. It does not design interfaces (`frontend-craft`,
+explicit `prototype`), it does not explain a repo (`orient`), it does not write a session
 handoff (`handoff`), and it does not publish anything to claude.ai (the Artifact
 tool does that).
 
@@ -161,7 +161,7 @@ used and anything Hard Rule 4 forced you to leave out. Then stop.
   One invocation, one `.html` file.
 - **No publishing.** Uploading to claude.ai is the Artifact tool. A document that needs
   to be a shareable URL is a different request.
-- Landing pages, dashboards, app UI → `frontend-design` or `prototype`. A guide to a
+- Landing pages, dashboards, app UI → `frontend-craft` or explicit `prototype`. A guide to a
   repo → `orient`. A session handoff → `handoff`.
 
 ## Invocation Variants

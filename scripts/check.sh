@@ -42,6 +42,7 @@ run "check-zips.py"               python3 "$repo_root/scripts/check-zips.py" "$r
 run "test-context-size.sh"        "$repo_root/scripts/test-context-size.sh"
 run "test-memory-consolidate.sh"  "$repo_root/scripts/test-memory-consolidate.sh"
 run "test-orient.sh"              "$repo_root/scripts/test-orient.sh"
+run "test-apply-codex-config.py" python3 "$repo_root/scripts/test-apply-codex-config.py"
 run "test-agent-instructions.py" python3 "$repo_root/scripts/test-agent-instructions.py"
 
 # CI has only this checkout, not the sibling repositories in ~/dev. The
