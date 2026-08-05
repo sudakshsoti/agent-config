@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>html-doc — component reference</title>
+<style>
+/* ==========================================================================
+   TOKENS — theme: manuscript
+   A theme swap is this block and nothing else. Every rule below reads tokens;
+   no colour and no spacing value is written literally past this point.
+   ========================================================================== */
+:root {
+  color-scheme: light dark;
+
+  --paper:       #faf9f7;
+  --ink:         #22201d;
+  --muted:       #6b6660;
+  --rule:        #e2ded6;
+  --fill:        #f1efea;
+  --accent:      #33417a;
+  --accent-soft: #e7e8f1;
+
+  --font-body: ui-serif, Charter, Georgia, Cambria, serif;
+  --font-ui:   ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --measure: 68ch;
+  --wide:    76rem;
+  --leading: 1.7;
+
+  --s1: 0.25rem;
+  --s2: 0.5rem;
+  --s3: 0.75rem;
+  --s4: 1.25rem;
+  --s5: 2rem;
+  --s6: 3.25rem;
+
+  --radius: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper:       #17181e;
+    --ink:         #e3e2e8;
+    --muted:       #9a99a6;
+    --rule:        #2d2f3a;
+    --fill:        #1f212a;
+    --accent:      #9daae2;
+    --accent-soft: #242839;
+  }
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: var(--leading);
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+.page {
+  max-width: var(--wide);
+  margin-inline: auto;
+  padding-inline: var(--s4);
+  padding-block: var(--s5) var(--s6);
+}
+
+main { max-width: var(--measure); }
+
+h1, h2, h3 { font-family: var(--font-ui); line-height: 1.25; letter-spacing: -0.01em; }
+h1 { font-size: 1.9rem; font-weight: 600; margin: 0; }
+h2 { font-size: 1.3rem; font-weight: 600; margin-block: var(--s6) var(--s3); }
+h3 { font-size: 1.02rem; font-weight: 600; margin-block: var(--s5) var(--s2); }
+
+p { margin-block: var(--s3); }
+
+a { color: var(--accent); text-underline-offset: 0.15em; transition: color 120ms ease; }
+a:hover { color: var(--ink); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: var(--s1);
+  border-radius: var(--radius);
+}
+
+hr { border: 0; border-top: 1px solid var(--rule); margin-block: var(--s5); }
+
+code, kbd, samp { font-family: var(--font-mono); font-size: 0.86em; }
+:not(pre) > code {
+  background: var(--fill);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding-inline: var(--s1);
+}
+
+/* ==========================================================================
+   1. header.doc-header + .doc-meta
+   ========================================================================== */
+.doc-header {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: var(--s4);
+  margin-bottom: var(--s5);
+}
+.doc-meta {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-block: var(--s3) 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1) var(--s4);
+}
+
+/* 2. p.lead */
+.lead {
+  font-size: 1.2rem;
+  line-height: 1.55;
+  color: var(--muted);
+  margin-block: 0 var(--s5);
+}
+
+/* ==========================================================================
+   3. nav.toc — static on narrow, sticky sidebar on wide
+   ========================================================================== */
+.toc {
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: var(--s4);
+  margin-bottom: var(--s5);
+}
+.toc-title {
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-block: 0 var(--s2);
+}
+.toc ol { list-style: none; margin: 0; padding: 0; }
+.toc li { margin-block: var(--s1); }
+.toc a { text-decoration: none; color: var(--ink); }
+.toc a:hover { color: var(--accent); text-decoration: underline; }
+
+@media (min-width: 62rem) {
+  .page {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, var(--measure));
+    justify-content: center;
+    column-gap: var(--s6);
+    align-items: start;
+  }
+  .doc-header { grid-column: 1 / -1; justify-self: stretch; }
+  .toc {
+    grid-column: 1;
+    position: sticky;
+    top: var(--s5);
+    border: 0;
+    border-left: 1px solid var(--rule);
+    border-radius: 0;
+    padding: 0 0 0 var(--s4);
+    max-height: calc(100vh - var(--s6));
+    overflow-y: auto;
+  }
+  main { grid-column: 2; }
+}
+
+/* 4. .summary */
+.summary {
+  background: var(--accent-soft);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: var(--s4);
+  margin-block: var(--s5);
+}
+.summary-title {
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-block: 0 var(--s2);
+}
+.summary ul { margin-block: 0; padding-left: var(--s4); }
+.summary li { margin-block: var(--s1); }
+
+/* ==========================================================================
+   5. aside.callout — modifiers differ by label text AND border style,
+      never by colour alone, so they survive greyscale printing.
+   ========================================================================== */
+.callout {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: var(--s3) var(--s4);
+  margin-block: var(--s4);
+}
+.callout p { margin-block: var(--s2); }
+.callout p:first-of-type { margin-top: 0; }
+.callout p:last-child { margin-bottom: 0; }
+.callout-label {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-block: 0 var(--s2) !important;
+}
+.callout--note { border-left: 3px solid var(--rule); }
+.callout--warn { border-left: 4px double var(--ink); background: var(--fill); }
+.callout--rec  { border-left: 3px solid var(--accent); }
+.callout--rec .callout-label { color: var(--accent); }
+
+/* 6. dl.kv */
+.kv { margin-block: var(--s4); }
+.kv dt {
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  color: var(--accent);
+  margin-top: var(--s3);
+}
+.kv dd {
+  margin-inline: 0;
+  margin-block: var(--s1) 0;
+  padding-bottom: var(--s3);
+  border-bottom: 1px solid var(--rule);
+}
+
+/* 7. .table-wrap > table */
+.table-wrap {
+  overflow-x: auto;
+  margin-block: var(--s4);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--font-ui);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+caption {
+  caption-side: top;
+  text-align: left;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--muted);
+  padding: var(--s3) var(--s3) var(--s2);
+}
+th, td { text-align: left; padding: var(--s2) var(--s3); border-bottom: 1px solid var(--rule); }
+thead th { background: var(--fill); font-weight: 600; }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+tbody th { font-weight: 600; }
+td code { white-space: nowrap; }
+
+/* 8. pre > code */
+pre {
+  background: var(--fill);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: var(--s3) var(--s4);
+  margin-block: var(--s4);
+  overflow-x: auto;
+  line-height: 1.5;
+}
+pre > code { background: none; border: 0; padding: 0; font-size: 0.82rem; }
+
+/* 9. blockquote */
+blockquote {
+  margin-inline: 0;
+  margin-block: var(--s4);
+  padding-left: var(--s4);
+  border-left: 2px solid var(--rule);
+  color: var(--muted);
+  font-style: italic;
+}
+blockquote cite {
+  display: block;
+  margin-top: var(--s2);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-style: normal;
+}
+
+/* 10. ol.steps */
+.steps { padding-left: var(--s4); margin-block: var(--s4); }
+.steps > li { margin-block: var(--s3); padding-left: var(--s1); }
+.steps > li::marker { font-family: var(--font-ui); font-weight: 600; color: var(--accent); }
+
+/* 11. .stat-row > .stat */
+.stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s4);
+  margin-block: var(--s5);
+}
+.stat {
+  flex: 1 1 9rem;
+  border-top: 1px solid var(--rule);
+  padding-top: var(--s2);
+}
+.stat-num {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 1.7rem;
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.stat-label {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: var(--s1);
+}
+
+/* 12. .bar — CSS-only chart drawn over a real table */
+.bar .bar-cell { width: 58%; }
+.bar-track {
+  display: block;
+  background: var(--fill);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  height: var(--s3);
+  min-width: var(--s6);
+}
+.bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--radius);
+}
+.bar .bar-num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* 13. details.appendix */
+.appendix {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: var(--s3) var(--s4);
+  margin-block: var(--s4);
+}
+.appendix > summary {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--accent);
+}
+.appendix[open] > summary { margin-bottom: var(--s3); }
+
+/* 14. footer > ol.sources */
+footer {
+  margin-top: var(--s6);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--rule);
+  font-size: 0.92rem;
+}
+.sources { padding-left: var(--s4); }
+.sources li { margin-block: var(--s2); }
+.sources a { word-break: break-word; }
+
+/* 15. footnotes */
+sup a { text-decoration: none; font-family: var(--font-ui); padding-inline: var(--s1); }
+.footnotes { padding-left: var(--s4); font-size: 0.92rem; color: var(--muted); }
+.footnotes li { margin-block: var(--s2); }
+.footnotes a[href^="#fnref"] { text-decoration: none; font-family: var(--font-ui); }
+
+/* ==========================================================================
+   PRINT
+   ========================================================================== */
+@media print {
+  :root {
+    --paper:       #ffffff;
+    --ink:         #1a1a1a;
+    --muted:       #4a4a4a;
+    --rule:        #b8b8b8;
+    --fill:        #f2f2f2;
+    --accent:      #1a1a1a;
+    --accent-soft: #f2f2f2;
+  }
+  body { font-size: 11pt; }
+  .toc, .no-print { display: none !important; }
+  .page {
+    display: block;
+    max-width: none;
+    padding: 0;
+  }
+  main { max-width: none; }
+  table, pre, blockquote, figure, .callout, .stat, .summary { break-inside: avoid; }
+  h1, h2, h3 { break-after: avoid; }
+  .appendix { border: 0; padding: 0; }
+  .appendix > summary { list-style: none; }
+  a { color: var(--ink); }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-family: var(--font-mono);
+    font-size: 0.8em;
+    color: var(--muted);
+    word-break: break-all;
+  }
+  .toc a[href^="http"]::after, .footnotes a[href^="#fnref"]::after { content: ""; }
+}
+
+/* ==========================================================================
+   MOTION
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="doc-header">
+  <h1>html-doc — component reference</h1>
+  <p class="doc-meta">
+    <span>Template v1</span>
+    <span>Updated 5 August 2026</span>
+    <span>Status: reference</span>
+  </p>
+</header>
+
+<nav class="toc" aria-label="Contents">
+  <p class="toc-title">Contents</p>
+  <ol>
+    <li><a href="#overview">What this file is</a></li>
+    <li><a href="#tokens">The token block</a></li>
+    <li><a href="#prose">Prose primitives</a></li>
+    <li><a href="#signals">Callouts and summaries</a></li>
+    <li><a href="#data">Data primitives</a></li>
+    <li><a href="#procedure">Procedure and code</a></li>
+    <li><a href="#navigation">Navigation and disclosure</a></li>
+    <li><a href="#print">Print and dark mode</a></li>
+    <li><a href="#vocabulary">The closed vocabulary</a></li>
+    <li><a href="#notes">Notes</a></li>
+    <li><a href="#sources">Sources</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<p class="lead">This document is the template the <code>html-doc</code> skill copies. It uses
+every primitive in the vocabulary exactly once and explains, beside each one, the case it
+exists to handle. However this page looks in your browser is how every document the skill
+produces will look.</p>
+
+<section id="overview">
+  <h2>What this file is</h2>
+
+  <p>The skill has one job: turn markdown into a single self-contained HTML file. The
+  failure mode it exists to prevent is a document request being treated as a web-design
+  request — a fresh palette, a hero heading and a card grid invented from scratch on every
+  invocation, so no two outputs match. Shipping a working template instead of prose about
+  CSS is what makes the output deterministic.</p>
+
+  <p>Nothing here loads over the network. Fonts come from the system stack,<a href="#fn-1"
+  id="fnref-1"><sup>1</sup></a> there is no JavaScript, and the whole stylesheet sits in one
+  <code>&lt;style&gt;</code> block in the head. The file works offline, from a USB stick,
+  and in five years.</p>
+
+  <div class="summary">
+    <p class="summary-title">Key takeaways</p>
+    <ul>
+      <li>Copy this file, delete the CSS for primitives you did not use, and fill in content.</li>
+      <li>Do not author new CSS. Needing a new selector means the content wants a shape the
+      vocabulary lacks — say so instead of inventing one.</li>
+      <li>Visual complexity follows informational complexity. A 400-word note gets a header
+      and prose, nothing else.</li>
+      <li>A theme swap is one <code>:root</code> block. Nothing below it holds a literal
+      colour or spacing value.</li>
+    </ul>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat">
+      <span class="stat-num">15</span>
+      <span class="stat-label">Primitives in the closed set</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">0</span>
+      <span class="stat-label">Network requests on open</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">1</span>
+      <span class="stat-label">File, no build step</span>
+    </div>
+  </div>
+
+  <p><strong>Use the stat row</strong> for two to four numbers that are genuinely measured
+  and that a reader needs to carry away. Never fill it with placeholder metrics to make a
+  page look substantial.</p>
+</section>
+
+<section id="tokens">
+  <h2>The token block</h2>
+
+  <p>Every rule in the stylesheet reads a custom property. That is load-bearing rather than
+  tidy: alternate themes ship as drop-in <code>:root</code> blocks, so a single literal
+  colour anywhere further down would survive the swap and break the theme.</p>
+
+  <pre><code>:root {
+  color-scheme: light dark;
+
+  --paper: #faf9f7;   /* page background        */
+  --ink:   #22201d;   /* body text              */
+  --muted: #6b6660;   /* meta, captions, labels */
+  --rule:  #e2ded6;   /* hairlines and borders  */
+  --fill:  #f1efea;   /* code, table head, bars */
+  --accent:      #33417a;
+  --accent-soft: #e7e8f1;
+}</code></pre>
+
+  <p>The token names below are the whole set. Adding one is a change to the skill, not to a
+  document.</p>
+
+  <dl class="kv">
+    <dt>--paper / --ink / --muted</dt>
+    <dd>Background, body text, and de-emphasised text. Neither mode uses pure black or
+    white; the dark neutrals are tinted toward the accent hue.</dd>
+
+    <dt>--rule / --fill / --accent / --accent-soft</dt>
+    <dd>Hairline borders, flat surfaces, the one accent, and its tinted background.</dd>
+
+    <dt>--font-body / --font-ui / --font-mono</dt>
+    <dd>Serif for reading, sans for metadata and labels, mono for code and figures. All
+    three are system stacks.</dd>
+
+    <dt>--measure / --wide / --leading</dt>
+    <dd>Reading column (68ch), full page width, and line height. The measure caps the prose
+    column; the page can be wider to hold the sidebar.</dd>
+
+    <dt>--s1 … --s6 / --radius</dt>
+    <dd>The spacing scale and the single corner radius. Nothing below <code>:root</code>
+    writes a margin or padding outside this scale.</dd>
+  </dl>
+</section>
+
+<section id="prose">
+  <h2>Prose primitives</h2>
+
+  <h3>Lead paragraph</h3>
+  <p>The opening paragraph, set larger and muted, appears once at the top of this document.
+  It states what the document is and who it is for in two or three sentences. Use exactly
+  one per file; a second one reads as a subheading and stops working.</p>
+
+  <h3>Blockquote</h3>
+  <p>For quoted source material — never for emphasis of your own prose. If the quote has an
+  author or a document, cite it.</p>
+
+  <blockquote>
+    Where colour is used to convey information, that information must also be available
+    without colour.
+    <cite>Paraphrasing WCAG success criterion 1.4.1, Use of Color</cite>
+  </blockquote>
+
+  <h3>Footnotes</h3>
+  <p>For an aside that would derail the sentence but that a careful reader wants. A footnote
+  marker is a superscript link to an item at the bottom of the document, and every item links
+  back to its marker.<a href="#fn-2" id="fnref-2"><sup>2</sup></a> Keep them rare; three or
+  four in a document is plenty.</p>
+</section>
+
+<section id="signals">
+  <h2>Callouts and summaries</h2>
+
+  <p>Two primitives pull something out of the flow. The summary box collects what a reader
+  should retain from the whole document and belongs near the top. Callouts interrupt at the
+  point where the caution or the recommendation actually applies.</p>
+
+  <p>Each callout carries a text label as well as a border treatment, so the three kinds
+  stay distinguishable in greyscale printing and for readers who cannot separate the hues.
+  Colour alone is never the signal.</p>
+
+  <aside class="callout callout--note">
+    <p class="callout-label">Note</p>
+    <p>Neutral context a reader can skip without losing the thread. If skipping it would
+    cost them something, it belongs in the body text instead.</p>
+  </aside>
+
+  <aside class="callout callout--warn">
+    <p class="callout-label">Warning</p>
+    <p>A consequence that is hard to undo. Reserve this for real risk — a callout used for
+    ordinary emphasis trains readers to ignore the next one.</p>
+  </aside>
+
+  <aside class="callout callout--rec">
+    <p class="callout-label">Recommendation</p>
+    <p>The action to take, stated as an imperative. One recommendation per callout, so it
+    can be acted on without re-reading.</p>
+  </aside>
+</section>
+
+<section id="data">
+  <h2>Data primitives</h2>
+
+  <h3>Key/value list</h3>
+  <p>A definition list handles short paired facts — parameters, fields, glossary entries —
+  where a table would waste a column on a header nobody needs. The token reference above is
+  one. Prefer it over a two-column table.</p>
+
+  <h3>Tables</h3>
+  <p>For anything genuinely tabular. Every table sits inside a <code>.table-wrap</code>
+  wrapper that scrolls horizontally, because a wide table is the most common cause of a
+  document overflowing a phone screen.</p>
+
+  <div class="table-wrap">
+    <table>
+      <caption>Spacing scale, as used by every rule in the stylesheet</caption>
+      <thead>
+        <tr><th scope="col">Token</th><th scope="col">Value</th><th scope="col">At 16px root</th><th scope="col">Typical use</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row"><code>--s1</code></th><td>0.25rem</td><td>4px</td><td>Inline padding, outline offset</td></tr>
+        <tr><th scope="row"><code>--s2</code></th><td>0.5rem</td><td>8px</td><td>List item gaps, cell padding</td></tr>
+        <tr><th scope="row"><code>--s3</code></th><td>0.75rem</td><td>12px</td><td>Paragraph rhythm, bar height</td></tr>
+        <tr><th scope="row"><code>--s4</code></th><td>1.25rem</td><td>20px</td><td>Box padding, list indent</td></tr>
+        <tr><th scope="row"><code>--s5</code></th><td>2rem</td><td>32px</td><td>Between blocks</td></tr>
+        <tr><th scope="row"><code>--s6</code></th><td>3.25rem</td><td>52px</td><td>Before a section heading</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Bar chart</h3>
+  <p>The chart is drawn with CSS over an ordinary table, so with styles disabled it
+  degrades to the numbers rather than to nothing. Cap it at ten rows and reach for it only
+  when the comparison between magnitudes is the point; otherwise the table above already
+  serves the reader better.</p>
+
+  <div class="table-wrap">
+    <table class="bar">
+      <caption>The same scale, drawn to size</caption>
+      <thead>
+        <tr><th scope="col">Token</th><th scope="col">Relative size</th><th scope="col">rem</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">--s1</th><td class="bar-cell"><span class="bar-track"><span class="bar-fill" style="width: 7.7%"></span></span></td><td class="bar-num">0.25</td></tr>
+        <tr><th scope="row">--s2</th><td class="bar-cell"><span class="bar-track"><span class="bar-fill" style="width: 15.4%"></span></span></td><td class="bar-num">0.50</td></tr>
+        <tr><th scope="row">--s3</th><td class="bar-cell"><span class="bar-track"><span class="bar-fill" style="width: 23.1%"></span></span></td><td class="bar-num">0.75</td></tr>
+        <tr><th scope="row">--s4</th><td class="bar-cell"><span class="bar-track"><span class="bar-fill" style="width: 38.5%"></span></span></td><td class="bar-num">1.25</td></tr>
+        <tr><th scope="row">--s5</th><td class="bar-cell"><span class="bar-track"><span class="bar-fill" style="width: 61.5%"></span></span></td><td class="bar-num">2.00</td></tr>
+        <tr><th scope="row">--s6</th><td class="bar-cell"><span class="bar-track"><span class="bar-fill" style="width: 100%"></span></span></td><td class="bar-num">3.25</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="procedure">
+  <h2>Procedure and code</h2>
+
+  <h3>Numbered steps</h3>
+  <p>An ordered list for anything a reader will follow while doing something else. One
+  bounded action per step, and the step says what is true when it is done.</p>
+
+  <ol class="steps">
+    <li>Read this file and keep its <code>&lt;style&gt;</code> block whole.</li>
+    <li>Delete the CSS rules for primitives the document does not use, and delete their
+    demo markup.</li>
+    <li>Write the content into the remaining structure, preserving the source's code,
+    links, numbers and names byte-for-byte.</li>
+    <li>Run the validator, fix what it reports, and re-run at most twice before shipping
+    and naming the failing check.</li>
+  </ol>
+
+  <h3>Code blocks</h3>
+  <p>A <code>pre &gt; code</code> pair, scrolling horizontally rather than pushing the page
+  wide. Code is copied from the source exactly; reflowing it to fit a column is a rewrite.
+  Inline <code>code</code> is for identifiers and paths inside a sentence.</p>
+
+  <p class="no-print">This paragraph carries <code>.no-print</code>, so it disappears in
+  print preview along with the table of contents — try <kbd>Cmd</kbd>+<kbd>P</kbd>.</p>
+</section>
+
+<section id="navigation">
+  <h2>Navigation and disclosure</h2>
+
+  <p>The table of contents is a sticky sidebar above 62rem of viewport width and a static
+  block above the text below it. It earns its place past roughly six sections; on a shorter
+  document it is furniture. It is hidden in print, where page numbers and the eye do the
+  same job.</p>
+
+  <p>An appendix collapses material that most readers will skip but some will need —
+  raw output, a long list, the workings behind a number. It is a native
+  <code>&lt;details&gt;</code> element, which is why this document needs no JavaScript.</p>
+
+  <details class="appendix">
+    <summary>Appendix — why the vocabulary is closed</summary>
+    <p>An open vocabulary means every invocation re-decides what a callout looks like, and
+    two documents produced a week apart stop matching. A closed set of fifteen makes the
+    output boring in the specific way that documents should be boring: the reader learns the
+    shapes once and stops noticing them.</p>
+    <p>Fifteen is also small enough to hold in view. When content genuinely does not fit any
+    of them, the correct move is to say so in the hand-off rather than to add a sixteenth
+    quietly.</p>
+  </details>
+</section>
+
+<section id="print">
+  <h2>Print and dark mode</h2>
+
+  <p>Both are handled by overriding the same token names, never by rewriting rules. The
+  print block flattens the palette to a white page with grey rules, drops the grid so the
+  prose uses the full paper width, and prevents tables, code blocks, quotes, callouts and
+  stats from splitting across a page break. Headings will not print as the last line of a
+  page.</p>
+
+  <p>Print also reveals link targets: every external link gets its URL appended in
+  parentheses, since a printed page cannot be clicked. Internal anchors and footnote
+  back-links are exempt — printing <code>(#fn-1)</code> after every marker is noise.</p>
+
+  <p>Dark mode follows the reader's system setting through
+  <code>prefers-color-scheme</code>. Neither mode uses pure black or white; the dark
+  neutrals carry a trace of the accent hue so the page reads as one surface rather than as
+  a light document with its colours reversed.</p>
+</section>
+
+<section id="vocabulary">
+  <h2>The closed vocabulary</h2>
+
+  <p>Fifteen primitives, and nothing else. This table is the list.</p>
+
+  <div class="table-wrap">
+    <table>
+      <caption>Every primitive, its selector, and the case it handles</caption>
+      <thead>
+        <tr><th scope="col">#</th><th scope="col">Primitive</th><th scope="col">Selector</th><th scope="col">Use it for</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><th scope="row">Document header</th><td><code>header.doc-header</code>, <code>.doc-meta</code></td><td>The title plus date, author and status</td></tr>
+        <tr><td>2</td><th scope="row">Lead</th><td><code>p.lead</code></td><td>The opening statement of what this is</td></tr>
+        <tr><td>3</td><th scope="row">Contents</th><td><code>nav.toc</code></td><td>Documents past about six sections</td></tr>
+        <tr><td>4</td><th scope="row">Summary</th><td><code>.summary</code></td><td>What to retain from the whole document</td></tr>
+        <tr><td>5</td><th scope="row">Callout</th><td><code>aside.callout</code> + <code>--note</code>/<code>--warn</code>/<code>--rec</code></td><td>A caution or action at the point it applies</td></tr>
+        <tr><td>6</td><th scope="row">Key/value list</th><td><code>dl.kv</code></td><td>Short paired facts, parameters, glossaries</td></tr>
+        <tr><td>7</td><th scope="row">Table</th><td><code>.table-wrap &gt; table</code></td><td>Anything genuinely tabular</td></tr>
+        <tr><td>8</td><th scope="row">Code block</th><td><code>pre &gt; code</code></td><td>Verbatim code, config, terminal output</td></tr>
+        <tr><td>9</td><th scope="row">Quotation</th><td><code>blockquote</code></td><td>Quoted source material, with a citation</td></tr>
+        <tr><td>10</td><th scope="row">Steps</th><td><code>ol.steps</code></td><td>A procedure to follow while doing something</td></tr>
+        <tr><td>11</td><th scope="row">Stats</th><td><code>.stat-row &gt; .stat</code></td><td>Two to four measured headline numbers</td></tr>
+        <tr><td>12</td><th scope="row">Bar chart</th><td><code>.bar</code></td><td>Up to ten magnitudes where the comparison is the point</td></tr>
+        <tr><td>13</td><th scope="row">Appendix</th><td><code>details.appendix</code></td><td>Material most readers will skip</td></tr>
+        <tr><td>14</td><th scope="row">Sources</th><td><code>footer &gt; ol.sources</code></td><td>References, in order of first citation</td></tr>
+        <tr><td>15</td><th scope="row">Footnotes</th><td><code>sup</code> → <code>ol.footnotes</code></td><td>Asides that would derail a sentence</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>What the template deliberately does not have: a card around every section, gradients
+  of any kind, an oversized hero heading, decorative pills, alternating colour bands,
+  repeated identical card grids, centred body text, and icons that carry no information.
+  Each of those makes a document look like a landing page, and a landing page is the wrong
+  register for something a reader is meant to work through and print.</p>
+</section>
+
+<section id="notes">
+  <h2>Notes</h2>
+  <ol class="footnotes">
+    <li id="fn-1">System stacks mean the file never waits on a font server and never leaks a
+    request to one. <code>ui-serif</code> and <code>ui-sans-serif</code> resolve to the
+    platform's own reading faces where supported, with named fallbacks behind them.
+    <a href="#fnref-1" aria-label="Back to reference 1">↩</a></li>
+    <li id="fn-2">Back-links matter more on a phone than on a desktop: without one, following
+    a footnote marker strands the reader at the bottom of the document with no way back to
+    the sentence they left. <a href="#fnref-2" aria-label="Back to reference 2">↩</a></li>
+  </ol>
+</section>
+
+<footer>
+  <h2 id="sources">Sources</h2>
+  <ol class="sources">
+    <li>MDN Web Docs, <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme">prefers-color-scheme</a> — the media feature behind the dark token block.</li>
+    <li>W3C, <a href="https://www.w3.org/TR/css-break-3/">CSS Fragmentation Module Level 3</a> — <code>break-inside</code> and <code>break-after</code> as used in the print block.</li>
+    <li>WHATWG, <a href="https://html.spec.whatwg.org/multipage/interactive-elements.html#the-details-element">The details element</a> — native disclosure, no script required.</li>
+    <li>W3C, <a href="https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html">Understanding SC 1.4.1: Use of Color</a> — why callouts carry a text label.</li>
+    <li>MDN Web Docs, <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:focus-visible">:focus-visible</a> — the keyboard focus ring.</li>
+  </ol>
+</footer>
+
+</main>
+</div>
+</body>
+</html>
