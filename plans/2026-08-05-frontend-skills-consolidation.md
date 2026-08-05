@@ -415,6 +415,12 @@ loads the full healthcare/enterprise pack only when relevant.
   existing single-line assignments while preserving comments and unmanaged
   sections. Wired the regression test into `scripts/check.sh`.
 
+### Gesture-mode routing repair
+
+- [x] Reproduced the swipe-to-dismiss prompt routing to `motion-craft implement`
+  in three fresh sessions; added explicit mode precedence, then verified three
+  fresh gesture runs plus `implement` and `terminology` controls select correctly.
+
 ### Task 5: Repair routing, migrate the live catalogue, and verify rollback
 
 **Files:**
@@ -466,7 +472,7 @@ and a reversible live migration.
   git commit -m "skills: update frontend catalogue routing"
   ```
 
-- [ ] **Step 4: Prepare reversible live changes**
+- [x] **Step 4: Prepare reversible live changes**
 
   Record the current plugin line and direct skill path:
 
@@ -480,7 +486,7 @@ and a reversible live migration.
   `/Users/sudakshsoti/.Trash/uncodixfy-2026-08-05`; if that exact path exists,
   stop and choose a unique dated suffix rather than overwriting it.
 
-- [ ] **Step 5: Relink, prune and verify live discovery**
+- [x] **Step 5: Relink, prune and verify live discovery**
 
   Run from the canonical checkout:
 
@@ -509,7 +515,7 @@ and a reversible live migration.
   Cap each command's output and record only the selected skill/mode and whether
   it matched the expected route.
 
-- [ ] **Step 6: Complete surface-specific verification**
+- [x] **Step 6: Complete surface-specific verification**
 
   As Codex, run the checks that do not modify Claude-only `dist/`:
 

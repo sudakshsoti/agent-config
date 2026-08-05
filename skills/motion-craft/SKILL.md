@@ -14,6 +14,11 @@ new motion language for one component.
 
 ## Choose one mode
 
+Select modes in this order: choose `terminology` for a naming-only question;
+otherwise choose `gesture` whenever the request includes direct manipulation,
+drag, swipe, dismissal, velocity, momentum or resistance, even when it asks to
+implement; use `implement` only for the remaining motion implementation work.
+
 ### `terminology`
 
 Use when the user asks what an effect is called or describes it without knowing
