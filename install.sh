@@ -22,6 +22,11 @@
 #     no companion TUI that rewrites it in place — so there is nothing to sync
 #     back and repo edits go live immediately.
 #
+# Merged settings (repo-owned keys only; other settings remain untouched):
+#   codex/config.toml -> ~/.codex/config.toml
+#     Codex rewrites this file from its TUI and it may contain machine-local
+#     credentials, so it cannot safely be symlinked or replaced wholesale.
+#
 # Copies, only if missing (the owning tool rewrites these itself, so a symlink
 # would break; never clobbers an existing file):
 #   settings.json             -> ~/.claude/settings.json
@@ -202,7 +207,15 @@ fi
 #     nothing to sync back.
 link_into "$REPO/claude-powerline.json" "$CLAUDE/claude-powerline.json"
 
-# 4c. Git hooks: point git at the tracked .githooks/ instead of .git/hooks, so
+# 4c. Codex config: merge only the non-secret keys tracked in codex/config.toml.
+#     Preserve unrelated user, MCP, desktop, and machine-managed settings.
+if [ -d "$CODEX" ] && [ -f "$REPO/codex/config.toml" ]; then
+  python3 "$REPO/scripts/apply-codex-config.py" \
+    "$REPO/codex/config.toml" "$CODEX/config.toml"
+  echo "merged  codex/config.toml"
+fi
+
+# 4d. Git hooks: point git at the tracked .githooks/ instead of .git/hooks, so
 #     the pre-commit lint arrives with a clone and works from a worktree (where
 #     .git is a file and has no hooks/ directory to write into). Relative on
 #     purpose — it resolves per checkout.

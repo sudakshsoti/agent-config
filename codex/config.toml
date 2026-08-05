@@ -1,0 +1,6 @@
+# Non-secret Codex settings managed by this repository.
+# install.sh merges only the keys present here into ~/.codex/config.toml.
+
+[tui]
+status_line = ["model-with-reasoning", "model", "reasoning", "context-used", "weekly-limit", "git-branch", "pull-request-number", "branch-changes", "project-name", "current-dir"]
+status_line_use_colors = true

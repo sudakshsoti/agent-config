@@ -18,6 +18,9 @@ cd ~/dev/agent-config && ./install.sh
 - `commands/` — Global slash commands (`/recall`, `/remember` for the
   `~/claude-memory` vault). Symlinked per file.
 - `settings.json` — Global settings, sanitized, no API keys. Copied if missing.
+- `codex/config.toml` — Non-secret Codex settings, including the native TUI
+  statusline. Merged into `~/.codex/config.toml` without replacing credentials
+  or machine-local settings.
 - `scripts/` — Executables referenced by absolute path from `settings.json` (not
   symlinked). Includes `statusline.sh` / `test-context-size.sh` (the main status
   bar) and `subagent-statusline.sh` / `test-subagent-statusline.sh` (the agent
@@ -36,7 +39,8 @@ cd ~/dev/agent-config && ./install.sh
 Skills and agents are **symlinked**, so editing them in this repo is live
 immediately — just commit when happy. `settings.json` is a **copy**
 (Claude Code rewrites it itself, which would clobber a symlink), hence
-`sync.sh`.
+`sync.sh`. Codex settings are selectively merged by `install.sh`; the tracked
+fragment owns only the keys it declares.
 
 ## Repository instructions
 
