@@ -285,7 +285,7 @@ behaviour-only frontend work.
 **Produces:** One review skill with three mutually exclusive scopes and no
 product-source mutation.
 
-- [ ] **Step 1: Define mode selection**
+- [x] **Step 1: Define mode selection**
 
   Route absent-motion questions such as “what should animate here?” to
   `opportunities`; repo-wide requests about existing motion to `audit`; and an
@@ -293,7 +293,7 @@ product-source mutation.
   and existing motion across a repo, select `audit` and include missed
   opportunities as one audit category rather than running two modes.
 
-- [ ] **Step 2: Preserve each mode's output contract**
+- [x] **Step 2: Preserve each mode's output contract**
 
   `opportunities` remains read-only, caps recommendations at seven, includes
   rejected candidates, and gives exact recipes. `audit` inventories existing
@@ -301,13 +301,13 @@ product-source mutation.
   `plans/`; it does not modify product source. `diff` returns severity-grouped
   findings and an explicit approve/request-changes verdict.
 
-- [ ] **Step 3: Remove execution from review**
+- [x] **Step 3: Remove execution from review**
 
   Delete the old `improve-animations execute` ambiguity. Implementation is a
   separate hand-off to `motion-craft` or a tracked plan executor. State this in
   both the description and body.
 
-- [ ] **Step 4: Link the shared standards and archive sources**
+- [x] **Step 4: Link the shared standards and archive sources**
 
   Create the relative symlink:
 
@@ -318,7 +318,7 @@ product-source mutation.
   Confirm it resolves, then `git mv` all three retired review skills under
   `skills/_archive/`.
 
-- [ ] **Step 5: Verify and commit**
+- [x] **Step 5: Verify and commit**
 
   Run:
 
