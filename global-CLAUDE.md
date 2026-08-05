@@ -102,9 +102,13 @@ Do not re-print code that was just written or edited. State what changed in a
 sentence and reference `file:line`. Output is billed at 5x input, then re-read on
 every later turn, so verbosity compounds.
 
-At a task boundary past ~90K, stop and `/clear` rather than pushing on. Use
-`/handoff` then `/clear` when continuity matters. Avoid `/compact`: it costs a full
-context read plus summary output, which never pays back against a ~55K floor.
+`/clear` at every task boundary, not only once context is large. What a session
+costs is roughly its average context multiplied by its number of turns, so a
+forty-turn session that never passes 55K costs about the same as one that grows
+to 200K. Length is the lever, not just size. Past ~90K, clear unconditionally.
+Use `/handoff` then `/clear` when continuity matters. Avoid `/compact`: it costs
+a full context read plus summary output, which never pays back against a ~55K
+floor.
 
 ## Subagent model economy
 
