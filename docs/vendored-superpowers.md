@@ -1,13 +1,20 @@
 # Vendored superpowers skills
 
-Thirteen skills under `skills/` come from the **superpowers** plugin by Jesse
-Vincent, vendored from `superpowers@claude-plugins-official` at version 6.2.0:
+Thirteen skills were vendored from the **superpowers** plugin by Jesse Vincent,
+from `superpowers@claude-plugins-official` at version 6.2.0. Five are still
+installed under `skills/`:
 
-`brainstorming`, `dispatching-parallel-agents`, `executing-plans`,
+`brainstorming`, `systematic-debugging`, `using-git-worktrees`,
+`writing-plans`, `writing-skills`.
+
+The other eight were retired to `skills/_archive/`:
+`dispatching-parallel-agents`, `executing-plans`,
 `finishing-a-development-branch`, `receiving-code-review`,
 `requesting-code-review`, `subagent-driven-development`,
-`systematic-debugging`, `test-driven-development`, `using-git-worktrees`,
-`verification-before-completion`, `writing-plans`, `writing-skills`.
+`test-driven-development`, `verification-before-completion`. Plan execution
+consolidated onto `execute-plan`, and the TDD and verification disciplines
+became invariants in global `CLAUDE.md`. See
+`plans/2026-08-06-build-loop-repair.md` section 5.8.
 
 Upstream: <https://github.com/obra/superpowers>
 
@@ -37,9 +44,12 @@ Skill updates no longer arrive automatically. To refresh:
 
 ```bash
 git clone --depth 1 https://github.com/obra/superpowers /tmp/superpowers
-# diff, then copy the skills listed above, excluding hooks/
+# diff, then copy the five still-installed skills, excluding hooks/
 rm -rf /tmp/superpowers
 ```
+
+Do not re-copy the archived eight while refreshing — they were retired
+deliberately, not lost.
 
 After copying, rewrite any `superpowers:<name>` cross-references to the bare
 `<name>` — the plugin namespace no longer resolves — and rebuild the zips with
