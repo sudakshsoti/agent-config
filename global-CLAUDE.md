@@ -70,6 +70,11 @@ locally on the branch until then.
 Never commit directly to a default branch (`main`/`master`). If that's where the
 work is, branch first, then commit.
 
+## Work in progress
+
+Before editing, check the current worktree and the active issue. Do not begin
+a second objective without explicitly parking or finishing the first.
+
 ## Verify instead of recalling
 
 Do not answer from training data about anything that moves: library APIs, model
