@@ -90,6 +90,22 @@ a full suite run.
 **5. Commit when the repository rules say to.** Follow the project's convention.
 Do not batch several completed steps into one commit at the end.
 
+## Checkpoint each slice
+
+A known outcome is often reached in more than one slice: add the field, then
+wire the toggle, then update the caller. Each slice ends at a committed,
+verified state before the next one starts.
+
+- Commit at every green point, not once at the end of the whole task. A slice
+  that is written but not yet committed is still in progress, and stacking the
+  next slice on top of it just relocates the batching step 5 already warns
+  against.
+- Verify the surface that slice actually touched, using step 4's table, before
+  starting the next slice. Re-reading the diff is not verification on any
+  slice, including the last one.
+- A slice that fails verification gets fixed before the next slice starts, not
+  carried forward uncommitted.
+
 ## Ending the session
 
 Small, coherent work stays in the current session. Write a short handoff and
