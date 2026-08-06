@@ -64,13 +64,25 @@ Don't just create an issue. Run the four triage verbs, then file with the full s
    — state the reasoning), **Effort** (T-shirt estimate), Status `Backlog`, and
    `needs-plan`/`planned` if non-trivial. Use `save_issue`.
 
+**Deferred items from a `scope-brief`.** A locked brief's scope table marks each row
+`Now` / `Later` / `Dropped`. File only `Later` rows. Never file a `Dropped` row — that's
+a deliberate rejection, and it stays in the brief with its rationale; filing it anyway
+reverses the decision and is exactly the kind of drift that makes a backlog untrustworthy.
+Batch every `Later` row from one scoping session into **one** Linear issue titled
+`Follow-ups from <project>`, with each row as a checklist line — not one issue per row.
+Give the parent the full field set (`area:`/`type:` labels, Priority, Effort) and link it
+back to the brief file. Split a checklist line into its own issue only later, during
+grooming, and only once it's become a credible standalone candidate.
+
 ## Mode 2 — What next
 
 Recommend, don't dump the list. The operator gives time/energy ("I have an hour", "low
 energy"); you return a **ranked shortlist of 3–5 with one recommended pick and the reason**.
 
 1. Pull candidates: `list_issues` in `Backlog`/`Todo`, **unblocked** (no open blocked-by
-   relation), within the stated Effort ceiling.
+   relation), within the stated Effort ceiling. This explicitly includes open
+   `Follow-ups from <project>` parent issues — surface them as options, not just
+   standalone issues, and offer to promote the picked checklist line to its own issue.
 2. **Rank by value-vs-effort.** Score with **ICE** (Impact × Confidence × Ease) for the
    everyday case; use **WSJF** to float **time-bound / decay** items (cert expiry, security
    patch, lapsing backup) to the top regardless of size. Formulas →
@@ -89,6 +101,9 @@ Keep the backlog lean and honest. Run the full sweep — checklist in
   done should die; the important ones resurface.
 - **Re-score** the top of the backlog with ICE; promote/demote Priority.
 - **Stale sweep** — flag issues untouched **>14 days**: re-prioritize, decompose, or kill.
+- **Follow-up sweep** — open every `Follow-ups from <project>` parent issue explicitly:
+  promote a checklist line to its own issue if it's become a credible standalone
+  candidate, otherwise leave it batched. Close the parent once every line is done.
 - **Blocked audit** — every blocked-by relation must name a real blocker _and_ an unblock
   action, or the item gets de-prioritized.
 - **WIP check** — more than 2 `In Progress`? Stop starting, start finishing.
@@ -123,6 +138,8 @@ gaps first.
 - Don't file an issue missing **both** `area:` and `type:` labels, or without Priority +
   Effort.
 - Don't create a near-duplicate — dedupe first (Mode 1).
+- Don't file a `Dropped` row from a scope-brief's scope table — it stays in the brief
+  with its rationale, not in Linear. Only `Later` rows get filed, batched (Mode 1).
 - Don't promote `Backlog → Todo` past the Definition-of-Ready gate.
 - Don't start a 3rd `In Progress` item — finish one first.
 - Don't file an item in two places or treat anything but Linear as authoritative — there
