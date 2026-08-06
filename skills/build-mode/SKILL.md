@@ -31,6 +31,32 @@ Stay out of it when:
 - something is failing and you do not know why → diagnose before editing
 - the edit is one obvious line → just make it
 
+## Preflight: check for active work
+
+Before the first edit, check what else is already in flight. Gate on evidence
+of *active* work, not on branch age or unmerged-branch status — an unmerged
+branch may be deliberately kept around, already shipped via a squashed PR, or
+just ahead of a stale local base, so an old-or-unmerged signal alone fires
+constantly and gets ignored.
+
+Run `git worktree list --porcelain` and check the Linear issue state for the
+task at hand, then match what you find against this table:
+
+| Signal | Response |
+|---|---|
+| The current worktree is dirty and the ask is a different objective from that work | Stop. Resolve the existing work — finish, park, or explicitly abandon it — before starting the new one |
+| Another linked worktree is dirty | Report it once, then continue |
+| A different Linear issue is already "In Progress" | Ask: finish it, park it, or switch explicitly |
+| A branch is merely unmerged, nothing else fires | Not a signal on its own — do not interrupt |
+| A worktree or branch is old but clean | Report only during grooming, not mid-build |
+
+Overrides are allowed. When a stop or a question gets overridden, record it:
+append one line to `~/.claude/logs/build-mode-gate.log` (create the file and
+its directory if they don't exist) with the timestamp, which signal fired,
+what was chosen, and the override reason in the builder's own words. That
+reason is the only place this is asked, at the moment it matters — do not
+paraphrase it into something tidier.
+
 ## The pass
 
 **1. Inspect before editing.** Read the files you are about to change, and the
