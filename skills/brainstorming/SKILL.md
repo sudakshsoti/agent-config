@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation."
+description: "Use when the outcome isn't chosen yet - the user has a goal, problem, or idea but not a decided approach, and the request is open-ended rather than already-specified. Explores 2-3 candidate designs through dialogue and gets one approved before implementation. Not for scoping or setting boundaries on an outcome already decided - that's scope-brief."
 ---
 
 # Brainstorming Ideas Into Designs
