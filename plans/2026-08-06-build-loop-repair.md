@@ -1,59 +1,49 @@
-# Build Loop Repair Plan
+# Build Loop Repair Plan (v2)
 
 **Date:** 2026-08-06
 **Repo:** `~/dev/agent-config` (branch `dazzling-mellow-drift`)
-**Status:** Proposal, not started. One prerequisite already landed (see "Already done").
+**Status:** Proposal. One prerequisite landed (section 4). v1 received an
+external adversarial review with verdict "fix before shipping"; this version
+incorporates it. Section 7 lists what changed and what I pushed back on.
 
-> **For the reviewing model:** this document is written to be read cold, without
-> repo access. Everything you need is inline. I want an adversarial second
-> opinion, not validation. The specific questions I want attacked are at the
-> bottom, but do not limit yourself to them. If the diagnosis in section 2 is
-> wrong, say so first and ignore the rest of the plan.
+> **For a reviewing model:** written to be read cold, no repo access needed.
+> Section 7 tells you what the previous review already caught, so you can spend
+> your attention elsewhere. Open questions are in section 9.
 
 ---
 
-## 1. Context you need
+## 1. Context
 
-**Who.** A solo builder. Senior UX designer by trade, not a professional
-engineer. Ships personal side projects and homelab tooling almost entirely
-through Claude Code and Codex. Has ADHD, which matters here for one specific
-reason: anything not currently on screen is effectively forgotten, and an idea
-that has no safe place to go gets acted on immediately.
+**Who.** A solo builder. Senior UX designer, not a professional engineer. Ships
+side projects and homelab tooling through Claude Code and Codex. Has ADHD, which
+matters for one reason: anything not on screen is forgotten, and an idea with no
+safe place to go tends to get acted on immediately.
 
 **What this repo is.** A configuration repo for AI coding agents. Its main
-contents are *skills*: directories containing a `SKILL.md`, which is markdown
-with YAML frontmatter holding a `name` and a `description`. The agent reads
-every installed skill's `description` and decides, per turn, which skill bodies
-to load into its context. A skill is therefore two things at once: a piece of
-instruction, and a routing target competing with every other skill for the same
-trigger.
+contents are *skills*: directories holding a `SKILL.md` of markdown with YAML
+frontmatter (`name`, `description`). The agent reads every installed skill's
+description each turn and decides which bodies to load. A skill is therefore both
+an instruction and a routing target competing for the same triggers.
 
-**How they get installed.** `install.sh` symlinks each `skills/<name>/` to both
-`~/.claude/skills/<name>` and `~/.agents/skills/<name>`. The repo is the live
-source of truth, so editing a `SKILL.md` takes effect immediately on both
-surfaces without reinstalling.
+**Install.** `install.sh` symlinks `skills/<name>/` into `~/.claude/skills/` and
+`~/.agents/skills/`. The repo is the live source, so editing a `SKILL.md` takes
+effect immediately on both surfaces. Consequence for any retirement: moving a
+skill directory leaves a dangling symlink until `install.sh` runs again, and
+edits made inside a git worktree are not live because the symlinks resolve to
+the main checkout.
 
-**Two surfaces, asymmetric controls.**
+**Two surfaces, asymmetric controls.** Claude Code supports a `skillOverrides`
+map in `settings.json` to switch a skill off. Codex has no per-skill disable,
+caps total skill content at 2% of context, and truncates all descriptions once
+that fills. An unused skill is therefore not free on Codex. The repo's real
+retirement mechanism is moving a directory to `skills/_archive/`, which is not
+installed but stays in git.
 
-- Claude Code reads `~/.claude/skills` and supports a `skillOverrides` map in
-  `settings.json` that can switch an individual skill off.
-- Codex reads `~/.agents/skills` and has **no per-skill disable**. It also caps
-  total skill content at 2% of its context window and starts truncating every
-  skill's description once that budget fills. So an unused skill is not free on
-  Codex: it degrades discovery for the whole set.
-- Consequence, and this corrects something I said earlier in conversation:
-  `skillOverrides` alone is not enough to retire a skill. It fixes Claude and
-  does nothing for Codex. The repo's actual retirement mechanism is moving the
-  directory to `skills/_archive/`, which is deliberately not installed but stays
-  recoverable in git.
+**Hygiene.** A pre-commit hook validates frontmatter and checks `dist/<name>.zip`
+freshness. Plans live in a tracked `plans/` at the repo root.
 
-**Repo hygiene constraints.** A pre-commit hook validates skill frontmatter and
-checks that `dist/<name>.zip` matches each skill. Retiring a skill means
-removing its zip. Plans live in a tracked `plans/` directory at the repo root.
-
-**Current inventory.** 39 installed skills. 13 of them are vendored from the
-"superpowers" skill collection, marked `(V)` below, and were adopted wholesale
-rather than written for this setup.
+**Inventory.** 39 installed skills, 13 vendored from the "superpowers"
+collection and adopted wholesale rather than written for this setup.
 
 ---
 
@@ -64,40 +54,59 @@ In the builder's own words:
 > "I'm too confused and run it too many directions then I find myself building
 > 5 features at once which all break."
 
-They believed the fix was a PRD-writing skill: interview them up front, produce
-a locked scope document, and thereby prevent the spiral.
+They believed a PRD-writing skill was the fix.
 
-**My diagnosis is that this is three separate failures, and a PRD addresses
-only the first.**
+### 2.1 Two distinct failures, not one
 
-1. **Too big.** A project is started without a defined edge, so a two-day task
-   becomes a twenty-day one. A scoping document genuinely fixes this.
-2. **Too many.** Five things in flight simultaneously. A scoping document does
-   nothing here. You can hold five perfectly scoped documents and still be
-   editing all five projects on the same afternoon.
-3. **Everything breaks at once.** This is a symptom of #2, not an independent
-   coding problem. Five interleaved, uncommitted changes in one working tree
-   mean a failure has five candidate causes and no known-good state to revert
-   to. Each change alone would be a ten-minute debug. Together the debugging
-   cost is unbounded, so the builder bounces off and starts a sixth thing.
+**Failure A: concurrency.** Too many active objectives at once.
 
-**Why #2 happens, specifically.** Not weak discipline. An idea that arrives
-mid-build has nowhere to go except the working tree. There is a Linear backlog
-and a skill that manages it, but nothing connects that backlog to the *moment of
-temptation*. Writing an idea down feels like losing it, so it gets built
-instead. Under ADHD this is not a preference, it is close to a reflex.
+**Failure B: isolation.** Large uncommitted changes, no checkpoints, no
+verification between slices, unclear test boundaries.
 
-The load-bearing claim of this whole plan is therefore: **deferral only works if
-deferral is visibly safe.** Cutting scope has to produce a filed, numbered,
-returning artefact, or the builder will not cut.
+These are independent. Five projects in five clean worktrees, each committed at
+green, do not produce ambiguous breakage. One project with five interleaved
+uncommitted changes does. A fix that only limits concurrency can be fully
+complied with while still accumulating one large inseparable change, and the
+"everything breaks" symptom survives.
+
+v1 of this plan collapsed B into A and treated it as a downstream symptom. That
+was wrong. Both need a mechanism.
+
+**Failure C: scope size.** A project started without a defined edge, so a
+two-day task becomes twenty. This is the one a scoping document actually fixes,
+and it is the least of the three by cost.
+
+### 2.2 The cause of task switching is a hypothesis, not a finding
+
+The working hypothesis is: *an idea arriving mid-build has nowhere safe to go, so
+it gets built rather than written down, because writing it down feels like
+losing it.*
+
+Plausible, unproven, and not the only candidate. Alternatives:
+
+- boredom once implementation turns tedious
+- uncertainty about the next step
+- escape from a failing test or a hard decision
+- novelty seeking
+- tasks too large to produce frequent completion signals
+- the agent itself proposing adjacent improvements mid-build
+
+A backlog handoff helps the first explanation and nothing else. If the real
+driver is escape-from-difficulty, capture solves nothing and the WIP gate
+becomes an obstacle to route around.
+
+**This plan therefore ships an instrumented experiment, not a settled fix.** The
+instrumentation is described in section 6 and is designed to require no
+journaling, because a two-week manual diary is exactly the kind of high-friction
+ritual this plan exists to avoid.
 
 ---
 
 ## 3. Current state of the build loop
 
-| Stage | Skills that currently claim it |
+| Stage | Skills claiming it |
 |---|---|
-| Capture an idea | `homelab-backlog` (writes to Linear) |
+| Capture an idea | `homelab-backlog` (Linear) |
 | Pick what to work on | `homelab-backlog` |
 | Decide what the thing is | `brainstorming` (V) |
 | Break into steps | `writing-plans` (V) |
@@ -107,198 +116,313 @@ returning artefact, or the builder will not cut.
 | Ship | `commit`, `push`, `pr`, `merge`, `finishing-a-development-branch` (V) |
 | Return later | `orient`, `handoff`, `explain-this` |
 
-Three structural problems in that table:
+`(V)` = vendored.
 
-**A. Nothing anywhere enforces a work-in-progress limit.** No stage checks
-whether unfinished work already exists before starting new work. This is the
-direct cause of failure #2 and it is absent from every skill.
+Two structural gaps, both absent from every skill above:
 
-**B. Capture and scoping are disconnected.** No mechanism turns "we decided not
-to do this" into a backlog item. So deferral equals deletion, and the builder
-avoids deferring.
+- **No work-in-progress limit.** Nothing checks whether unfinished work exists
+  before starting new work.
+- **No connection between scoping and capture.** Nothing turns "we decided not
+  to do this" into a backlog item, so deferral equals deletion.
 
-**C. Several stages have multiple owners, so routing is nondeterministic.** The
-worst case is the "decide what the thing is" stage. `brainstorming` opens with
-"You MUST use this before any creative work" and contains a hard gate blocking
-all implementation until a design is verbally approved. It produces no saved
-artefact. Any new scoping skill lands in exactly this trigger window and loses
-to the stronger imperative, or fights it. Similarly, the build stage has six
-claimants and the verification stage has six.
+A third observation, **held as unproven**: several stages have multiple
+claimants, so routing may be nondeterministic. Trigger overlap on paper is not
+evidence of an actual routing failure. See section 5.7.
 
 ---
 
 ## 4. Already done
 
-Commit `4771b20` deleted the `discovery-first` skill. It existed to stop Codex
-jumping straight to a solution, and it overlapped the scoping stage this plan
-introduces. References in `build-mode` and the skills README were removed.
-
-Note: it remains live on both surfaces until this branch merges into the main
-checkout and `install.sh` is re-run, because the symlinks resolve to
-`~/dev/agent-config`, not to this worktree.
+Commit `4771b20` deleted `discovery-first`. It existed to stop Codex jumping
+straight to solutions and overlapped the scoping stage introduced here.
+References in `build-mode` and the skills README were removed. It stays live on
+both surfaces until this branch merges into the main checkout and `install.sh`
+re-runs.
 
 ---
 
 ## 5. Proposal
 
-Five changes, in priority order. Changes 1 and 2 are mechanisms and are the
-point of the plan. Changes 3 to 5 are consolidation and only buy predictability.
+Seven changes. 5.1 to 5.5 are the experiment. 5.6 is required plumbing. 5.7 is
+the one place I did not accept the review in full.
 
-### Change 1: a work-in-progress gate in `build-mode`
+### 5.1 A global WIP invariant
 
-**The fix for failure #2.** Before `build-mode` makes any edit, it checks for
-existing unfinished work and refuses to proceed silently.
+`build-mode` is bypassable: work can start without invoking any skill. So the
+invariant goes into the global agent instructions where it is always loaded, and
+the detailed procedure stays in `build-mode`.
 
-Proposed check:
+> Before editing, check the current worktree and the active issue. Do not begin
+> a second objective without explicitly parking or finishing the first.
 
-- `git status --porcelain` for uncommitted changes unrelated to the current ask
-- unmerged local feature branches, and how old each is
+Nothing short of a git hook or wrapper is genuinely unbypassable. This is the
+most reliable placement available without one.
 
-If either is non-empty, `build-mode` stops and presents what is already open,
-then asks for one of three answers: finish that first, park it (commit as
-work-in-progress and file a Linear issue to resume), or proceed anyway with a
-stated reason. It does not choose on the builder's behalf.
+**Effort:** 5 minutes.
 
-**Effort:** about 15 minutes. It is roughly 20 lines added to an existing skill.
+### 5.2 A `build-mode` preflight on the right signals
 
-**Why it goes in `build-mode` and not the scoping skill:** the scoping skill is
-not loaded at the moment the fifth feature starts. `build-mode` is, by
-definition, because that is the skill that starts work.
+v1 proposed gating on unmerged local branches and branch age. That signal is
+wrong. An unmerged branch may be deliberately retained, abandoned, already
+merged via a squashed PR, checked out elsewhere, or merely ahead of a stale local
+base. A useful old branch and a dead one look identical.
 
-### Change 2: a scoping skill, `prd-builder`, that files what it cuts
+Gate on evidence of *active* work instead, via `git worktree list --porcelain`
+plus Linear state:
 
-**The fix for failures #1 and, indirectly, #2.** A skill that interviews before
-a build, produces a short saved document, and files every cut item into Linear
-at lock time.
+| Signal | Response |
+|---|---|
+| Current worktree dirty, and the ask is a different objective | Stop and resolve |
+| Another linked worktree is dirty | Report once, allow continuation |
+| A different Linear issue is already `In Progress` | Ask: finish, park, or switch explicitly |
+| Branch merely unmerged | Do not interrupt |
+| Old but clean worktree or branch | Report only during grooming |
 
-A draft of this skill already exists and was reviewed adversarially. The
-findings that shaped the spec below: the original duplicated four existing
-skills, hardcoded the builder's name and job title into the body, put its output
-in a third competing directory, summarised its own workflow in the description
-(which the repo's own skill-authoring guidance identifies as a trap that makes
-agents skip the body), ran an unbounded interview, and placed its anti-scope-creep
-step in a session that will have been cleared before the build begins.
+Overrides are allowed and **recorded** (see 6.1). If most sessions override, the
+threshold is wrong and the gate gets retuned or removed.
 
-Revised spec:
+**Effort:** 20 minutes.
 
-- **Description:** when-to-use only, no workflow summary, under 40 words. Codex
-  truncates long descriptions and degrades the whole catalogue.
-- **Step 0.** Ask whether something already does this, and search before
-  building. The most expensive scope failure is building an existing thing.
-- **Step 1.** Interview, two to three questions per turn, **hard cap of two
-  rounds**. Then write the draft with unresolved points marked as assumptions
-  and let the builder correct the document. Correcting a wrong draft costs far
-  less activation energy than answering open questions, which matters here more
-  than document quality.
+### 5.3 Checkpoint and verification expectations
+
+The mechanism for failure B, missing from v1 entirely.
+
+Added to `build-mode`: each slice ends at a committed, verified state before the
+next begins. Concretely, commit at every green point rather than batching a
+multi-step change into one commit at the end, and run the actual verification
+for the surface being changed before moving on, not a reading of the diff. This
+already exists as a stated preference in the global instructions but has no
+enforcement point in any skill.
+
+**Effort:** 15 minutes.
+
+### 5.4 A tiered `scope-brief` skill
+
+Renamed from `prd-builder`. The full apparatus (goals, non-goals, success,
+definition of done, constraints, tripwire, amendments, open questions) is
+right for a multi-session project and absurd for a small known change. A skill
+too heavy to invoke gets skipped, which is the same as not existing.
+
+**Activation criteria.** Use the brief when any of these hold:
+
+- expected to take more than one session
+- the outcome is ambiguous
+- it touches three or more subsystems
+- there is meaningful adjacent-feature risk
+- the builder asks for scoping
+
+Otherwise go straight to `build-mode`.
+
+**Workflow.**
+
+- **Step 0.** Search for an existing solution first, then report. Do not ask the
+  builder whether something already exists; they would not be scoping it if they
+  knew.
+- **Step 1.** Interview, two to three questions per turn, **two rounds by
+  default**, extendable if the answers are genuinely opening up. Then write the
+  draft with unresolved points marked as assumptions and let the builder correct
+  the document. Correcting a wrong draft costs far less activation energy than
+  answering open questions.
 - **Step 2.** Non-goals are not asked open-endedly. The skill proposes three
-  plausible adjacent features itself and forces each into in-scope, later, or
-  dropped. People cannot reliably enumerate their own non-goals.
-- **Step 3.** Write to `plans/YYYY-MM-DD-<slug>-prd.md`. Not `docs/prd/`, which
-  would be a third convention alongside `plans/` and the vendored
-  `docs/superpowers/plans/`.
-- **Step 4.** On lock, every "later" and "dropped" row is filed into Linear
-  through `homelab-backlog`. **This step is the whole point.** Without it the
-  cuts are text in a file nobody reopens.
-- **Step 5.** Hand off to `writing-plans` for the phase breakdown and stop.
-  Do not reimplement planning.
+  plausible adjacent features itself and forces each to a status. People cannot
+  reliably enumerate their own non-goals.
+- **Step 3.** Write to `plans/YYYY-MM-DD-<slug>-brief.md`.
+- **Step 4.** Lock (defined below), then batch-file the deferred items (5.5).
+- **Step 5.** Hand off to `writing-plans` and stop. Do not reimplement planning.
 
-Document template sections: Problem, Goals, Non-goals, a scope table with
-in-v1 / later / dropped columns, Definition of done (checkable statements only),
-Success (distinct from done), Constraints including a stated time budget, a
-**tripwire** ("if this is not done after N sessions, stop and re-scope rather
-than push through"), an **Amendments log** (date, what changed, why), and Open
-questions.
+**Scope table.** One status column, not three boolean ones, and stable IDs so
+amendments and plan files can cite `S-3` or `L-2`:
 
-The amendments log matters more than it looks. Three individually reasonable
-amendments are what a twenty-day spiral is actually made of, and without a log
-that pattern is invisible.
+| ID | Item | Status |
+|---|---|---|
+| S-1 | ... | Now |
+| S-2 | ... | Later |
+| S-3 | ... | Dropped (reason) |
 
-The plan file that `writing-plans` produces gets a `Source PRD: <path>` header
-plus a standing instruction to stop and ask when work appears that is not in
-scope. The scope guard has to live in the execution artefact, because the
-scoping session will have been cleared by then.
+**Description field.** When-to-use only, no workflow summary, under 40 words.
+The repo's own skill-authoring guidance documents that a description summarising
+the workflow becomes a shortcut agents take instead of reading the body. Codex
+also truncates long descriptions, degrading the whole catalogue.
 
-**Effort:** about 30 minutes.
+**What "locked" means operationally.** A heading does not create a lock. Locked
+means: `Status: Locked <date>` in the file, the file committed, and the plan file
+produced by `writing-plans` carrying `Source brief: <path>` in its header plus a
+standing instruction to stop and ask when out-of-scope work appears. Amending
+requires a new row in the amendments table and a new commit. That gives a
+checkable definition and a visible drift record, because three individually
+reasonable amendments are what a twenty-day spiral is made of.
 
-### Change 3: retire `brainstorming`
+**Effort:** 30 minutes.
 
-It occupies the same trigger window as `prd-builder`, asserts a stronger
-imperative, and saves nothing. Two owners of one stage is worse than either
-owner alone. Move to `skills/_archive/`, and add a `skillOverrides` entry so
-Claude stops loading it immediately.
+### 5.5 Capture only what was deferred, batched, with a retrieval path
 
-### Change 4: thin the build and verification stages
+Three corrections to v1's design:
 
-Retire `executing-plans`, `subagent-driven-development`,
-`dispatching-parallel-agents`, `requesting-code-review`,
-`receiving-code-review`, and `finishing-a-development-branch`. All are vendored,
-all duplicate a skill that is kept, and all are recoverable from git and
-`dist/`.
+**File `Later` only, never `Dropped`.** Dropped means deliberately rejected.
+Filing rejections reverses the decision and gradually makes the backlog
+untrustworthy. Rejections stay in the brief with their rationale, which is where
+they are useful.
 
-Kept at build: `build-mode` for a single change, `execute-plan` for a checklist,
-`using-git-worktrees` for isolation (noting that worktrees also make it *easier*
-to run several features at once, which is the disease).
+**Batch into one parent issue.** Four cuts must not cost four round trips.
+Create one Linear issue, `Follow-ups from <project>`, with a checklist. Split
+individual items out during grooming only when one becomes a credible candidate.
 
-Kept at verification: `verification-before-completion`, `systematic-debugging`,
-`test-driven-development` for logic, `maintainability-review` for periodic
-audits.
+**Guarantee resurfacing.** Capture without retrieval is a graveyard, not a
+promise, and the builder will learn that within a month. `homelab-backlog`
+already runs weekly grooming and a "what should I work on" query; both must
+include follow-up parent issues explicitly.
 
-### Change 5: correct the plan-path convention
+**Effort:** 20 minutes, mostly in `homelab-backlog`.
+
+### 5.6 Correct the plan path
 
 `writing-plans` writes to `docs/superpowers/plans/`. The repo convention and the
-builder's global instructions say `plans/` at the repo root. One-line edit.
+global instructions say `plans/` at the repo root. Folded in here because the
+`scope-brief` handoff depends on it.
 
-**Net inventory:** 39 skills to 33. Seven retired, one added.
+**Effort:** 5 minutes.
 
----
+### 5.7 Narrow `brainstorming`'s description. Do not retire anything.
 
-## 6. Explicit non-goals of this plan
+v1 proposed retiring seven skills. The review's objection is correct: trigger
+overlap on paper is not evidence of a routing failure, and several of the pairs
+I called duplicates are plausibly distinct (`requesting-` and
+`receiving-code-review` are opposite sides; `finishing-a-development-branch` is
+an integration decision, not implementation; `execute-plan` and
+`subagent-driven-development` may differ in review rigour). The retirement
+campaign is deferred until there is observed evidence, and any retirement will
+need a named replacement plus a check for dangling symlinks.
 
-- Not rewriting the vendored superpowers skills that are kept.
-- Not introducing hooks or automation that run outside the agent.
-- Not changing anything about the craft skills (frontend, motion, UX writing,
-  design strategy) or the homelab operations skills.
-- Not adding a project-management layer beyond the Linear backlog that already
-  exists.
+**The one exception.** `brainstorming` opens with "You MUST use this before any
+creative work" and gates all implementation behind a verbally approved design.
+`scope-brief` fires on the same trigger with a weaker imperative and will lose,
+which is not a speculative collision. Rather than archive it, narrow its
+description now so the two do not compete: `brainstorming` for exploring
+possible designs, `scope-brief` for committing to one outcome. That is the
+review's own "narrow conflicting descriptions" remedy, applied to the single
+case where the collision is certain rather than theoretical.
 
----
+**Effort:** 10 minutes.
 
-## 7. Risks and things that could be wrong
-
-1. **The WIP gate could become alarm fatigue.** This repo is worked on in git
-   worktrees, so unmerged branches are normal rather than exceptional. A gate
-   that fires on every session gets dismissed reflexively within a week, at
-   which point it is worse than nothing because it creates a false sense of
-   protection. Threshold design is the open problem: which branches count, how
-   old, and does an unrelated dirty file really block a start.
-2. **The Linear filing step adds friction at the exact moment scope is being
-   cut.** If filing four deferred items takes four round trips, the builder will
-   stop locking documents at all.
-3. **Retiring six vendored skills may remove capability that is not currently
-   used but would be valuable later**, particularly the multi-agent execution
-   path. Mitigated by archiving rather than deleting.
-4. **The diagnosis could be wrong.** If the real cause of five-things-at-once is
-   boredom with the current task rather than fear of losing an idea, then the
-   Linear wiring solves nothing and the WIP gate becomes something to route
-   around. I do not have evidence to separate these two explanations.
-5. **This plan is itself scope creep.** It proposes touching nine skills to fix
-   a problem where two changes carry all the value. A reviewer should consider
-   whether changes 3 to 5 should be dropped or deferred.
+**Net inventory:** 39 skills to 40. One added, none retired in this pass.
 
 ---
 
-## 8. Questions for the reviewing model
+## 6. Instrumentation and falsification
 
-1. Is the three-failure decomposition in section 2 right? Is there a simpler
-   explanation for "five features at once" that this plan misses entirely?
-2. Is the WIP gate placed correctly in `build-mode`, given that the builder can
-   always start work without invoking any skill at all? Is there a placement
-   that cannot be bypassed, short of a git hook?
-3. Risk 1 is the one I am least sure about. What threshold makes a WIP gate
-   survive daily use without being ignored?
-4. Is "file every cut item into the backlog" actually sufficient to make
-   deferral feel safe, or is it a rationalisation? What would falsify it?
-5. Changes 3 to 5 remove seven skills. Is consolidating routing worth that, or
-   is the honest answer to ship changes 1 and 2 and leave the rest alone?
-6. Is there a cheaper intervention than all of this that would move the same
-   needle? Assume the builder will adopt exactly one habit, not five.
+The hypothesis in 2.2 needs testing, but a manual two-week diary will not be
+kept. Everything below is a by-product of the mechanisms themselves.
+
+### 6.1 What gets recorded for free
+
+- **The gate log.** Each preflight appends one line to a local log: what fired,
+  what was chosen (finish / park / override), and the override reason. This
+  yields gate frequency and override rate directly.
+- **The override reason is the experiment.** It is the only place the builder is
+  asked *why* they are switching, at the exact moment they switch. Fear of
+  losing an idea, boredom, and escape-from-failure look different in that field.
+  That field, not a diary, distinguishes the competing explanations in 2.2.
+- **Concurrency.** Count of dirty worktrees, sampled in the same log line.
+- **Capture volume.** Checklist length on `Follow-ups from <project>` issues.
+- **Retrieval rate.** How many follow-up items get promoted during grooming.
+  Linear timestamps this already.
+- **Scope drift.** Rows in each brief's amendments table.
+
+### 6.2 Evidence that would falsify this plan
+
+- Ideas get captured reliably and switching continues anyway. The hypothesis in
+  2.2 is wrong; look at 5.3 and task size instead.
+- Most switches follow an error or a hard implementation step. The driver is
+  escape, not capture. Smaller slices and better failure recovery matter more
+  than any of this.
+- Follow-up items are never promoted. Capture is a graveyard; stop filing.
+- The gate is overridden in most sessions. The threshold is wrong, or the
+  invariant does not match how the builder actually works.
+- The brief is skipped. Activation cost is still too high even tiered; cut it
+  further or drop it.
+
+Review after two weeks of real use, not on a calendar date.
+
+---
+
+## 7. What changed from v1, and what I did not accept
+
+**Accepted in full:**
+
+1. Isolation split out as a separate failure with its own mechanism (5.3). This
+   was the strongest catch; v1 treated it as a symptom.
+2. Task-switching cause demoted from finding to hypothesis, with alternatives
+   named (2.2) and an instrumented test (6).
+3. Branch-age and unmerged-branch signals replaced with dirty-worktree and
+   active-issue signals (5.2). v1's signal would have fired constantly in a repo
+   that uses worktrees routinely, and alarm fatigue would have killed it.
+4. Overrides recorded rather than merely permitted (5.2, 6.1).
+5. Invariant moved to global instructions since `build-mode` is bypassable (5.1).
+6. `Dropped` items no longer filed (5.5).
+7. Deferred items batched into one parent issue (5.5).
+8. Explicit retrieval path required (5.5).
+9. Tiered activation criteria; the brief is not for every change (5.4).
+10. Renamed `prd-builder` to `scope-brief`.
+11. Step 0 searches instead of asking (5.4).
+12. Two interview rounds as default, not hard cap (5.4).
+13. One status column with stable IDs instead of three columns (5.4).
+14. Operational definition of "locked" (5.4).
+15. Retirement campaign deferred pending evidence (5.7).
+16. Dangling-symlink check noted as a precondition of any future archiving (1, 5.7).
+
+**Pushed back on, with reasons:**
+
+1. **The two-week measurement protocol.** The review proposes recording seven
+   metrics for two weeks. For this builder that is precisely the high-friction
+   ritual the review criticises in its own section 4, and it will not be kept.
+   Replaced with automatic instrumentation (6.1), where the gate's override
+   reason field doubles as the instrument for the competing explanations. Same
+   evidence, no diary.
+2. **"Do not touch the other skills at all."** Accepted for all but one.
+   `brainstorming`'s collision with `scope-brief` is certain, not hypothetical,
+   because it asserts a MUST gate over the identical trigger and saves no
+   artefact. Narrowing its description is the review's own recommended remedy;
+   waiting for the collision to be observed just means the first few briefs
+   never get written.
+
+---
+
+## 8. Non-goals
+
+- Not rewriting the vendored skills that are kept.
+- Not retiring any skill in this pass.
+- Not introducing hooks, wrappers, or automation running outside the agent,
+  while acknowledging that only those would make the invariant unbypassable.
+- Not touching craft skills (frontend, motion, UX writing, design strategy) or
+  homelab operations skills.
+- Not adding a project-management layer beyond the existing Linear backlog.
+
+---
+
+## 9. Open questions
+
+1. What dirty-worktree threshold survives daily use without being reflexively
+   dismissed? 5.2 is a guess.
+2. Should the gate fire on the *first* edit of a session or on the first edit
+   that belongs to a different objective than the last one? The second is more
+   correct and harder to detect reliably.
+3. If the override-reason field turns out to be answered carelessly, the
+   experiment has no instrument. Is there a better passive signal for *why* a
+   switch happened?
+4. Does 5.3 belong in `build-mode` at all, given that
+   `verification-before-completion` already exists and is not being invoked? The
+   real problem may be that it never routes, not that the expectation is absent.
+
+---
+
+## Implementation order
+
+1. Global WIP invariant (5.1)
+2. `build-mode` preflight on worktree and issue signals (5.2)
+3. Checkpoint and verification expectations (5.3)
+4. `scope-brief` skill, tiered (5.4)
+5. Batched `Later`-only capture plus retrieval path (5.5)
+6. Plan-path correction (5.6)
+7. Narrow `brainstorming`'s description (5.7)
+8. Use for two weeks, then read the gate log
+9. Revisit retirement only against observed routing failures
