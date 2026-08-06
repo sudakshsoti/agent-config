@@ -1,7 +1,7 @@
 ---
 name: orient
 description: |
-  Write one self-contained HTML guide to a repo — what it is, what its author decided and why, and where the sprawl is — in plain English, two layers deep, every claim cited to file:line. Built for someone returning to their own vibe-coded repo after weeks away. Use when the user says "I've lost track of this repo", "explain my own codebase", "what is all this", "I vibe-coded this and can't remember how it fits together", "map this repo", "coming back to a project after weeks away", or types /orient. It describes, it never prescribes: for debt and refactor advice use maintainability-review (audit/triage); for teaching a concept use explain-this. Writes orient/index.html and orient/payload.json into the target repo, and commits nothing.
+  Write one self-contained HTML guide to a repo — what it is, what its author decided and why, and where the sprawl is — in plain English, two layers deep, every claim cited to file:line. Built for someone returning to their own vibe-coded repo after weeks away. Use when the user says "I've lost track of this repo", "explain my own codebase", "what is all this", "I vibe-coded this and can't remember how it fits together", "map this repo", "coming back to a project after weeks away", or types /orient. It describes, it never prescribes: for debt and refactor advice use maintainability-review (audit/triage). Writes orient/index.html and orient/payload.json into the target repo, and commits nothing.
 user-invocable: true
 ---
 
@@ -10,7 +10,7 @@ user-invocable: true
 It does ONE thing: read a repo the way its own author would have to, and emit one
 self-contained HTML page that explains what it is, what was decided and why, and
 where the sprawl is. It does not review the code (`maintainability-review`), and
-it does not teach concepts (`explain-this`).
+it does not teach concepts.
 
 The reader is the author, weeks later, mid-panic. Three questions in order: *what
 is all this?*, *what did I decide and why?*, *where is the sprawl?* Every answer
@@ -176,7 +176,7 @@ report:
 - Real debt, over-engineering, per-file churn, "should this be refactored" →
   `maintainability-review` (`audit` for a whole-repo health check, `triage` for a
   repo untouched for weeks).
-- "What does this concept mean" → `explain-this`.
+- "What does this concept mean" → just ask; it is outside this skill's job.
 
 ## Invocation Variants
 

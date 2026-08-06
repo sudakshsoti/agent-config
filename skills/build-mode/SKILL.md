@@ -7,7 +7,7 @@ description: >-
   this up", "ship it"), or types /build-mode. Bounds the scope, forces
   verification of actual behaviour for UI, config, deployment and automation
   work, and ends the session cleanly when the objective drifts. Skip it when the
-  request is vague or exploratory (use discovery-first), when something is
+  request is vague or exploratory (shape the scope first), when something is
   broken and the cause is unknown (diagnose first), or for a one-line edit.
 user-invocable: true
 ---
@@ -17,8 +17,8 @@ user-invocable: true
 The outcome is known. Your job is to reach it in the smallest complete change,
 verify it against reality, and stop.
 
-This is the counterpart to `discovery-first`. That skill runs when the user does
-not yet know what they want. This one runs when they do.
+This is the second half of the loop. Scoping runs when the user does not yet
+know what they want. This one runs when they do.
 
 ## Recognise the trigger
 
@@ -27,9 +27,35 @@ Enter build mode when the request names the change: "add a settings toggle",
 
 Stay out of it when:
 
-- the request is a feeling, not a change → `discovery-first`
+- the request is a feeling, not a change → scope it before building
 - something is failing and you do not know why → diagnose before editing
 - the edit is one obvious line → just make it
+
+## Preflight: check for active work
+
+Before the first edit, check what else is already in flight. Gate on evidence
+of *active* work, not on branch age or unmerged-branch status — an unmerged
+branch may be deliberately kept around, already shipped via a squashed PR, or
+just ahead of a stale local base, so an old-or-unmerged signal alone fires
+constantly and gets ignored.
+
+Run `git worktree list --porcelain` and check the Linear issue state for the
+task at hand, then match what you find against this table:
+
+| Signal | Response |
+|---|---|
+| The current worktree is dirty and the ask is a different objective from that work | Stop. Resolve the existing work — finish, park, or explicitly abandon it — before starting the new one |
+| Another linked worktree is dirty | Report it once, then continue |
+| A different Linear issue is already "In Progress" | Ask: finish it, park it, or switch explicitly |
+| A branch is merely unmerged, nothing else fires | Not a signal on its own — do not interrupt |
+| A worktree or branch is old but clean | Report only during grooming, not mid-build |
+
+Overrides are allowed. When a stop or a question gets overridden, record it:
+append one line to `~/.claude/logs/build-mode-gate.log` (create the file and
+its directory if they don't exist) with the timestamp, which signal fired,
+what was chosen, and the override reason in the builder's own words. That
+reason is the only place this is asked, at the moment it matters — do not
+paraphrase it into something tidier.
 
 ## The pass
 
@@ -63,6 +89,22 @@ a full suite run.
 
 **5. Commit when the repository rules say to.** Follow the project's convention.
 Do not batch several completed steps into one commit at the end.
+
+## Checkpoint each slice
+
+A known outcome is often reached in more than one slice: add the field, then
+wire the toggle, then update the caller. Each slice ends at a committed,
+verified state before the next one starts.
+
+- Commit at every green point, not once at the end of the whole task. A slice
+  that is written but not yet committed is still in progress, and stacking the
+  next slice on top of it just relocates the batching step 5 already warns
+  against.
+- Verify the surface that slice actually touched, using step 4's table, before
+  starting the next slice. Re-reading the diff is not verification on any
+  slice, including the last one.
+- A slice that fails verification gets fixed before the next slice starts, not
+  carried forward uncommitted.
 
 ## Ending the session
 

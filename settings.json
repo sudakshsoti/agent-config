@@ -78,7 +78,16 @@
     "firecrawl-workflows": "off",
     "clinical-reasoning": "off",
     "torbox-ops": "off",
-    "homelab-triage": "off"
+    "homelab-triage": "off",
+    "executing-plans": "off",
+    "subagent-driven-development": "off",
+    "dispatching-parallel-agents": "off",
+    "test-driven-development": "off",
+    "verification-before-completion": "off",
+    "requesting-code-review": "off",
+    "receiving-code-review": "off",
+    "finishing-a-development-branch": "off",
+    "explain-this": "off"
   },
   "hooks": {
     "PostToolUse": [

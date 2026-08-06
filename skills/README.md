@@ -43,16 +43,17 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-The 26 skills below are the installed set. Anything under `skills/_archive/` is
-kept for reference only and is deliberately not installed — see
-[`_archive/README.md`](_archive/README.md).
+The 25 skills below are the ones worth reaching for by name. Thirty-one are
+installed in all; the six omitted here (`brainstorming`, `build-mode`,
+`systematic-debugging`, `using-git-worktrees`, `writing-plans`,
+`writing-skills`) route on their own triggers rather than being picked from a
+list. Anything under `skills/_archive/` is kept for reference only and is
+deliberately not installed — see [`_archive/README.md`](_archive/README.md).
 
 - `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
 - `frontend-craft` — Visual direction for new UI, plus typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
 - `design-foil` — Industry-agnostic strategy + UX advisor: brainstorm, critique, strategy docs, teardowns.
-- `discovery-first` — Light discovery pass for vague/subjective/exploratory requests: frame the problem, name unknowns, recommend a direction, then implement. `/discovery-first`.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
-- `explain-this` — Explain the plan or the finished work in plain English, then teach the one concept behind it. `/explain-this`.
 - `find-skills` — Discover and install agent skills when asked "is there a skill for X".
 - `handoff` — Structured session-handoff docs for continuity across sessions.
 - `homelab-backlog` — Run the homelab/finance backlog in Linear (team OKLCH): capture, triage, grooming, acceptance criteria.
@@ -71,13 +72,14 @@ kept for reference only and is deliberately not installed — see
 - `prose-editor` — Critique + rewrite personal essays to a high editorial bar.
 - `prototype` — Build several genuinely different versions of a UI piece behind a visual picker. `/prototype`.
 - `push` — Safe push — sets upstream, shows outgoing commits, `--force-with-lease`, warns on main. `/push`.
+- `scope-brief` — Tiered scoping document for multi-session or ambiguous work: interview, forced non-goals, a locked scope table, handoff to `writing-plans`. `/scope-brief`.
 - `self-review` — Self-review the plan you just proposed via the plan-critic subagent, then revise it. `/self-review`.
 - `ux-writing` — User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.
 
 The eight frontend/design skills are `frontend-craft`, `motion-craft`, `motion-review`,
 `design-foil`, `prototype`, `ux-writing`, `pick-ui-library`, and
-`maintainability-review`. `html-doc` and `discovery-first` remain installed as adjacent
-document and process skills, outside that eight-skill count.
+`maintainability-review`. `html-doc` remains installed as an adjacent document
+skill, outside that eight-skill count.
 
 ## Installing per surface
 

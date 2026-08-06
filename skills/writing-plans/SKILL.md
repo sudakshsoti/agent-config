@@ -15,7 +15,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Context:** If working in an isolated worktree, it should have been created via the `using-git-worktrees` skill at execution time.
 
-**Save plans to:** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
+**Save plans to:** `plans/YYYY-MM-DD-<feature-name>.md` (repo root)
 - (User preferences for plan location override this default)
 
 ## Scope Check
@@ -58,7 +58,7 @@ independently testable deliverable.
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use subagent-driven-development (recommended) or executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use execute-plan to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** [One sentence describing what this builds]
 
@@ -151,18 +151,18 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 
 After saving the plan, offer execution choice:
 
-**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Two execution options:**
+**"Plan complete and saved to `plans/<filename>.md`. Two execution options:**
 
-**1. Subagent-Driven (recommended)** - I dispatch a fresh subagent per task, review between tasks, fast iteration
+**1. Hands-off (recommended)** - I run the plan item-by-item, a fresh subagent per item, verified and committed after each
 
-**2. Inline Execution** - Execute tasks in this session using executing-plans, batch execution with checkpoints
+**2. Inline** - We work through it together in this session, checkpointing as we go
 
 **Which approach?"**
 
-**If Subagent-Driven chosen:**
-- **REQUIRED SUB-SKILL:** Use subagent-driven-development
-- Fresh subagent per task + two-stage review
+**If hands-off chosen:**
+- **REQUIRED SUB-SKILL:** Use execute-plan
+- Fresh subagent per item, commit after each
 
-**If Inline Execution chosen:**
-- **REQUIRED SUB-SKILL:** Use executing-plans
-- Batch execution with checkpoints for review
+**If inline chosen:**
+- Work the checkboxes in order in this session
+- Commit at every green point rather than batching the whole plan into one commit

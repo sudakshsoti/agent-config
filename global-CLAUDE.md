@@ -70,6 +70,19 @@ locally on the branch until then.
 Never commit directly to a default branch (`main`/`master`). If that's where the
 work is, branch first, then commit.
 
+## Work in progress
+
+Before editing, check the current worktree and the active issue. Do not begin
+a second objective without explicitly parking or finishing the first.
+
+## Verification
+
+Prove a change works against the real thing before calling it done. Run it,
+call it, look at the screen. Reading the diff back is not verification.
+
+Write the test first for logic with branches. Skip the test-first step for
+config, wiring, and UI plumbing — write those, then check them by hand.
+
 ## Verify instead of recalling
 
 Do not answer from training data about anything that moves: library APIs, model
