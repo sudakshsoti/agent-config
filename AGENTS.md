@@ -11,7 +11,11 @@ this file exists.
 Only skills, and only as symlinks in `~/.agents/skills` (the shared
 cross-agent root). Editing a `SKILL.md` in this repo is live for Codex
 immediately — no `./install.sh` re-run needed. A re-run is only needed for
-adding, renaming, or deleting a skill.
+adding, renaming, or deleting a skill. For a deletion specifically, plain
+`./install.sh` is not enough — it leaves the now-dangling symlink in place.
+Run `./install.sh --prune` to actually clear it; otherwise the retired skill
+stays listed (and counts against Codex's 2% skill budget) even though its
+directory is gone.
 
 **Never install skills into `~/.codex/skills`.** Codex scans both
 `~/.codex/skills` and `~/.agents/skills`, so a skill present in both is listed
