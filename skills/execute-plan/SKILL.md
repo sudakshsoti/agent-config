@@ -1,6 +1,6 @@
 ---
 name: execute-plan
-description: Autonomously execute a markdown checklist plan file — one fresh subagent per item, routed to the cheapest model or reasoning effort that can do it, run in parallel where items don't overlap, verified and committed after each. Works on Claude Code, Codex, and Grok. Use when the user points at a PLAN.md (or any markdown checklist) and wants it run hands-off with a clean context per slice. Deliberately light — the orchestrator judges how much rigour each item needs, and there is no per-item review gate. For spec-compliance plus code-quality review after every task, use subagent-driven-development instead.
+description: Autonomously execute a markdown checklist plan file — one fresh subagent per item, routed to the cheapest model or reasoning effort that can do it, run in parallel where items don't overlap, verified and committed after each. Works on Claude Code, Codex, and Grok. Use when the user points at a PLAN.md (or any markdown checklist) and wants it run hands-off with a clean context per slice. Deliberately light — the orchestrator judges how much rigour each item needs, and there is no per-item review gate.
 allowed-tools: Read, Edit, Bash(git*), Task, Glob, Grep
 ---
 
