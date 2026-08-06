@@ -7,7 +7,7 @@ description: >-
   this up", "ship it"), or types /build-mode. Bounds the scope, forces
   verification of actual behaviour for UI, config, deployment and automation
   work, and ends the session cleanly when the objective drifts. Skip it when the
-  request is vague or exploratory (use discovery-first), when something is
+  request is vague or exploratory (shape the scope first), when something is
   broken and the cause is unknown (diagnose first), or for a one-line edit.
 user-invocable: true
 ---
@@ -17,8 +17,8 @@ user-invocable: true
 The outcome is known. Your job is to reach it in the smallest complete change,
 verify it against reality, and stop.
 
-This is the counterpart to `discovery-first`. That skill runs when the user does
-not yet know what they want. This one runs when they do.
+This is the second half of the loop. Scoping runs when the user does not yet
+know what they want. This one runs when they do.
 
 ## Recognise the trigger
 
@@ -27,7 +27,7 @@ Enter build mode when the request names the change: "add a settings toggle",
 
 Stay out of it when:
 
-- the request is a feeling, not a change → `discovery-first`
+- the request is a feeling, not a change → scope it before building
 - something is failing and you do not know why → diagnose before editing
 - the edit is one obvious line → just make it
 
