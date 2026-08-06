@@ -282,29 +282,66 @@ global instructions say `plans/` at the repo root. Folded in here because the
 
 **Effort:** 5 minutes.
 
-### 5.7 Narrow `brainstorming`'s description. Do not retire anything.
+### 5.7 Narrow `brainstorming`'s description
 
-v1 proposed retiring seven skills. The review's objection is correct: trigger
-overlap on paper is not evidence of a routing failure, and several of the pairs
-I called duplicates are plausibly distinct (`requesting-` and
-`receiving-code-review` are opposite sides; `finishing-a-development-branch` is
-an integration decision, not implementation; `execute-plan` and
-`subagent-driven-development` may differ in review rigour). The retirement
-campaign is deferred until there is observed evidence, and any retirement will
-need a named replacement plus a check for dangling symlinks.
-
-**The one exception.** `brainstorming` opens with "You MUST use this before any
-creative work" and gates all implementation behind a verbally approved design.
-`scope-brief` fires on the same trigger with a weaker imperative and will lose,
-which is not a speculative collision. Rather than archive it, narrow its
-description now so the two do not compete: `brainstorming` for exploring
-possible designs, `scope-brief` for committing to one outcome. That is the
-review's own "narrow conflicting descriptions" remedy, applied to the single
-case where the collision is certain rather than theoretical.
+`brainstorming` opens with "You MUST use this before any creative work" and
+gates all implementation behind a verbally approved design. `scope-brief` fires
+on the same trigger with a weaker imperative and will lose, which is not a
+speculative collision. Rather than archive it, narrow its description so the two
+do not compete: `brainstorming` for exploring possible designs, `scope-brief`
+for committing to one outcome.
 
 **Effort:** 10 minutes.
 
-**Net inventory:** 39 skills to 40. One added, none retired in this pass.
+### 5.8 Retire nine skills
+
+The external review argued for deferring all retirement until the gate log
+produced evidence of real routing failures. **The builder overrode this after
+reading the list**, on the grounds that several of these are not merely
+overlapping but too heavy to ever get invoked, which is a judgement about their
+own working style that observation would not improve. Recorded as a decision,
+not a finding.
+
+| Retire | Replaced by | Note |
+|---|---|---|
+| `executing-plans` (V) | `execute-plan` | Four skills claimed plan execution; one survives |
+| `subagent-driven-development` (V) | `execute-plan` | Loses its per-item spec-plus-quality review gate. Accepted |
+| `dispatching-parallel-agents` (V) | `execute-plan` | Parallel fan-out is also a concurrency amplifier, which is the failure this plan exists to reduce |
+| `test-driven-development` (V) | A line in global `CLAUDE.md` | Too heavy for most of this work; the useful part is already in `build-mode` and `execute-plan` |
+| `verification-before-completion` (V) | A line in global `CLAUDE.md` plus 5.3 | The behaviour is one invariant, not a skill |
+| `requesting-code-review` (V) | Nothing | Not used |
+| `receiving-code-review` (V) | Nothing | Not used |
+| `finishing-a-development-branch` (V) | `pr` + `merge` | Integration decisions already covered |
+| `explain-this` | Nothing | Just ask. Loses the `/explain-this` slash command |
+
+All nine are vendored except `explain-this`.
+
+**Two invariants must be transplanted before the corresponding skills go**, or
+the behaviour disappears with them. This is the one part of 5.8 that is not
+optional:
+
+- *Verification:* prove a change against the real thing before calling it done,
+  not by reading the diff. Goes in global `CLAUDE.md`, reinforced by 5.3.
+- *Tests:* write the test first for logic with branches. Skip it for config,
+  wiring, and UI plumbing. Goes in global `CLAUDE.md`.
+
+**Retirement procedure per skill**, in this order:
+
+1. Grep the repo for references. `plans/` documents and `writing-plans` cite
+   `subagent-driven-development` and `executing-plans` by name in their
+   "for agentic workers" headers; those references break.
+2. Move the directory to `skills/_archive/`.
+3. Delete `dist/<name>.zip`, or the pre-commit hook rejects the commit as an
+   orphan zip.
+4. Add a `skillOverrides` entry so Claude stops loading it immediately.
+5. Update `skills/README.md`, including its skill count.
+6. Re-run `install.sh` from the main checkout to clear the dangling symlinks in
+   `~/.claude/skills` and `~/.agents/skills`. Until then the skill stays live on
+   both surfaces.
+
+**Effort:** about 45 minutes, most of it step 1.
+
+**Net inventory:** 40 skills to 31. One added, nine retired.
 
 ---
 
@@ -367,8 +404,7 @@ Review after two weeks of real use, not on a calendar date.
 12. Two interview rounds as default, not hard cap (5.4).
 13. One status column with stable IDs instead of three columns (5.4).
 14. Operational definition of "locked" (5.4).
-15. Retirement campaign deferred pending evidence (5.7).
-16. Dangling-symlink check noted as a precondition of any future archiving (1, 5.7).
+15. Dangling-symlink check made a required step of archiving (5.8).
 
 **Pushed back on, with reasons:**
 
@@ -378,19 +414,27 @@ Review after two weeks of real use, not on a calendar date.
    Replaced with automatic instrumentation (6.1), where the gate's override
    reason field doubles as the instrument for the competing explanations. Same
    evidence, no diary.
-2. **"Do not touch the other skills at all."** Accepted for all but one.
-   `brainstorming`'s collision with `scope-brief` is certain, not hypothetical,
-   because it asserts a MUST gate over the identical trigger and saves no
-   artefact. Narrowing its description is the review's own recommended remedy;
-   waiting for the collision to be observed just means the first few briefs
-   never get written.
+2. **"Defer all skill retirement until the hypothesis is tested."** Overridden
+   by the builder after reading the post-plan inventory (5.8). The review's
+   reasoning is sound for skills whose overlap is only visible on paper, but
+   nine of them are being cut for a different reason: they are too heavy to get
+   invoked at all, which is a judgement about working style rather than a claim
+   about routing, and two more weeks of logs would not change it. The risk this
+   accepts is losing behaviour that was quietly useful. Mitigated by archiving
+   rather than deleting, and by transplanting two invariants into global
+   instructions before their skills go.
+3. **"Do not touch `brainstorming`."** Its collision with `scope-brief` is
+   certain, not hypothetical, because it asserts a MUST gate over the identical
+   trigger and saves no artefact. Narrowing its description is the review's own
+   recommended remedy; waiting for the collision to be observed just means the
+   first few briefs never get written.
 
 ---
 
 ## 8. Non-goals
 
 - Not rewriting the vendored skills that are kept.
-- Not retiring any skill in this pass.
+- Not retiring anything beyond the nine named in 5.8.
 - Not introducing hooks, wrappers, or automation running outside the agent,
   while acknowledging that only those would make the invariant unbypassable.
 - Not touching craft skills (frontend, motion, UX writing, design strategy) or
@@ -424,5 +468,6 @@ Review after two weeks of real use, not on a calendar date.
 5. Batched `Later`-only capture plus retrieval path (5.5)
 6. Plan-path correction (5.6)
 7. Narrow `brainstorming`'s description (5.7)
-8. Use for two weeks, then read the gate log
-9. Revisit retirement only against observed routing failures
+8. Transplant the verification and test invariants into global `CLAUDE.md` (5.8)
+9. Retire the nine skills, then re-run `install.sh` from the main checkout (5.8)
+10. Use for two weeks, then read the gate log
