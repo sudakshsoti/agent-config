@@ -15,7 +15,6 @@
 #   agents/<name>.md -> ~/.claude/agents/<name>.md
 #   commands/<name>.md -> ~/.claude/commands/<name>.md
 #   hooks/<name> -> ~/.claude/hooks/<name>
-#   global-CLAUDE.md -> ~/.claude/CLAUDE.md
 #   claude-powerline.json -> ~/.claude/claude-powerline.json
 #     the active statusline as of 2026-07-31 (@owloops/claude-powerline).
 #     Symlinked, not copied — the binary only ever reads its config, there is
@@ -173,24 +172,14 @@ done
 # 2c. Hooks: every script in hooks/ becomes a hook helper. Symlinked, since
 #     Claude Code only ever executes these — it never rewrites them. The
 #     settings.json entries that invoke them are baked into the repo copy in
-#     step 4, and reference "$HOME/.claude/hooks/<name>" so they survive a
+#     step 3, and reference "$HOME/.claude/hooks/<name>" so they survive a
 #     different checkout path.
 for file in "$REPO"/hooks/*; do
   [ -f "$file" ] || continue
   link_into "$file" "$CLAUDE/hooks/$(basename "$file")"
 done
 
-# 3. Global CLAUDE.md: symlinked, like skills and agents — the repo stays the
-#    live source of truth, so edits apply instantly and land in git history.
-#    Unlike settings.json (which Claude Code rewrites via /config), this file is
-#    only ever appended to by the `#` quick-capture shortcut, and an append
-#    writes through a symlink to the target. If some future Claude Code version
-#    rewrites it atomically instead, the symlink becomes a real file and
-#    link_into's guard below reports it loudly on the next run — at which point
-#    move the live file back into the repo.
-link_into "$REPO/global-CLAUDE.md" "$CLAUDE/CLAUDE.md"
-
-# 4. Settings file: copy only if missing (new-machine bootstrap).
+# 3. Settings file: copy only if missing (new-machine bootstrap).
 #    settings.json in the repo has no secrets — add machine-local env/keys
 #    to ~/.claude/settings.local.json, which is never tracked here.
 f=settings.json
@@ -200,14 +189,14 @@ if [ ! -e "$CLAUDE/$f" ]; then
   copied=$((copied + 1))
 fi
 
-# 4b. claude-powerline config: symlinked, not copy-if-missing, unlike
+# 3b. claude-powerline config: symlinked, not copy-if-missing, unlike
 #     settings.json above. claude-powerline never writes its own config — there
 #     is no companion TUI that could write back into the repo unreviewed — so a
 #     symlink means a repo edit goes live immediately with no re-run and
 #     nothing to sync back.
 link_into "$REPO/claude-powerline.json" "$CLAUDE/claude-powerline.json"
 
-# 4c. Codex config: merge only the non-secret keys tracked in codex/config.toml.
+# 3c. Codex config: merge only the non-secret keys tracked in codex/config.toml.
 #     Preserve unrelated user, MCP, desktop, and machine-managed settings.
 if [ -d "$CODEX" ] && [ -f "$REPO/codex/config.toml" ]; then
   python3 "$REPO/scripts/apply-codex-config.py" \
@@ -215,7 +204,7 @@ if [ -d "$CODEX" ] && [ -f "$REPO/codex/config.toml" ]; then
   echo "merged  codex/config.toml"
 fi
 
-# 4d. Git hooks: point git at the tracked .githooks/ instead of .git/hooks, so
+# 3d. Git hooks: point git at the tracked .githooks/ instead of .git/hooks, so
 #     the pre-commit lint arrives with a clone and works from a worktree (where
 #     .git is a file and has no hooks/ directory to write into). Relative on
 #     purpose — it resolves per checkout.
@@ -224,7 +213,7 @@ if git -C "$REPO" rev-parse --git-dir >/dev/null 2>&1; then
   echo "wired   core.hooksPath -> .githooks"
 fi
 
-# 5. Plugins: reproduce the marketplace + plugin set from plugins.txt via the
+# 4. Plugins: reproduce the marketplace + plugin set from plugins.txt via the
 #    `claude` CLI. Content is NOT vendored — these commands add the marketplaces
 #    and install the latest plugin versions, and no-op if already present.
 if [ "$PLUGINS" = "1" ] && [ -f "$REPO/plugins.txt" ]; then
@@ -256,7 +245,7 @@ if [ "$PLUGINS" = "1" ] && [ -f "$REPO/plugins.txt" ]; then
   fi
 fi
 
-# 6. Optionally prune deleted skills/agents.
+# 5. Optionally prune deleted skills/agents.
 if [ "$PRUNE" = "1" ]; then
   # Claude: dangling symlinks pointing into this repo (deleted skill/agent).
   for link in "$CLAUDE"/skills/* "$CLAUDE"/agents/* "$CLAUDE"/commands/* "$CLAUDE"/hooks/*; do
@@ -286,7 +275,7 @@ if [ "$PRUNE" = "1" ]; then
   fi
 fi
 
-# 7. Post-run check: is the live settings.json on a permissive posture?
+# 6. Post-run check: is the live settings.json on a permissive posture?
 #    Step 4 only ever copies when the target is absent, so it never inspects an
 #    existing file — and no repo tracks ~/.claude/settings.json any more, so
 #    nothing else reports on it either. A machine provisioned from an older,
