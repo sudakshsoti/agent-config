@@ -11,7 +11,7 @@ user-invocable: true
 # Scope Brief
 
 A lightweight commitment document for work with real size or ambiguity.
-Between `brainstorming` (exploring what to build) and `build-mode` (building a
+Between open-ended exploration of what to build and `build-mode` (building a
 known outcome): the target is already roughly decided, but its edges are not.
 
 ## When to use it
@@ -98,9 +98,9 @@ are true:
 
 1. The `Status:` line reads `Status: Locked <YYYY-MM-DD>`.
 2. The file is committed.
-3. Every plan file `writing-plans` produces from this brief carries
-   `Source brief: <path>` in its header, plus a standing instruction to stop
-   and ask before doing anything the brief's scope table doesn't cover.
+3. Every plan file written from this brief carries `Source brief: <path>` in
+   its header, plus a standing instruction to stop and ask before doing
+   anything the brief's scope table doesn't cover.
 
 Amending a locked brief means adding a row to the Amendments table and making
 a new commit — never silently editing a `Now`/`Later`/`Dropped` value in
@@ -115,6 +115,5 @@ it stays in the brief with its reason, not the backlog.
 
 ## Step 5: hand off and stop
 
-Invoke `writing-plans` with the locked brief as input and stop. Do not
-reimplement planning here — this skill produces the brief, not the task
-breakdown.
+Write the plan from the locked brief and stop. Do not reimplement planning
+here — this skill produces the brief, not the task breakdown.

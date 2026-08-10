@@ -43,18 +43,20 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-The 25 skills below are the ones worth reaching for by name. Thirty-one are
-installed in all; the six omitted here (`brainstorming`, `build-mode`,
-`systematic-debugging`, `using-git-worktrees`, `writing-plans`,
-`writing-skills`) route on their own triggers rather than being picked from a
-list. Anything under `skills/_archive/` is kept for reference only and is
+The 32 skills below are the ones worth reaching for by name. Thirty-five are
+installed in all; `build-mode`, `to-spec`, and `wait-what` are omitted here
+and route on their own triggers rather than being picked from a list.
+Anything under `skills/_archive/` is kept for reference only and is
 deliberately not installed — see [`_archive/README.md`](_archive/README.md).
 
 - `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
+- `diagnosing-bugs` — Diagnosis loop for hard bugs and performance regressions: build a tight red-capable feedback loop, minimise, rank hypotheses, instrument, fix with a regression test.
 - `frontend-craft` — Visual direction for new UI, plus typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
 - `design-foil` — Industry-agnostic strategy + UX advisor: brainstorm, critique, strategy docs, teardowns.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
 - `find-skills` — Discover and install agent skills when asked "is there a skill for X".
+- `git-guardrails` — Set up a hook that blocks dangerous git commands (`push`, `reset --hard`, `clean -f`, `branch -D`) before Claude Code runs them.
+- `grilling` — Interview the user relentlessly about a plan/decision, round by round over a design tree, until nothing is left unsettled.
 - `handoff` — Structured session-handoff docs for continuity across sessions.
 - `homelab-backlog` — Run the homelab/finance backlog in Linear (team OKLCH): capture, triage, grooming, acceptance criteria.
 - `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, including the safe rclone-torbox recreate.
@@ -72,9 +74,13 @@ deliberately not installed — see [`_archive/README.md`](_archive/README.md).
 - `prose-editor` — Critique + rewrite personal essays to a high editorial bar.
 - `prototype` — Build several genuinely different versions of a UI piece behind a visual picker. `/prototype`.
 - `push` — Safe push — sets upstream, shows outgoing commits, `--force-with-lease`, warns on main. `/push`.
-- `scope-brief` — Tiered scoping document for multi-session or ambiguous work: interview, forced non-goals, a locked scope table, handoff to `writing-plans`. `/scope-brief`.
+- `research` — Delegate reading legwork to a background agent: investigate a question against primary sources, write findings to a cited Markdown file.
+- `scope-brief` — Tiered scoping document for multi-session or ambiguous work: interview, forced non-goals, a locked scope table, then write the plan directly. `/scope-brief`.
 - `self-review` — Self-review the plan you just proposed via the plan-critic subagent, then revise it. `/self-review`.
+- `tdd` — Test-driven development reference: what a good test is, seams, anti-patterns, the red-green loop's rules.
 - `ux-writing` — User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.
+- `wizard` — Generate an interactive bash wizard for a manual procedure only a human can do (provisioning, credentials, third-party dashboards). `/wizard`.
+- `writing-for-agents` — Reference for writing any document an agent consumes: context pointers, information hierarchy, leading words, pruning.
 
 The eight frontend/design skills are `frontend-craft`, `motion-craft`, `motion-review`,
 `design-foil`, `prototype`, `ux-writing`, `pick-ui-library`, and
