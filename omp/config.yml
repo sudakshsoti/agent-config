@@ -28,3 +28,9 @@ task:
   enableLsp: true
 dev: 
   autoqaConsent: granted
+retry: 
+  modelFallback: true
+  usageAwareFallback: true
+  fallbackChains: 
+    default: 
+      - anthropic/claude-opus-5:high

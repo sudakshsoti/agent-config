@@ -1,0 +1,25 @@
+# xAI subscription active.
+# Usage: omp --config ~/dev/agent-config/omp/overlays/xai.yml   (alias: ompx)
+#
+# xAI is not authenticated right now, so these selectors are unverified.
+# Before first use: authenticate, then run `omp models` and confirm the
+# provider prefix and model ids below still match.
+modelRoles:
+  default: xai-oauth/grok-4.5:high
+  plan: xai-oauth/grok-4.5:xhigh
+  slow: xai-oauth/grok-4.5:xhigh
+  task: xai-oauth/grok-4.5:medium
+  smol: xai-oauth/grok-4.5:low
+  tiny: xai-oauth/grok-4.5:low
+  vision: xai-oauth/grok-4.5:medium
+  # "heavy worker" / "light worker" — see the note in openai.yml.
+  luna_worker: xai-oauth/grok-4.5:high
+  terra_worker: xai-oauth/grok-4.5:low
+
+retry:
+  modelFallback: true
+  usageAwareFallback: true
+  fallbackChains:
+    default:
+      - anthropic/claude-opus-5:high
+      - openai-codex/gpt-5.6-luna:xhigh
