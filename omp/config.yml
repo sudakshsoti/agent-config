@@ -1,0 +1,30 @@
+modelRoles: 
+  default: openai-codex/gpt-5.6-luna:xhigh
+  luna_worker: openai-codex/gpt-5.6-luna:xhigh
+  terra_worker: openai-codex/gpt-5.6-terra:medium
+symbolPreset: nerd
+theme: 
+  dark: dark-lunar
+setupVersion: 1
+statusLine: 
+  preset: full
+  separator: powerline
+  sessionAccent: true
+  compactThinkingLevel: false
+startup: 
+  quiet: true
+autoResume: true
+memory: 
+  backend: local
+autolearn: 
+  enabled: true
+  autoContinue: true
+task: 
+  enableEffort: true
+  agentModelOverrides: 
+    luna-worker: "@luna_worker"
+    terra-worker: "@terra_worker"
+  eager: preferred
+  enableLsp: true
+dev: 
+  autoqaConsent: granted

@@ -26,6 +26,13 @@
 #     Codex rewrites this file from its TUI and it may contain machine-local
 #     credentials, so it cannot safely be symlinked or replaced wholesale.
 #
+# Also symlinked (the owning tool rewrites it, but writes follow the link and it
+# holds no secrets — see step 3e):
+#   omp/config.yml -> ~/.omp/agent/config.yml
+#     OMP's model roles, thinking level, statusline and task settings. Changing
+#     a setting from the OMP TUI edits the repo copy directly; review with
+#     `git diff` before committing. Only linked if ~/.omp/agent exists.
+#
 # Copies, only if missing (the owning tool rewrites these itself, so a symlink
 # would break; never clobbers an existing file):
 #   settings.json             -> ~/.claude/settings.json
@@ -50,6 +57,7 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE="$HOME/.claude"
 CODEX="$HOME/.codex"
+OMP="$HOME/.omp/agent"
 PRUNE=0
 FORCE=0
 PLUGINS=1
@@ -202,6 +210,20 @@ if [ -d "$CODEX" ] && [ -f "$REPO/codex/config.toml" ]; then
   python3 "$REPO/scripts/apply-codex-config.py" \
     "$REPO/codex/config.toml" "$CODEX/config.toml"
   echo "merged  codex/config.toml"
+fi
+
+# 3e. OMP config: symlinked, unlike codex/config.toml above. OMP *does* rewrite
+#     this file (`omp config set`, and TUI toggles), but a write follows the
+#     symlink and lands in the repo intact — verified: only trailing whitespace
+#     is normalised, nothing is reordered or dropped — and the file carries no
+#     credentials (OMP keeps auth in its own state dir, not here). So the repo
+#     stays the live source of truth and settings changed from the TUI show up
+#     as a plain `git diff` to review before committing, with no sync step.
+#     Caveat: OMP locks the *resolved* path, so writes leave an empty
+#     omp/config.yml.lock in the checkout — .gitignore covers it.
+if [ -d "$OMP" ] && [ -f "$REPO/omp/config.yml" ]; then
+  mkdir -p "$OMP"
+  link_into "$REPO/omp/config.yml" "$OMP/config.yml"
 fi
 
 # 3d. Git hooks: point git at the tracked .githooks/ instead of .git/hooks, so

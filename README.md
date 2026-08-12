@@ -21,6 +21,11 @@ cd ~/dev/agent-config && ./install.sh
 - `codex/config.toml` — Non-secret Codex settings, including the native TUI
   statusline. Merged into `~/.codex/config.toml` without replacing credentials
   or machine-local settings.
+- `omp/config.yml` — OMP settings: model roles (`default`, plus the per-task
+  worker roles), thinking level, statusline and task options. Symlinked to
+  `~/.omp/agent/config.yml`, so `omp config set` and TUI toggles edit the repo
+  copy directly — check `git diff` before committing. Only linked if
+  `~/.omp/agent` exists.
 - `scripts/` — Executables referenced by absolute path from `settings.json` (not
   symlinked). Includes `statusline.sh` / `test-context-size.sh` (the main status
   bar) and `subagent-statusline.sh` / `test-subagent-statusline.sh` (the agent
@@ -40,7 +45,10 @@ Skills and agents are **symlinked**, so editing them in this repo is live
 immediately — just commit when happy. `settings.json` is a **copy**
 (Claude Code rewrites it itself, which would clobber a symlink), hence
 `sync.sh`. Codex settings are selectively merged by `install.sh`; the tracked
-fragment owns only the keys it declares.
+fragment owns only the keys it declares. OMP's `config.yml` is symlinked
+despite OMP rewriting it: writes follow the link intact and the file holds no
+credentials, so there is no `sync.sh` equivalent — but it does mean a setting
+changed in the OMP TUI lands in the working tree unreviewed.
 
 ## Repository instructions
 
