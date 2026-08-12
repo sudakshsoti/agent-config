@@ -7,6 +7,7 @@ modelRoles:
   task: anthropic/claude-sonnet-5:high
   smol: anthropic/claude-haiku-4-5:low
   tiny: anthropic/claude-haiku-4-5:low
+  designer: anthropic/claude-opus-5:high
   vision: anthropic/claude-sonnet-5:medium
   # "heavy worker" / "light worker" — see the note in openai.yml.
   luna_worker: anthropic/claude-opus-5:xhigh

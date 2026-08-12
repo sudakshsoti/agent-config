@@ -11,6 +11,7 @@ modelRoles:
   task: xai-oauth/grok-4.5:medium
   smol: xai-oauth/grok-4.5:low
   tiny: xai-oauth/grok-4.5:low
+  designer: xai-oauth/grok-4.5:high
   vision: xai-oauth/grok-4.5:medium
   # "heavy worker" / "light worker" — see the note in openai.yml.
   luna_worker: xai-oauth/grok-4.5:high

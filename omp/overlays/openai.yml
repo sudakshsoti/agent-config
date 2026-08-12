@@ -3,17 +3,36 @@
 #
 # Roles only. Everything else (theme, statusline, task, approvals, autolearn)
 # stays in the base config.yml and is deliberately NOT repeated here.
+#
+# The gpt-5.6 family, by list price per 1M tokens (`omp models --json`).
+# All three share a 272K window, text+image input, and the `max` thinking level:
+#
+#   luna   $0.20 / $1.20    terra   $2 / $12    sol   $5 / $30
+#
+# sol is the flagship and is priced identically to gpt-5.5, so it is reserved
+# for roles that fire on purpose rather than on every turn. luna stays the
+# driver: at a quarter of terra's price it carries the everyday load, and a
+# prolite plan will not survive sol on `default`.
+#
+# Note the unresolved tension: OMP's own bundled agents call luna the
+# judgment-heavy worker and terra the cost-efficient one, yet terra costs 10x
+# luna. Those two worker roles are therefore left exactly as OMP ships them
+# rather than reordered on a guess. Revisit if `omp bench` says otherwise.
 modelRoles:
   default: openai-codex/gpt-5.6-luna:xhigh
-  plan: openai-codex/gpt-5.6-luna:max
-  slow: openai-codex/gpt-5.6-luna:max
+  plan: openai-codex/gpt-5.6-sol:max
+  slow: openai-codex/gpt-5.6-sol:max
+  designer: openai-codex/gpt-5.6-sol:high
+  vision: openai-codex/gpt-5.6-sol:medium
   task: openai-codex/gpt-5.6-terra:high
-  smol: openai-codex/gpt-5.4-mini:low
-  tiny: openai-codex/gpt-5.4-mini:low
-  vision: openai-codex/gpt-5.6-luna:medium
-  # Referenced by task.agentModelOverrides in config.yml. Read these as
-  # "heavy worker" / "light worker" — the names come from the bundled
-  # ~/.omp/agent/agents/{luna,terra}-worker.md agents, not from the provider.
+  # luna, not gpt-5.4-mini: mini costs ~4x more, has the same context window
+  # and modality, and lacks the `max` thinking level. It is dominated outright.
+  smol: openai-codex/gpt-5.6-luna:low
+  tiny: openai-codex/gpt-5.6-luna:low
+  # Referenced by task.agentModelOverrides in config.yml, which points the
+  # bundled ~/.omp/agent/agents/{luna,terra}-worker.md agents at these roles.
+  # Read them as "judgment slot" and "mechanical slot" — under the other
+  # overlays they resolve to that vendor's equivalents, not to these models.
   luna_worker: openai-codex/gpt-5.6-luna:xhigh
   terra_worker: openai-codex/gpt-5.6-terra:medium
 
