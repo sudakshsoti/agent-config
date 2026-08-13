@@ -1,21 +1,27 @@
 # xAI subscription active.
 # Usage: omp --config ~/dev/agent-config/omp/overlays/xai.yml   (alias: ompx)
 #
-# xAI is not authenticated right now, so these selectors are unverified.
-# Before first use: authenticate, then run `omp models` and confirm the
-# provider prefix and model ids below still match.
+# xAI is not authenticated right now, so these selectors are UNVERIFIED —
+# `omp models xai` and `omp models xai-oauth` both return nothing until you
+# log in, so the catalog cannot confirm the ids below.
+#
+# Grok 4.6 (released 2026-08-13) is confirmed present on two providers OMP can
+# already see: `openrouter/x-ai/grok-4.6` (500K window, low/medium/high/xhigh,
+# vision) and `opencode-zen/grok-4.6` (no metadata published yet). It is NOT on
+# the opencode-go plan, which still tops out at grok-4.5.
+#
+# The xai-oauth ids below assume 4.6 ships under the same prefix as 4.5. Before
+# first use: authenticate, run `omp models xai-oauth`, and correct these if the
+# real id differs. Fall back to grok-4.5 (verified on opencode-go) if not.
 modelRoles:
-  default: xai-oauth/grok-4.5:high
-  plan: xai-oauth/grok-4.5:xhigh
-  slow: xai-oauth/grok-4.5:xhigh
-  task: xai-oauth/grok-4.5:medium
-  smol: xai-oauth/grok-4.5:low
-  tiny: xai-oauth/grok-4.5:low
-  designer: xai-oauth/grok-4.5:high
-  vision: xai-oauth/grok-4.5:medium
-  # "heavy worker" / "light worker" — see the note in openai.yml.
-  luna_worker: xai-oauth/grok-4.5:high
-  terra_worker: xai-oauth/grok-4.5:low
+  default: xai-oauth/grok-4.6:high
+  plan: xai-oauth/grok-4.6:xhigh
+  slow: xai-oauth/grok-4.6:xhigh
+  task: xai-oauth/grok-4.6:medium
+  smol: xai-oauth/grok-4.6:low
+  tiny: xai-oauth/grok-4.6:low
+  designer: xai-oauth/grok-4.6:high
+  vision: xai-oauth/grok-4.6:medium
 
 retry:
   modelFallback: true

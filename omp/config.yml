@@ -1,36 +1,78 @@
-modelRoles: 
-  default: openai-codex/gpt-5.6-luna:xhigh
-  luna_worker: openai-codex/gpt-5.6-luna:xhigh
-  terra_worker: openai-codex/gpt-5.6-terra:medium
+# OMP main config — Claude directs, OpenCode Go executes.
+#
+# Plain `omp` runs this. The overlays in omp/overlays/ pin every role to a
+# single vendor instead; see the ompc/ompo/ompx aliases in ~/.zshrc.
+#
+#   Claude subscription  -> judgment, planning, hard reasoning  (flat cost)
+#   opencode-go          -> high-volume worker execution        (metered $)
+#
+# Worker prices are $/1M in-out, from `omp models opencode-go --json`:
+#   gpt-5.6-luna 0.10/0.60 · deepseek-v4-pro 0.435/0.87
+#   deepseek-v4-flash 0.14/0.28 · kimi-k2.7-code 0.95/4 · glm-5.2 1.4/4.4
+#
+# luna is the cheapest thing in the catalog on input and carries a 1.1M window
+# with vision, so it takes the mechanical tier outright — deepseek-v4-flash is
+# 40% more expensive on input and has no image support. deepseek-v4-pro takes
+# the judgment tier at roughly a quarter of kimi-k2.7-code's price.
+#
+# Thinking suffixes are constrained per model: deepseek-v4-pro only offers
+# high/max, so `:low` would be invalid there.
+
+modelRoles:
+  # --- Claude: the director ---
+  default: anthropic/claude-opus-5:xhigh
+  plan: anthropic/claude-opus-5:max
+  slow: anthropic/claude-opus-5:max
+  designer: anthropic/claude-opus-5:high
+  vision: anthropic/claude-sonnet-5:medium
+
+  # --- opencode-go: the workers ---
+  # `task` backs the bundled `task` agent (@task) = /vibe "good".
+  # `smol` backs the bundled `sonic` agent (@smol) = /vibe "fast",
+  # and also scout + librarian.
+  task: opencode-go/deepseek-v4-pro:high
+  smol: opencode-go/gpt-5.6-luna:low
+  tiny: opencode-go/gpt-5.6-luna:low
+  commit: opencode-go/gpt-5.6-luna:low
+
+# No task.agentModelOverrides: the bundled agents already resolve through the
+# roles above (sonic -> @smol, task -> @task, designer -> @designer,
+# reviewer -> @slow). Pinning them again would just be a second place to edit.
+task:
+  batch: true
+  enableEffort: true
+  eager: preferred
+  enableLsp: true
+
+retry:
+  modelFallback: true
+  usageAwareFallback: true
+  fallbackChains:
+    # Claude quota wall -> keep working on Go rather than stopping.
+    "anthropic/*":
+      - opencode-go/gpt-5.6-luna:xhigh
+    # Go outage -> fall back onto the subscription.
+    "opencode-go/*":
+      - anthropic/claude-sonnet-5:high
+    default:
+      - opencode-go/gpt-5.6-luna:xhigh
+
 symbolPreset: nerd
-theme: 
+theme:
   dark: dark-lunar
 setupVersion: 1
-statusLine: 
+statusLine:
   preset: full
   separator: powerline
   sessionAccent: true
   compactThinkingLevel: false
-startup: 
+startup:
   quiet: true
 autoResume: true
-memory: 
+memory:
   backend: local
-autolearn: 
+autolearn:
   enabled: true
   autoContinue: true
-task: 
-  enableEffort: true
-  agentModelOverrides: 
-    luna-worker: "@luna_worker"
-    terra-worker: "@terra_worker"
-  eager: preferred
-  enableLsp: true
-dev: 
+dev:
   autoqaConsent: granted
-retry: 
-  modelFallback: true
-  usageAwareFallback: true
-  fallbackChains: 
-    default: 
-      - anthropic/claude-opus-5:high

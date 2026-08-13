@@ -14,10 +14,9 @@
 # driver: at a quarter of terra's price it carries the everyday load, and a
 # prolite plan will not survive sol on `default`.
 #
-# Note the unresolved tension: OMP's own bundled agents call luna the
-# judgment-heavy worker and terra the cost-efficient one, yet terra costs 10x
-# luna. Those two worker roles are therefore left exactly as OMP ships them
-# rather than reordered on a guess. Revisit if `omp bench` says otherwise.
+# The bundled agents resolve straight through these roles — sonic -> @smol,
+# task -> @task, designer -> @designer, reviewer -> @slow — so there are no
+# separate worker roles to keep in sync.
 modelRoles:
   default: openai-codex/gpt-5.6-luna:xhigh
   plan: openai-codex/gpt-5.6-sol:max
@@ -29,12 +28,6 @@ modelRoles:
   # and modality, and lacks the `max` thinking level. It is dominated outright.
   smol: openai-codex/gpt-5.6-luna:low
   tiny: openai-codex/gpt-5.6-luna:low
-  # Referenced by task.agentModelOverrides in config.yml, which points the
-  # bundled ~/.omp/agent/agents/{luna,terra}-worker.md agents at these roles.
-  # Read them as "judgment slot" and "mechanical slot" — under the other
-  # overlays they resolve to that vendor's equivalents, not to these models.
-  luna_worker: openai-codex/gpt-5.6-luna:xhigh
-  terra_worker: openai-codex/gpt-5.6-terra:medium
 
 retry:
   modelFallback: true
