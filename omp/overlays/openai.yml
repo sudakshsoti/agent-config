@@ -1,33 +1,31 @@
-# OpenAI subscription active.
+# OpenAI subscription active ($100/mo tier — Claude-Max-5x-equivalent
+# headroom, not top-of-line unlimited).
 # Usage: omp --config ~/dev/agent-config/omp/overlays/openai.yml   (alias: ompo)
 #
-# Roles only. Everything else (theme, statusline, task, approvals, autolearn)
-# stays in the base config.yml and is deliberately NOT repeated here.
+# ompo swaps the judgment vendor from Claude to ChatGPT and nothing else:
+# ChatGPT (openai-codex) directs the judgment roles below (default/plan/slow/
+# designer/vision); opencode-go still executes the worker roles (task/smol/
+# tiny/commit), same as the base config.yml. Those four worker roles are
+# deliberately NOT redefined here — omitting them lets them fall through from
+# base, the same mechanism this file already relies on for the entire
+# non-role config (theme/statusline/task engine/memory/autolearn).
 #
 # The gpt-5.6 family, by list price per 1M tokens (`omp models --json`).
 # All three share a 272K window, text+image input, and the `max` thinking level:
 #
 #   luna   $0.20 / $1.20    terra   $2 / $12    sol   $5 / $30
 #
-# sol is the flagship and is priced identically to gpt-5.5, so it is reserved
-# for roles that fire on purpose rather than on every turn. luna stays the
-# driver: at a quarter of terra's price it carries the everyday load, and a
-# prolite plan will not survive sol on `default`.
-#
-# The bundled agents resolve straight through these roles — sonic -> @smol,
-# task -> @task, designer -> @designer, reviewer -> @slow — so there are no
-# separate worker roles to keep in sync.
+# sol is the flagship and is priced identically to gpt-5.5, so it stays
+# reserved for roles that fire on purpose rather than on every turn (plan,
+# slow, designer, vision). terra is the everyday driver on `default`: the
+# $100/mo tier has real headroom over the old "prolite" assumption, but not
+# enough to run sol on every turn.
 modelRoles:
-  default: openai-codex/gpt-5.6-luna:xhigh
+  default: openai-codex/gpt-5.6-terra:xhigh
   plan: openai-codex/gpt-5.6-sol:max
   slow: openai-codex/gpt-5.6-sol:max
   designer: openai-codex/gpt-5.6-sol:high
   vision: openai-codex/gpt-5.6-sol:medium
-  task: openai-codex/gpt-5.6-terra:high
-  # luna, not gpt-5.4-mini: mini costs ~4x more, has the same context window
-  # and modality, and lacks the `max` thinking level. It is dominated outright.
-  smol: openai-codex/gpt-5.6-luna:low
-  tiny: openai-codex/gpt-5.6-luna:low
 
 retry:
   modelFallback: true
