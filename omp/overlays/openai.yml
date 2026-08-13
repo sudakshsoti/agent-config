@@ -15,14 +15,25 @@
 #
 #   luna   $0.20 / $1.20    terra   $2 / $12    sol   $5 / $30
 #
-# sol is the flagship and is priced identically to gpt-5.5, so it stays
-# reserved for roles that fire on purpose rather than on every turn (plan,
-# slow, designer, vision). terra is the everyday driver on `default`: the
-# $100/mo tier has real headroom over the old "prolite" assumption, but not
-# enough to run sol on every turn.
+# terra is NOT the everyday driver here despite the price gap. Artificial
+# Analysis publishes terra as strictly Pareto-dominated on Intelligence vs
+# Cost per task — at every terra effort level there's a sol or luna effort
+# level that's more intelligent for the same cost, or as intelligent for
+# less (confirmed against AA's own per-effort model pages, 2026-08-13):
+#
+#   terra high  50 @ $0.22   <  luna xhigh  50 @ $0.03   (7x cheaper, tied)
+#   terra xhigh 53 @ $0.31   ~= luna max    52 @ $0.05   (6x cheaper, ~tied)
+#
+# sol medium (56 @ $0.37) is the actual value floor: it beats terra xhigh
+# outright on intelligence for barely more than terra xhigh's own cost. So
+# sol runs on `default` too, just at a low enough effort to stay affordable
+# on every turn. sol's own curve has the same kind of trap terra's had —
+# medium->high is the worst step (+1 pt for +48% cost) — so `plan` skips
+# straight to xhigh rather than stopping at high, and `slow` keeps the max
+# ceiling for when the task is genuinely stuck.
 modelRoles:
-  default: openai-codex/gpt-5.6-terra:xhigh
-  plan: openai-codex/gpt-5.6-sol:max
+  default: openai-codex/gpt-5.6-sol:medium
+  plan: openai-codex/gpt-5.6-sol:xhigh
   slow: openai-codex/gpt-5.6-sol:max
   designer: openai-codex/gpt-5.6-sol:high
   vision: openai-codex/gpt-5.6-sol:medium
