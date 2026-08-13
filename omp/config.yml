@@ -21,8 +21,11 @@
 modelRoles:
   # --- Claude: the director ---
   default: anthropic/claude-opus-5:xhigh
-  plan: anthropic/claude-opus-5:max
-  slow: anthropic/claude-opus-5:max
+  # Opus 5 flattens out past medium, so the escalation roles buy thinking
+  # budget only where it still pays: medium to plan, one step up to grind on
+  # a hard bug. `max` was paying 2x the budget of `medium` for noise.
+  plan: anthropic/claude-opus-5:medium
+  slow: anthropic/claude-opus-5:high
   designer: anthropic/claude-opus-5:high
   vision: anthropic/claude-sonnet-5:medium
 
