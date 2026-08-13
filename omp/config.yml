@@ -45,17 +45,51 @@ task:
   enableLsp: true
 
 retry:
+  enabled: true
   modelFallback: true
+  # The preflight that reads coding-plan usage reports. This is what notices
+  # the Go plan approaching its $12/5h · $30/wk · $60/mo caps and moves to the
+  # chain *before* a hard failure — without it, spillover only happens on an
+  # actual error, which is too late to be useful.
   usageAwareFallback: true
+  usageReservePct: 10
+  usageReservePolicy: confirm
+
+  # Ordering is deliberate: drain the Go plan first, then spill to Zen.
+  #
+  # Go and Zen expose overlapping catalogs but bill differently — Go is the
+  # capped plan, Zen is pay-as-you-go on the same OPENCODE_API_KEY. Go is
+  # strictly cheaper where they overlap ($/1M in-out):
+  #
+  #   gpt-5.6-luna     Go 0.10/0.60   Zen 0.20/1.20   (2x)
+  #   deepseek-v4-pro  Go 0.435/0.87  Zen 1.74/3.84   (4x)
+  #   deepseek-v4-flash, kimi-k2.7-code, glm-5.2, minimax-m3 — identical
+  #
+  # so there is never a reason to reach Zen while Go quota remains.
   fallbackChains:
-    # Claude quota wall -> keep working on Go rather than stopping.
+    # Per-model spillover: a worker lands on its own Zen twin, so the model
+    # stays the same mid-workstream and only the billing route changes.
+    "opencode-go/deepseek-v4-pro":
+      - opencode-zen/deepseek-v4-pro:high
+      - opencode-zen/kimi-k2.7-code:high
+    "opencode-go/gpt-5.6-luna":
+      - opencode-zen/gpt-5.6-luna:low
+      - opencode-zen/deepseek-v4-flash:low
+
+    # Catch-all. Also the safety net for the two keys above: if OMP resolves
+    # chains by provider glob only and ignores model-specific keys, Go still
+    # reaches Zen before anything else.
+    "opencode-go/*":
+      - opencode-zen/gpt-5.6-luna
+      - anthropic/claude-sonnet-5:high
+
+    # Claude quota wall -> Go plan first, Zen only once Go is also spent.
     "anthropic/*":
       - opencode-go/gpt-5.6-luna:xhigh
-    # Go outage -> fall back onto the subscription.
-    "opencode-go/*":
-      - anthropic/claude-sonnet-5:high
+      - opencode-zen/gpt-5.6-luna:xhigh
     default:
       - opencode-go/gpt-5.6-luna:xhigh
+      - opencode-zen/gpt-5.6-luna:xhigh
 
 symbolPreset: nerd
 theme:
