@@ -113,3 +113,7 @@ autolearn:
   autoContinue: true
 dev:
   autoqaConsent: granted
+
+# Hides the collapsible thinking-block UI in the TUI; toggled via OMP's own
+# settings, kept here since OMP writes straight through this symlink.
+hideThinkingBlock: false
