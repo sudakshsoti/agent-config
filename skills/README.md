@@ -43,7 +43,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-The 32 skills below are the ones worth reaching for by name. Thirty-five are
+The 33 skills below are the ones worth reaching for by name. Thirty-six are
 installed in all; `build-mode`, `to-spec`, and `wait-what` are omitted here
 and route on their own triggers rather than being picked from a list.
 Anything under `skills/_archive/` is kept for reference only and is
@@ -55,6 +55,7 @@ deliberately not installed — see [`_archive/README.md`](_archive/README.md).
 - `design-foil` — Industry-agnostic strategy + UX advisor: brainstorm, critique, strategy docs, teardowns.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
 - `find-skills` — Discover and install agent skills when asked "is there a skill for X".
+- `finite` — The advisor for a finite life: a daily orient across Linear/Todoist/notes, on-demand triage that names what a new commitment displaces, and the forced cull into a durable Season ledger. Burkeman-flavoured — kind, unflinching, subtractive.
 - `git-guardrails` — Set up a hook that blocks dangerous git commands (`push`, `reset --hard`, `clean -f`, `branch -D`) before Claude Code runs them.
 - `grilling` — Interview the user relentlessly about a plan/decision, round by round over a design tree, until nothing is left unsettled.
 - `handoff` — Structured session-handoff docs for continuity across sessions.
