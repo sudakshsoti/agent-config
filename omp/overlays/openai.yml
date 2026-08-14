@@ -2,12 +2,12 @@
 # headroom, not top-of-line unlimited).
 # Usage: omp --config ~/dev/agent-config/omp/overlays/openai.yml   (alias: ompo)
 #
-# ompo swaps the judgment vendor from Claude to ChatGPT and nothing else:
-# ChatGPT (openai-codex) directs the judgment roles below (default/plan/slow/
-# designer/vision); opencode-go still executes the worker roles (task/smol/
-# tiny/commit), same as the base config.yml. Those four worker roles are
+# ompo swaps the judgment vendor from Claude to ChatGPT: ChatGPT (openai-codex)
+# directs the judgment roles below (default/plan/slow/designer/vision) plus
+# `task`, which moves onto the OpenAI subscription too (Terra, matching
+# default) instead of the metered opencode-go worker. smol/tiny/commit are
 # deliberately NOT redefined here — omitting them lets them fall through from
-# base, the same mechanism this file already relies on for the entire
+# base, the same mechanism this file already relies on for the rest of the
 # non-role config (theme/statusline/task engine/memory/autolearn).
 #
 # The gpt-5.6 family, by list price per 1M tokens (`omp models --json`).
@@ -30,6 +30,7 @@ modelRoles:
   slow: openai-codex/gpt-5.6-sol:max
   designer: openai-codex/gpt-5.6-sol:high
   vision: openai-codex/gpt-5.6-sol:medium
+  task: openai-codex/gpt-5.6-terra:medium
 
 retry:
   modelFallback: true

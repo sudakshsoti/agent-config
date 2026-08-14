@@ -5,19 +5,24 @@
 # stays in the base config.yml and is deliberately NOT repeated here.
 #
 # ompc pins the judgment/worker split explicitly: Claude directs the
-# judgment roles below (default/plan/slow/designer/vision), and task/smol/
-# tiny/commit are left undefined here so they fall through to opencode-go in
-# the base config.yml. The default is Sonnet for routine work; planning uses
-# Opus at the Artificial Analysis Pareto-ish medium effort.
+# judgment roles below (default/plan/slow/designer/vision) plus `task`, which
+# moves onto the Anthropic subscription too (Sonnet 4.6, at the same
+# Pareto-ish medium effort as ompo's Terra) instead of the metered
+# opencode-go worker. smol/tiny/commit are left undefined here so they fall
+# through to opencode-go in the base config.yml. The default is Sonnet 4.6
+# for routine work; planning uses Opus 4.8, both at the Artificial Analysis
+# Pareto-ish medium effort. slow/designer/vision stay on the Sonnet/Opus 5
+# family for the highest-stakes escalation tiers.
 #
 # This overlay owns its judgment defaults so ompc remains stable if the base
 # config's model roles change later.
 modelRoles:
-  default: anthropic/claude-sonnet-5:medium
-  plan: anthropic/claude-opus-5:medium
+  default: anthropic/claude-sonnet-4-6:medium
+  plan: anthropic/claude-opus-4-8:medium
   slow: anthropic/claude-opus-5:high
   designer: anthropic/claude-opus-5:high
   vision: anthropic/claude-sonnet-5:medium
+  task: anthropic/claude-sonnet-4-6:medium
 
 retry:
   modelFallback: true
