@@ -7,13 +7,13 @@
 # ompc pins the judgment/worker split explicitly: Claude directs the
 # judgment roles below (default/plan/slow/designer/vision), and task/smol/
 # tiny/commit are left undefined here so they fall through to opencode-go in
-# the base config.yml — the same mechanism this file already relies on for
-# `commit` (never defined here either). This split matches the base config's
-# own default today, but this overlay exists so ompc keeps it even if the
-# base config's default vendor changes later.
+# the base config.yml. The default is Sonnet for routine work; planning uses
+# Opus at the Artificial Analysis Pareto-ish medium effort.
+#
+# This overlay owns its judgment defaults so ompc remains stable if the base
+# config's model roles change later.
 modelRoles:
-  default: anthropic/claude-opus-5:xhigh
-  # Same rationale as the base config: Opus 5 flattens out past medium.
+  default: anthropic/claude-sonnet-5:medium
   plan: anthropic/claude-opus-5:medium
   slow: anthropic/claude-opus-5:high
   designer: anthropic/claude-opus-5:high

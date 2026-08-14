@@ -1,113 +1,50 @@
-# OMP main config — Claude directs, OpenCode Go executes.
-#
-# Plain `omp` runs this. The overlays in omp/overlays/ pin every role to a
-# single vendor instead; see the ompc/ompo/ompx aliases in ~/.zshrc.
-#
-#   Claude subscription  -> judgment, planning, hard reasoning  (flat cost)
-#   opencode-go          -> high-volume worker execution        (metered $)
-#
-# Worker prices are $/1M in-out, from `omp models opencode-go --json`:
-#   gpt-5.6-luna 0.10/0.60 · deepseek-v4-pro 0.435/0.87
-#   deepseek-v4-flash 0.14/0.28 · kimi-k2.7-code 0.95/4 · glm-5.2 1.4/4.4
-#
-# luna is the cheapest thing in the catalog on input and carries a 1.1M window
-# with vision, so it takes the mechanical tier outright — deepseek-v4-flash is
-# 40% more expensive on input and has no image support. deepseek-v4-pro takes
-# the judgment tier at roughly a quarter of kimi-k2.7-code's price.
-#
-# Thinking suffixes are constrained per model: deepseek-v4-pro only offers
-# high/max, so `:low` would be invalid there.
-
 modelRoles:
-  # --- Claude: the director ---
   default: anthropic/claude-opus-5:medium
-  # Opus 5 has no `max` tier — xhigh is the ceiling (verified against
-  # Artificial Analysis, 2026-08-13: Intelligence Index runs 52/59/61/63
-  # across low/medium/high/xhigh). medium->high is the worst step on that
-  # curve (+2 pts for +71% cost), so `plan` buys one real step of judgment
-  # and only `slow` — genuinely stuck — pays for the xhigh ceiling.
   plan: anthropic/claude-opus-5:high
   slow: anthropic/claude-opus-5:xhigh
   designer: anthropic/claude-opus-5:high
   vision: anthropic/claude-sonnet-5:medium
-
-  # --- opencode-go: the workers ---
-  # `task` backs the bundled `task` agent (@task) = /vibe "good".
-  # `smol` backs the bundled `sonic` agent (@smol) = /vibe "fast",
-  # and also scout + librarian.
   task: opencode-go/deepseek-v4-pro:high
   smol: opencode-go/gpt-5.6-luna:low
   tiny: opencode-go/gpt-5.6-luna:low
   commit: opencode-go/gpt-5.6-luna:low
-
-# No task.agentModelOverrides: the bundled agents already resolve through the
-# roles above (sonic -> @smol, task -> @task, designer -> @designer,
-# reviewer -> @slow). Pinning them again would just be a second place to edit.
 task:
   batch: true
   enableEffort: true
   eager: preferred
   enableLsp: true
-
 retry:
   enabled: true
   modelFallback: true
-  # The preflight that reads coding-plan usage reports. This is what notices
-  # the Go plan approaching its $12/5h · $30/wk · $60/mo caps and moves to the
-  # chain *before* a hard failure — without it, spillover only happens on an
-  # actual error, which is too late to be useful.
   usageAwareFallback: true
   usageReservePct: 10
   usageReservePolicy: confirm
-
-  # Ordering is deliberate: drain the Go plan first, then spill to Zen.
-  #
-  # Go and Zen expose overlapping catalogs but bill differently — Go is the
-  # capped plan, Zen is pay-as-you-go on the same OPENCODE_API_KEY. Go is
-  # strictly cheaper where they overlap ($/1M in-out):
-  #
-  #   gpt-5.6-luna     Go 0.10/0.60   Zen 0.20/1.20   (2x)
-  #   deepseek-v4-pro  Go 0.435/0.87  Zen 1.74/3.84   (4x)
-  #   deepseek-v4-flash, kimi-k2.7-code, glm-5.2, minimax-m3 — identical
-  #
-  # so there is never a reason to reach Zen while Go quota remains.
   fallbackChains:
-    # Per-model spillover: a worker lands on its own Zen twin, so the model
-    # stays the same mid-workstream and only the billing route changes.
-    "opencode-go/deepseek-v4-pro":
+    opencode-go/deepseek-v4-pro:
       - opencode-zen/deepseek-v4-pro:high
-      # minimax-m3 over kimi-k2.7-code: same Go/Zen price parity, but a 1M
-      # window and image/video input vs kimi's 256K text-only (verified
-      # 2026-08-13).
       - opencode-zen/minimax-m3
-    "opencode-go/gpt-5.6-luna":
+    opencode-go/gpt-5.6-luna:
       - opencode-zen/gpt-5.6-luna:low
       - opencode-zen/deepseek-v4-flash:low
-
-    # Catch-all. Also the safety net for the two keys above: if OMP resolves
-    # chains by provider glob only and ignores model-specific keys, Go still
-    # reaches Zen before anything else.
-    "opencode-go/*":
+    opencode-go/*:
       - opencode-zen/gpt-5.6-luna
       - anthropic/claude-sonnet-5:high
-
-    # Claude quota wall -> Go plan first, Zen only once Go is also spent.
-    "anthropic/*":
+    anthropic/*:
       - opencode-go/gpt-5.6-luna:xhigh
       - opencode-zen/gpt-5.6-luna:xhigh
     default:
       - opencode-go/gpt-5.6-luna:xhigh
       - opencode-zen/gpt-5.6-luna:xhigh
-
 symbolPreset: nerd
 theme:
   dark: dark-lunar
 setupVersion: 1
 statusLine:
-  preset: full
-  separator: powerline
+  preset: default
+  separator: powerline-thin
   sessionAccent: true
   compactThinkingLevel: false
+  transparent: false
 startup:
   quiet: true
 autoResume: true
@@ -118,7 +55,12 @@ autolearn:
   autoContinue: true
 dev:
   autoqaConsent: granted
-
-# Hides the collapsible thinking-block UI in the TUI; toggled via OMP's own
-# settings, kept here since OMP writes straight through this symlink.
 hideThinkingBlock: false
+advisor:
+  enabled: false
+terminal:
+  showProgress: false
+display:
+  shimmer: classic
+  smoothStreaming: true
+  showTokenUsage: false
