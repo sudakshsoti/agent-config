@@ -204,6 +204,13 @@ fi
 #     nothing to sync back.
 link_into "$REPO/claude-powerline.json" "$CLAUDE/claude-powerline.json"
 
+# 3b2. Global CLAUDE.md: symlinked for the same reason as claude-powerline.json
+#     above — Claude Code only ever reads this file, never rewrites it, so a
+#     repo edit goes live immediately with nothing to sync back. Named
+#     global-claude.md in the repo since the repo's own root CLAUDE.md (the
+#     project-instructions file for this checkout) already owns that name.
+link_into "$REPO/global-claude.md" "$CLAUDE/CLAUDE.md"
+
 # 3c. Codex config: merge only the non-secret keys tracked in codex/config.toml.
 #     Preserve unrelated user, MCP, desktop, and machine-managed settings.
 if [ -d "$CODEX" ] && [ -f "$REPO/codex/config.toml" ]; then
