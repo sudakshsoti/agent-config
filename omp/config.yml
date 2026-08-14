@@ -47,9 +47,10 @@ statusLine:
   transparent: false
 startup:
   quiet: true
-autoResume: true
+autoResume: false
+modelRoleStorage: session
 memory:
-  backend: local
+  backend: off
 autolearn:
   enabled: true
   autoContinue: true
