@@ -1,4 +1,4 @@
-# The Season ledger
+# The Closed List
 
 One file. It answers *what is alive right now* so that question is decided once rather
 than re-argued every morning. Orient and Triage read it; only Mode 3 writes it.
@@ -8,9 +8,9 @@ than re-argued every morning. Orient and Triage read it; only Mode 3 writes it.
 Discovered, not hard-coded — the operator's setup decides:
 
 - A notes vault (Obsidian PARA and similar): an Areas-level note, e.g.
-  `02 Areas/Season.md`. Best default when one exists — it sits beside the project notes
+  `02 Areas/ClosedList.md`. Best default when one exists — it sits beside the project notes
   the operator already reads.
-- A repo: `Season.md` at the root, or wherever a `CLAUDE.md`/`AGENTS.md` points.
+- A repo: `ClosedList.md` at the root, or wherever a `CLAUDE.md`/`AGENTS.md` points.
 - **No filesystem** (claude.ai, a hosted assistant): a Linear document or a Notion page.
   If neither is available, ask the operator to keep the ledger themselves and paste it at
   the start of a session — degraded, but it still beats guessing.
@@ -20,7 +20,7 @@ Record the resolved path the first time and reuse it. Two ledgers is worse than 
 ## Format
 
 ```markdown
-# Season — <name> (<start> → <review-by>)
+# Closed List — Q<N> <year> · <name> (<quarter-start> → <quarter-end>)
 
 ## Live
 Capped at the job + 3. Each carries a finish condition and a consequence.
@@ -68,6 +68,11 @@ One or two lines on what this season is *for*.
 - **Dormant has a date.** Without one it reads as abandonment and the operator will keep
   it Live out of loyalty. With one it reads as scheduled, and it lets go cleanly.
 - **The Floor is not a slot.** It sits outside the three entirely.
+- **Tag the quarter, everywhere it's filterable.** Every Live commitment and every
+  Dormant item's resurface point should carry a matching quarter label wherever the
+  underlying system supports one — `quarter/qN-YYYY` in Obsidian, `qN-YYYY` in Todoist,
+  `QN YYYY` in Linear. Moving something to the next quarter under overcommitment is then
+  a one-field edit — swap the label — not a rewrite.
 
 ## The cull procedure
 
@@ -91,7 +96,7 @@ dropping. Change one row, keep the cap. A swap is a swap: something leaves Live 
 something to enter. If the operator wants a fourth Live commitment, the answer is which of
 the three is going Dormant, asked as a question rather than argued as a position.
 
-Reconvene the full procedure only when the review-by date passes, the season's purpose has
-changed, or the ledger has stopped matching what the operator actually does — that last
-one is the real signal, and it shows up as Orient repeatedly recommending work that is not
-in the ledger.
+Reconvene the full procedure when the review-by date passes, **when the calendar quarter
+turns over**, the season's purpose has changed, or the ledger has stopped matching what
+the operator actually does — that last one is the real signal, and it shows up as Orient
+repeatedly recommending work that is not in the ledger.

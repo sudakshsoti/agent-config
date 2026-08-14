@@ -5,10 +5,10 @@ description: |
   across every system they keep, and says the hard part out loud. Three jobs. ORIENT:
   "what should I do today", "what now", "where do I start" — the short daily verdict.
   TRIAGE: "I have 90 minutes", "I'm fried", "should I take this on", "can I fit X in" —
-  answered by naming what it displaces. SEASON: "I'm overcommitted", "too many projects",
-  "what do I drop", "what am I actually doing this quarter" — the forced cull, written to
-  a durable Season ledger the other two modes read. Spans Linear, Todoist, notes and
-  uncaptured life admin; no single tracker is authoritative. Triggers on overwhelmed,
+  answered by naming what it displaces. CLOSED LIST: "I'm overcommitted", "too many
+  projects", "what do I drop", "what am I actually doing this quarter" — the forced cull,
+  written to a durable Closed List the other two modes read. Spans Linear, Todoist, notes
+  and uncaptured life admin; no single tracker is authoritative. Triggers on overwhelmed,
   overcommitted, spread thin, burnt out, priorities, what next, drop, cull, capacity,
   saying no. Advises first, writes back only on approval.
 ---
@@ -26,24 +26,26 @@ finitude as a relief rather than a verdict on the operator's character.
 
 - "what should I do today", "what now", "where do I start" → **Orient**
 - "I have 90 min", "I'm fried", "should I take X on" → **Triage**
-- "I'm overcommitted", "what do I drop", "what am I doing this quarter" → **Season**
+- "I'm overcommitted", "what do I drop", "what am I doing this quarter" → **Closed List**
 
-## Mode 0 — Load the Season (first, every time)
+## Mode 0 — Load the Closed List (first, every time)
 
-The **Season ledger** is the single durable answer to *what is alive right now*. Orient
-and Triage read it; only Season writes it. Without it you are guessing, and a guess
+The **Closed List** is the single durable answer to *what is alive right now*. Orient
+and Triage read it; only Closed List writes it. Without it you are guessing, and a guess
 re-litigates the cull every morning — the exact cost the ledger exists to remove.
 
-1. Find it. Check the current repo or the operator's notes vault for a `Season.md`. If a
-   `CLAUDE.md`/`AGENTS.md` names its path, use that. Hold the path for the session.
-2. If it does not exist, say so and go to **Season** — that mode creates it. Do not
+1. Find it. Check the current repo or the operator's notes vault for a `ClosedList.md`.
+   If a `CLAUDE.md`/`AGENTS.md` names its path, use that. Hold the path for the session.
+2. If it does not exist, say so and go to **Closed List** — that mode creates it. Do not
    improvise a one-off answer on top of no ledger; a cull the operator never saw
    evaporates by tomorrow.
-3. If it exists but is older than ~90 days, or names a finish condition that has already
-   passed, surface that in one line and offer a revision. Then carry on with the mode
-   actually asked for — a stale ledger still beats none.
+3. If it exists but is older than ~90 days, or the calendar quarter has turned over since
+   it was written, or it names a finish condition that has already passed, surface that
+   in one line and offer a revision. Then carry on with the mode actually asked for — a
+   stale ledger still beats none.
 
-Format, capacity rules and the cull procedure: [`references/season.md`](references/season.md).
+Format, capacity rules and the cull procedure:
+[`references/closed-list.md`](references/closed-list.md).
 
 ## Where the truth lives
 
@@ -105,11 +107,11 @@ knowingly. If nothing can be evicted, the answer is no, and you say it.
 
 **"Can I fit X in?"** Same move. Capacity is not found; it is taken from something.
 
-## Mode 3 — Season (the cull)
+## Mode 3 — Closed List (the cull)
 
 Invoked on demand, not on a calendar — but it is the backbone the other two modes stand
 on. Full procedure, worked example and ledger template:
-[`references/season.md`](references/season.md). In outline:
+[`references/closed-list.md`](references/closed-list.md). In outline:
 
 1. **Inventory everything.** Sweep all systems above plus the uncaptured question. Present
    the true count first — the number is the argument, and it lands harder than any
@@ -132,7 +134,7 @@ You read freely. You **propose, then write only what the operator approves**, it
 item — not a blanket yes. Approval for the cull is not approval to archive fourteen
 Linear projects.
 
-- **Season ledger** — write the file once approved. It is the one artefact that must
+- **Closed List** — write the file once approved. It is the one artefact that must
   persist; a cull that lives only in a chat transcript did not happen.
 - **Linear** — a Dormant project gets a status update saying so with its resurface date
   (`save_status_update`), which is honest and reversible. Archive only when the operator
