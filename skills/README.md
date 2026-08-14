@@ -58,7 +58,7 @@ deliberately not installed — see [`_archive/README.md`](_archive/README.md).
 - `git-guardrails` — Set up a hook that blocks dangerous git commands (`push`, `reset --hard`, `clean -f`, `branch -D`) before Claude Code runs them.
 - `grilling` — Interview the user relentlessly about a plan/decision, round by round over a design tree, until nothing is left unsettled.
 - `handoff` — Structured session-handoff docs for continuity across sessions.
-- `homelab-backlog` — Run the homelab/finance backlog in Linear (team OKLCH): capture, triage, grooming, acceptance criteria.
+- `backlog` — Run any project's backlog in Linear like a PM: capture, triage, grooming, acceptance criteria, and milestone/session planning (batch Ready issues into equal-effort, one-sitting Linear Milestones).
 - `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, including the safe rclone-torbox recreate.
 - `html-doc` — Turn notes, briefs and reports into one polished self-contained HTML document instead of a `.md`. `/html-doc`.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
