@@ -24,7 +24,18 @@ modelRoles:
   # only becomes a default if the result holds up. Do not stack it with /vibe —
   # a director briefing a smol worker that then prewalks to smol is a no-op.
   smol: openai-codex/gpt-5.6-luna:low
-  tiny: openai-codex/gpt-5.6-luna:low
+  # Local, via the ollama-local provider in omp/models.yml. `tinyModel` and
+  # `autoThinkingModel` stay `online` below — on that path omp prefers the
+  # configured `tiny` role, so this routes session titles to the box without
+  # touching those closed enums. Only `tiny` moves; every other role is
+  # unchanged.
+  # Qwen3.5 0.8B, not the 4B: this is a 16GB Mac and the 4B sat resident at
+  # 4-6GB. The 0.8B loads at 1.1GB and returns a title in ~0.47s warm.
+  # It only behaves because models.yml sends `reasoning_effort: none`. With
+  # thinking on, the same title took 158 seconds and 5812 reasoning tokens.
+  # If titles ever go slow again, check that first — not the model, not the
+  # hardware.
+  tiny: ollama-local/qwen3.5:0.8b
   commit: openai-codex/gpt-5.6-luna:low
 task: 
   batch: true
