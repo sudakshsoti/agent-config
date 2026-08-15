@@ -134,8 +134,11 @@ providers:
   # what the `auto` thinking-level decisions actually cost.
   autoThinkingModel: online
   autoThinkingMaxEffort: xhigh
-  anthropic: 
+  anthropic:
     serverSideFallback: false
+  webSearchOrder:
+    - tavily
+    - exa
 textVerbosity: medium
 tier: 
   openai: none
