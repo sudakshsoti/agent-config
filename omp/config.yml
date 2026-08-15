@@ -102,3 +102,16 @@ compaction:
   handoffSaveToDisk: true
 snapcompact: 
   systemPrompt: none
+# On means the model uses the native read/grep/glob/write tools instead of
+# shelling out, so output arrives summarized and gitignore-aware rather than
+# dumped raw into context, and long-lived processes start under `hub` where
+# they can be observed instead of behind a bare `&`.
+# CAVEAT, look here first if an edit lands wrong: three of the eleven built-in
+# patterns reroute in-place edits — `sed -i`, `perl -i`, `awk -i inplace` — to
+# the `edit` tool, which fuzzy-matches. That changes what those commands mean,
+# so a script or a command written to edit exactly one thing can edit something
+# else. The patterns are deliberately not overridden here: overriding means
+# pasting all eleven rules into this file and re-diffing them against upstream
+# on every `omp update`, which costs more to maintain than the risk is worth.
+bashInterceptor: 
+  enabled: true
