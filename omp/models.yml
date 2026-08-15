@@ -1,0 +1,64 @@
+# Local Ollama provider, so session titles stop being remote API calls.
+# Ollama 0.32.13, served by the desktop app on port 11434 (`brew services
+# ollama` is stopped — the two servers do not coexist on that port).
+#
+# Declared as a full custom provider rather than `modelOverrides` on omp's
+# built-in `ollama` provider. That one is populated by runtime discovery and
+# its cache goes stale: after `ollama rm`, `omp models` still listed the
+# deleted model and had not picked up the new one. A custom entry resolves
+# from this file every time, and it is the only place cost-zero and the
+# thinking suppression below can be pinned.
+providers:
+  ollama-local:
+    baseUrl: http://localhost:11434/v1
+    auth: none
+    # MUST be openai-completions. `openai-responses` also "connects" against
+    # this endpoint but returns garbled output with no clear error.
+    api: openai-completions
+    models:
+      # 0.8B, not the 4B. This is a 16GB Mac that was already swapping; the
+      # 4B sat resident at ~4-6GB for a job that is one 3-7 word title.
+      # `ollama ps` shows this one at 1.1GB with the stock 4096 context, and a
+      # title prompt is ~82 tokens, so there is no reason to raise it.
+      - id: qwen3.5:0.8b
+        name: Qwen3.5 0.8B (local)
+        api: openai-completions
+        # Qwen3.5 thinks by default and that makes it useless here — on the 4B
+        # a single title took 158s and 5812 reasoning tokens. `reasoning:
+        # false` tells omp the model has no thinking mode; the extraBody line
+        # below is what actually switches it off at the Ollama end. Both are
+        # needed: omp not asking for thinking is not the same as the model not
+        # doing it.
+        reasoning: false
+        input: [text]
+        # Local inference is free. Zeros keep `omp stats` from inventing a
+        # price for it.
+        cost:
+          input: 0
+          output: 0
+          cacheRead: 0
+          cacheWrite: 0
+        # Stock Ollama context. omp's title request asks for 1024 output
+        # tokens, which fits.
+        contextWindow: 4096
+        maxTokens: 1024
+        compat:
+          # Stop omp emitting its own reasoning_effort, which would fight the
+          # extraBody value below.
+          supportsReasoningEffort: false
+          extraBody:
+            # "none" is the only value that works. Confirmed broken on this
+            # endpoint: "low" hangs, `think: false` hangs, and
+            # `chat_template_kwargs: {enable_thinking: false}` still thinks and
+            # leaks a literal </think> into content.
+            #
+            # Note omp additionally sends `preserve_thinking: true` and
+            # `chat_template_kwargs: {preserve_thinking: true}` on the title
+            # request — captured off the wire with a logging proxy. On the 4B
+            # those beat `reasoning_effort` and titles took 78s. On this 0.8B
+            # they do not: replaying omp's exact body returns in 0.47s warm
+            # with no `reasoning` field. If a future omp or model build
+            # regresses, add `preserve_thinking: false` and
+            # `chat_template_kwargs: {preserve_thinking: false}` here — both
+            # were verified to work.
+            reasoning_effort: none
