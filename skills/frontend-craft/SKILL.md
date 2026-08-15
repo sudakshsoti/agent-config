@@ -1,11 +1,12 @@
 ---
 name: frontend-craft
 description: >
-  Visual direction, subject-specific art direction, typography, colour, hierarchy,
+  Integrated visual direction, subject-specific art direction, colour, hierarchy,
   layout systems, responsive visual behaviour, CSS and design tokens, @theme,
   @font-face, OKLCH and design-system styling. Use for building or reshaping a
-  UI's visual system, not solely because a task touches React, Vue, Svelte,
-  component behaviour, state, data flow, API wiring or tests.
+  UI's visual system. For typography-primary work, use `typography-craft`; do not
+  invoke this skill solely because a task touches React, Vue, Svelte, component
+  behaviour, state, data flow, API wiring or tests.
 ---
 
 # Frontend craft
@@ -98,6 +99,8 @@ progression and tracking at size. Use OpenType features by code (`liga`, `kern`,
 axes by tag (`wght`, `wdth`, `ital`, `opsz`, `GRAD`, `slnt`, plus foundry custom
 axes). Use `@font-face` with appropriate `unicode-range`, `size-adjust` and
 metric overrides.
+
+For specialist type selection, typesetting, font engineering, or cross-medium typography, invoke `typography-craft`. Keep these baseline checks here when type serves an integrated UI direction.
 
 **Colour:** build OKLCH ramps with perceptual uniformity across the L axis, use
 dark/light token architecture, and prefer `color-mix()` for state variants over
