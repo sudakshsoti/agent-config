@@ -223,12 +223,12 @@ if [ -d "$CODEX" ] && [ -f "$REPO/codex/config.toml" ]; then
   echo "merged  codex/config.toml"
 fi
 
-# 3e/3f only run when OMP is installed. Say so out loud when it isn't —
+# 3e/3f/3g only run when OMP is installed. Say so out loud when it isn't —
 #     a silent no-op makes a verify of the form `./install.sh && readlink
 #     ~/.omp/agent/config.yml` look like it passed on a machine that never got
 #     the links.
 if [ ! -d "$OMP" ]; then
-  echo "⚠️  SKIP omp — no $OMP (OMP not installed). config.yml and agents/ not linked."
+  echo "⚠️  SKIP omp — no $OMP (OMP not installed). config.yml, models.yml and agents/ not linked."
 fi
 
 # 3e. OMP config: symlinked, unlike codex/config.toml above. OMP *does* rewrite
@@ -253,6 +253,18 @@ if [ -d "$OMP" ] && [ -d "$REPO/omp/agents" ]; then
   for a in "$REPO"/omp/agents/*.md; do
     link_into "$a" "$OMP/agents/$(basename "$a")"
   done
+fi
+
+# 3g. OMP custom models: the local Ollama provider that serves session titles
+#     and the `auto` thinking classifier. Symlinked for the same reason as
+#     config.yml — OMP reads this file and never writes it, so the repo is the
+#     only source of truth and the rationale comments in it survive.
+#     Depends on `ollama pull qwen3.5:0.8b` having been run. If it hasn't,
+#     the role just fails and the session stays untitled — nothing falls back
+#     to a paid provider.
+if [ -d "$OMP" ] && [ -f "$REPO/omp/models.yml" ]; then
+  mkdir -p "$OMP"
+  link_into "$REPO/omp/models.yml" "$OMP/models.yml"
 fi
 
 # 3d. Git hooks: point git at the tracked .githooks/ instead of .git/hooks, so
