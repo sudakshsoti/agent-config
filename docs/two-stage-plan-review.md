@@ -9,7 +9,7 @@ tags:
 aliases:
   - Plan Review Pipeline
   - Cross-Lineage Review
-  - rev
+  - adversary
 status: active
 ---
 
@@ -27,11 +27,9 @@ graph TD
     A[Opus proposes plan in plan mode] --> B["/self-review"]
     B --> C[plan-critic subagent<br/>cold Opus, read-only]
     C --> D[Opus revises plan]
-    D --> E{Costly if wrong?}
-    E -->|No| F["rev → DeepSeek V4 Pro"]
-    E -->|Yes| G["rev-hard → Gemini 3 Flash"]
+    D --> E["/peer-review in omp"]
+    E --> F["adversary subagent<br/>Gemini 3.7 Flash, read-only"]
     F --> H[Paste critique back to Opus]
-    G --> H
     H --> I[Opus integrates, plan is hardened]
 ```
 
@@ -43,9 +41,10 @@ graph TD
 
 ### Stage 2 — cross-lineage (different model family, costs OpenRouter credits)
 
-- **Trigger:** copy the revised plan, then run `rev` in the terminal.
-- **What runs:** `pbpaste | llm -t peer-review` ships the clipboard plan to **DeepSeek V4 Pro** via the `llm` CLI + OpenRouter plugin. A different lineage catches assumptions Claude shares with itself.
-- **Escalation:** `rev-hard` swaps in **Gemini 3 Flash** — use when a missed assumption would be expensive.
+- **Trigger:** open `omp` on the plan file and run `/peer-review`.
+- **What runs:** the `adversary` subagent (`omp/agents/adversary.md`), read-only, pinned to `model: "@adversary"`. That role resolves to **Gemini 3.7 Flash** on OpenRouter, and its fallback chain contains no Anthropic model — so a retry can never quietly hand a Claude plan back to Claude.
+- **Why Gemini and not DeepSeek:** DeepSeek V4 Pro held this slot until 2026-08-15 and was accurate, but slow enough that the review got skipped. Flash returns fast, reads the plan plus every file it cites in one 1M-token window, and is a lineage nobody here directs with.
+- **Cost:** OpenRouter is metered, not a subscription. Flash is $0.375 / $1.875 per 1M tokens — a promo that may end 2026-12-31, worth revisiting then.
 
 ## Daily ritual
 
@@ -53,35 +52,31 @@ graph TD
 >
 > 1. Opus proposes a plan in plan mode.
 > 2. Type `/self-review` → plan-critic critiques it cold, Opus revises.
-> 3. Copy the revised plan → run `rev` in the terminal for the DeepSeek pass.
-> 4. Use `rev-hard` instead when a missed assumption would be costly.
-> 5. Paste anything new back to Opus.
+> 3. Open the plan in `omp`, run `/peer-review` → the `adversary` subagent critiques it on Gemini 3.7 Flash.
+> 4. Paste anything new back to Opus.
 
 ## Commands & aliases
 
 - `/self-review` — Claude Code. Stage 1 — dispatch plan-critic, then revise.
-- `rev` — terminal. Stage 2 — clipboard plan → DeepSeek V4 Pro.
-- `rev-hard` — terminal. Stage 2 (hard) — clipboard plan → Gemini 3 Flash.
+- `/peer-review` — omp. Stage 2 — dispatch the `adversary` subagent.
 
-```bash
-# ~/.zshrc
-alias rev='pbpaste | llm -t peer-review'
-alias rev-hard='pbpaste | llm -t peer-review -m openrouter/google/gemini-3-flash-preview'
-```
-
-> [!warning] Aliases need a fresh shell
-> Run `source ~/.zshrc` or open a new terminal tab before `rev` resolves.
+> [!note] The `rev` / `rev-hard` aliases are gone
+> Until 2026-08-15 Stage 2 ran as `pbpaste | llm -t peer-review` against an
+> untracked `llm` template. That was a third copy of the same prompt picking a
+> model a third way. Both aliases and the template were deleted; the subagent is
+> the single tracked path.
 
 ## What lives where
 
-> [!info] Tracked vs. out-of-repo
-> The agent and command are **version-controlled** in `agent-config` and symlinked into `~/.claude`. The shell/CLI pieces live outside any repo.
+> [!info] All tracked
+> Every piece of this pipeline is now version-controlled in `agent-config` and symlinked into place by `./install.sh`. Only the API key lives outside the repo.
 
 - `plan-critic` agent — `agent-config/agents/plan-critic.md` → `~/.claude/agents/`. Tracked: ✅ git + symlink.
 - `/self-review` skill — `agent-config/skills/self-review/SKILL.md` → `~/.claude/skills/`. Tracked: ✅ git + symlink.
-- `peer-review` template — `~/Library/Application Support/io.datasette.llm/templates/peer-review.yaml`. Tracked: ❌
-- `rev` / `rev-hard` aliases — `~/.zshrc`. Tracked: ❌
-- OpenRouter API key — `llm` keystore. Tracked: ❌ (secret)
+- `peer-review` skill — `agent-config/skills/peer-review/SKILL.md` → `~/.agents/skills/`. Tracked: ✅ git + symlink.
+- `adversary` agent — `agent-config/omp/agents/adversary.md` → `~/.omp/agent/agents/`. Tracked: ✅ git + symlink.
+- `adversary` model role — `agent-config/omp/config.yml` → `~/.omp/agent/config.yml`. Tracked: ✅ git + symlink.
+- OpenRouter API key — omp auth store (`~/.local/share/opencode/auth.json`). Tracked: ❌ (secret)
 
 > [!note] Why a skill, not a command file
 > This repo has no `commands/` directory — its mechanism for a slash command is a `user-invocable: true` skill. `/self-review` is functionally identical to a command file.
@@ -96,45 +91,35 @@ The Stage 1 critic. Read-only (`Read, Grep, Glob`) so it can inspect the codebas
 4. Over-engineering — with the simpler version.
 5. Verdict: ship / fix / rethink, then the top three changes.
 
-## peer-review template (Stage 2 prompt)
+## adversary (Stage 2 critic)
 
-```yaml
-model: openrouter/deepseek/deepseek-v4-pro
-system: |
-  Adversarially review this engineering plan, written by a different AI.
-  Find what it missed. Do not praise or restate it.
+`omp/agents/adversary.md`. Read-only (`read, grep, glob`), so it can check the
+plan's file and line-number claims against the real code — stale anchors are
+themselves a finding — but cannot edit. It outputs the same five sections as
+plan-critic, with a steelmanned alternative in place of internal inconsistencies.
 
-  1. Unstated assumptions, and what breaks if each is false.
-  2. Blind spots that genuinely apply: auth, race conditions, migration and
-     rollback safety, error handling, tests, data loss.
-  3. Over-engineering. Give the simpler version.
-  4. Steelman one different approach. When does it win?
-  5. Verdict: ship / fix / rethink, then the top three changes.
-
-  Terse. No filler. If a section has nothing real, write "none".
-```
+Its frontmatter pins `model: "@adversary"` rather than a selector. That is the
+whole trick: the model lives in one place (`omp/config.yml`), so changing the
+cross-lineage reviewer is a one-line edit and the fallback chain follows it.
 
 ## Design rationale
 
 > [!question] Why this order, and why two models?
 >
 > - **Cheap-first.** Stage 1 runs every time at no marginal cost; Stage 2 spends OpenRouter credits, so it only runs on plans Stage 1 has already tightened.
-> - **Lineage diversity.** Claude reviewing Claude shares the same blind spots. A different model family (DeepSeek, Gemini) is the point — it sees what self-review structurally cannot.
+> - **Lineage diversity.** Claude reviewing Claude shares the same blind spots. A different model family is the point — it sees what self-review structurally cannot. This is why no `anthropic/` selector appears anywhere in `retry.fallbackChains`: a rung back onto Claude would silently undo Stage 2.
+> - **Fast enough to actually run.** A reviewer you wait three minutes on is a reviewer you skip. Speed is a correctness property here, not a comfort.
 > - **Fresh context.** plan-critic reviews cold, with no loyalty to the plan's original reasoning.
 
 ## Setup notes
 
 > [!todo] First-run / new-machine checklist
 >
-> - [ ] `pipx install llm` and inject `llm-openrouter`
-> - [ ] `llm keys set openrouter` (paste key)
-> - [ ] Write `peer-review.yaml` to the `llm` templates dir
-> - [ ] Add `rev` / `rev-hard` to `~/.zshrc`, then `source` it
-> - [ ] `./install.sh` in `agent-config` to symlink agent + skill
+> - [ ] `omp auth login openrouter` (paste key) — the `adversary` role needs it
+> - [ ] `./install.sh` in `agent-config` to symlink the agents, skills, and omp config
 > - [ ] Restart Claude Code so `plan-critic` and `/self-review` load
-> - [ ] Smoke test: `echo "Plan: ..." | llm -t peer-review`
-
-On **Linux** there is no `pbpaste` — install `wl-clipboard` or `xclip` and swap `pbpaste` for `wl-paste` or `xclip -selection clipboard -o` in the aliases.
+> - [ ] Smoke test Stage 1: `/self-review` on any plan
+> - [ ] Smoke test Stage 2: `omp --model gemini-3.7-flash -p "reply OK"`
 
 ## Related
 

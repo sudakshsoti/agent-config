@@ -22,10 +22,16 @@ cd ~/dev/agent-config && ./install.sh
   statusline. Merged into `~/.codex/config.toml` without replacing credentials
   or machine-local settings.
 - `omp/config.yml` — OMP settings: model roles (`default`, plus the per-task
-  worker roles), thinking level, statusline and task options. Symlinked to
-  `~/.omp/agent/config.yml`, so `omp config set` and TUI toggles edit the repo
-  copy directly — check `git diff` before committing. Only linked if
-  `~/.omp/agent` exists.
+  worker roles), thinking level, statusline and task options. There are no
+  overlay configs — this is the only one, and it is Claude-directed. It carries
+  one invariant: no `anthropic/` selector may appear in `retry.fallbackChains`,
+  or a failed Claude call retries on Claude and the cross-lineage check is lost.
+  Symlinked to `~/.omp/agent/config.yml`, so `omp config set` and TUI toggles
+  edit the repo copy directly — check `git diff` before committing. Only linked
+  if `~/.omp/agent` exists.
+- `omp/agents/` — OMP subagents, symlinked into `~/.omp/agent/agents/`. Just
+  `adversary` for now: the cross-lineage plan reviewer behind `/peer-review`.
+  See `docs/two-stage-plan-review.md`.
 - `scripts/` — Executables referenced by absolute path from `settings.json` (not
   symlinked). Includes `statusline.sh` / `test-context-size.sh` (the main status
   bar) and `subagent-statusline.sh` / `test-subagent-statusline.sh` (the agent

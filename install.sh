@@ -233,6 +233,16 @@ if [ -d "$OMP" ] && [ -f "$REPO/omp/config.yml" ]; then
   link_into "$REPO/omp/config.yml" "$OMP/config.yml"
 fi
 
+# 3f. OMP subagents: symlinked the same way. `adversary` is the cross-lineage
+#     plan reviewer — it pins `model: "@adversary"`, so it follows the role in
+#     omp/config.yml and can never resolve to an Anthropic model.
+if [ -d "$OMP" ] && [ -d "$REPO/omp/agents" ]; then
+  mkdir -p "$OMP/agents"
+  for a in "$REPO"/omp/agents/*.md; do
+    link_into "$a" "$OMP/agents/$(basename "$a")"
+  done
+fi
+
 # 3d. Git hooks: point git at the tracked .githooks/ instead of .git/hooks, so
 #     the pre-commit lint arrives with a clone and works from a worktree (where
 #     .git is a file and has no hooks/ directory to write into). Relative on

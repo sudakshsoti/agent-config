@@ -1,11 +1,22 @@
+# INVARIANT: no `anthropic/` selector may appear anywhere in `fallbackChains`.
+# Claude directs the judgment roles below, so an Anthropic rung in the retry
+# ladder means a failed Claude call retries on Claude. Same lineage, no
+# independent check, which is the whole point of the ladder. Every rung is a
+# different vendor from the one above it.
 modelRoles: 
   default: anthropic/claude-opus-5:medium
   plan: anthropic/claude-opus-5:high
   slow: anthropic/claude-opus-5:xhigh
   designer: anthropic/claude-opus-5:high
-  vision: anthropic/claude-sonnet-5:medium
+  vision: anthropic/claude-opus-5:medium
   task: openai-codex/gpt-5.6-luna:xhigh
-  adversary: opencode-go/deepseek-v4-pro:high
+  # Adversary was DeepSeek V4 Pro. Dropped: it is accurate but painfully slow,
+  # and a plan review you wait on is a plan review you skip. Gemini 3.7 Flash is
+  # a different lineage from every director model here, has a 1M window so it can
+  # read the plan plus the files it cites, and returns in a fraction of the time.
+  # On openrouter, not opencode-zen: same model, $0.375/$1.875 vs $1.50/$7.50.
+  # That openrouter price is a promo that may expire 2026-12-31 — revisit then.
+  adversary: openrouter/google/gemini-3.7-flash:high
   smol: openai-codex/gpt-5.6-luna:low
   tiny: openai-codex/gpt-5.6-luna:low
   commit: openai-codex/gpt-5.6-luna:low
@@ -21,15 +32,23 @@ retry:
   usageReservePct: 15
   usageReservePolicy: confirm
   fallbackChains: 
-    opencode-go/deepseek-v4-pro: 
-      - opencode-go/minimax-m3:high
-      - anthropic/claude-sonnet-5:high
+    # Claude out of quota -> ChatGPT -> Google. Never back to Claude.
     anthropic/*: 
       - openai-codex/gpt-5.6-luna:xhigh
+      - openrouter/google/gemini-3.7-flash:high
+    # ChatGPT out of quota -> Google -> MiniMax. Never Claude.
     openai-codex/*: 
-      - anthropic/claude-sonnet-5:high
-    default: 
+      - openrouter/google/gemini-3.7-flash:high
+      - opencode-go/minimax-m3:high
+    # Covers the adversary role. MiniMax is the only other non-Anthropic model
+    # on a subscription that is fast enough to be worth waiting for.
+    openrouter/*: 
+      - opencode-go/minimax-m3:high
       - openai-codex/gpt-5.6-luna:xhigh
+    opencode-go/*: 
+      - openai-codex/gpt-5.6-luna:xhigh
+    default: 
+      - openrouter/google/gemini-3.7-flash:high
 symbolPreset: nerd
 theme: 
   dark: dark-lunar

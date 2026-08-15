@@ -68,9 +68,11 @@ scope, or when it can't produce evidence.
 Your judgment, per item: the cheapest worker that will get it right, using
 whichever lever your surface gives you.
 
-- **Claude Code** — the dispatch takes a model. `sonnet` is the default, `haiku`
-  for items with no judgment in them, `opus` only for architecture, tricky logic,
-  or an item whose scope you can't pin down from its text.
+- **Claude Code** — the dispatch takes a model. `opus` is the default for
+  anything carrying judgment; `haiku` for items with none in them. There is no
+  middle tier worth routing to.
+- **OMP** — the `task` role already pins the worker (GPT-5.6-Luna at `xhigh`),
+  so effort is the lever, not model: drop to `smol` for mechanical items.
 - **Codex** (`spawn_agent`) and **Grok** (subagents are on unless
   `--no-subagents`) — one model in practice, so reasoning effort is the lever:
   low for mechanical items, the surface default otherwise.

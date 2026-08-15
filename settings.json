@@ -39,7 +39,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "sonnet",
+  "model": "opus",
   "skillOverrides": {
     "composition-patterns": "off",
     "web-design-guidelines": "off",

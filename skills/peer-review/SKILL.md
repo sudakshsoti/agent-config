@@ -24,7 +24,16 @@ section has nothing real, write "none".
 ---
 
 This is the cross-lineage pass. Its value comes from being run by a _different_
-model than the one that wrote the plan — run it in Codex or Gemini on a plan
-Claude proposed, or vice versa. The in-house equivalent (Claude reviewing its
-own plan via a subagent) is the separate `self-review` skill; the terminal
-`rev` / `rev-hard` aliases are the clipboard-piped version of this same prompt.
+model than the one that wrote the plan.
+
+In omp, do not run this prompt yourself — dispatch the `adversary` subagent with
+the plan file. It pins `model: "@adversary"`, which resolves through the
+`adversary` role in `omp/config.yml` to Gemini 3.7 Flash, and whose fallback
+chain contains no Anthropic model. Running it inline would review a Claude plan
+with Claude.
+
+On any other surface, run the prompt above in a session that is not on the same
+vendor as the plan's author.
+
+The in-house equivalent — Claude reviewing its own plan via the `plan-critic`
+subagent — is the separate `self-review` skill, and is deliberately in-lineage.
