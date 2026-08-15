@@ -81,9 +81,12 @@ advisor:
 terminal: 
   showProgress: false
 display: 
+  # On, because this config's whole premise is quota frugality and there was no
+  # per-turn feedback at all. Items that trade quota for latency or cost are
+  # unjudgeable without it.
   shimmer: classic
   smoothStreaming: true
-  showTokenUsage: false
+  showTokenUsage: true
   collapseCompacted: true
 defaultThinkingLevel: auto
 providers: 
