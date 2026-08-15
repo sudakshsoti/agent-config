@@ -40,11 +40,15 @@ retry:
     openai-codex/*: 
       - openrouter/google/gemini-3.7-flash:high
       - opencode-go/minimax-m3:high
-    # Covers the adversary role. MiniMax is the only other non-Anthropic model
-    # on a subscription that is fast enough to be worth waiting for.
+    # Covers the adversary role. Ordered by remaining quota, not preference:
+    # on 2026-08-15 `omp usage` had Codex at 21% of its 7-day limit and OpenCode
+    # Go at 86% weekly, so Codex answers first and MiniMax is the last thing
+    # tried. OpenCode Go is last in every chain it appears in for that reason.
+    # Re-check with `omp usage` before reordering; the vendor-diversity
+    # invariant at the top of this file outranks the capacity ordering.
     openrouter/*: 
-      - opencode-go/minimax-m3:high
       - openai-codex/gpt-5.6-luna:xhigh
+      - opencode-go/minimax-m3:high
     opencode-go/*: 
       - openai-codex/gpt-5.6-luna:xhigh
     default: 
