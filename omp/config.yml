@@ -17,6 +17,12 @@ modelRoles:
   # On openrouter, not opencode-zen: same model, $0.375/$1.875 vs $1.50/$7.50.
   # That openrouter price is a promo that may expire 2026-12-31 — revisit then.
   adversary: openrouter/google/gemini-3.7-flash:high
+  # prewalk.enabled is deliberately left off. On, omp switches from the active
+  # model to this `smol` role at the first edit/write after the todo list
+  # exists: Opus thinks and plans, luna:low types. That is worth having, but it
+  # gets tried per-run with `omp --prewalk` on a multi-file change first, and
+  # only becomes a default if the result holds up. Do not stack it with /vibe —
+  # a director briefing a smol worker that then prewalks to smol is a no-op.
   smol: openai-codex/gpt-5.6-luna:low
   tiny: openai-codex/gpt-5.6-luna:low
   commit: openai-codex/gpt-5.6-luna:low
