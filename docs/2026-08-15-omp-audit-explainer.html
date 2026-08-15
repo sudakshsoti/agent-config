@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>omp audit — what changed, what did not</title>
+<style>
+:root {
+  --paper:        oklch(0.972 0.004 85);
+  --paper-sunk:   oklch(0.945 0.005 85);
+  --ink:          oklch(0.235 0.010 65);
+  --ink-soft:     oklch(0.475 0.010 65);
+  --ink-faint:    oklch(0.640 0.008 65);
+  --rule:         oklch(0.878 0.006 65);
+  --rule-hard:    oklch(0.760 0.008 65);
+
+  --fixed:        oklch(0.505 0.115 152);
+  --fixed-sunk:   oklch(0.955 0.022 152);
+  --deferred:     oklch(0.505 0.075 248);
+  --deferred-sunk:oklch(0.955 0.018 248);
+  --risk:         oklch(0.522 0.175 28);
+  --risk-sunk:    oklch(0.958 0.028 28);
+
+  --sans: "Söhne", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Berkeley Mono", "MonoLisa", ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  --gutter: 8.5rem;
+  --measure: 68ch;
+
+  --s1: 0.25rem; --s2: 0.5rem;  --s3: 0.75rem; --s4: 1rem;
+  --s5: 1.5rem; --s6: 2rem;     --s7: 3rem;    --s8: 4.5rem; --s9: 7rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:        oklch(0.178 0.006 65);
+    --paper-sunk:   oklch(0.222 0.007 65);
+    --ink:          oklch(0.925 0.006 85);
+    --ink-soft:     oklch(0.720 0.008 85);
+    --ink-faint:    oklch(0.555 0.008 85);
+    --rule:         oklch(0.298 0.007 65);
+    --rule-hard:    oklch(0.410 0.008 65);
+
+    --fixed:        oklch(0.775 0.135 152);
+    --fixed-sunk:   oklch(0.262 0.038 152);
+    --deferred:     oklch(0.752 0.082 248);
+    --deferred-sunk:oklch(0.258 0.030 248);
+    --risk:         oklch(0.730 0.155 28);
+    --risk-sunk:    oklch(0.272 0.052 28);
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.62;
+  font-feature-settings: "kern" 1, "liga" 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.wrap { max-width: 60rem; margin: 0 auto; padding: 0 var(--s5) var(--s9); }
+
+/* masthead */
+.masthead { padding: var(--s8) 0 var(--s6); border-bottom: 2px solid var(--ink); }
+.kicker {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--ink-soft);
+  display: flex; flex-wrap: wrap; gap: var(--s4); margin-bottom: var(--s5);
+}
+h1 {
+  font-size: clamp(1.85rem, 5.2vw, 2.75rem); line-height: 1.06;
+  letter-spacing: -0.025em; font-weight: 600;
+  margin: 0 0 var(--s4); max-width: 20ch;
+}
+.standfirst {
+  font-size: 1.13rem; line-height: 1.5; color: var(--ink-soft);
+  max-width: 56ch; margin: 0;
+}
+
+/* status key */
+.key {
+  display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5);
+  padding: var(--s4) 0; border-bottom: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.key span { display: flex; align-items: center; gap: var(--s2); color: var(--ink-soft); }
+.key i { width: 1.5rem; height: 3px; display: block; }
+.key .k-fixed    { background: var(--fixed); }
+.key .k-deferred { background: var(--deferred); }
+.key .k-risk     { background: var(--risk); }
+
+/* the headline finding */
+.finding {
+  margin: var(--s8) 0; padding: var(--s6) var(--s5);
+  border-left: 3px solid var(--risk); background: var(--risk-sunk);
+}
+.finding h2 {
+  font-size: clamp(1.3rem, 3.4vw, 1.7rem); line-height: 1.18;
+  letter-spacing: -0.02em; font-weight: 600; margin: 0 0 var(--s4); max-width: 24ch;
+}
+.finding p { max-width: var(--measure); margin: 0 0 var(--s4); }
+.finding p:last-child { margin-bottom: 0; }
+
+/* diff fragment */
+.diff {
+  font-family: var(--mono); font-size: 13.5px; line-height: 1.55;
+  background: var(--paper); border: 1px solid var(--rule-hard);
+  padding: var(--s4); margin: var(--s5) 0 0; overflow-x: auto;
+  font-variant-numeric: tabular-nums; white-space: pre;
+}
+.diff .del { color: var(--risk); }
+.diff .add { color: var(--fixed); }
+.cmt { color: var(--ink-faint); }
+
+/* ledger */
+.group { margin-top: var(--s8); }
+.group > h2 {
+  font-size: 1.5rem; letter-spacing: -0.018em; font-weight: 600;
+  margin: 0 0 var(--s2); max-width: 26ch;
+}
+.group > .group-note {
+  color: var(--ink-soft); max-width: var(--measure);
+  margin: 0 0 var(--s6); font-size: 0.97rem;
+}
+
+.item {
+  display: grid; grid-template-columns: var(--gutter) minmax(0, 1fr);
+  gap: 0 var(--s5); padding: var(--s5) 0; border-top: 1px solid var(--rule);
+}
+.item:last-child { border-bottom: 1px solid var(--rule); }
+
+.rail { font-family: var(--mono); font-size: 11px; line-height: 1.5; padding-top: 0.35rem; }
+.tag {
+  display: block; letter-spacing: 0.085em; text-transform: uppercase;
+  font-weight: 500; margin-bottom: var(--s2);
+  border-left: 3px solid currentColor; padding-left: var(--s2);
+}
+.t-fixed    { color: var(--fixed); }
+.t-deferred { color: var(--deferred); }
+.t-risk     { color: var(--risk); }
+.sha {
+  display: block; color: var(--ink-faint); padding-left: calc(var(--s2) + 3px);
+  font-variant-numeric: tabular-nums;
+}
+
+.body h3 {
+  font-size: 1.16rem; line-height: 1.32; letter-spacing: -0.01em;
+  font-weight: 600; margin: 0 0 var(--s3); max-width: 42ch;
+}
+.body p { margin: 0 0 var(--s4); max-width: var(--measure); }
+.body p:last-child { margin-bottom: 0; }
+.body ul { margin: 0 0 var(--s4); padding-left: 1.1rem; max-width: var(--measure); }
+.body li { margin-bottom: var(--s2); }
+
+code {
+  font-family: var(--mono); font-size: 0.86em;
+  background: var(--paper-sunk); border: 1px solid var(--rule);
+  padding: 0.08em 0.32em; border-radius: 2px;
+}
+.body pre {
+  font-family: var(--mono); font-size: 13px; line-height: 1.55;
+  background: var(--paper-sunk); border: 1px solid var(--rule);
+  padding: var(--s3) var(--s4); overflow-x: auto; margin: 0 0 var(--s4);
+}
+.body pre code { background: none; border: 0; padding: 0; white-space: pre; font-size: inherit; }
+
+.aside {
+  border-left: 2px solid var(--rule-hard); padding-left: var(--s4);
+  margin: 0 0 var(--s4); color: var(--ink-soft); font-size: 0.95rem;
+  max-width: 62ch;
+}
+.aside strong { color: var(--ink); font-weight: 600; }
+.aside.warn { border-left-color: var(--risk); }
+
+/* verified block */
+.verified {
+  margin-top: var(--s8); border: 1px solid var(--rule-hard);
+  background: var(--paper-sunk); padding: var(--s5);
+}
+.verified h2 {
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--ink-soft);
+  font-weight: 500; margin: 0 0 var(--s4);
+}
+.verified pre {
+  font-family: var(--mono); font-size: 13px; line-height: 1.6;
+  margin: 0; overflow-x: auto; font-variant-numeric: tabular-nums;
+}
+.ok { color: var(--fixed); }
+
+footer {
+  margin-top: var(--s8); padding-top: var(--s5);
+  border-top: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.05em;
+  color: var(--ink-faint); text-transform: uppercase;
+  display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5);
+}
+
+@media (max-width: 46rem) {
+  body { font-size: 16.5px; }
+  .item { grid-template-columns: 1fr; gap: var(--s3) 0; }
+  .rail { display: flex; align-items: baseline; gap: var(--s3); padding-top: 0; }
+  .tag { margin-bottom: 0; }
+  .sha { padding-left: 0; }
+  .finding { padding-left: var(--s4); padding-right: var(--s4); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="kicker">
+    <span>omp / Oh My Pi v17.3.4</span>
+    <span>2026-08-15</span>
+    <span>agent-config @ main</span>
+    <span>15 commits</span>
+  </div>
+  <h1>What changed in omp, what was left alone, and what is still dangerous</h1>
+  <p class="standfirst">Ten audit items. Nine changes landed, two risks are still open by choice.
+  Every claim below has a commit behind it, and every change can be undone with one command.</p>
+</header>
+
+<div class="key">
+  <span><i class="k-fixed"></i> Fixed</span>
+  <span><i class="k-deferred"></i> Deferred on purpose</span>
+  <span><i class="k-risk"></i> Open risk</span>
+</div>
+
+<section class="finding">
+  <h2>omp was posting reports about itself to a stranger's server</h2>
+  <p>When omp's own tools misbehaved, the model wrote a short note about what went wrong.
+  Those notes were saved locally, which is harmless. Then omp POSTed each one over the
+  internet to <code>qa.omp.sh</code>, the server belonging to the person who writes omp.
+  No prompt, no push step, entirely in the background.</p>
+  <p>Two settings caused it. <code>dev.autoqa</code> is <code>true</code> by default, and
+  <code>dev.autoqaConsent</code> shipped as <code>granted</code>. Nobody chose either.</p>
+  <p><strong>Twelve reports had already gone</strong> by the time this was found. Each carried a
+  stable install UUID, so every report ties back to the same machine, plus free text written by
+  the model that named internal tooling and local file paths. No passwords, no API keys, no file
+  contents. That data is on someone else's server and cannot be recalled. The fix stops future
+  sends only.</p>
+  <div class="diff"><span class="cmt"># omp/config.yml</span>
+dev:
+<span class="del">-   autoqaConsent: granted</span>
+<span class="add">+   autoqaConsent: denied</span>
+<span class="cmt">    # autoqa is deliberately left UNSET.
+    # Writing `autoqa: true` here overrides the denial.</span></div>
+</section>
+
+<section class="group">
+  <h2>Fixed</h2>
+  <p class="group-note">Nine changes, all merged to <code>main</code>. Grouped by what they protect:
+  your data, then your attention, then your quota.</p>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-fixed">Privacy</span><span class="sha">2ca5cfd</span></div>
+    <div class="body">
+      <h3>Auto-QA reporting denied</h3>
+      <p>Covered above. <code>dev.autoqaConsent: denied</code>, and <code>dev.autoqa</code> left
+      unset rather than set to <code>false</code>.</p>
+      <div class="aside warn"><strong>Do not add <code>dev.autoqa: true</code>.</strong> The denial
+      only holds while that key is absent. If you or a tool ever writes it in, collection restarts
+      with no prompt. There is a comment in <code>omp/config.yml</code> saying so.</div>
+    </div>
+  </article>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-fixed">Attention</span><span class="sha">2ca5cfd</span></div>
+    <div class="body">
+      <h3>omp stopped writing skills at you</h3>
+      <p>A skill is a small markdown file that teaches an agent how to do something. omp's
+      <code>autolearn</code> feature had <code>autoContinue: true</code>, which meant that at the end
+      of every session it ran an extra, invisible turn where the model wrote itself a new skill about
+      what it had just learnt. You paid tokens for that turn without asking for it.</p>
+      <p>In three days it produced nine skills. Six were junk: one described config overlays that had
+      been deleted a commit earlier, one hardcoded homelab SSH targets, one was cut off mid-sentence,
+      and the rest were duplicates of each other.</p>
+      <p>This matters more than it sounds, because those skills load into <em>every</em> omp session
+      automatically and that loading is not controlled by the <code>autolearn</code> switch. A wrong
+      skill sits in the model's instructions burning context until a human deletes the file.</p>
+      <p><code>autoContinue</code> is now <code>false</code>. <code>autolearn.enabled</code> stays
+      <code>true</code>, so the model can still write a skill when it decides one is worth writing.
+      What is off is the unprompted capture at every stop.</p>
+    </div>
+  </article>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-fixed">Attention</span><span class="sha">21528d6</span></div>
+    <div class="body">
+      <h3>Nine unusable skills removed from the system prompt</h3>
+      <p>The system prompt is the block of instructions an agent reads before every single turn.
+      Every skill on your machine puts its name and one-line description in there, costing tokens
+      on every turn forever.</p>
+      <p>omp was loading around 44 skills. Nine of them configure Claude Code itself: artifacts, the
+      Chrome extension, keybindings, <code>settings.json</code>, scheduled cloud agents. omp has no
+      equivalent for any of it, so those nine could never be used. Pure cost.
+      <code>homelab-deploy</code>, <code>n8n-deploy</code>, <code>orient</code> and
+      <code>peer-review</code> are untouched.</p>
+      <div class="aside">This is <strong>not</strong> the Codex duplication trap that
+      <code>AGENTS.md</code> warns about. omp de-duplicates by real path, so the symlinks are fine.
+      This was a size trim, nothing more.</div>
+    </div>
+  </article>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-fixed">Correctness</span><span class="sha">7c4297a</span></div>
+    <div class="body">
+      <h3>The plan reviewer had been given an impossible instruction</h3>
+      <p><code>adversary</code> is the subagent behind <code>/peer-review</code>. Its job is to attack
+      a plan and check whether the plan's claims about the code are real.</p>
+      <p>Its instructions told it to verify <code>file.ts:123</code> style references against the real
+      files. It has three tools: <code>read</code>, <code>grep</code>, <code>glob</code>. omp's
+      <code>read</code> returns no line numbers unless the <code>edit</code> tool is also in the
+      session, which it is not. So the check the prompt asked for could not be done the way the prompt
+      implied. <code>grep</code> does return line numbers, so the instruction now says to grep for the
+      symbol and compare.</p>
+      <p>The alternative was turning on <code>readLineNumbers</code> globally. Dropped, because it
+      would add token cost to every read in every session to buy a capability that already exists.</p>
+    </div>
+  </article>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-fixed">Correctness</span><span class="sha">a8f4301</span></div>
+    <div class="body">
+      <h3>Shell commands now route to real tools</h3>
+      <p>When the model wants to read a file it can either run <code>cat README.md</code> in a shell,
+      or use omp's own <code>read</code> tool. The shell version dumps raw output into context, ignores
+      <code>.gitignore</code>, and starts background processes behind a bare <code>&amp;</code> where
+      nothing can watch or stop them. The bash interceptor spots those and reroutes them:
+      <code>cat</code> to <code>read</code>, <code>find</code> to <code>glob</code>, background jobs
+      under <code>hub</code>. Eleven rules already shipped with omp. Only the on switch was missing.</p>
+      <div class="aside warn"><strong>Three of the eleven rules change what a command means.</strong>
+      <code>sed -i</code>, <code>perl -i</code> and <code>awk -i inplace</code> get rerouted to omp's
+      <code>edit</code> tool, which matches text fuzzily. A command written to change exactly one thing
+      can end up changing a different one. <strong>If an edit ever lands somewhere unexpected, look
+      here first.</strong><br><br>All eleven were left on anyway. Removing three would mean copying all
+      eleven into <code>omp/config.yml</code> and re-comparing them against upstream after every
+      <code>omp update</code>, forever. That standing chore costs more than the risk.</div>
+    </div>
+  </article>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-fixed">Quota</span><span class="sha">6ee3c80</span></div>
+    <div class="body">
+      <h3>You can now see what a turn costs</h3>
+      <p>This whole config exists to be careful with quota, and there was no per-turn number telling
+      you whether any of it worked. Each turn now shows its token count. Nothing else in the audit can
+      be judged without that number, which is why it landed before the items that need it.</p>
+    </div>
+  </article>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-fixed">Quota</span><span class="sha">add84b5</span></div>
+    <div class="body">
+      <h3>Retry order now follows remaining quota</h3>
+      <p>A fallback chain is the list omp walks when a model call fails. If the first model errors it
+      tries the next one down. The chain for <code>openrouter/*</code> is the one the plan reviewer
+      uses, and its first fallback was OpenCode Go, which was sitting at <strong>86% of its weekly
+      limit</strong> while Codex was at 21%. So a hiccup mid-review would fall onto the emptiest
+      account and most likely return a rate-limit error instead of a review.</p>
+      <p>Codex answers first there now, and OpenCode Go is last in every chain it appears in. Every
+      rung is still a different vendor from the one above it, so the rule at the top of the file still
+      holds: <strong>no Anthropic selector anywhere in the chains</strong>, meaning a failed Claude call
+      never retries on Claude.</p>
+      <p>Re-check with <code>omp usage</code> before ever reordering these again.</p>
+    </div>
+  </article>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-fixed">Repo</span><span class="sha">820f917</span></div>
+    <div class="body">
+      <h3>install.sh no longer stays silent, and mcp.json stays out of git</h3>
+      <p>Two steps of <code>install.sh</code> are wrapped in a check for <code>~/.omp/agent</code>. On
+      a machine without omp they did nothing and said nothing, so a run could look like it passed when
+      no links were ever made. It now prints a visible SKIP line, matching what the script already did
+      when <code>claude</code> was missing.</p>
+      <p>Separately, <code>~/.omp/agent/mcp.json</code> was deliberately left untracked, with the reason
+      written into the README so a future pass does not helpfully add it:</p>
+      <ul>
+        <li>omp writes that file itself, and <code>omp/</code> is symlinked, so an
+        <code>omp mcp add</code> for a server that takes an inline API key would write a live credential
+        straight into a tracked working tree. <code>settings.json</code> escapes this only because
+        <code>sync.sh</code> copies it in and can strip secrets on the way. A symlink has no such step.</li>
+        <li>Its contents do not transfer between machines anyway. Todoist points at a local credential
+        store and Linear shells out to <code>linear auth token</code>.</li>
+      </ul>
+    </div>
+  </article>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-fixed">Cost</span><span class="sha">0706cb7<br>c474b30<br>8c56c74</span></div>
+    <div class="body">
+      <h3>Session titles now run on your own Mac</h3>
+      <p>Every omp session gets a short name, the three to six words in the session list. Generating
+      that name was a paid API call. It is the smallest job omp does and there is no reason to buy it.
+      The <code>tiny</code> model role now points at <code>ollama-local/qwen3.5:0.8b</code>, defined in
+      a new <code>omp/models.yml</code> that <code>install.sh</code> symlinks into place.</p>
+      <p><strong>0.8B, not the 4B originally planned.</strong> A 4B was wired first and it worked. Then
+      the machine's actual state surfaced: a 16GB Mac already at 10.6GB of swap out of 11GB, with 13%
+      of memory free. The 4B holds about 4GB of RAM while loaded. Spending that on three-word titles is
+      the wrong trade on a machine already paging to disk. Backing it out took memory free from 13% to
+      <strong>63%</strong> and swap down to 4.9GB. The mistake worth remembering is that the 4B was
+      recommended before anyone checked how much RAM the machine had.</p>
+      <div class="aside warn"><strong><code>omp -p</code> never generates titles.</strong> Title
+      generation only fires on the interactive path. Test with <code>-p</code> and you will conclude the
+      feature is broken when it is fine.</div>
+      <div class="aside"><strong>omp argues with itself about thinking.</strong> For a three-word title,
+      reasoning is pure waste, so the config tells the model not to. A logging proxy in front of Ollama
+      caught the real request: omp sends the instruction as asked, then sends
+      <code>preserve_thinking: true</code> of its own alongside it. On the 4B omp's own flag won and a
+      single title took <strong>78 seconds</strong>. On the 0.8B it does not. The override that forces
+      it off is recorded in <code>omp/models.yml</code> in case a future omp update brings it back.</div>
+      <p>Three more that cost time to find. Switching thinking off needed <em>both</em>
+      <code>reasoning: false</code> on the model and <code>extraBody.reasoning_effort: none</code>;
+      either alone does nothing. A Modelfile cannot turn thinking off, it has to go in the request body.
+      And the provider needs <code>api: openai-completions</code>, because the similarly named
+      <code>openai-responses</code> garbles output with no clear error.</p>
+      <p>It is a full custom provider rather than a tweak to omp's built-in <code>ollama</code>, because
+      the built-in discovers models by asking Ollama and caches the answer. That cache went stale: after
+      an <code>ollama rm</code>, omp still listed the deleted model.</p>
+      <div class="aside">The 0.8B sits at 1.1GB of RAM while loaded, not the 600MB expected. It unloads
+      after five minutes idle. If the Mac feels heavy, <code>git revert c474b30</code> puts titles back
+      on the paid API. The 4B is still on disk at 3.7GB as <code>qwen3.5:4b-mlx</code> for summarising
+      articles by hand; omp does not touch it.</div>
+    </div>
+  </article>
+</section>
+
+<div class="verified">
+  <h2>Verified working</h2>
+  <pre><span class="ok">title-generator: success</span>  provider:"ollama-local"  id:"qwen3.5:0.8b"
+title:"Add retry to deployment webhook handler"
+cost total 0                            0.47s warm
+
+<span class="ok">./install.sh exit 0</span>       linked=50 mirrored=37 skipped=0 pruned=0
+INVARIANT block intact. Only `tiny` changed under modelRoles.</pre>
+</div>
+
+<section class="group">
+  <h2>Deferred on purpose</h2>
+  <p class="group-note">Not oversights. Each of these was looked at and left alone, for a reason
+  worth keeping.</p>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-deferred">Deferred</span><span class="sha">4beb648</span></div>
+    <div class="body">
+      <h3>prewalk stays off</h3>
+      <p>Prewalk switches models mid-task. The expensive model thinks and plans, then at the first file
+      edit omp swaps to a cheap model to do the typing, so you pay premium rates only for the thinking.</p>
+      <p>It was not made the default because you can just try it per run with <code>omp --prewalk</code>
+      on a real multi-file change, watch where the model badge switches, and compare against the same
+      task without it. Turning it on globally first would be a guess about output quality, and per-turn
+      token display had only just been switched on, so there was no baseline. The reason is written into
+      <code>omp/config.yml</code> itself.</p>
+      <p>Prewalk and vibe mode do not stack. A director briefing a cheap worker that then prewalks to
+      the same cheap model changes nothing.</p>
+    </div>
+  </article>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-deferred">Deferred</span><span class="sha">—</span></div>
+    <div class="body">
+      <h3>Vibe mode and task isolation</h3>
+      <p>In vibe mode your top session becomes a director that can only read files. It cannot edit. It
+      spawns worker sessions on cheaper models to do the actual editing, then verifies by reading what
+      they touched. That is a change to how you work, not just a setting, so it deserves its own trial.
+      <code>task.isolation.mode</code> stays <code>none</code>, since the per-worker filesystem clones
+      it enables only matter under vibe mode.</p>
+    </div>
+  </article>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-deferred">Deferred</span><span class="sha">—</span></div>
+    <div class="body">
+      <h3>autoThinkingModel stays online</h3>
+      <p>This decides which small model makes the quick "how hard should I think about this" call.
+      Online means a remote call to Codex, which is the emptiest account at 21%, not the constrained
+      one. Moving it local had no clear win, so the local-model work went to the <code>tiny</code> role
+      instead.</p>
+      <div class="aside">A model that is offered but cannot run: <code>omp tiny-models list</code> shows
+      <code>qwen3-1.7b</code> as disabled for local inference, because onnxruntime-node cannot run that
+      model's export. omp still offers it as a valid value here. One of the listed options simply does
+      not work.</div>
+    </div>
+  </article>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-deferred">Deferred</span><span class="sha">—</span></div>
+    <div class="body">
+      <h3>usageReservePolicy left at confirm</h3>
+      <p>This decides what happens when a fallback would land on an account that is nearly out of quota.
+      <code>confirm</code> means a blocking prompt, which inside a subagent review is a hang rather than
+      a nuisance. The other two values, <code>auto</code> and <code>fail-closed</code>, are undocumented
+      in the installed binary. Guessing wrong either silently drains the 86%-full OpenCode Go account or
+      hard-fails reviews that would have worked, so it is recorded as a decision for you rather than
+      guessed at.</p>
+    </div>
+  </article>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-fixed">Cleaned</span><span class="sha">—</span></div>
+    <div class="body">
+      <h3>Housekeeping</h3>
+      <p><strong>Done on 2026-08-15.</strong> <code>omp gc --apply</code> deleted 4 unused blobs
+      totalling 685KB and checkpointed a 2.9MB write-ahead log to zero. It archived no sessions and
+      removed no history or stats rows, because all 18 were still active and gc skips those.</p>
+      <p>The <strong>537MB LFM2-700M model</strong> at
+      <code>~/.omp/agent/cache/tiny-models/</code> was deleted too. It was fetched before the switch to
+      Qwen3.5 and nothing referenced it: <code>autoThinkingModel</code> is <code>online</code>, and
+      neither config file named it. The cache is now 385MB.</p>
+      <div class="aside warn"><strong>Leave <code>tiny-title-runtime</code> alone</strong> when
+      clearing that cache again. It is the runtime behind local title generation.</div>
+      <p>Still outstanding:</p>
+      <ul>
+        <li>No calendar reminder for the OpenRouter promo expiry on <strong>2026-12-31</strong>, and no
+        budget cap. One plan review costs $0.033 today and roughly $0.13 after the promo ends. Lifetime
+        spend across all models is $78.37.</li>
+      </ul>
+      <div class="aside">The audit itself got two things wrong, worth knowing because the plan is not
+      gospel. <strong><code>omp stats</code> does not hang</strong>, it starts a dashboard web server on
+      purpose and stays in the foreground; <code>omp stats -s</code> returns in 1.8s. And
+      <strong><code>omp gc</code> is dry-run by default</strong>, doing nothing at all without
+      <code>--apply</code>.</div>
+    </div>
+  </article>
+</section>
+
+<section class="group">
+  <h2>Still open</h2>
+  <p class="group-note">Two things that can still cost you. Neither was changed, because both are your
+  call rather than a bug to fix.</p>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-risk">Open risk</span><span class="sha">—</span></div>
+    <div class="body">
+      <h3>omp approves its own shell commands, in every folder</h3>
+      <p>This is the biggest remaining risk in the setup. <code>tools.approvalMode</code> is
+      <code>yolo</code>, which auto-approves everything: running shell commands, driving a browser,
+      spawning agents. The three modes are <code>always-ask</code>, which prompts before anything;
+      <code>write</code>, which auto-approves reading and writing files but prompts before a shell
+      command; and <code>yolo</code>.</p>
+      <p><code>yolo</code> is omp's shipped default, so nobody picked it. There is a small hardcoded
+      blocklist for things like <code>rm -rf /</code>, but omp's own docs say that in yolo mode a bare
+      critical override is ignored unless you have an explicit per-tool deny rule.</p>
+      <p>It applies in every folder you open omp in. Given <code>~/dev</code> holds this repo and the
+      homelab repo, an unattended shell command in the wrong directory can cost you hours. Changing it
+      is one line:</p>
+      <pre><code>tools:
+  approvalMode: write</code></pre>
+    </div>
+  </article>
+
+  <article class="item">
+    <div class="rail"><span class="tag t-risk">Expiring</span><span class="sha">—</span></div>
+    <div class="body">
+      <h3>Six removed skills are sitting in a temporary folder</h3>
+      <p>The six junk auto-generated skills were moved, not deleted. They are in a session scratchpad
+      under <code>/private/tmp/claude-501/...</code>, which will be cleaned up. To restore them:</p>
+      <pre><code>mv "&lt;scratchpad&gt;/managed-skills-removed/"* ~/.omp/agent/managed-skills/</code></pre>
+      <p>If you think you want any of those six, move them somewhere permanent this week. Otherwise
+      accept losing them. The exact path is in
+      <code>handoff/2026-08-15-omp-audit-complete.md</code>.</p>
+    </div>
+  </article>
+</section>
+
+<section class="group">
+  <h2>How to undo any of it</h2>
+  <p class="group-note">Everything that touched settings is one command, because
+  <code>omp/config.yml</code> is symlinked into <code>~/.omp/agent/</code>. The app and the repo are
+  the same file, so <code>git diff</code> shows you what omp did.</p>
+  <div class="verified">
+    <pre>git checkout omp/config.yml            <span class="cmt"># autoqa, autolearn, interceptor,
+                                      # token display, fallback order,
+                                      # ignored skills, and the tiny role</span>
+
+git revert 7c4297a                    <span class="cmt"># adversary prompt</span>
+git revert 820f917                    <span class="cmt"># install.sh</span>
+git revert c474b30 0706cb7 8c56c74    <span class="cmt"># drop the local model entirely</span>
+ollama rm qwen3.5:0.8b                <span class="cmt"># then reclaim the disk</span></pre>
+  </div>
+  <div class="aside warn" style="margin-top:1.5rem"><strong>Never use <code>omp config set</code>.</strong>
+  It rewrites the file and may strip the INVARIANT comment block that keeps Anthropic out of the retry
+  chains. Hand-edit the YAML and verify with <code>omp config get</code>.</div>
+</section>
+
+<footer>
+  <span>agent-config</span>
+  <span>merged to main 9cc6ff4</span>
+  <span>full detail: docs/2026-08-15-omp-audit.md</span>
+  <span>state: handoff/2026-08-15-omp-audit-complete.md</span>
+</footer>
+
+</div>
+</body>
+</html>
