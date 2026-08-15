@@ -96,6 +96,11 @@ display:
   collapseCompacted: true
 defaultThinkingLevel: auto
 providers: 
+  # autoThinkingModel stays online. Moving it to a local tiny model would take
+  # load off Codex, which is the emptiest account here at 21%, not the fullest,
+  # and warm local inference at 0.36-1.6s is not obviously faster than one
+  # luna:low call. Revisit once showTokenUsage has produced a real number for
+  # what the `auto` thinking-level decisions actually cost.
   autoThinkingModel: online
   autoThinkingMaxEffort: xhigh
   anthropic: 
@@ -124,3 +129,19 @@ snapcompact:
 # on every `omp update`, which costs more to maintain than the risk is worth.
 bashInterceptor: 
   enabled: true
+# Every skill source is on, so omp discovers ~44 skills across ~/.agents/skills
+# and ~/.claude/skills and puts each description in the system prompt every
+# turn. Dedup is by realpath, so the symlinks are not the problem — these are
+# Claude Code harness skills with no omp equivalent. Not the Codex duplication
+# trap in AGENTS.md; this is a context-budget trim.
+skills: 
+  ignoredSkills: 
+    - artifact-*
+    - claude-in-chrome
+    - claude-api
+    - keybindings-help
+    - update-config
+    - statusline-setup
+    - fewer-permission-prompts
+    - loop
+    - schedule
