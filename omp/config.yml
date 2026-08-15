@@ -1,4 +1,4 @@
-modelRoles:
+modelRoles: 
   default: anthropic/claude-opus-5:medium
   plan: anthropic/claude-opus-5:high
   slow: anthropic/claude-opus-5:xhigh
@@ -9,60 +9,79 @@ modelRoles:
   smol: opencode-go/gpt-5.6-luna:low
   tiny: opencode-go/gpt-5.6-luna:low
   commit: opencode-go/gpt-5.6-luna:low
-task:
+task: 
   batch: true
   enableEffort: true
   eager: preferred
   enableLsp: true
-retry:
+retry: 
   enabled: true
   modelFallback: true
   usageAwareFallback: true
-  usageReservePct: 10
+  usageReservePct: 15
   usageReservePolicy: confirm
-  fallbackChains:
-    opencode-go/deepseek-v4-pro:
+  fallbackChains: 
+    opencode-go/deepseek-v4-pro: 
       - opencode-zen/deepseek-v4-pro:high
       - opencode-zen/minimax-m3
-    opencode-go/gpt-5.6-luna:
+    opencode-go/gpt-5.6-luna: 
       - opencode-zen/gpt-5.6-luna:low
       - opencode-zen/deepseek-v4-flash:low
-    opencode-go/*:
+    opencode-go/*: 
       - opencode-zen/gpt-5.6-luna
       - anthropic/claude-sonnet-5:high
-    anthropic/*:
+    anthropic/*: 
       - opencode-go/gpt-5.6-luna:xhigh
       - opencode-zen/gpt-5.6-luna:xhigh
-    default:
+    default: 
       - opencode-go/gpt-5.6-luna:xhigh
       - opencode-zen/gpt-5.6-luna:xhigh
 symbolPreset: nerd
-theme:
+theme: 
   dark: dark-lunar
 setupVersion: 1
-statusLine:
+statusLine: 
   preset: default
   separator: powerline-thin
   sessionAccent: true
   compactThinkingLevel: false
   transparent: false
-startup:
+startup: 
   quiet: true
 autoResume: false
-modelRoleStorage: session
-memory:
-  backend: off
-autolearn:
+modelRoleStorage: global
+memory: 
+  backend: local
+autolearn: 
   enabled: true
   autoContinue: true
-dev:
+dev: 
   autoqaConsent: granted
 hideThinkingBlock: false
-advisor:
+advisor: 
   enabled: false
-terminal:
+  syncBacklog: "off"
+terminal: 
   showProgress: false
-display:
+display: 
   shimmer: classic
   smoothStreaming: true
-  showTokenUsage: true
+  showTokenUsage: false
+  collapseCompacted: true
+defaultThinkingLevel: auto
+providers: 
+  autoThinkingModel: online
+  autoThinkingMaxEffort: xhigh
+  anthropic: 
+    serverSideFallback: false
+textVerbosity: medium
+tier: 
+  openai: none
+  subagent: inherit
+personality: friendly
+steeringMode: one-at-a-time
+compaction: 
+  strategy: snapcompact
+  handoffSaveToDisk: true
+snapcompact: 
+  systemPrompt: none
