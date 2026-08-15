@@ -33,6 +33,10 @@
 #     a setting from the OMP TUI edits the repo copy directly; review with
 #     `git diff` before committing. Only linked if ~/.omp/agent exists.
 #
+# Deliberately NOT tracked or linked (machine-local by design):
+#   ~/.omp/agent/mcp.json — see the "Secrets policy" section of README.md.
+#   ~/.omp/agent/extensions/ — written and overwritten by the tool that owns it.
+#
 # Copies, only if missing (the owning tool rewrites these itself, so a symlink
 # would break; never clobbers an existing file):
 #   settings.json             -> ~/.claude/settings.json
@@ -217,6 +221,14 @@ if [ -d "$CODEX" ] && [ -f "$REPO/codex/config.toml" ]; then
   python3 "$REPO/scripts/apply-codex-config.py" \
     "$REPO/codex/config.toml" "$CODEX/config.toml"
   echo "merged  codex/config.toml"
+fi
+
+# 3e/3f only run when OMP is installed. Say so out loud when it isn't —
+#     a silent no-op makes a verify of the form `./install.sh && readlink
+#     ~/.omp/agent/config.yml` look like it passed on a machine that never got
+#     the links.
+if [ ! -d "$OMP" ]; then
+  echo "⚠️  SKIP omp — no $OMP (OMP not installed). config.yml and agents/ not linked."
 fi
 
 # 3e. OMP config: symlinked, unlike codex/config.toml above. OMP *does* rewrite

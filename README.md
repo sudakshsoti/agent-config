@@ -32,6 +32,8 @@ cd ~/dev/agent-config && ./install.sh
 - `omp/agents/` — OMP subagents, symlinked into `~/.omp/agent/agents/`. Just
   `adversary` for now: the cross-lineage plan reviewer behind `/peer-review`.
   See `docs/two-stage-plan-review.md`.
+- `~/.omp/agent/mcp.json` is **not** tracked here, on purpose — see
+  "Secrets policy" below before adding it.
 - `scripts/` — Executables referenced by absolute path from `settings.json` (not
   symlinked). Includes `statusline.sh` / `test-context-size.sh` (the main status
   bar) and `subagent-statusline.sh` / `test-subagent-statusline.sh` (the agent
@@ -96,6 +98,24 @@ No secrets in this repo, even though it's private:
 - Machine-local config and API keys belong in `~/.claude/settings.local.json`
   (merged with `settings.json` by Claude Code, never tracked here).
 - Never put a token in a `SKILL.md`.
+
+`~/.omp/agent/mcp.json` stays machine-local and untracked. Do not "helpfully"
+add it. Two reasons:
+
+- **It is a live leak path with no guard.** OMP writes that file itself, and
+  `omp/` is symlinked, so an `omp mcp add` for a server that takes an inline
+  `env` API key would write a real credential straight into a git-tracked
+  working tree. `settings.json` survives the same hazard only because `sync.sh`
+  is a copy-in step that can strip `env` on the way; a symlinked file has no
+  such step, and a convention ("remember to check `git diff`") is not a guard.
+- **Its contents do not transfer between machines anyway.** The Todoist entry
+  points at a `credentialId` in OMP's own local credential store, and the Linear
+  header shells out to a locally-authenticated `linear auth token`. Committing
+  it would move no working configuration to a new machine — it only adds risk.
+
+Same for `~/.omp/agent/extensions/`: the files there are written and
+overwritten by the tool that installs them, so tracking them would launder
+someone else's executable code as reviewed-and-approved config.
 
 ## Related
 
