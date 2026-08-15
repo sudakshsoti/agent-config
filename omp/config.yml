@@ -4,11 +4,11 @@ modelRoles:
   slow: anthropic/claude-opus-5:xhigh
   designer: anthropic/claude-opus-5:high
   vision: anthropic/claude-sonnet-5:medium
-  task: opencode-go/deepseek-v4-pro:high
-  adversary: opencode/gemini-3.7-flash:high
-  smol: opencode-go/gpt-5.6-luna:low
-  tiny: opencode-go/gpt-5.6-luna:low
-  commit: opencode-go/gpt-5.6-luna:low
+  task: openai-codex/gpt-5.6-luna:xhigh
+  adversary: opencode-go/deepseek-v4-pro:high
+  smol: openai-codex/gpt-5.6-luna:low
+  tiny: openai-codex/gpt-5.6-luna:low
+  commit: openai-codex/gpt-5.6-luna:low
 task: 
   batch: true
   enableEffort: true
@@ -22,20 +22,14 @@ retry:
   usageReservePolicy: confirm
   fallbackChains: 
     opencode-go/deepseek-v4-pro: 
-      - opencode-zen/deepseek-v4-pro:high
-      - opencode-zen/minimax-m3
-    opencode-go/gpt-5.6-luna: 
-      - opencode-zen/gpt-5.6-luna:low
-      - opencode-zen/deepseek-v4-flash:low
-    opencode-go/*: 
-      - opencode-zen/gpt-5.6-luna
+      - opencode-go/minimax-m3:high
       - anthropic/claude-sonnet-5:high
     anthropic/*: 
-      - opencode-go/gpt-5.6-luna:xhigh
-      - opencode-zen/gpt-5.6-luna:xhigh
+      - openai-codex/gpt-5.6-luna:xhigh
+    openai-codex/*: 
+      - anthropic/claude-sonnet-5:high
     default: 
-      - opencode-go/gpt-5.6-luna:xhigh
-      - opencode-zen/gpt-5.6-luna:xhigh
+      - openai-codex/gpt-5.6-luna:xhigh
 symbolPreset: nerd
 theme: 
   dark: dark-lunar

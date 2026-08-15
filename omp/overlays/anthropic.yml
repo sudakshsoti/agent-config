@@ -4,25 +4,32 @@
 # Roles only. Everything else (theme, statusline, task, approvals, autolearn)
 # stays in the base config.yml and is deliberately NOT repeated here.
 #
-# ompc pins the judgment/worker split explicitly: Claude directs the
-# judgment roles below (default/plan/slow/designer/vision) plus `task`, which
-# moves onto the Anthropic subscription too (Sonnet 4.6, at the same
-# Pareto-ish medium effort as ompo's Terra) instead of the metered
-# opencode-go worker. smol/tiny/commit are left undefined here so they fall
-# through to opencode-go in the base config.yml. The default is Sonnet 4.6
-# for routine work; planning uses Opus 4.8, both at the Artificial Analysis
-# Pareto-ish medium effort. slow/designer/vision stay on the Sonnet/Opus 5
-# family for the highest-stakes escalation tiers.
+# ompc pins the judgment/worker split explicitly: Claude directs the judgment
+# roles below (default/plan/slow/designer/vision), and `task` deliberately does
+# NOT follow it. `task` is the fan-out role, so it goes to the OTHER
+# subscription (Luna on openai-codex) to keep the worker fleet off the same
+# quota as the director, and because Luna is ~2.5x faster per token, which is
+# what actually costs wall-clock when ten subagents run at once. smol/tiny/
+# commit are left undefined here so they fall through to openai-codex Luna in
+# the base config.yml. The default is Sonnet 5 for routine work; planning uses
+# Opus 5, both at the Artificial Analysis Pareto-ish medium effort.
+# slow/designer/vision stay on the Opus 5 family for the highest-stakes
+# escalation tiers.
+#
+# Artificial Analysis has only ever run Sonnet 5 at max effort (index 55.3,
+# $1.72/task), so there is no published medium-effort datapoint; medium is
+# chosen here on the same logarithmic-returns reasoning as everywhere else in
+# this repo, not on a measured score.
 #
 # This overlay owns its judgment defaults so ompc remains stable if the base
 # config's model roles change later.
 modelRoles:
-  default: anthropic/claude-sonnet-4-6:medium
-  plan: anthropic/claude-opus-4-8:medium
+  default: anthropic/claude-sonnet-5:medium
+  plan: anthropic/claude-opus-5:medium
   slow: anthropic/claude-opus-5:high
   designer: anthropic/claude-opus-5:high
   vision: anthropic/claude-sonnet-5:medium
-  task: anthropic/claude-sonnet-4-6:medium
+  task: openai-codex/gpt-5.6-luna:xhigh
 
 retry:
   modelFallback: true
@@ -31,4 +38,4 @@ retry:
     default:
       - openai-codex/gpt-5.6-luna:xhigh
     "anthropic/*":
-      - openai-codex/gpt-5.6-terra:high
+      - openai-codex/gpt-5.6-luna:xhigh
