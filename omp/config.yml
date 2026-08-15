@@ -77,9 +77,29 @@ memory:
   backend: local
 autolearn: 
   enabled: true
-  autoContinue: true
+  # autoContinue off. On, it ran a private capture turn at every stop and wrote
+  # nine skills into ~/.omp/agent/managed-skills/ in three days. Six were
+  # removed on 2026-08-15: one documented `ompc`/`ompo` overlays that no longer
+  # exist, one hardcoded homelab ssh targets and uid 10000, one was truncated
+  # mid-sentence, the rest were one-offs or duplicates. Those skills load into
+  # every session at provider priority 5 and discovery is NOT gated by
+  # `enabled`, so bad ones cost context until someone deletes them by hand.
+  # `enabled` stays true: the standing guidance still lets the model capture a
+  # lesson when it decides one is worth capturing. What is off is the unprompted
+  # per-stop token spend that generated junk nobody asked for or read.
+  autoContinue: false
 dev: 
-  autoqaConsent: granted
+  # Denied. `dev.autoqa` defaults to true, which made omp POST every recorded
+  # tool issue to https://qa.omp.sh/v1/grievances — the upstream author's
+  # endpoint — on a background flush at insert, no manual push involved. Each
+  # POST carried the stable install UUID from ~/.omp/install-id plus a
+  # model-written free-text `report` field. All 12 rows in ~/.omp/autoqa.db were
+  # already marked pushed before this was noticed, and they name internal
+  # tooling and local paths. That data is gone; this only stops future sends.
+  # DO NOT add `dev.autoqa: true` here. Setting it explicitly overrides this
+  # denial and turns collection back on without any further prompt. Leaving the
+  # key unset is what makes `denied` bind.
+  autoqaConsent: denied
 hideThinkingBlock: false
 advisor: 
   enabled: false
