@@ -94,9 +94,17 @@ The Stage 1 critic. Read-only (`Read, Grep, Glob`) so it can inspect the codebas
 ## adversary (Stage 2 critic)
 
 `omp/agents/adversary.md`. Read-only (`read, grep, glob`), so it can check the
-plan's file and line-number claims against the real code — stale anchors are
-themselves a finding — but cannot edit. It outputs the same five sections as
-plan-critic, with a steelmanned alternative in place of internal inconsistencies.
+plan's claims against the real code — stale anchors are themselves a finding —
+but cannot edit. It outputs the same five sections as plan-critic, with a
+steelmanned alternative in place of internal inconsistencies.
+
+> [!warning] Anchors are checked with grep, not read
+> Without the edit tool in the session, omp's `read` returns no line numbers
+> (hashline numbering needs `edit.mode: hashline` plus `edit`; the fallback,
+> `readLineNumbers`, is off). `grep` does return line numbers, so the prompt
+> tells the adversary to verify a cited `file:line` by grepping the symbol
+> there. Turning `readLineNumbers` on globally would buy the same check at a
+> token cost on every read in every session.
 
 Its frontmatter pins `model: "@adversary"` rather than a selector. That is the
 whole trick: the model lives in one place (`omp/config.yml`), so changing the

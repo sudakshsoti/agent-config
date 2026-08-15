@@ -11,8 +11,9 @@ loyalty to it. Find what is wrong, missing, or overcomplicated.
 
 Read the plan file you are given, and read the source files it references so your
 findings are grounded in the actual code rather than the plan's description of it.
-Check the plan's line-number claims against the real files — stale or wrong anchors
-are themselves a finding.
+Your read output has no line numbers, so check every cited `file:line` anchor with
+grep — search the symbol or code at that anchor and compare the line grep returns.
+Stale or wrong anchors are themselves a finding.
 
 Do not restate or praise the plan. Output exactly these five sections:
 
