@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>studio / product-dark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&amp;family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@400&amp;display=swap">
+<style>
+/* tokens.css for the product-dark direction, inlined unedited */
+:root {
+  --ground: oklch(0.139 0.003 248);
+  --ground-2: oklch(0.177 0.003 248);
+  --ground-3: oklch(0.204 0.003 248);
+  --ink: oklch(0.978 0.002 248);
+  --ink-2: oklch(0.700 0.012 248);
+  --ink-3: oklch(0.615 0.012 248);
+  --hair: oklch(1 0 0 / 0.08);
+  --accent: oklch(0.660 0.120 272);
+  --accent-ink: oklch(0.160 0.006 248);
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 9999px;
+  --font-display: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --text-base: 1rem;
+  --text-h1: clamp(2.375rem, 1.75rem + 2.6vw, 4rem);
+  --text-h2: clamp(1.75rem, 1.35rem + 1.55vw, 2.625rem);
+  --text-h3: 1.3125rem;
+  --text-small: 0.8125rem;
+  --leading-body: 1.5;
+  --leading-display: 1;
+  --track-display: -0.022em;
+  --track-body: normal;
+  --measure: 60ch;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 5rem;
+  --shadow-1: 0 0 0 1px oklch(0 0 0 / 0.2), 0 0 0 2px oklch(0 0 0 / 0.1), inset 0 0 0 1px oklch(0.264 0.009 265);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  letter-spacing: var(--track-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
+h1 {
+  font-size: var(--text-h1);
+  line-height: var(--leading-display);
+  letter-spacing: var(--track-display);
+}
+
+h2 {
+  font-size: var(--text-h2);
+  /* 1.1 derived from the measured 64/64 so a wrapped 28px heading holds at 390 */
+  line-height: calc(var(--leading-display) + 0.1);
+  letter-spacing: -0.02em;
+}
+
+p { margin: 0 0 var(--space-4); max-width: var(--measure); }
+p:last-child { margin-bottom: 0; }
+
+a {
+  color: var(--accent);
+  text-decoration-color: color-mix(in oklch, var(--accent), transparent 55%);
+  text-underline-offset: 0.2em;
+}
+a:hover { text-decoration-color: var(--accent); }
+a:active { color: color-mix(in oklch, var(--accent), var(--accent-ink) 18%); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+code {
+  padding: 0.15em 0.4em;
+  border-radius: var(--radius-sm);
+  background: var(--ground-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+}
+
+strong { font-weight: 500; color: var(--ink); }
+
+/* One shell, no wrapper elements: the gutter holds until 1120px, then centres. */
+.page-header, .hero, .section, .footer {
+  padding-inline: max(var(--space-5), calc((100% - 1120px) / 2));
+}
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  border-bottom: 1px solid color-mix(in oklch, var(--hair), transparent 40%);
+}
+
+.page-header > p {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  max-width: none;
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--ink-2);
+  font-size: var(--text-small);
+  text-decoration: none;
+}
+.nav a:hover { background: var(--ground-3); color: var(--ink); }
+.nav a:active { background: var(--ground-2); }
+
+.hero { padding-block: var(--space-7); }
+.hero-title { margin-bottom: var(--space-4); }
+
+.hero-sub {
+  margin-bottom: var(--space-5);
+  color: var(--ink-2);
+  font-size: var(--text-h3);
+  letter-spacing: -0.01em;
+}
+
+.cta { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: var(--space-5);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: var(--text-small);
+  font-weight: 500;
+  text-decoration: none;
+}
+.btn:hover { background: color-mix(in oklch, var(--accent), var(--ink) 14%); }
+.btn:active { background: color-mix(in oklch, var(--accent), var(--accent-ink) 12%); }
+
+.btn--ghost {
+  background: var(--ground-2);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+.btn--ghost:hover { background: var(--ground-3); }
+
+.section { padding-block: var(--space-7); }
+.section-head { margin-bottom: var(--space-5); }
+
+.eyebrow {
+  margin: 0 0 var(--space-3);
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.lead { font-size: var(--text-h3); letter-spacing: -0.01em; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--space-5);
+}
+
+/* Raised: one ground step up, ring instead of a border. Nothing carries both. */
+.panel {
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  background: var(--ground-3);
+  box-shadow: var(--shadow-1);
+}
+.panel--flat { background: var(--ground-2); border: 1px solid var(--hair); box-shadow: none; }
+/* A chip cuts down to the page ground, so its fill never matches its surface. */
+.panel code, tbody tr[aria-current] .badge { background: var(--ground); }
+.panel p { max-width: none; }
+.panel p:nth-child(2) { margin-bottom: var(--space-3); }
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--hair);
+  border-radius: var(--radius-md);
+  background: var(--ground-2);
+}
+
+table {
+  width: 100%;
+  min-width: 40rem;
+  border-collapse: collapse;
+  font-size: var(--text-small);
+}
+
+th, td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid color-mix(in oklch, var(--hair), transparent 40%);
+  text-align: left;
+  vertical-align: top;
+}
+
+thead th {
+  background: var(--ground-3);
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+tbody th { color: var(--ink); font-weight: 500; white-space: nowrap; }
+tbody td { color: var(--ink-2); }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+tbody tr[aria-current] { background: var(--ground-3); }
+tbody th .badge { margin-left: var(--space-2); }
+
+.code {
+  margin: 0 0 var(--space-4);
+  padding: var(--space-4);
+  overflow-x: auto;
+  border: 1px solid var(--hair);
+  border-radius: var(--radius-md);
+  background: var(--ground-2);
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+}
+.code code { padding: 0; border-radius: 0; background: none; font-size: inherit; }
+
+.note {
+  max-width: var(--measure);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--hair);
+  border-radius: var(--radius-lg);
+  background: var(--ground-2);
+  color: var(--ink-2);
+}
+
+.list {
+  display: grid;
+  gap: var(--space-3);
+  max-width: var(--measure);
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+.list li { position: relative; padding-left: var(--space-5); color: var(--ink-2); }
+.list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.7em;
+  width: 8px;
+  height: 1px;
+  background: var(--ink-3);
+}
+
+.quote {
+  margin: var(--space-5) 0 var(--space-2);
+  padding-left: var(--space-5);
+  border-left: 2px solid var(--hair);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 500;
+  letter-spacing: -0.014em;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--ground-3);
+  box-shadow: inset 0 0 0 1px var(--hair);
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  letter-spacing: 0.04em;
+}
+
+.figure { margin: var(--space-5) 0 0; }
+.caption {
+  max-width: var(--measure);
+  margin: var(--space-3) 0 0;
+  color: var(--ink-3);
+  font-size: var(--text-small);
+}
+
+.divider { height: 1px; margin: 0; border: 0; background: var(--hair); }
+
+.footer { padding-block: var(--space-6) var(--space-7); }
+.meta {
+  max-width: var(--measure);
+  margin: 0;
+  color: var(--ink-3);
+  font-size: var(--text-small);
+}
+
+@media (min-width: 48rem) {
+  .page-header { padding-block: var(--space-4); }
+  .hero { padding-block: var(--space-8) var(--space-7); }
+  .section { padding-block: var(--space-8); }
+  .panel { padding: var(--space-6); }
+}
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <p>studio <span class="badge">product-dark</span></p>
+  <nav class="nav" aria-label="Sections">
+    <ul>
+      <li><a href="#directions">Directions</a></li>
+      <li><a href="#gate">Render gate</a></li>
+      <li><a href="#fonts">Fonts</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+
+<section class="hero">
+  <h1 class="hero-title">studio</h1>
+  <p class="hero-sub">Near-black ground, hairline rings for depth, no blur anywhere.</p>
+  <div class="cta">
+    <a class="btn" href="#gate">See the render gate</a>
+    <a class="btn btn--ghost" href="#directions">Compare directions</a>
+  </div>
+</section>
+
+<section class="section" id="what">
+  <p class="lead">Studio builds one self-contained HTML artifact against a named design
+    direction, renders it at 390 and 1440, scores it, and revises once before handing
+    it over.</p>
+  <p>The direction decides everything a browser can see. Its <code>tokens.css</code> is
+    copied into the artifact unedited and every rule below it is authored against those
+    custom properties, so a colour or a size that a token already covers never gets
+    written twice.</p>
+</section>
+
+<section class="section" id="directions">
+  <div class="section-head">
+    <p class="eyebrow">Four directions</p>
+    <h2>One brief, four grounds</h2>
+  </div>
+  <p>Each direction is measured against a named reference rather than copied from one,
+    and each carries its own avoid list. Sixty of the gate's hundred points ride on
+    that list.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Direction</th>
+          <th scope="col">Ground</th>
+          <th scope="col">Character</th>
+          <th scope="col">Suits</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">editorial</th>
+          <td>light paper</td>
+          <td>two families, no negative tracking, almost no radius</td>
+          <td>long reads, essays, explainers, reports</td>
+        </tr>
+        <tr>
+          <th scope="row">instrument</th>
+          <td>white</td>
+          <td>one grotesque, one accent, bordered cards, zero shadow</td>
+          <td>pricing, comparisons, technical product pages</td>
+        </tr>
+        <tr aria-current="true">
+          <th scope="row">product-dark <span class="badge">this page</span></th>
+          <td>near-black</td>
+          <td>alpha-tint elevation, white-alpha hairlines, tight tracking</td>
+          <td>developer tools, dashboards-as-marketing</td>
+        </tr>
+        <tr>
+          <th scope="row">calm</th>
+          <td>warm off-white</td>
+          <td>one family, large flat colour fields, large radii</td>
+          <td>consumer, wellbeing, onboarding, anything friendly</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section" id="gate">
+  <div class="section-head">
+    <p class="eyebrow">Phase 3</p>
+    <h2>The render gate</h2>
+  </div>
+  <p>Two widths, both read before anything is scored. The gate runs in the main agent,
+    never in a subagent.</p>
+<pre class="code"><code>playwright screenshot --viewport-size=390,844 page.html shot-390.png
+playwright screenshot --viewport-size=1440,900 page.html shot-1440.png</code></pre>
+  <p class="note">Forty points are universal: hierarchy, measure and vertical rhythm,
+    colour discipline, integrity at 390, and zero anti-pattern hits. The remaining sixty
+    are the direction's own avoid list, scored as the share of its items respected. Below
+    eighty, or on any failing check, the artifact gets one revision and both commands run
+    again. A second failure ships, with every failing check named out loud.</p>
+</section>
+
+<section class="section" id="fonts">
+  <div class="section-head">
+    <p class="eyebrow">Font policy</p>
+    <h2>Blacklist only</h2>
+  </div>
+  <p>Twenty families are banned outright and everything else is available. The list grows
+    over time; it is never a shortlist to pick from.</p>
+  <p>Inter carries body and UI, never display. Inter at 72px in a hero is the loudest
+    <em>an agent made this</em> signal there is. This direction's reference gives its own
+    display role to Inter, and this direction hands it to Geist instead.</p>
+  <ul class="list">
+    <li><strong>Display</strong> Geist at 500, inside the 300 to 510 band every measured
+      reference uses. The reference's own h1 sits at 510.</li>
+    <li><strong>Body and UI</strong> Inter at 400, 16px on a 24px line, tracking left
+      alone.</li>
+    <li><strong>Mono</strong> JetBrains Mono, the free stand-in that keeps the file
+      shareable. Code, eyebrows and badge labels only.</li>
+  </ul>
+  <p class="quote">Free fonts (safe to share) or your licensed set (this machine only)?</p>
+  <p class="meta">Asked once, in Phase 0, with free pre-selected.</p>
+</section>
+
+<section class="section" id="signature">
+  <div class="section-head">
+    <p class="eyebrow">Signature move</p>
+    <h2>Elevation is a ring, not a blur</h2>
+  </div>
+  <p>Not one of the seven measured references uses blur for elevation. Ramp holds a 1px
+    border and no shadow, this direction's reference stacks
+    <code>0 0 0 1px</code> and <code>0 0 0 2px</code> alpha rings, V7 uses nothing, and
+    the New Yorker's article shell has none. The agent default
+    <code>0 4px 6px rgba(0,0,0,0.1)</code> matches none of them.</p>
+  <p>The lift comes from a tint instead. Composite the reference's own
+    <code>rgba(255,255,255,0.01)</code> over its <code>#101112</code> and the result is
+    <code>#121314</code>, which is the next rung it already ships. The tints are not a
+    layer on top of the ladder, they are the ladder, so a raised surface is one step up
+    and the ring only has to draw the edge a border would have drawn.</p>
+  <figure class="figure">
+    <div class="grid">
+      <div class="panel">
+        <p class="eyebrow">Raised</p>
+        <p><code>box-shadow: var(--shadow-1)</code></p>
+        <p>One tint up, then two outer alpha rings and an inset hairline with blur
+          radius zero on all three. No border, because the ring is the border.</p>
+      </div>
+      <div class="panel panel--flat">
+        <p class="eyebrow">Flat</p>
+        <p><code>border: 1px solid var(--hair)</code></p>
+        <p>Fenced on the ground rather than lifted off it. Tables, code blocks and
+          notes stay on this tier.</p>
+      </div>
+    </div>
+    <figcaption class="caption">One ground step apart, 1.05:1 of fill. The raised tier
+      is lifted by an alpha tint and edged by the ring; the flat tier keeps its border.
+      The move only reads while the flat tier stays flat.</figcaption>
+  </figure>
+  <p class="caption">Tracking separates the measured references further than their
+    typefaces do:</p>
+  <ul class="list">
+    <li>New Yorker, <strong>normal</strong> at 42px.</li>
+    <li>Ramp, <strong>&minus;0.01px</strong> at 64px.</li>
+    <li>This direction's reference, <strong>&minus;0.022em</strong>.</li>
+    <li>V7 and Headspace, <strong>&minus;0.03em</strong>.</li>
+  </ul>
+  <p>So the ring holds the depth and the tracking holds the temperature. Loosen the
+    headings past &minus;0.01em and this stops being a product page, whatever the
+    shadows are doing.</p>
+</section>
+
+</main>
+
+<hr class="divider">
+
+<footer class="footer">
+  <p class="meta">studio / product-dark. Measured against Linear, not copied from it.
+    Every value on this page comes from the direction's DESIGN.md.</p>
+</footer>
+
+</body>
+</html>

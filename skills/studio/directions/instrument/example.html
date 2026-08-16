@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>studio — the instrument direction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500&display=swap">
+<style>
+/* studio direction: instrument
+   Measured against Ramp's pricing page. Elevation is a 1px hairline, so
+   --shadow-1 is none on purpose and --track-body is normal on purpose. */
+:root {
+  --ground: oklch(1 0 0);
+  --ground-2: oklch(0.972 0.004 255);
+  --ground-3: oklch(0.945 0.006 255);
+
+  --ink: oklch(0.215 0.014 255);
+  --ink-2: oklch(0.455 0.012 255);
+  --ink-3: oklch(0.545 0.011 255);
+
+  --hair: oklch(0.875 0.006 255);
+
+  --accent: oklch(0.92 0.2 114);
+  --accent-ink: oklch(0.215 0.014 255);
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-pill: 1.5rem;
+
+  --font-display: "Schibsted Grotesk", system-ui, sans-serif;
+  --font-body: "Schibsted Grotesk", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --text-base: 1rem;
+  --text-h1: clamp(2.5rem, 1.94rem + 2.29vw, 4rem);
+  --text-h2: clamp(2rem, 1.63rem + 1.52vw, 3rem);
+  --text-h3: 1.25rem;
+  --text-small: 0.8125rem;
+
+  --leading-body: 1.5;
+  --leading-display: 1.05;
+
+  --track-display: -0.01em;
+  --track-body: normal;
+
+  --measure: 66ch;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2rem;
+  --space-6: 2.5rem;
+  --space-7: 4rem;
+  --space-8: 6rem;
+
+  --shadow-1: none;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  letter-spacing: var(--track-body);
+  overflow-wrap: break-word;
+}
+
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+/* Shell. The rhythm between sections is air, one hairline, air. */
+.page-header,
+.section,
+.footer {
+  max-width: 70rem;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-3);
+}
+.page-header { padding-bottom: var(--space-7); }
+.section,
+.footer { border-top: 1px solid var(--hair); }
+
+@media (min-width: 48rem) {
+  .page-header,
+  .section,
+  .footer { padding: var(--space-7) var(--space-5); }
+  .page-header { padding-bottom: var(--space-8); }
+}
+
+.page-header > * + *,
+.section > * + *,
+.footer > * + * { margin-top: var(--space-4); }
+.page-header > .eyebrow + * { margin-top: 0; }
+.section > .section-head + * { margin-top: var(--space-5); }
+
+p { margin: 0; max-width: var(--measure); color: var(--ink-2); }
+
+.hero-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-h1);
+  font-weight: 400;
+  line-height: var(--leading-display);
+  letter-spacing: var(--track-display);
+}
+
+h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  font-weight: 400;
+  line-height: var(--leading-display);
+  letter-spacing: var(--track-display);
+}
+
+h3 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-h3);
+  font-weight: 500;
+  line-height: var(--leading-display);
+}
+
+.hero-sub,
+.lead { font-size: var(--text-h3); color: var(--ink); }
+
+.eyebrow {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: var(--ink-3);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-5);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+}
+
+.nav { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+/* 44px is the tap-target floor, not a step on the spacing scale. */
+.nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: var(--ink-2);
+  text-decoration: none;
+}
+.nav a:hover {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: var(--space-1);
+}
+.nav a:active { color: var(--ink); }
+
+/* Signature move: the top and left hairline belong to the grid, the right
+   and bottom to each cell, so adjacent borders never double. */
+.steps {
+  counter-reset: step;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-top: 1px solid var(--hair);
+  border-left: 1px solid var(--hair);
+}
+.steps > li {
+  counter-increment: step;
+  padding: var(--space-6) var(--space-5);
+  border-right: 1px solid var(--hair);
+  border-bottom: 1px solid var(--hair);
+}
+.steps h3::before {
+  content: counter(step);
+  margin-right: var(--space-2);
+  font-family: var(--font-mono);
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+@media (min-width: 48rem) {
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.table-wrap {
+  border: 1px solid var(--hair);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+table { width: 100%; border-collapse: collapse; }
+th, td {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--hair);
+}
+tr > * + * { border-left: 1px solid var(--hair); }
+thead th {
+  background: var(--ground-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+tbody th {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+}
+tbody td { color: var(--ink-2); }
+tbody tr:last-child > * { border-bottom: 0; }
+
+@media (max-width: 47.9375rem) {
+  /* Each cell carries its own data-label below, so the header row is not
+     needed at this width. display:none is unambiguous on a table section;
+     an absolutely positioned thead is not. */
+  thead { display: none; }
+  tbody tr { display: block; border-bottom: 1px solid var(--hair); }
+  tbody tr:last-child { border-bottom: 0; }
+  tbody tr > * { display: block; border: 0; padding: 0 var(--space-4); }
+  tbody th { padding-top: var(--space-4); }
+  tbody td { padding-bottom: var(--space-2); }
+  tbody tr > *:last-child { padding-bottom: var(--space-4); }
+  tbody td::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
+    color: var(--ink-3);
+  }
+}
+
+.note {
+  padding-left: var(--space-3);
+  border-left: 1px solid var(--hair);
+}
+
+/* A transparent fill and one hairline is the entire raised state. */
+.panel {
+  padding: var(--space-6) var(--space-5);
+  border: 1px solid var(--hair);
+  border-radius: var(--radius-lg);
+}
+
+.list { list-style: none; margin: 0; padding: 0; }
+.list > li { max-width: var(--measure); color: var(--ink-2); }
+.list > li + li {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--hair);
+}
+
+/* Sunk surfaces take a fill and no border, so the two signals never collide. */
+.code {
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--ground-2);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--ink);
+  overflow-x: auto;
+}
+.code code { font: inherit; color: inherit; }
+
+:not(pre) > code {
+  padding: 0 var(--space-1);
+  background: var(--ground-3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: var(--ink);
+}
+
+.quote {
+  margin: 0;
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--hair);
+  max-width: var(--measure);
+  font-size: var(--text-h3);
+  color: var(--ink);
+}
+
+.cta { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 500;
+  text-decoration: none;
+}
+.btn--ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--hair);
+}
+.btn:hover { border-color: var(--ink); }
+.btn:active {
+  background: var(--ground-3);
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+a:focus-visible { outline: 2px solid var(--ink); outline-offset: var(--space-1); }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <p class="eyebrow">direction: instrument</p>
+  <h1 class="hero-title">studio</h1>
+  <p class="hero-sub">One grotesque on a white ground, and a 1px hairline where every other page would put a shadow.</p>
+  <p class="meta">
+    <span class="badge">page shape</span>
+    Schibsted Grotesk and IBM Plex Mono
+    <span>measured against Ramp</span>
+  </p>
+  <nav class="nav" aria-label="Sections">
+    <a href="#method">Method</a>
+    <a href="#directions">Four directions</a>
+    <a href="#gate">Render gate</a>
+    <a href="#fonts">Font policy</a>
+  </nav>
+</header>
+
+<main>
+
+<section class="section" id="method">
+  <div class="section-head">
+    <p class="eyebrow">method</p>
+    <h2>One file, one direction, then proof</h2>
+  </div>
+  <p class="lead">Studio builds one self-contained HTML artifact against a named design direction, renders it at 390 and 1440, scores it, and revises once before handing it over.</p>
+  <ol class="steps">
+    <li>
+      <h3>Build</h3>
+      <p>One file. The direction's <code>tokens.css</code> goes into the style block first, and every rule below it is authored against those custom properties.</p>
+    </li>
+    <li>
+      <h3>Render</h3>
+      <p>The same file at two viewport widths, from disk, with no server involved: 390 by 844, then 1440 by 900.</p>
+    </li>
+    <li>
+      <h3>Score</h3>
+      <p>Out of 100. The direction's own avoid list carries 60 of those points, which is why a generic entry on that list is a wasted slot.</p>
+    </li>
+    <li>
+      <h3>Revise</h3>
+      <p>Once. If the second run still fails, the file ships with its score and every failing check named out loud.</p>
+    </li>
+  </ol>
+</section>
+
+<section class="section" id="directions">
+  <div class="section-head">
+    <p class="eyebrow">registry</p>
+    <h2>Four directions</h2>
+  </div>
+  <p>Every direction answers the same 35 custom properties in the same order, so the artifact changes completely when one <code>tokens.css</code> is swapped for another and nothing else moves.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Direction</th>
+          <th scope="col">Ground</th>
+          <th scope="col">Character</th>
+          <th scope="col">Suits</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">editorial</th>
+          <td data-label="Ground">light paper</td>
+          <td data-label="Character">two families, no negative tracking, almost no radius</td>
+          <td data-label="Suits">long reads, essays, explainers, reports</td>
+        </tr>
+        <tr>
+          <th scope="row">instrument</th>
+          <td data-label="Ground">white</td>
+          <td data-label="Character">one grotesque, one accent, bordered cards, zero shadow</td>
+          <td data-label="Suits">pricing, comparisons, technical product pages</td>
+        </tr>
+        <tr>
+          <th scope="row">product-dark</th>
+          <td data-label="Ground">near-black</td>
+          <td data-label="Character">alpha-tint elevation, white-alpha hairlines, tight tracking</td>
+          <td data-label="Suits">developer tools, dashboards-as-marketing</td>
+        </tr>
+        <tr>
+          <th scope="row">calm</th>
+          <td data-label="Ground">warm off-white</td>
+          <td data-label="Character">one family, large flat colour fields, large radii</td>
+          <td data-label="Suits">consumer, wellbeing, onboarding, anything friendly</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Each direction's <code>DESIGN.md</code> names the page it is measured against. This one is measured against Ramp's pricing page, which is where the white ground, the single accent and the zero shadow come from.</p>
+</section>
+
+<section class="section" id="gate">
+  <div class="section-head">
+    <p class="eyebrow">gate</p>
+    <h2>Rendered before it is handed over</h2>
+  </div>
+  <p>Two widths, every time, run in the main agent rather than delegated.</p>
+  <pre class="code"><code>playwright screenshot --viewport-size=390,844 page.html shot-390.png
+playwright screenshot --viewport-size=1440,900 page.html shot-1440.png</code></pre>
+  <p class="note">The screenshots are read, not just produced. They are judged against this direction's avoid list, which is where 60 of the 100 points sit.</p>
+</section>
+
+<section class="section" id="fonts">
+  <div class="section-head">
+    <p class="eyebrow">type</p>
+    <h2>Font policy</h2>
+  </div>
+  <div class="panel">
+    <ul class="list">
+      <li>A blacklist, not a whitelist. Twenty families are refused by name; anything not on that list is available.</li>
+      <li>Inter is body and UI only, never display. Inter at 72px in a hero is the loudest signal that an agent made the page.</li>
+      <li>One or two families per artifact, never three. This direction uses one grotesque, with a mono for labels and literals.</li>
+      <li>Display weight stays light. Across the measured references it runs 300 to 510, and the h1 above is 400.</li>
+    </ul>
+  </div>
+  <p>Asked once, before any markup exists:</p>
+  <blockquote class="quote">Free fonts (safe to share) or your licensed set (this machine only)?</blockquote>
+  <div class="cta">
+    <a class="btn" href="./DESIGN.md">Read the direction spec</a>
+    <a class="btn btn--ghost" href="./tokens.css">tokens.css</a>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <h2>Signature move</h2>
+  <p class="lead">Cards share their borders. Set them edge to edge with no gap and the two hairlines between them collapse into one, so a grid draws as a lattice instead of a row of objects hovering over the page. Depth is only ever a question of whether a line is there.</p>
+  <p class="meta">
+    <span>studio</span>
+    <span>instrument</span>
+    <span>white ground, one grotesque, one accent, zero shadow</span>
+  </p>
+</footer>
+
+</body>
+</html>

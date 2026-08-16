@@ -1,0 +1,55 @@
+/* studio direction: editorial
+   Measured against The New Yorker (Pope.L article, served CSS, not computed).
+   The palette is the operator's own production paper/ink ladder rather than the
+   reference's #fff/#000. Hexes and contrast ratios are tabulated in DESIGN.md. */
+
+:root {
+  --ground:          oklch(0.972 0.004 85);
+  --ground-2:        oklch(0.945 0.005 85);
+  --ground-3:        oklch(0.917 0.005 85);
+
+  --ink:             oklch(0.235 0.010 65);
+  --ink-2:           oklch(0.475 0.010 65);
+  --ink-3:           oklch(0.640 0.008 65);
+
+  --hair:            oklch(0.878 0.006 65);
+
+  --accent:          oklch(0.510 0.128 245.4);
+  --accent-ink:      oklch(0.972 0.004 85);
+
+  --radius-sm:       0;
+  --radius-md:       0;
+  --radius-lg:       4px;
+  --radius-pill:     999px;
+
+  --font-display:    "Source Serif 4", Georgia, serif;
+  --font-body:       "Hanken Grotesk", system-ui, sans-serif;
+  --font-mono:       "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+  --text-base:       21px;
+  --text-h1:         clamp(30px, 1.6rem + 1.14vw, 42px);
+  --text-h2:         clamp(24px, 1.36rem + 0.57vw, 30px);
+  --text-h3:         21px;
+  --text-small:      13px;
+
+  --leading-body:    1.5;
+  --leading-display: 1.0667;
+
+  /* Zero, at every size, including the 42px headline. The defining constraint. */
+  --track-display:   normal;
+  --track-body:      normal;
+
+  --measure:         64ch;
+
+  --space-1:         0.25rem;
+  --space-2:         0.5rem;
+  --space-3:         1rem;
+  --space-4:         1.5rem;
+  --space-5:         2rem;
+  --space-6:         2.5rem;
+  --space-7:         3rem;
+  --space-8:         4rem;
+
+  /* The reference's article shell has no shadow. Depth is rules and space. */
+  --shadow-1:        none;
+}

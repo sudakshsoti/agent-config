@@ -24,7 +24,10 @@ marketplace ayghri/i-have-adhd
 # into every session and after every /clear, and Claude Code has no way to
 # disable one hook from a plugin. See docs/vendored-superpowers.md.
 # plugin superpowers@claude-plugins-official
-plugin frontend-design@claude-plugins-official
+# frontend-design is deliberately disabled. It is prose-only guidance with no
+# style catalog, no tokens and no gate — the category StyleSeed's own benchmark
+# measured at -3.7 for Claude — and the studio skill now covers this ground.
+# plugin frontend-design@claude-plugins-official
 plugin vercel@claude-plugins-official
 plugin claude-code-setup@claude-plugins-official
 plugin humanizer@humanizer
