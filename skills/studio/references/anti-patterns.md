@@ -33,12 +33,26 @@ generalises to the case not listed here.
   contrast midway through the word.
 - **Saturated accent colours.** At reading lengths high-chroma colour fatigues
   the eye and pulls attention off the words. Desaturate.
+  *Lifts when the colour is never set as reading-length text.* Chroma above
+  roughly 0.15 is allowed for a large flat field or a solid fill with its own
+  paired ink, because the objection is to fatigue over a paragraph, not to the
+  chroma itself. A link in running text is the furthest an accent of that
+  chroma may go. `calm` is the direction this exemption exists for.
 - **More than one accent hue.** Two accents give the reader two competing
   signals and neither one means anything after the second use.
 - **Pure `#000` or `#fff`.** Maximum contrast on a long read is harsh. Tint
   the neutrals toward the accent so the page reads as one considered object.
+  *Never lifts for `#000`*, which has no hue to tint the ladder from and clips
+  to the panel's own black on OLED. *Lifts for the ground only* on a surface
+  built for scanning rather than reading, where an unbiased sheet is the point.
+  Even then, stop at `oklch(0.995 0 0)`: it is indistinguishable from white,
+  and it keeps the ladder inside one system. `instrument` is the direction this
+  exemption exists for.
 - **Communicating meaning by colour alone.** Documents get printed and read
-  in greyscale, so every callout and status carries a text label as well.
+  in greyscale, so every callout and status carries a text label as well. This
+  reaches the primary button too: if the only thing separating it from a
+  secondary control is a fill, it is a plain box in greyscale. Give it a second
+  signal — a border that the secondary lacks, or a heavier label.
 
 ## Decorative
 
@@ -70,6 +84,24 @@ generalises to the case not listed here.
   numbers.
 - **Stat blocks for numbers that were not measured.** Large-type figures
   carry authority; spending it on a guess spends credibility on nothing.
+
+## Typesetting
+
+- **Proportional figures in a table or a stat block.** Default figures in most
+  grotesques are proportional, so a `1` is narrower than a `7` and a column of
+  numbers will not align down its own decimal. Any artifact containing a
+  `<table>`, a `.stat` or a run of compared figures sets
+  `font-variant-numeric: tabular-nums` on those elements. This is not optional
+  in a direction built for comparison.
+- **A neutral ladder with no `color-scheme`.** A dark artifact on a browser
+  defaulting to light gets light native scrollbars, form controls and
+  `::selection` against its own ground. Declare `color-scheme: dark` (or
+  `light`) on `:root` so the chrome matches the page.
+- **Depending on a hairline that `forced-colors` will repaint.** Windows High
+  Contrast overrides border colours, so a direction whose entire elevation
+  system is a 1px line loses it. Keep the border *present* under
+  `forced-colors: active` rather than swapping to a fill, and never carry
+  structure in a border's colour alone.
 
 ## Format
 

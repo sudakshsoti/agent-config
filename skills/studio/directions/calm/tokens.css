@@ -1,37 +1,62 @@
 /* studio direction: calm — measured against Headspace (headspace.com).
    Play from large flat colour fields and 24-112px radii; the warm ground and
-   the warm near-black ink are what stop it reading as childish. */
+   the warm near-black ink are what stop it reading as childish.
+   NOTE the ladder reverses: --ground-2 is LIGHTER than the ground (raised),
+   --ground-3 is DARKER (sunk). It is the only direction of the four that does
+   this, so the two are aliased below by what they mean, not by their number. */
 
 :root {
+  color-scheme: light;
+
   --ground: oklch(0.9705 0.006 43);
-  --ground-2: oklch(0.9945 0.0035 43);
+  --ground-2: oklch(0.993 0.0035 43);
   --ground-3: oklch(0.9385 0.0095 43);
+
+  --surface-raised: var(--ground-2);
+  --surface-sunk: var(--ground-3);
 
   --ink: oklch(0.2938 0.0023 68);
   --ink-2: oklch(0.416 0.006 62);
-  --ink-3: oklch(0.525 0.008 62);
+  --ink-3: oklch(0.500 0.008 62);
 
   --hair: oklch(0.855 0.013 43);
 
-  --accent: oklch(0.5401 0.2271 260.5);
-  --accent-ink: oklch(0.9945 0.0035 43);
+  --accent: oklch(0.525 0.220 260.5);
+  --accent-ink: oklch(0.993 0.0035 43);
+
+  /* The measured five. Each field carries its own ink, so the pair cannot
+     drift apart; three fields is the ceiling for a whole artifact. */
+  --field-blue: oklch(0.525 0.220 260.5);
+  --field-blue-ink: oklch(0.993 0.0035 43);
+  --field-yellow: oklch(0.8691 0.1777 91.3);
+  --field-yellow-ink: oklch(0.2938 0.0023 68);
+  --field-pink: oklch(0.8154 0.1223 351.2);
+  --field-pink-ink: oklch(0.2938 0.0023 68);
+  --field-purple: oklch(0.3346 0.1569 290.4);
+  --field-purple-ink: oklch(0.993 0.0035 43);
+  --field-green: oklch(0.5453 0.1483 150.4);
+  --field-green-ink: oklch(0.993 0.0035 43);
+
+  --ring: oklch(0.2938 0.0023 68);
+  --ring-offset: 0.25rem;
 
   --radius-sm: 8px;
   --radius-md: 24px;
-  --radius-lg: 112px;
-  --radius-pill: 800px;
+  --radius-lg: clamp(40px, 8vw, 112px);
+  --radius-pill: 9999px;
 
   --font-display: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-body: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
 
   --text-base: 1rem;
-  --text-h1: clamp(2.375rem, 1.75rem + 3.2vw, 4rem);
+  --text-h1: clamp(2.375rem, 1.6rem + 3.9vw, 4.5rem);
   --text-h2: clamp(1.875rem, 1.45rem + 2.1vw, 3.25rem);
   --text-h3: 1.5rem;
   --text-small: 0.8125rem;
 
-  --leading-body: 1.55;
+  --leading-body: 1.5;
+  --leading-h3: 1.25;
   --leading-display: 1.1;
 
   --track-display: -0.03em;
@@ -39,14 +64,15 @@
 
   --measure: 60ch;
 
-  --space-1: 0.5rem;
-  --space-2: 0.75rem;
-  --space-3: 1rem;
-  --space-4: 1.5rem;
-  --space-5: 2.5rem;
-  --space-6: 4rem;
-  --space-7: 6rem;
-  --space-8: 9rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2.5rem;
+  --space-7: 4rem;
+  --space-8: 6rem;
 
   --shadow-1: 0 1px 8px oklch(0.188 0.002 17 / 0.2);
+  --shadow-press: 0 2px 0 oklch(0.3670 0.0145 308 / 0.2);
 }

@@ -14,18 +14,23 @@
    reference's #fff/#000. Hexes and contrast ratios are tabulated in DESIGN.md. */
 
 :root {
+  color-scheme: light;
+
   --ground:          oklch(0.972 0.004 85);
   --ground-2:        oklch(0.945 0.005 85);
-  --ground-3:        oklch(0.917 0.005 85);
+  --ground-3:        oklch(0.900 0.005 85);
 
   --ink:             oklch(0.235 0.010 65);
   --ink-2:           oklch(0.475 0.010 65);
   --ink-3:           oklch(0.640 0.008 65);
 
-  --hair:            oklch(0.878 0.006 65);
+  --hair:            oklch(0.855 0.006 65);
 
   --accent:          oklch(0.510 0.128 245.4);
   --accent-ink:      oklch(0.972 0.004 85);
+
+  --ring:            oklch(0.510 0.128 245.4);
+  --ring-offset:     0.25rem;
 
   --radius-sm:       0;
   --radius-md:       0;
@@ -40,9 +45,11 @@
   --text-h1:         clamp(30px, 1.6rem + 1.14vw, 42px);
   --text-h2:         clamp(24px, 1.36rem + 0.57vw, 30px);
   --text-h3:         21px;
+  --text-meta:       15px;
   --text-small:      13px;
 
   --leading-body:    1.5;
+  --leading-h3:      1.2;
   --leading-display: 1.0667;
 
   /* Zero, at every size, including the 42px headline. The defining constraint. */
@@ -50,15 +57,16 @@
   --track-body:      normal;
 
   --measure:         64ch;
+  --rail:            10rem;
 
   --space-1:         0.25rem;
   --space-2:         0.5rem;
-  --space-3:         1rem;
-  --space-4:         1.5rem;
-  --space-5:         2rem;
-  --space-6:         2.5rem;
+  --space-3:         0.75rem;
+  --space-4:         1rem;
+  --space-5:         1.5rem;
+  --space-6:         2rem;
   --space-7:         3rem;
-  --space-8:         4rem;
+  --space-8:         6rem;
 
   /* The reference's article shell has no shadow. Depth is rules and space. */
   --shadow-1:        none;
@@ -83,7 +91,7 @@ body {
 .page-header, .section, .footer {
   max-width: 58rem;
   margin-inline: auto;
-  padding-inline: var(--space-4);
+  padding-inline: var(--space-5);
 }
 
 h1, h2, h3 {
@@ -96,9 +104,19 @@ h1, h2, h3 {
 
 h1 { font-size: var(--text-h1); }
 h2 { font-size: var(--text-h2); }
-h3 { font-size: var(--text-h3); line-height: 1.2; margin-top: var(--space-6); }
+/* The run-in subhead. Same size and weight as body, so the family switch alone
+   was one variable of separation; the italic is the second. */
+h3 {
+  font-size: var(--text-h3);
+  font-style: italic;
+  line-height: var(--leading-h3);
+  margin-top: var(--space-6);
+}
 
-p, ul { margin: var(--space-4) 0 0; max-width: var(--measure); }
+/* Italic is a role here, not an effect: emphasis, a cited title, a pull quote. */
+em, cite, blockquote { font-family: var(--font-display); font-style: italic; }
+
+p, ul { margin: var(--space-5) 0 0; max-width: var(--measure); }
 
 /* Loaded weights are 400 and 500 only, so bold resolves to the medium. */
 strong { font-weight: 500; }
@@ -114,12 +132,16 @@ strong { font-weight: 500; }
   color: var(--ink-2);
 }
 
+/* --text-meta sits between 21px body and 13px utility. Without it a caption
+   takes a size the reference chose for a navigation bar. */
 .caption, .note {
-  font-size: var(--text-small);
-  line-height: 1.6;
+  font-size: var(--text-meta);
+  line-height: 1.45;
   color: var(--ink-2);
   max-width: var(--measure);
 }
+
+table { font-variant-numeric: tabular-nums; }
 
 a {
   color: var(--ink);
@@ -147,7 +169,7 @@ a:active { text-decoration-thickness: 2px; }
   color: var(--ink);
 }
 
-.hero-title { margin-top: var(--space-3); }
+.hero-title { margin-top: var(--space-4); }
 
 .hero-sub {
   margin-top: var(--space-2);
@@ -157,13 +179,13 @@ a:active { text-decoration-thickness: 2px; }
   color: var(--ink-2);
 }
 
-.lead { margin-top: var(--space-4); }
+.lead { margin-top: var(--space-5); }
 
 .nav {
   display: flex;
   flex-wrap: wrap;
-  column-gap: var(--space-4);
-  margin-top: var(--space-3);
+  column-gap: var(--space-5);
+  margin-top: var(--space-4);
 }
 
 .nav a {
@@ -185,7 +207,7 @@ a:active { text-decoration-thickness: 2px; }
 
 .section {
   margin-top: var(--space-7);
-  padding-top: var(--space-5);
+  padding-top: var(--space-6);
   border-top: 1px solid var(--hair);
 }
 
@@ -201,7 +223,7 @@ h2 { margin-top: 0; }
 
 .footer {
   margin-top: var(--space-7);
-  padding-top: var(--space-4);
+  padding-top: var(--space-5);
   border-top: 1px solid var(--hair);
 }
 
@@ -217,12 +239,12 @@ h2 { margin-top: 0; }
 table { width: 100%; border-collapse: collapse; }
 
 .caption {
-  padding: var(--space-3);
+  padding: var(--space-4);
   border-bottom: 1px solid var(--hair);
   text-align: left;
 }
 
-th, td { padding: var(--space-3); text-align: left; vertical-align: top; }
+th, td { padding: var(--space-4); text-align: left; vertical-align: top; }
 
 th { white-space: nowrap; border-bottom: 1px solid var(--ink-3); }
 
@@ -240,8 +262,8 @@ tbody tr:hover td { background: var(--ground-3); }
 /* Code, list, buttons ------------------------------------------------------- */
 
 .code {
-  margin: var(--space-4) 0 0;
-  padding: var(--space-3);
+  margin: var(--space-5) 0 0;
+  padding: var(--space-4);
   max-width: var(--measure);
   background: var(--ground-2);
   font-family: var(--font-mono);
@@ -253,23 +275,23 @@ tbody tr:hover td { background: var(--ground-3); }
 
 .code code { font: inherit; }
 
-.list { padding-left: var(--space-4); }
-.list li + li { margin-top: var(--space-3); }
+.list { padding-left: var(--space-5); }
+.list li + li { margin-top: var(--space-4); }
 
-.note { margin-top: var(--space-4); }
+.note { margin-top: var(--space-5); }
 
 .cta {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
-  margin-top: var(--space-5);
+  gap: var(--space-4);
+  margin-top: var(--space-6);
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  padding-inline: var(--space-4);
+  padding-inline: var(--space-5);
   background: var(--accent);
   border: 1px solid var(--accent);
   border-radius: var(--radius-pill);
@@ -313,7 +335,7 @@ tbody tr:hover td { background: var(--ground-3); }
   .caption { padding: 0 0 var(--space-2); border-bottom: 0; }
   table, tbody, tr, td { display: block; }
   thead { display: none; }
-  tbody tr { padding: var(--space-3) 0; border-top: 1px solid var(--hair); }
+  tbody tr { padding: var(--space-4) 0; border-top: 1px solid var(--hair); }
   tbody tr + tr td { border-top: 0; }
   td { padding: 0; }
   td + td { margin-top: var(--space-2); }
