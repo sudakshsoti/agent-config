@@ -43,7 +43,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-The 34 skills below are the ones worth reaching for by name. Thirty-seven are
+The 33 skills below are the ones worth reaching for by name. Thirty-six are
 installed in all; `build-mode`, `to-spec`, and `wait-what` are omitted here
 and route on their own triggers rather than being picked from a list.
 Anything under `skills/_archive/` is kept for reference only and is
@@ -51,7 +51,7 @@ deliberately not installed — see [`_archive/README.md`](_archive/README.md).
 
 - `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
 - `diagnosing-bugs` — Diagnosis loop for hard bugs and performance regressions: build a tight red-capable feedback loop, minimise, rank hypotheses, instrument, fix with a regression test.
-- `frontend-craft` — Visual direction for new UI, plus typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
+- `studio` — Build a standalone HTML artifact — document or page — against one of four named design directions (editorial, instrument, product-dark, calm), then render it at 390 and 1440, score it and revise. `/studio`.
 - `typography-craft` — Typography-only authority across screen, print/editorial, brand, display, and type-led layout.
 - `design-foil` — Industry-agnostic strategy + UX advisor: brainstorm, critique, strategy docs, teardowns.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
@@ -62,7 +62,6 @@ deliberately not installed — see [`_archive/README.md`](_archive/README.md).
 - `handoff` — Structured session-handoff docs for continuity across sessions.
 - `backlog` — Run any project's backlog in Linear like a PM: capture, triage, grooming, acceptance criteria, and milestone/session planning (batch Ready issues into equal-effort, one-sitting Linear Milestones).
 - `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, including the safe rclone-torbox recreate.
-- `html-doc` — Turn notes, briefs and reports into one polished self-contained HTML document instead of a `.md`. `/html-doc`.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
 - `merge` — Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`.
 - `motion-craft` — Implement motion, gesture physics and component interaction polish, or name an animation effect exactly.
@@ -84,10 +83,11 @@ deliberately not installed — see [`_archive/README.md`](_archive/README.md).
 - `wizard` — Generate an interactive bash wizard for a manual procedure only a human can do (provisioning, credentials, third-party dashboards). `/wizard`.
 - `writing-for-agents` — Reference for writing any document an agent consumes: context pointers, information hierarchy, leading words, pruning.
 
-The nine frontend/design skills are `frontend-craft`, `typography-craft`,
+The nine frontend/design skills are `studio`, `typography-craft`,
 `motion-craft`, `motion-review`, `design-foil`, `prototype`, `ux-writing`,
-`pick-ui-library`, and `maintainability-review`. `html-doc` remains installed
-as an adjacent document skill, outside that nine-skill count.
+`pick-ui-library`, and `maintainability-review`. `studio` absorbed the
+retired `frontend-craft` and `html-doc`, so a self-contained HTML document
+is now a studio artifact shape rather than a separate skill.
 
 ## Installing per surface
 

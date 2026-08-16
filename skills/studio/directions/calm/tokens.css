@@ -1,0 +1,52 @@
+/* studio direction: calm — measured against Headspace (headspace.com).
+   Play from large flat colour fields and 24-112px radii; the warm ground and
+   the warm near-black ink are what stop it reading as childish. */
+
+:root {
+  --ground: oklch(0.9705 0.006 43);
+  --ground-2: oklch(0.9945 0.0035 43);
+  --ground-3: oklch(0.9385 0.0095 43);
+
+  --ink: oklch(0.2938 0.0023 68);
+  --ink-2: oklch(0.416 0.006 62);
+  --ink-3: oklch(0.525 0.008 62);
+
+  --hair: oklch(0.855 0.013 43);
+
+  --accent: oklch(0.5401 0.2271 260.5);
+  --accent-ink: oklch(0.9945 0.0035 43);
+
+  --radius-sm: 8px;
+  --radius-md: 24px;
+  --radius-lg: 112px;
+  --radius-pill: 800px;
+
+  --font-display: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --text-base: 1rem;
+  --text-h1: clamp(2.375rem, 1.75rem + 3.2vw, 4rem);
+  --text-h2: clamp(1.875rem, 1.45rem + 2.1vw, 3.25rem);
+  --text-h3: 1.5rem;
+  --text-small: 0.8125rem;
+
+  --leading-body: 1.55;
+  --leading-display: 1.1;
+
+  --track-display: -0.03em;
+  --track-body: 0em;
+
+  --measure: 60ch;
+
+  --space-1: 0.5rem;
+  --space-2: 0.75rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2.5rem;
+  --space-6: 4rem;
+  --space-7: 6rem;
+  --space-8: 9rem;
+
+  --shadow-1: 0 1px 8px oklch(0.188 0.002 17 / 0.2);
+}

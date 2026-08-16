@@ -14,7 +14,7 @@ cd ~/dev/agent-config && ./install.sh
 ## What's included
 
 - `skills/` — Skills for Claude Code and Claude.ai (see `skills/README.md`). Symlinked per skill.
-- `agents/` — Subagent definitions (e.g. `frontend-craft`, `plan-critic`). Symlinked per file.
+- `agents/` — Subagent definitions (e.g. `studio`, `plan-critic`). Symlinked per file.
 - `commands/` — Global slash commands (`/recall`, `/remember` for the
   `~/claude-memory` vault). Symlinked per file.
 - `settings.json` — Global settings, sanitized, no API keys. Copied if missing.

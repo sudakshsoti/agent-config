@@ -52,6 +52,6 @@ then measure the rendered result on representative devices and states.
 ## Boundaries
 
 This skill implements and names motion. Use `motion-review` for repository
-audits, opportunity discovery and review findings. Use `frontend-craft` for
+audits, opportunity discovery and review findings. Use `studio` for
 typography, colour and visual-system choices; use `design-foil` for broad
 product or design-process critique.

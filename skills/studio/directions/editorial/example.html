@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>studio: the editorial direction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400&amp;family=Hanken+Grotesk:wght@400;500&amp;family=IBM+Plex+Mono:wght@400&amp;display=swap">
+<style>
+/* studio direction: editorial
+   Measured against The New Yorker (Pope.L article, served CSS, not computed).
+   The palette is the operator's own production paper/ink ladder rather than the
+   reference's #fff/#000. Hexes and contrast ratios are tabulated in DESIGN.md. */
+
+:root {
+  --ground:          oklch(0.972 0.004 85);
+  --ground-2:        oklch(0.945 0.005 85);
+  --ground-3:        oklch(0.917 0.005 85);
+
+  --ink:             oklch(0.235 0.010 65);
+  --ink-2:           oklch(0.475 0.010 65);
+  --ink-3:           oklch(0.640 0.008 65);
+
+  --hair:            oklch(0.878 0.006 65);
+
+  --accent:          oklch(0.510 0.128 245.4);
+  --accent-ink:      oklch(0.972 0.004 85);
+
+  --radius-sm:       0;
+  --radius-md:       0;
+  --radius-lg:       4px;
+  --radius-pill:     999px;
+
+  --font-display:    "Source Serif 4", Georgia, serif;
+  --font-body:       "Hanken Grotesk", system-ui, sans-serif;
+  --font-mono:       "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+  --text-base:       21px;
+  --text-h1:         clamp(30px, 1.6rem + 1.14vw, 42px);
+  --text-h2:         clamp(24px, 1.36rem + 0.57vw, 30px);
+  --text-h3:         21px;
+  --text-small:      13px;
+
+  --leading-body:    1.5;
+  --leading-display: 1.0667;
+
+  /* Zero, at every size, including the 42px headline. The defining constraint. */
+  --track-display:   normal;
+  --track-body:      normal;
+
+  --measure:         64ch;
+
+  --space-1:         0.25rem;
+  --space-2:         0.5rem;
+  --space-3:         1rem;
+  --space-4:         1.5rem;
+  --space-5:         2rem;
+  --space-6:         2.5rem;
+  --space-7:         3rem;
+  --space-8:         4rem;
+
+  /* The reference's article shell has no shadow. Depth is rules and space. */
+  --shadow-1:        none;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  padding-block: var(--space-6) var(--space-8);
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 400;
+  line-height: var(--leading-body);
+  letter-spacing: var(--track-body);
+}
+
+.page-header, .section, .footer {
+  max-width: 58rem;
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+h1, h2, h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: var(--leading-display);
+  letter-spacing: var(--track-display);
+}
+
+h1 { font-size: var(--text-h1); }
+h2 { font-size: var(--text-h2); }
+h3 { font-size: var(--text-h3); line-height: 1.2; margin-top: var(--space-6); }
+
+p, ul { margin: var(--space-4) 0 0; max-width: var(--measure); }
+
+/* Loaded weights are 400 and 500 only, so bold resolves to the medium. */
+strong { font-weight: 500; }
+
+/* Labels. The reference's -0.0125em is the only negative tracking in the
+   direction, and it is confined to short strings at 13px. */
+.eyebrow, .meta, .badge, .nav a, th, td::before {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.0125em;
+  color: var(--ink-2);
+}
+
+.caption, .note {
+  font-size: var(--text-small);
+  line-height: 1.6;
+  color: var(--ink-2);
+  max-width: var(--measure);
+}
+
+a {
+  color: var(--ink);
+  text-decoration-line: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
+a:hover { color: var(--accent); }
+a:active { text-decoration-thickness: 2px; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* Masthead ------------------------------------------------------------------ */
+
+.meta { margin: 0; }
+
+.badge {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  margin-right: var(--space-1);
+  background: var(--ground-3);
+  border-radius: var(--radius-pill);
+  color: var(--ink);
+}
+
+.hero-title { margin-top: var(--space-3); }
+
+.hero-sub {
+  margin-top: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  line-height: 1.3;
+  color: var(--ink-2);
+}
+
+.lead { margin-top: var(--space-4); }
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: none;
+}
+
+.nav a:hover {
+  color: var(--ink);
+  text-decoration-line: underline;
+  text-decoration-color: var(--accent);
+}
+
+.nav a:active { color: var(--ink); }
+
+/* Sections: the standing rule, with the label in the margin ----------------- */
+
+.section {
+  margin-top: var(--space-7);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--hair);
+}
+
+/* The masthead division is the first section's rule, drawn heavier. */
+.page-header + .section {
+  margin-top: var(--space-8);
+  border-top-color: var(--ink-3);
+}
+
+.eyebrow { margin: 0 0 var(--space-2); }
+
+h2 { margin-top: 0; }
+
+.footer {
+  margin-top: var(--space-7);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--hair);
+}
+
+/* Table --------------------------------------------------------------------- */
+
+.table-wrap {
+  margin-top: var(--space-6);
+  border: 1px solid var(--hair);
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+}
+
+table { width: 100%; border-collapse: collapse; }
+
+.caption {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--hair);
+  text-align: left;
+}
+
+th, td { padding: var(--space-3); text-align: left; vertical-align: top; }
+
+th { white-space: nowrap; border-bottom: 1px solid var(--ink-3); }
+
+td { font-size: var(--text-small); line-height: 1.4; }
+
+td:first-child {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  line-height: 1.2;
+}
+
+tbody tr + tr td { border-top: 1px solid var(--hair); }
+tbody tr:hover td { background: var(--ground-3); }
+
+/* Code, list, buttons ------------------------------------------------------- */
+
+.code {
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3);
+  max-width: var(--measure);
+  background: var(--ground-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.code code { font: inherit; }
+
+.list { padding-left: var(--space-4); }
+.list li + li { margin-top: var(--space-3); }
+
+.note { margin-top: var(--space-4); }
+
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: var(--space-4);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-pill);
+  color: var(--accent-ink);
+  font-size: var(--text-small);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.btn:hover { background: var(--ink); border-color: var(--ink); color: var(--accent-ink); }
+.btn:active { background: var(--ink-2); border-color: var(--ink-2); }
+
+.btn[aria-disabled="true"] {
+  background: var(--ground-3);
+  border-color: var(--hair);
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+.btn--ghost { background: transparent; border-color: var(--ink-3); color: var(--ink); }
+.btn--ghost:hover { background: var(--ground-2); border-color: var(--ink); color: var(--ink); }
+.btn--ghost:active { background: var(--ground-3); }
+
+/* One breakpoint. Above it the rail opens; below it every label sits on top. */
+
+@media (min-width: 840px) {
+  .section {
+    display: grid;
+    grid-template-columns: 10rem minmax(0, 1fr);
+    column-gap: var(--space-6);
+    align-items: start;
+  }
+
+  .eyebrow { grid-row: 1; grid-column: 1; margin: 0; text-align: right; }
+  .section > :not(.eyebrow) { grid-column: 2; }
+  .section > .table-wrap { grid-column: 1 / -1; }
+}
+
+@media (max-width: 839px) {
+  .table-wrap { border: 0; }
+  .caption { padding: 0 0 var(--space-2); border-bottom: 0; }
+  table, tbody, tr, td { display: block; }
+  thead { display: none; }
+  tbody tr { padding: var(--space-3) 0; border-top: 1px solid var(--hair); }
+  tbody tr + tr td { border-top: 0; }
+  td { padding: 0; }
+  td + td { margin-top: var(--space-2); }
+  td:first-child { margin-bottom: var(--space-2); }
+  td::before { content: attr(data-label); display: block; }
+}
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <p class="meta"><span class="badge">editorial</span> measured against The New Yorker</p>
+  <h1 class="hero-title">studio</h1>
+  <p class="hero-sub">Paper and ink, two families, and not one negative letterspace value.</p>
+  <p class="lead">studio builds one self-contained HTML artifact against a named direction, renders it at 390 and 1440, scores it, and revises once before handing it over.</p>
+  <nav class="nav">
+    <a href="#directions">The four directions</a>
+    <a href="#gate">The render gate</a>
+    <a href="#fonts">Font policy</a>
+  </nav>
+</header>
+
+<section class="section" id="directions">
+  <p class="eyebrow">Comparison</p>
+  <h2>The four directions</h2>
+  <p>Each direction is measured against a real reference: Ramp for instrument, Linear for product-dark, The New Yorker for editorial, Headspace for calm. There is no default, so the direction is asked for or proposed before anything is built.</p>
+  <div class="table-wrap">
+    <table>
+      <caption class="caption">Ground, character and fit. This fact set is identical across all four direction examples.</caption>
+      <thead>
+        <tr><th>Direction</th><th>Ground</th><th>Character</th><th>Suits</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>editorial</td>
+          <td data-label="Ground">light paper</td>
+          <td data-label="Character">two families, no negative tracking, almost no radius</td>
+          <td data-label="Suits">long reads, essays, explainers, reports</td>
+        </tr>
+        <tr>
+          <td>instrument</td>
+          <td data-label="Ground">white</td>
+          <td data-label="Character">one grotesque, one accent, bordered cards, zero shadow</td>
+          <td data-label="Suits">pricing, comparisons, technical product pages</td>
+        </tr>
+        <tr>
+          <td>product-dark</td>
+          <td data-label="Ground">near-black</td>
+          <td data-label="Character">alpha-tint elevation, white-alpha hairlines, tight tracking</td>
+          <td data-label="Suits">developer tools, dashboards-as-marketing</td>
+        </tr>
+        <tr>
+          <td>calm</td>
+          <td data-label="Ground">warm off-white</td>
+          <td data-label="Character">one family, large flat colour fields, large radii</td>
+          <td data-label="Suits">consumer, wellbeing, onboarding, anything friendly</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">None of the measured references uses blur for elevation. Ramp uses a 1px border and no shadow, Linear uses 0 0 0 1px and 0 0 0 2px rings, V7 uses nothing, and this direction's own reference has none in its article shell. The agent default of 0 4px 6px rgba(0,0,0,0.1) matches none of them, which is why it is on the <a href="../../references/anti-patterns.md">anti-pattern list</a>.</p>
+</section>
+
+<section class="section" id="gate">
+  <p class="eyebrow">Verification</p>
+  <h2>The render gate</h2>
+  <p>A direction is not finished when the file is written. It is finished when someone has looked at it, at both ends of the range it has to hold.</p>
+  <h3>The two shots</h3>
+  <pre class="code"><code>playwright screenshot --viewport-size=390,844 page.html shot-390.png
+playwright screenshot --viewport-size=1440,900 page.html shot-1440.png</code></pre>
+  <h3>The score</h3>
+  <p>Out of 100. The direction's own avoid list carries 60 of those points, because a universal rubric is what makes everything average. Below 80 the artifact is revised once and both commands run again.</p>
+</section>
+
+<section class="section" id="fonts">
+  <p class="eyebrow">Type</p>
+  <h2>Font policy</h2>
+  <p>The policy is a blacklist, so the interesting question is never which face is allowed. It is which faces are on the machine, and whether the artifact is going anywhere.</p>
+  <ul class="list">
+    <li><strong>Blacklist, not whitelist.</strong> Twenty families are banned outright and everything else is available. The <a href="../../references/fonts.md">list</a> grows over time; it is never inverted into a shortlist of approved faces.</li>
+    <li><strong>Inter is body and UI only, never display.</strong> Inter at 72px in a hero is the loudest signal that an agent made the page.</li>
+    <li><strong>Licensing is asked once, in the brief.</strong> "Free fonts (safe to share) or your licensed set (this machine only)?"</li>
+  </ul>
+  <p class="note">This direction takes Source Serif 4 for display, Hanken Grotesk for body and labels, and IBM Plex Mono for code. Two families, plus a mono that only ever sets code. Every measured reference keeps to one family or two.</p>
+</section>
+
+<section class="section" id="signature">
+  <p class="eyebrow">This direction</p>
+  <h2>The signature move</h2>
+  <p>The standing rule, with the label in the margin. Every section opens with a hairline across the full width. Below it the category sits in the left rail, right-aligned against the gutter, so it reads as a margin note rather than a label stuck on top of a heading. The heading hangs in the content column at up to 42px, weight 400, tracking zero. Under 840px the rail closes and each label sits directly above its heading.</p>
+  <p>It is the reference's twelve-column grid, which starts its content at column 3 and spans 8, reduced to two columns: a rail and the measure. The page gets an asymmetric left edge and a visible sense of margin without a single box, card or coloured band.</p>
+  <div class="cta">
+    <a class="btn" href="DESIGN.md">Read the editorial spec</a>
+    <a class="btn btn--ghost" href="tokens.css">Read the tokens</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <p class="meta">studio, editorial direction. Page shape, rendered at 390 by 844 and 1440 by 900. Measured against The New Yorker, Pope.L article, served CSS rather than computed.</p>
+</footer>
+
+</body>
+</html>

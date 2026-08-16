@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>studio · calm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700&amp;family=IBM+Plex+Mono:wght@400&amp;display=swap">
+<style>
+/* ------------------------------------------------------------------ *
+ * directions/calm/tokens.css, inlined unedited                        *
+ * ------------------------------------------------------------------ */
+
+:root {
+  --ground: oklch(0.9705 0.006 43);
+  --ground-2: oklch(0.9945 0.0035 43);
+  --ground-3: oklch(0.9385 0.0095 43);
+
+  --ink: oklch(0.2938 0.0023 68);
+  --ink-2: oklch(0.416 0.006 62);
+  --ink-3: oklch(0.525 0.008 62);
+
+  --hair: oklch(0.855 0.013 43);
+
+  --accent: oklch(0.5401 0.2271 260.5);
+  --accent-ink: oklch(0.9945 0.0035 43);
+
+  --radius-sm: 8px;
+  --radius-md: 24px;
+  --radius-lg: 112px;
+  --radius-pill: 800px;
+
+  --font-display: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --text-base: 1rem;
+  --text-h1: clamp(2.375rem, 1.75rem + 3.2vw, 4rem);
+  --text-h2: clamp(1.875rem, 1.45rem + 2.1vw, 3.25rem);
+  --text-h3: 1.5rem;
+  --text-small: 0.8125rem;
+
+  --leading-body: 1.55;
+  --leading-display: 1.1;
+
+  --track-display: -0.03em;
+  --track-body: 0em;
+
+  --measure: 60ch;
+
+  --space-1: 0.5rem;
+  --space-2: 0.75rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2.5rem;
+  --space-6: 4rem;
+  --space-7: 6rem;
+  --space-8: 9rem;
+
+  --shadow-1: 0 1px 8px oklch(0.188 0.002 17 / 0.2);
+}
+
+/* Two more fields from the measured five, per DESIGN.md "Accent policy".
+   Three fields is the ceiling for one artifact and this page spends all three. */
+:root {
+  --field-2: oklch(0.8691 0.1777 91.31);
+  --field-3: oklch(0.3346 0.1569 290.38);
+}
+
+/* ------------------------------------------------------------------ *
+ * page                                                                *
+ * ------------------------------------------------------------------ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 var(--space-3) var(--space-7);
+  background: var(--ground);
+  color: var(--ink-2);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 400;
+  line-height: var(--leading-body);
+  letter-spacing: var(--track-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { margin: 0; font-family: var(--font-display); color: var(--ink); }
+
+h1, h2 {
+  font-weight: 700;
+  line-height: var(--leading-display);
+  letter-spacing: var(--track-display);
+}
+
+h1 { font-size: var(--text-h1); }
+h2 { font-size: var(--text-h2); }
+
+h3 {
+  font-size: var(--text-h3);
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+p { margin: 0 0 var(--space-3); max-width: var(--measure); }
+p:last-child { margin-bottom: 0; }
+
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+a:hover { text-decoration-thickness: 2px; }
+a:active { color: var(--ink); }
+
+a:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* masthead strip: direction badge, and jump links to this page's own sections */
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  max-width: 1120px;
+  margin-inline: auto;
+  padding: var(--space-4) 0;
+}
+
+.nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  color: var(--ink-2);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.nav a:hover { background: var(--ground-3); color: var(--ink); }
+.nav a:active { background: var(--hair); color: var(--ink); }
+
+.badge {
+  display: inline-block;
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--ground-3);
+  color: var(--ink);
+  font-size: var(--text-small);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0;
+  vertical-align: middle;
+}
+
+/* field one: the masthead. A flat colour field at the signature radius. */
+
+.hero {
+  max-width: 1120px;
+  margin-inline: auto;
+  margin-block: var(--space-3) var(--space-7);
+  padding: var(--space-7) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.hero-title { margin-bottom: var(--space-4); color: var(--accent-ink); }
+
+.hero-sub {
+  max-width: 46ch;
+  margin-bottom: var(--space-4);
+  font-size: 1.25rem;
+  line-height: 1.45;
+  color: var(--accent-ink);
+}
+
+.hero .meta { color: var(--accent-ink); }
+
+.section {
+  max-width: 1120px;
+  margin-inline: auto;
+  margin-block: var(--space-7);
+}
+
+.section-head { margin-bottom: var(--space-5); }
+
+.eyebrow {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-small);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.lead {
+  font-size: 1.25rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.meta {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-small);
+  line-height: 1.4;
+  color: var(--ink-3);
+}
+
+.note { margin-top: var(--space-4); color: var(--ink-3); }
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+/* raised: the only place the measured blur is spent */
+
+.panel {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--ground-2);
+  box-shadow: var(--shadow-1);
+}
+
+.panel h3 { margin-bottom: var(--space-2); }
+.panel p { max-width: none; }
+.panel .badge { background: var(--ink); color: var(--ground-2); }
+
+/* fields two and three: painted, never raised, so no shadow at any size */
+
+.panel--field-2, .panel--field-3 {
+  --field-pad: var(--space-5);
+  padding: var(--space-6) var(--field-pad);
+  box-shadow: none;
+}
+
+.panel--field-2 {
+  padding-bottom: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--field-2);
+  color: var(--ink);
+}
+
+.panel--field-3 {
+  border-radius: var(--radius-lg);
+  background: var(--field-3);
+  color: var(--accent-ink);
+}
+
+.panel--field-2 .meta { color: var(--ink); }
+.panel--field-3 .lead { color: var(--accent-ink); }
+
+/* the measured one-sided radius: correct only where the block meets the
+   bottom of a clipping parent, so the square corners are cut by its curve */
+
+.quote {
+  margin: var(--space-5) calc(-1 * var(--field-pad)) 0;
+  padding: var(--space-5);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: var(--ground-2);
+  color: var(--ink);
+}
+
+.quote p:first-child {
+  margin-bottom: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+/* sunk: depth by tone, no blur */
+
+.code {
+  margin: var(--space-4) 0 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--ground-3);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  line-height: 1.6;
+  overflow-x: auto;
+}
+
+.code code { font: inherit; }
+
+.footer {
+  max-width: 1120px;
+  margin-inline: auto;
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--hair);
+}
+
+.footer .meta { margin-bottom: var(--space-1); }
+
+@media (min-width: 720px) {
+  body { padding-inline: var(--space-5); padding-bottom: var(--space-8); }
+  .hero { margin-bottom: var(--space-8); padding: var(--space-8) var(--space-6); }
+  .section { margin-block: var(--space-8); }
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  .panel { padding: var(--space-5); }
+  .panel--field-2, .panel--field-3 { --field-pad: var(--space-6); }
+}
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <p class="badge">direction: calm</p>
+  <nav class="nav" aria-label="On this page">
+    <ul>
+      <li><a href="#directions">Directions</a></li>
+      <li><a href="#gate">Render gate</a></li>
+      <li><a href="#fonts">Fonts</a></li>
+    </ul>
+  </nav>
+</header>
+
+<header class="hero">
+  <h1 class="hero-title">studio</h1>
+  <p class="hero-sub">Play from large flat colour fields and 24 to 112px radii. The warm ground and the warm near-black ink are what stop it reading as childish.</p>
+  <p class="meta">Measured against headspace.com. One family, three weights.</p>
+</header>
+
+<section class="section">
+  <div class="section-head">
+    <p class="eyebrow">What it does</p>
+    <h2>One file, one direction, proved by rendering it</h2>
+  </div>
+  <p class="lead">studio builds one self-contained HTML artifact against a named design direction, renders it at 390 and 1440, scores it, and revises once before handing it over.</p>
+  <p>There is no default direction. The choice is made before any markup exists, because the direction is what the artifact gets judged against: each one carries its own avoid list, and that list is worth 60 of the 100 points at the gate. The remaining 40 are the universal rubric every direction shares, which is also why the universal half alone would make everything average.</p>
+  <p>This page is the calm direction rendering a brief that the other three render as well. Set them beside each other and the only thing that changes is the direction.</p>
+</section>
+
+<section class="section" id="directions">
+  <div class="section-head">
+    <p class="eyebrow">Registry</p>
+    <h2>Four directions</h2>
+  </div>
+  <p>Each one is measured against a named reference rather than invented, and each one states in words what it must not do.</p>
+  <div class="grid">
+    <article class="panel">
+      <h3>editorial</h3>
+      <p class="meta">Ground: light paper</p>
+      <p>Two families, no negative tracking, almost no radius.</p>
+      <p class="meta">Suits: long reads, essays, explainers, reports</p>
+    </article>
+    <article class="panel">
+      <h3>instrument</h3>
+      <p class="meta">Ground: white</p>
+      <p>One grotesque, one accent, bordered cards, zero shadow.</p>
+      <p class="meta">Suits: pricing, comparisons, technical product pages</p>
+    </article>
+    <article class="panel">
+      <h3>product-dark</h3>
+      <p class="meta">Ground: near-black</p>
+      <p>Alpha-tint elevation, white-alpha hairlines, tight tracking.</p>
+      <p class="meta">Suits: developer tools, dashboards-as-marketing</p>
+    </article>
+    <article class="panel">
+      <h3>calm <span class="badge">this page</span></h3>
+      <p class="meta">Ground: warm off-white</p>
+      <p>One family, large flat colour fields, large radii.</p>
+      <p class="meta">Suits: consumer, wellbeing, onboarding, anything friendly</p>
+    </article>
+  </div>
+</section>
+
+<section class="section" id="gate">
+  <div class="section-head">
+    <p class="eyebrow">Phase 3</p>
+    <h2>The render gate</h2>
+  </div>
+  <p>Two shots, one narrow and one wide. The artifact is read at both widths, scored out of 100, and revised once.</p>
+  <pre class="code"><code>playwright screenshot --viewport-size=390,844 page.html shot-390.png
+playwright screenshot --viewport-size=1440,900 page.html shot-1440.png</code></pre>
+  <p class="note">A pass that nobody looked at is not a pass. The score and every failing check get named out loud at hand-off, including on the second attempt.</p>
+</section>
+
+<section class="section" id="fonts">
+  <div class="section-head">
+    <p class="eyebrow">Phase 0</p>
+    <h2>Fonts are a blacklist, not a whitelist</h2>
+  </div>
+  <div class="panel panel--field-2">
+    <p>Twenty families are banned outright. Anything not on that list is available, and the list only ever grows.</p>
+    <p>Inter carries body and UI, never display. Inter at 72px in a hero is the loudest signal that an agent made the page. Across the measured references, family count is one or two and never more, and the display weight is rarely bold.</p>
+    <p>This direction is single-family throughout, which is what the reference does: Hanken Grotesk sets the display, the body and the UI, with IBM Plex Mono reserved for literal commands.</p>
+    <blockquote class="quote">
+      <p>Free fonts (safe to share) or your licensed set (this machine only)?</p>
+      <p class="meta">Asked once, in Phase 0, with free pre-selected.</p>
+    </blockquote>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <p class="eyebrow">Closing note</p>
+    <h2>The signature move</h2>
+  </div>
+  <div class="panel panel--field-3">
+    <p class="lead">A large flat colour field at a 112px radius, sitting on warm off-white, with warm near-black ink for every word that is not on the field.</p>
+    <p>The play is entirely in the field: its size, its flatness, its radius. No gradient, no shadow, no border, and nothing inside it but words. Three fields is the ceiling for one artifact, and this page spends all three: the masthead, the font policy, and this.</p>
+    <p>What stops it reading as childish is the pair underneath. The ground is warm off-white rather than white, and the ink is warm near-black rather than black. Swap either one for a neutral and the same radii, the same layout and the same colours turn into a children's app.</p>
+  </div>
+</section>
+
+<footer class="footer">
+  <p class="meta">This page is a studio artifact: page shape, calm direction, one HTML file with its tokens inlined.</p>
+  <p class="meta">Measured against <a href="https://www.headspace.com/">headspace.com</a>. Set in Hanken Grotesk, with IBM Plex Mono for commands.</p>
+</footer>
+
+</body>
+</html>
