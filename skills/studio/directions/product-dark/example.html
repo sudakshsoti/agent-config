@@ -6,25 +6,29 @@
 <title>studio / product-dark</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&amp;family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@400&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&amp;family=JetBrains+Mono:wght@400&amp;display=swap">
 <style>
 /* tokens.css for the product-dark direction, inlined unedited */
 :root {
+  color-scheme: dark;
+
   --ground: oklch(0.139 0.003 248);
   --ground-2: oklch(0.177 0.003 248);
-  --ground-3: oklch(0.204 0.003 248);
-  --ink: oklch(0.978 0.002 248);
-  --ink-2: oklch(0.700 0.012 248);
-  --ink-3: oklch(0.615 0.012 248);
+  --ground-3: oklch(0.225 0.003 248);
+  --ink: oklch(0.940 0.002 248);
+  --ink-2: oklch(0.735 0.012 248);
+  --ink-3: oklch(0.645 0.012 248);
   --hair: oklch(1 0 0 / 0.08);
   --accent: oklch(0.660 0.120 272);
   --accent-ink: oklch(0.160 0.006 248);
+  --ring: oklch(0.660 0.120 272);
+  --ring-offset: 0.25rem;
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-pill: 9999px;
   --font-display: "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Geist", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --text-base: 1rem;
   --text-h1: clamp(2.375rem, 1.75rem + 2.6vw, 4rem);
@@ -32,19 +36,21 @@
   --text-h3: 1.3125rem;
   --text-small: 0.8125rem;
   --leading-body: 1.5;
-  --leading-display: 1;
+  --leading-h3: 1.25;
+  --leading-display: 1.05;
   --track-display: -0.022em;
   --track-body: normal;
   --measure: 60ch;
+  --rail: 13rem;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
   --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-7: 3rem;
-  --space-8: 5rem;
-  --shadow-1: 0 0 0 1px oklch(0 0 0 / 0.2), 0 0 0 2px oklch(0 0 0 / 0.1), inset 0 0 0 1px oklch(0.264 0.009 265);
+  --space-6: 2.5rem;
+  --space-7: 4rem;
+  --space-8: 6rem;
+  --shadow-1: 0 0 0 1px oklch(0 0 0 / 0.2), 0 0 0 2px oklch(0 0 0 / 0.1), inset 0 0 0 1px oklch(1 0 0 / 0.04);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -71,14 +77,16 @@ h1, h2 {
 h1 {
   font-size: var(--text-h1);
   line-height: var(--leading-display);
-  letter-spacing: var(--track-display);
+  /* --track-display is the measured value at 64px. The size is fluid, so the
+     tracking is too: tighter as it grows, looser at the 38px floor where
+     -0.022em would close the counters. */
+  letter-spacing: clamp(var(--track-display), -0.036em + 0.022rem, -0.012em);
 }
 
 h2 {
   font-size: var(--text-h2);
-  /* 1.1 derived from the measured 64/64 so a wrapped 28px heading holds at 390 */
-  line-height: calc(var(--leading-display) + 0.1);
-  letter-spacing: -0.02em;
+  line-height: calc(var(--leading-display) + 0.05);
+  letter-spacing: clamp(-0.018em, -0.03em + 0.02rem, -0.01em);
 }
 
 p { margin: 0 0 var(--space-4); max-width: var(--measure); }
@@ -117,6 +125,10 @@ strong { font-weight: 500; color: var(--ink); }
   gap: var(--space-3);
   padding-block: var(--space-3);
   border-bottom: 1px solid color-mix(in oklch, var(--hair), transparent 40%);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--ground);
 }
 
 .page-header > p {
@@ -132,11 +144,13 @@ strong { font-weight: 500; color: var(--ink); }
 
 .nav ul {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: var(--space-1);
   margin: 0;
   padding: 0;
   list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
 .nav a {
@@ -151,6 +165,13 @@ strong { font-weight: 500; color: var(--ink); }
 }
 .nav a:hover { background: var(--ground-3); color: var(--ink); }
 .nav a:active { background: var(--ground-2); }
+
+/* The current section is marked by weight and a rule, never by colour alone. */
+.nav a[aria-current] {
+  color: var(--ink);
+  font-weight: 500;
+  box-shadow: inset 0 -2px 0 var(--hair);
+}
 
 .hero { padding-block: var(--space-7); }
 .hero-title { margin-bottom: var(--space-4); }
@@ -232,6 +253,7 @@ table {
   min-width: 40rem;
   border-collapse: collapse;
   font-size: var(--text-small);
+  font-variant-numeric: tabular-nums;
 }
 
 th, td {
@@ -342,10 +364,72 @@ tbody th .badge { margin-left: var(--space-2); }
 }
 
 @media (min-width: 48rem) {
-  .page-header { padding-block: var(--space-4); }
   .hero { padding-block: var(--space-8) var(--space-7); }
   .section { padding-block: var(--space-8); }
   .panel { padding: var(--space-6); }
+}
+
+/* Signature move: from 900px the header becomes a sticky left rail and the
+   measure hangs off it, so the page has one hard left edge and all its slack
+   on the right. Centring the column here would undo the whole idea. */
+@media (min-width: 56.25rem) {
+  body {
+    display: grid;
+    grid-template-columns: var(--rail) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .page-header {
+    grid-column: 1;
+    display: block;
+    height: 100vh;
+    padding: var(--space-5);
+    border-bottom: 0;
+    border-right: 1px solid color-mix(in oklch, var(--hair), transparent 40%);
+  }
+  .page-header > p {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+  }
+
+  main { grid-column: 2; min-width: 0; }
+  .footer { grid-column: 2; }
+
+  /* The rail is chrome, not a surface: no fill, no ring, separated by space. */
+  .nav ul { display: block; overflow: visible; }
+  .nav a {
+    display: block;
+    min-height: 0;
+    padding: var(--space-2) var(--space-3);
+    border-left: 2px solid transparent;
+    border-radius: 0;
+  }
+  .nav a[aria-current] {
+    box-shadow: none;
+    border-left-color: var(--hair);
+  }
+
+  /* Content starts at the rail's edge and stops at the measure. */
+  .hero, .section, .footer { padding-inline: var(--space-7) var(--space-5); }
+}
+
+@media print {
+  :root { color-scheme: light; }
+  body { display: block; background: #fff; color: #111; }
+  .page-header {
+    position: static; height: auto; border-right: 0;
+    border-bottom: 1px solid #ccc; padding: 0 0 1rem;
+  }
+  .nav ul { display: flex; gap: 1rem; }
+  .nav a { border-left: 0; padding: 0; color: #444; }
+  .hero, .section, .footer { padding-inline: 0; }
+  .panel, .note, .table-wrap, .code {
+    background: #fff; border: 1px solid #ccc; box-shadow: none;
+  }
+  h1, h2, h3, strong { color: #111; }
+  a { color: #111; text-decoration: underline; }
 }
 </style>
 </head>
@@ -355,7 +439,7 @@ tbody th .badge { margin-left: var(--space-2); }
   <p>studio <span class="badge">product-dark</span></p>
   <nav class="nav" aria-label="Sections">
     <ul>
-      <li><a href="#directions">Directions</a></li>
+      <li><a href="#directions" aria-current="true">Directions</a></li>
       <li><a href="#gate">Render gate</a></li>
       <li><a href="#fonts">Fonts</a></li>
     </ul>
@@ -454,13 +538,15 @@ playwright screenshot --viewport-size=1440,900 page.html shot-1440.png</code></p
   </div>
   <p>Twenty families are banned outright and everything else is available. The list grows
     over time; it is never a shortlist to pick from.</p>
-  <p>Inter carries body and UI, never display. Inter at 72px in a hero is the loudest
-    <em>an agent made this</em> signal there is. This direction's reference gives its own
-    display role to Inter, and this direction hands it to Geist instead.</p>
+  <p>Geist carries display, body and UI. This direction used to hand body to Inter and
+    keep Geist for display, which spent a family on a distinction no reader could see:
+    two neo-grotesques with near-identical metrics read as one family set inconsistently.
+    Dropping the second family also removes the failure mode the reference invites, since
+    the reference gives its own display role to Inter.</p>
   <ul class="list">
     <li><strong>Display</strong> Geist at 500, inside the 300 to 510 band every measured
       reference uses. The reference's own h1 sits at 510.</li>
-    <li><strong>Body and UI</strong> Inter at 400, 16px on a 24px line, tracking left
+    <li><strong>Body and UI</strong> Geist at 400, 16px on a 24px line, tracking left
       alone.</li>
     <li><strong>Mono</strong> JetBrains Mono, the free stand-in that keeps the file
       shareable. Code, eyebrows and badge labels only.</li>

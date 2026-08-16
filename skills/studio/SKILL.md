@@ -54,13 +54,26 @@ to `shadcn`.
 | --- | --- | --- | --- |
 | `editorial` | light paper | two families, no negative tracking, almost no radius | long reads, essays, explainers, reports |
 | `instrument` | white | one grotesque, one accent, bordered cards, zero shadow | pricing, comparisons, technical product pages |
-| `product-dark` | near-black | alpha-tint elevation, white-alpha hairlines, tight tracking | developer tools, dashboards-as-marketing |
+| `product-dark` | near-black | sticky left rail, alpha-tint elevation, white-alpha hairlines | developer tools, dashboards-as-marketing |
 | `calm` | warm off-white | one family, large flat colour fields, large radii | consumer, wellbeing, onboarding, anything friendly |
 
 **There is no default.** Ask which direction. If the operator does not care,
 suggest one from the "Suits" column and name the reason in one line. (Kohra
 becomes the default later; it has no type scale, spacing, radius or surface
 ladder yet.)
+
+**`product-dark` in the `document` shape prints inverted, not dark.** Its
+`@media print` block swaps the ground to paper, the ink to near-black and every
+alpha ring to a hairline. A near-black page either prints as a solid block of
+ink or drops the ground and takes the hairlines with it, so the direction ships
+the translation rather than disclaiming print.
+
+**Radius may repeat; it may not be the only radius.** `check.py` FAILs on four
+or more declarations of one identical `border-radius` value, which is a check
+for a page where everything is equally rounded. It is not a ban on reusing a
+token: a table shell, a code block, a note and a panel are all legitimately
+`--radius-md`. Satisfy it by giving at least two other elements a different
+step on the scale, never by inventing an off-scale value to break the count.
 
 The full spec for a direction is `directions/<name>/DESIGN.md`, read in Phase 1.
 
@@ -75,9 +88,11 @@ four times in the `DESIGN.md` files:
 - `page`: one `h1` in the masthead or hero, full-width sections allowed,
   prose still constrained to `--measure`, no print block required.
 - Both: `lang` on `<html>`, `<meta charset>`, `<meta name="viewport">`, a
-  non-empty `<title>`, a visible `:focus-visible` ring, 44px minimum tap
-  targets, no horizontal overflow at 390, WCAG 2.2 contrast as the
-  conformance check with APCA Lc only as supplementary reporting.
+  non-empty `<title>`, `color-scheme` on `:root`, a visible `:focus-visible`
+  ring built from `--ring` and `--ring-offset`, 44px minimum tap targets, no
+  horizontal overflow at 390, `font-variant-numeric: tabular-nums` on every
+  table and stat block, WCAG 2.2 contrast as the conformance check with APCA Lc
+  only as supplementary reporting.
 - Interactive elements carry five states: rest, hover, active, focus-visible,
   disabled.
 - Diagrams are inline SVG or nothing. No mermaid — a bare browser opening a
