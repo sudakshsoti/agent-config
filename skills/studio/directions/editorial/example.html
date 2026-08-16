@@ -151,10 +151,10 @@ a {
   text-underline-offset: 0.15em;
 }
 
-a:hover { color: var(--accent); }
-a:active { text-decoration-thickness: 2px; }
+a:hover, a[data-state="hover"] { color: var(--accent); }
+a:active, a[data-state="active"] { text-decoration-thickness: 2px; }
 
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+:focus-visible, [data-state="focus"] { outline: 2px solid var(--ring); outline-offset: var(--ring-offset); }
 
 /* Masthead ------------------------------------------------------------------ */
 
@@ -301,10 +301,10 @@ tbody tr:hover td { background: var(--ground-3); }
   text-decoration: none;
 }
 
-.btn:hover { background: var(--ink); border-color: var(--ink); color: var(--accent-ink); }
-.btn:active { background: var(--ink-2); border-color: var(--ink-2); }
+.btn:hover, .btn[data-state="hover"] { background: var(--ink); border-color: var(--ink); color: var(--accent-ink); }
+.btn:active, .btn[data-state="active"] { background: var(--ink-2); border-color: var(--ink-2); }
 
-.btn[aria-disabled="true"] {
+.btn[aria-disabled="true"], .btn:disabled, .btn[data-state="disabled"] {
   background: var(--ground-3);
   border-color: var(--hair);
   color: var(--ink-3);
@@ -312,8 +312,362 @@ tbody tr:hover td { background: var(--ground-3); }
 }
 
 .btn--ghost { background: transparent; border-color: var(--ink-3); color: var(--ink); }
-.btn--ghost:hover { background: var(--ground-2); border-color: var(--ink); color: var(--ink); }
-.btn--ghost:active { background: var(--ground-3); }
+.btn--ghost:hover, .btn--ghost[data-state="hover"] { background: var(--ground-2); border-color: var(--ink); color: var(--ink); }
+.btn--ghost:active, .btn--ghost[data-state="active"] { background: var(--ground-3); }
+
+/* Specimen ------------------------------------------------------------------
+   The eight sections below the composed page. Every forced state is written as
+   a selector list beside its real pseudo-class, so the demonstration and the
+   behaviour cannot drift apart. */
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.nav { row-gap: var(--space-2); }
+
+.divider {
+  max-width: 58rem;
+  margin: var(--space-7) auto 0;
+  border: 0;
+  border-top: 1px solid var(--ink-3);
+}
+
+.pair-label, .scale-label, .state-label, .type-spec, .field label {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.0125em;
+  color: var(--ink-2);
+}
+
+/* Colour -------------------------------------------------------------------- */
+
+/* No chip is bordered: the 1px grid gap lets --hair through, so the cells are
+   separated by a rule rather than boxed. */
+.swatch-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1px;
+  margin-top: var(--space-6);
+  background: var(--hair);
+  border: 1px solid var(--hair);
+}
+
+.swatch { background: var(--ground); }
+
+.swatch-chip {
+  display: flex;
+  align-items: flex-end;
+  min-height: 4.5rem;
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--hair);
+  font-size: var(--text-small);
+  line-height: 1.4;
+  letter-spacing: -0.0125em;
+}
+
+.swatch-chip--ground { background: var(--ground); }
+.swatch-chip--ground-2 { background: var(--ground-2); }
+.swatch-chip--ground-3 { background: var(--ground-3); }
+.swatch-chip--ink { background: var(--ink); }
+.swatch-chip--ink-2 { background: var(--ink-2); }
+.swatch-chip--ink-3 { background: var(--ink-3); }
+.swatch-chip--hair { background: var(--hair); }
+.swatch-chip--accent { background: var(--accent); color: var(--accent-ink); }
+.swatch-chip--ring { background: var(--ring); }
+
+.swatch-name {
+  margin: 0;
+  padding: var(--space-2) var(--space-2) 0;
+  font-size: var(--text-small);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.0125em;
+}
+
+.swatch-value {
+  margin: var(--space-3) 0 0;
+  padding: 0 var(--space-2) var(--space-2);
+  font-size: var(--text-small);
+  line-height: 1.4;
+  letter-spacing: -0.0125em;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.pair {
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  max-width: var(--measure);
+}
+
+.pair p { margin: 0; }
+.pair-label { margin: 0 0 var(--space-3); }
+
+.pair--ink { background: var(--ground); color: var(--ink); }
+.pair--ink-2 { background: var(--ground-3); color: var(--ink-2); }
+.pair--rule { background: var(--ground); border-top: 1px solid var(--ink-3); }
+.pair--accent { background: var(--ground-2); color: var(--accent); }
+
+.pair--ink-2 p, .pair--rule p, .pair--accent p { font-size: var(--text-meta); line-height: 1.45; }
+.pair--rule p { color: var(--ink-2); }
+
+/* Typography ---------------------------------------------------------------- */
+
+.type-row {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--hair);
+}
+
+.type-sample {
+  margin: 0;
+  max-width: var(--measure);
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: var(--leading-display);
+  letter-spacing: var(--track-display);
+}
+
+.type-sample--h1 { font-size: var(--text-h1); }
+.type-sample--h2 { font-size: var(--text-h2); }
+.type-sample--h3 { font-size: var(--text-h3); font-style: italic; line-height: var(--leading-h3); }
+.type-sample--base { font-family: var(--font-body); font-size: var(--text-base); line-height: var(--leading-body); letter-spacing: var(--track-body); }
+.type-sample--meta { font-family: var(--font-body); font-size: var(--text-meta); line-height: 1.45; letter-spacing: var(--track-body); }
+.type-sample--small { font-family: var(--font-body); font-size: var(--text-small); font-weight: 500; line-height: 1.4; letter-spacing: -0.0125em; }
+
+.type-spec { margin: var(--space-3) 0 0; max-width: var(--measure); font-variant-numeric: tabular-nums; }
+
+.glyphs {
+  margin: var(--space-3) 0 0;
+  max-width: var(--measure);
+  font-size: var(--text-meta);
+  line-height: 1.6;
+  overflow-wrap: break-word;
+}
+
+.glyphs--display { font-family: var(--font-display); }
+.glyphs--body { font-family: var(--font-body); }
+.glyphs--mono { font-family: var(--font-mono); }
+
+/* Spacing ------------------------------------------------------------------- */
+
+/* The bar track is exactly --rail wide, so the last row fills it end to end. */
+.scale-row {
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  padding-block: var(--space-2);
+  border-top: 1px solid var(--hair);
+}
+
+.scale-bar { height: var(--space-3); background: var(--ink); }
+
+.scale-bar--1 { width: var(--space-1); }
+.scale-bar--2 { width: var(--space-2); }
+.scale-bar--3 { width: var(--space-3); }
+.scale-bar--4 { width: var(--space-4); }
+.scale-bar--5 { width: var(--space-5); }
+.scale-bar--6 { width: var(--space-6); }
+.scale-bar--7 { width: var(--space-7); }
+.scale-bar--8 { width: var(--space-8); }
+.scale-bar--rail { width: var(--rail); }
+
+.scale-label { margin: 0; font-variant-numeric: tabular-nums; }
+
+.type-row:first-of-type, .scale-row:first-of-type { margin-top: var(--space-6); }
+
+/* Radius and elevation ------------------------------------------------------ */
+
+.radius-row, .elev-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  margin-top: var(--space-6);
+}
+
+.radius-tile, .elev-tile {
+  padding: var(--space-4);
+  font-size: var(--text-small);
+  line-height: 1.4;
+  letter-spacing: -0.0125em;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.radius-tile p, .elev-tile p { margin: 0; }
+
+/* Short and wide, so 999px reads as a pill rather than as an ellipse. The
+   longer reasoning sits in the note under the row and in the token index. */
+.radius-tile {
+  display: flex;
+  align-items: center;
+  min-height: 3.5rem;
+  background: var(--ground-2);
+}
+
+.radius-tile--sm { border-radius: var(--radius-sm); }
+.radius-tile--md { border-radius: var(--radius-md); }
+.radius-tile--lg { border-radius: var(--radius-lg); }
+.radius-tile--pill { border-radius: var(--radius-pill); padding-inline: var(--space-6); }
+
+.elev-tile--flat { background: var(--ground-2); }
+.elev-tile--shadow { background: var(--ground-2); box-shadow: var(--shadow-1); }
+.elev-tile--hair { border-top: 1px solid var(--hair); }
+.elev-tile--rule { border-top: 1px solid var(--ink-3); }
+
+/* Components ---------------------------------------------------------------- */
+
+.section-head { margin-top: var(--space-6); }
+
+/* The rail rule is a direct-child rule, so a nested label keeps the base
+   treatment rather than being right-aligned against a gutter it is not in. */
+.section-head .eyebrow, .panel .eyebrow, .feature .eyebrow { margin: 0 0 var(--space-2); }
+
+.hero { margin-top: var(--space-6); }
+
+p.hero-title {
+  font-family: var(--font-display);
+  font-size: var(--text-h1);
+  font-weight: 400;
+  line-height: var(--leading-display);
+  letter-spacing: var(--track-display);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-6);
+}
+
+.panel { padding: var(--space-4); background: var(--ground-2); }
+.panel p, .feature p { margin: var(--space-3) 0 0; font-size: var(--text-meta); line-height: 1.45; }
+
+.feature {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  max-width: var(--measure);
+  border-top: 1px solid var(--hair);
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--hair);
+}
+
+.stat { font-variant-numeric: tabular-nums; }
+
+.stat strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  font-weight: 400;
+  line-height: var(--leading-display);
+}
+
+.stat span {
+  display: block;
+  margin-top: var(--space-3);
+  font-size: var(--text-small);
+  line-height: 1.4;
+  letter-spacing: -0.0125em;
+  color: var(--ink-2);
+}
+
+.quote {
+  margin: var(--space-6) 0 0;
+  max-width: var(--measure);
+  font-size: var(--text-h3);
+  line-height: 1.3;
+}
+
+.quote p { margin: 0; }
+
+.quote cite {
+  display: block;
+  margin-top: var(--space-3);
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: var(--text-small);
+  letter-spacing: -0.0125em;
+  color: var(--ink-2);
+}
+
+.steps { padding-left: var(--space-5); }
+.steps li + li { margin-top: var(--space-4); }
+
+.figure { margin: var(--space-6) 0 0; max-width: var(--measure); }
+.figure svg { display: block; width: 100%; height: auto; }
+.figure line { stroke: var(--hair); }
+.figure text { fill: var(--ink-2); font-family: var(--font-body); font-size: 11px; letter-spacing: -0.0125em; }
+.figure g text { fill: var(--ink); font-family: var(--font-display); letter-spacing: normal; }
+
+/* The numerals are drawn at their own token sizes inside the viewBox, so the
+   five steps keep their true ratios however wide the figure ends up. */
+.figure g text:nth-of-type(1) { font-size: 42px; }
+.figure g text:nth-of-type(2) { font-size: 30px; }
+.figure g text:nth-of-type(3) { font-size: 21px; }
+.figure g text:nth-of-type(4) { font-size: 15px; }
+.figure g text:nth-of-type(5) { font-size: 13px; }
+.caption--figure { padding: var(--space-3) 0 0; border-bottom: 0; }
+
+/* States -------------------------------------------------------------------- */
+
+.state-row {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--hair);
+}
+
+.state-row p { margin: 0; max-width: var(--measure); }
+.state-label { margin: 0; }
+
+.field { display: grid; gap: var(--space-2); max-width: 22rem; }
+
+/* Bordered and not filled: --ink-3 is the ghost button's border colour, and a
+   form control is the other thing it is allowed to outline. */
+.field input, .field select, .field textarea {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--ground);
+  border: 1px solid var(--ink-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-meta);
+  line-height: 1.45;
+}
+
+.field textarea { min-height: 5.5rem; resize: vertical; }
+
+.field input:hover, .field input[data-state="hover"] { border-color: var(--ink); }
+.field input:active, .field input[data-state="active"] { background: var(--ground-2); border-color: var(--ink); }
+.field input:disabled, .field input[data-state="disabled"] { background: var(--ground-3); border-color: var(--hair); color: var(--ink-3); }
+
+/* The one text use --ink-3 gets: an inactive control's label, which WCAG 1.4.3
+   exempts as an inactive component and which is supposed to recede. */
+a[data-state="disabled"], .field input:disabled + .state-label { color: var(--ink-3); }
+
+/* Forty rows of index. --text-meta is the cell size this direction declares for
+   exactly this, rather than sending a whole table to 13px. */
+#tokens td, #tokens td:first-child {
+  font-family: var(--font-body);
+  font-size: var(--text-meta);
+  line-height: 1.45;
+}
+
+#tokens table { font-variant-numeric: tabular-nums; }
 
 /* One breakpoint. Above it the rail opens; below it every label sits on top. */
 
@@ -325,7 +679,7 @@ tbody tr:hover td { background: var(--ground-3); }
     align-items: start;
   }
 
-  .eyebrow { grid-row: 1; grid-column: 1; margin: 0; text-align: right; }
+  .section > .eyebrow { grid-row: 1; grid-column: 1; margin: 0; text-align: right; }
   .section > :not(.eyebrow) { grid-column: 2; }
   .section > .table-wrap { grid-column: 1 / -1; }
 }
@@ -342,6 +696,21 @@ tbody tr:hover td { background: var(--ground-3); }
   td:first-child { margin-bottom: var(--space-2); }
   td::before { content: attr(data-label); display: block; }
 }
+
+@media (min-width: 840px) {
+  /* Nine chips, three across, three rows, and no orphan cell. */
+  .swatch-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  /* Four tiles across in one row, so neither scale reads as having wrapped. */
+  .radius-row, .elev-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .state-row {
+    grid-template-columns: var(--rail) minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .state-label { text-align: right; }
+}
 </style>
 </head>
 <body>
@@ -355,6 +724,14 @@ tbody tr:hover td { background: var(--ground-3); }
     <a href="#directions">The four directions</a>
     <a href="#gate">The render gate</a>
     <a href="#fonts">Font policy</a>
+    <a href="#palette">Colour</a>
+    <a href="#type">Typography</a>
+    <a href="#space">Spacing</a>
+    <a href="#radius">Radius</a>
+    <a href="#elevation">Elevation</a>
+    <a href="#components">Components</a>
+    <a href="#states">States</a>
+    <a href="#tokens">Token index</a>
   </nav>
 </header>
 
@@ -430,6 +807,440 @@ playwright screenshot --viewport-size=1440,900 page.html shot-1440.png</code></p
   <div class="cta">
     <a class="btn" href="DESIGN.md">Read the editorial spec</a>
     <a class="btn btn--ghost" href="tokens.css">Read the tokens</a>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section class="section" id="palette">
+  <p class="eyebrow">Colour</p>
+  <h2>The paper and ink ladder</h2>
+  <p>Nine chips in tokens.css declaration order, then each ink in the one role this direction sanctions for it. Judge whether the two sunk fields still tell themselves apart, and whether the sheet reads as warm paper rather than as cream.</p>
+  <div class="swatch-grid">
+    <div class="swatch">
+      <div class="swatch-chip swatch-chip--ground"></div>
+      <p class="swatch-name">--ground</p>
+      <p class="swatch-value">oklch(0.972 0.004 85) · #f7f6f3 · 1.00:1 against the sheet · the sheet, every page and every section</p>
+    </div>
+    <div class="swatch">
+      <div class="swatch-chip swatch-chip--ground-2"></div>
+      <p class="swatch-name">--ground-2</p>
+      <p class="swatch-value">oklch(0.945 0.005 85) · #eeede9 · 1.08:1 against the sheet · sunk field: code block, table header</p>
+    </div>
+    <div class="swatch">
+      <div class="swatch-chip swatch-chip--ground-3"></div>
+      <p class="swatch-name">--ground-3</p>
+      <p class="swatch-value">oklch(0.900 0.005 85) · #dfdeda · 1.24:1 against the sheet · deepest field: row hover, badge fill</p>
+    </div>
+    <div class="swatch">
+      <div class="swatch-chip swatch-chip--ink"></div>
+      <p class="swatch-name">--ink</p>
+      <p class="swatch-value">oklch(0.235 0.010 65) · #211d19 · 15.39:1 against the sheet · all display and body type, and the button hover fill</p>
+    </div>
+    <div class="swatch">
+      <div class="swatch-chip swatch-chip--ink-2"></div>
+      <p class="swatch-name">--ink-2</p>
+      <p class="swatch-value">oklch(0.475 0.010 65) · #605b56 · 6.17:1 against the sheet · utility type: eyebrow, caption, meta, table header</p>
+    </div>
+    <div class="swatch">
+      <div class="swatch-chip swatch-chip--ink-3"></div>
+      <p class="swatch-name">--ink-3</p>
+      <p class="swatch-value">oklch(0.640 0.008 65) · #908b87 · 3.11:1 against the sheet · structural rules and the ghost button border. Never text</p>
+    </div>
+    <div class="swatch">
+      <div class="swatch-chip swatch-chip--hair"></div>
+      <p class="swatch-name">--hair</p>
+      <p class="swatch-value">oklch(0.855 0.006 65) · #d2cfcb · 1.44:1 against the sheet · every repeated rule: section tops, table rows, footer</p>
+    </div>
+    <div class="swatch">
+      <div class="swatch-chip swatch-chip--accent">--accent-ink</div>
+      <p class="swatch-name">--accent</p>
+      <p class="swatch-value">oklch(0.510 0.128 245.4) · link underline, solid button fill, focus ring, nothing else. The label printed on the chip is --accent-ink, oklch(0.972 0.004 85), the paper set as the solid button's label at 5.26:1</p>
+    </div>
+    <div class="swatch">
+      <div class="swatch-chip swatch-chip--ring"></div>
+      <p class="swatch-name">--ring</p>
+      <p class="swatch-value">oklch(0.510 0.128 245.4) · the same value as --accent, declared separately · the focus-visible ring, the accent's third and last job</p>
+    </div>
+  </div>
+  <div class="pair pair--ink">
+    <p class="pair-label">--ink on --ground · 15.39:1, measured against the sheet · all display and body type</p>
+    <p>Nothing floats, nothing is rounded, nothing is bold. The only decision the reader should notice is where the next section starts.</p>
+  </div>
+  <div class="pair pair--ink-2">
+    <p class="pair-label">--ink-2 on --ground-3 · 4.97:1, measured against the deepest field · utility type, captions and labels</p>
+    <p>On the deepest field small text has to be this ink. The one below it is a rule colour, and the accent reaches only 4.23:1 here, so it may not set text on this ground at all.</p>
+  </div>
+  <div class="pair pair--rule">
+    <p class="pair-label">--ink-3 on --ground · 3.11:1, measured against the sheet · rule colour, never text, and why</p>
+    <p>The rule above this block is --ink-3, drawn one step darker than --hair so the two weights read as clearly different rather than as nearly the same. At 3.11:1 it clears the WCAG non-text threshold and nothing beyond it, so it carries the two divisions with structural weight and never a word anyone has to read. Its one text use is an inactive control's label, which the states section below shows.</p>
+  </div>
+  <div class="pair pair--accent">
+    <p class="pair-label">--accent on --ground-2 · 4.86:1, measured against the sunk field · a link colour inside a long read</p>
+    <p>Legal as text on the sheet at 5.26:1 and on this sunk field at 4.86:1. Illegal on the deepest field. One hue, and the measured rubric red stays unused.</p>
+  </div>
+</section>
+
+<section class="section" id="type">
+  <p class="eyebrow">Typography</p>
+  <h2>Two families, tracking at zero</h2>
+  <p>Six steps largest first, each beside the tokens that produce it, then a glyph run per family and one paragraph at the measure. Judge whether 42px at weight 400 still reads as a headline, and whether the run-in italic separates from the paragraph under it.</p>
+  <div class="type-row">
+    <p class="type-sample type-sample--h1">A long read on a warm sheet</p>
+    <p class="type-spec">--text-h1 · --font-display · clamp(30px, 1.6rem + 1.14vw, 42px) · weight 400 · --leading-display 1.0667 · --track-display normal</p>
+  </div>
+  <div class="type-row">
+    <p class="type-sample type-sample--h2">Structure comes from a hairline</p>
+    <p class="type-spec">--text-h2 · --font-display · clamp(24px, 1.36rem + 0.57vw, 30px) · weight 400 · --leading-display 1.0667 · --track-display normal</p>
+  </div>
+  <div class="type-row">
+    <p class="type-sample type-sample--h3">Nothing floats, nothing is rounded, nothing is bold</p>
+    <p class="type-spec">--text-h3 · --font-display italic · 21px · weight 400 · --leading-h3 1.2 · --track-display normal. Equal to --text-base on purpose: the family switch alone was one variable of separation, and the italic is the second</p>
+  </div>
+  <div class="type-row">
+    <p class="type-sample type-sample--base">The only decision the reader should notice is where the next section starts.</p>
+    <p class="type-spec">--text-base · --font-body · 21px · weight 400 · --leading-body 1.5 · --track-body normal</p>
+  </div>
+  <div class="type-row">
+    <p class="type-sample type-sample--meta">The standing rule with the label in the margin</p>
+    <p class="type-spec">--text-meta · --font-body · 15px · weight 400 · line-height 1.45, untokenised · --track-body normal. Table cells, captions, footnotes and figure credits live here rather than at 13px</p>
+  </div>
+  <div class="type-row">
+    <p class="type-sample type-sample--small">Every section opens with a hairline across the full width</p>
+    <p class="type-spec">--text-small · --font-body · 13px · weight 500 · line-height 1.4, untokenised · tracking -0.0125em, the reference's own value, given no token so it cannot drift upward onto a headline</p>
+  </div>
+  <p class="type-spec">--font-display · "Source Serif 4", Georgia, serif</p>
+  <p class="glyphs glyphs--display">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 &amp;@#%$()[]{}/|+-=*</p>
+  <p class="type-spec">--font-body · "Hanken Grotesk", system-ui, sans-serif</p>
+  <p class="glyphs glyphs--body">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 &amp;@#%$()[]{}/|+-=*</p>
+  <p class="type-spec">--font-mono · "IBM Plex Mono", ui-monospace, Menlo, monospace</p>
+  <p class="glyphs glyphs--mono">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 &amp;@#%$()[]{}/|+-=*</p>
+  <p>Every section opens with a hairline across the full width. Below it, in a left rail of 10rem, the section's category is set in 13px utility type at -0.0125em and right-aligned against the gutter, so it reads as a margin note rather than as a label stuck on top of a heading. The heading hangs in the content column on the same line, at up to 42px, weight 400, tracking zero. Below 840px the rail collapses and the category sits directly above the heading.</p>
+  <p class="meta">The paragraph above is set at --measure, 64ch, in --font-body at --leading-body 1.5, which is the reference's own 21px / 1.5em body. Every run of prose sits inside that measure whatever the viewport is.</p>
+</section>
+
+<section class="section" id="space">
+  <p class="eyebrow">Spacing</p>
+  <h2>Eight steps and one measure</h2>
+  <p>Each bar is drawn at the width of its own token, in a track exactly one rail wide. Judge whether the intervals widen rather than narrow, and whether the last two steps read as different kinds of break.</p>
+  <div class="scale-row">
+    <span class="scale-bar scale-bar--1"></span>
+    <p class="scale-label">--space-1 · 0.25rem · inside a badge, and the focus-ring offset</p>
+  </div>
+  <div class="scale-row">
+    <span class="scale-bar scale-bar--2"></span>
+    <p class="scale-label">--space-2 · 0.5rem · badge padding, nav gaps</p>
+  </div>
+  <div class="scale-row">
+    <span class="scale-bar scale-bar--3"></span>
+    <p class="scale-label">--space-3 · 0.75rem · label to value. Added at the bottom of the measured set, where the gap between a 13px label and its value needs a step between 0.5 and 1</p>
+  </div>
+  <div class="scale-row">
+    <span class="scale-bar scale-bar--4"></span>
+    <p class="scale-label">--space-4 · 1rem · table cell padding, code block padding</p>
+  </div>
+  <div class="scale-row">
+    <span class="scale-bar scale-bar--5"></span>
+    <p class="scale-label">--space-5 · 1.5rem · paragraph to paragraph, page gutter</p>
+  </div>
+  <div class="scale-row">
+    <span class="scale-bar scale-bar--6"></span>
+    <p class="scale-label">--space-6 · 2rem · hairline to heading, the rail gutter, heading to table</p>
+  </div>
+  <div class="scale-row">
+    <span class="scale-bar scale-bar--7"></span>
+    <p class="scale-label">--space-7 · 3rem · section to section</p>
+  </div>
+  <div class="scale-row">
+    <span class="scale-bar scale-bar--8"></span>
+    <p class="scale-label">--space-8 · 6rem · masthead to body, once per page. At double the section break, the one longest interval on the page is unmistakable</p>
+  </div>
+  <div class="scale-row">
+    <span class="scale-bar scale-bar--rail"></span>
+    <p class="scale-label">--rail · 10rem · a layout measure, not a rhythm step: the left rail the signature move is built on, and the full width of this track</p>
+  </div>
+  <p class="meta">The measured set ended 2 / 2.5 / 3rem, three values inside a 20% span, so 2.5rem was dropped: at section scale the reader cannot tell them apart.</p>
+</section>
+
+<section class="section" id="radius">
+  <p class="eyebrow">Radius</p>
+  <h2>Four tokens, two of them zero</h2>
+  <p>Radius is the exception in this direction rather than the default, so two of the four tiles below are square. Judge whether either non-zero token is doing anything the hard corner beside it was not already doing.</p>
+  <div class="radius-row">
+    <div class="radius-tile radius-tile--sm">
+      <p>--radius-sm · 0 · inert by design: the default corner is square</p>
+    </div>
+    <div class="radius-tile radius-tile--md">
+      <p>--radius-md · 0 · inert by design: the default corner is square</p>
+    </div>
+    <div class="radius-tile radius-tile--lg">
+      <p>--radius-lg · 4px · the table container only</p>
+    </div>
+    <div class="radius-tile radius-tile--pill">
+      <p>--radius-pill · 999px</p>
+    </div>
+  </div>
+  <p class="note">--radius-sm and --radius-md are two tokens refusing the same thing, and they stay separate rather than collapsing because a consumer swapping another direction's tokens.css in has to overwrite both. Reaching for a rounded corner means typing a different token name and noticing that you did. --radius-lg is the reference's own 4px table container, which the composed page above uses once, and --radius-pill comes from its 64px sticky utility bar, the one place that page lets a control round.</p>
+  <p class="note">Never round a panel, a section, an image, a table cell or a code block. Four rounded corners on a panel turns a printed page into an app screen, which is a different direction's job.</p>
+</section>
+
+<section class="section" id="elevation">
+  <p class="eyebrow">Elevation</p>
+  <h2>There is no elevation</h2>
+  <p>Four tiles: a filled sunk field, the shadow token applied to a second copy of it, and the two rule weights that carry the work instead. Judge whether the page reads as one sheet with fields cut into it rather than as cards sitting above it.</p>
+  <div class="elev-row">
+    <div class="elev-tile elev-tile--flat">
+      <p>--ground-2 · 1.08:1 against the sheet · a filled sunk field. A field is filled, never bordered and filled</p>
+    </div>
+    <div class="elev-tile elev-tile--shadow">
+      <p>--shadow-1 · none · this tile has the shadow token applied and is identical to the one beside it. The reference's article shell has no shadow at all, and neither does this</p>
+    </div>
+    <div class="elev-tile elev-tile--hair">
+      <p>--hair · 1.44:1 against the sheet · the rule for repeated separation: section tops, table rows, the footer</p>
+    </div>
+    <div class="elev-tile elev-tile--rule">
+      <p>--ink-3 · 3.11:1 against the sheet · the rule for the two divisions with structural weight, drawn one step darker</p>
+    </div>
+  </div>
+  <p class="note">What carries depth instead is recession and vertical space. The three grounds are fields cut into the same sheet and nothing ever sits above it, which is why --shadow-1 is declared as none rather than left out: a consumer swapping another direction's tokens.css in has to overwrite it.</p>
+</section>
+
+<section class="section" id="components">
+  <p class="eyebrow">Primitives</p>
+  <h2>Components</h2>
+  <p>Every primitive the composed page above leaves unused, once each, with content taken from this direction's own spec and from the measured reference notes. Judge whether any of them needed a box to be legible.</p>
+  <div class="section-head">
+    <p class="eyebrow">Opening</p>
+    <h3>Section head, hero and lead</h3>
+  </div>
+  <p>The block above is a section head: a label and a heading together. The composed page sends its labels to the rail instead, which is why the specimen has to show the block standing on its own.</p>
+  <div class="hero">
+    <p class="hero-title">A long read on a warm sheet</p>
+    <p class="hero-sub">Structure comes from a hairline and the space around it, never from a box.</p>
+  </div>
+  <p class="lead">A lead is body size with a paragraph gap above it and nothing else: no larger size, no lighter ink, no rule. The hero title above is a paragraph rather than a heading, because the one heading of that rank on this page is the masthead.</p>
+  <p class="meta"><span class="badge">page</span> the shape this file is scored as, and the shape every section in it is written in.</p>
+  <h3>Panels and features</h3>
+  <div class="grid">
+    <div class="panel">
+      <p class="eyebrow">Two rule weights</p>
+      <p>--hair at 1.44:1 for repeated separation, --ink-3 at 3.11:1 for the two divisions with structural weight. A view carries no third weight.</p>
+    </div>
+    <div class="panel">
+      <p class="eyebrow">Two families</p>
+      <p>Source Serif 4 for display at weight 400, Hanken Grotesk for body and every label, and IBM Plex Mono for the code block and nothing else.</p>
+    </div>
+  </div>
+  <div class="feature">
+    <p class="eyebrow">Departure three</p>
+    <p>The accent is darkened. The reference's action blue #0879bf reaches 4.31:1 against this paper rather than the 4.69:1 it gets against #fff, so it fails AA for body text as a link colour. oklch(0.510 0.128 245.4) holds the measured hue and reaches 5.26:1.</p>
+  </div>
+  <div class="feature">
+    <p class="eyebrow">Departure five</p>
+    <p>The ground ladder's deepest step is pushed down. Matching the measured #e5e5e5 border tier put --ground-3 only 1.09:1 from --ground-2, which is two sunk fields nobody can tell apart, so the tier was given up and the separation kept at 1.15:1.</p>
+  </div>
+  <h3>Figures and measured numbers</h3>
+  <div class="stat-row">
+    <p class="stat"><strong>40</strong><span>custom properties in this direction's tokens.css, every one of them indexed below</span></p>
+    <p class="stat"><strong>2</strong><span>rule weights in a view: --hair for repetition, --ink-3 for structure</span></p>
+    <p class="stat"><strong>0</strong><span>shadows painted anywhere, because --shadow-1 resolves to none, matching the reference's article shell</span></p>
+    <p class="stat"><strong>21px</strong><span>body size and 1.5 line-height, the reference's own served values</span></p>
+  </div>
+  <blockquote class="quote">
+    <p>Tracking separates the references more cleanly than typeface does. New Yorker normal at 42px, Ramp -0.01px at 64px, Linear -0.022em, V7 and Headspace -0.03em.</p>
+    <cite>docs/2026-08-16-studio-reference-values.md, cross-reference findings</cite>
+  </blockquote>
+  <div class="figure">
+    <svg viewBox="0 0 320 96" role="img" aria-label="The five type sizes set on one baseline at their own token values: 42, 30, 21, 15 and 13 pixels.">
+      <g>
+        <text x="0" y="48">42</text>
+        <text x="52" y="48">30</text>
+        <text x="92" y="48">21</text>
+        <text x="123" y="48">15</text>
+        <text x="148" y="48">13</text>
+      </g>
+      <line x1="0" y1="48" x2="320" y2="48"></line>
+      <text x="0" y="68">--text-h1 42 · --text-h2 30 · --text-base 21</text>
+      <text x="0" y="86">--text-h3 21 · --text-meta 15 · --text-small 13</text>
+    </svg>
+    <p class="caption caption--figure">The five numerals are set at their own token sizes inside the viewBox and sit on one baseline, so the steps keep their true ratios however wide the figure is drawn. --text-h3 equals --text-base exactly, which is the reason it is set italic instead.</p>
+  </div>
+  <h3>Procedure, caveat and the calls to action</h3>
+  <ol class="steps">
+    <li>Ask for the direction, or propose one. There is no default, and the four are not interchangeable.</li>
+    <li>Build one self-contained HTML file against that direction's tokens.css and DESIGN.md.</li>
+    <li>Render it at 390 by 844 and 1440 by 900, then score it against the direction's own avoid list.</li>
+    <li>Revise once below 80, and render again before handing it over.</li>
+  </ol>
+  <ul class="list">
+    <li><strong>A card grid standing in for a comparison is out.</strong> Four items with four attributes each is a table, and a grid of panels costs the reader the ability to compare down a column.</li>
+    <li><strong>Centred prose is out.</strong> The left rail exists to break the symmetry, and a centred column with centred headings throws away the one structural idea the direction has.</li>
+  </ul>
+  <p class="note">Visual complexity follows informational complexity. A 400-word note gets a header, prose, and nothing else — the specimen sheet below the masthead is long because there are 40 tokens to account for, not because length is a virtue.</p>
+  <div class="cta">
+    <a class="btn" href="../../references/anti-patterns.md">Read the anti-pattern list</a>
+    <a class="btn btn--ghost" href="../../references/vocabularies.md">Read the vocabularies</a>
+  </div>
+</section>
+
+<section class="section" id="states">
+  <p class="eyebrow">Interaction</p>
+  <h2>States</h2>
+  <p>Every interactive element repeated across the states it has, each copy forced with a data-state attribute written into the same selector list as the real pseudo-class. Judge whether the state changes read without colour, and whether every target clears 44px.</p>
+  <h3>Buttons</h3>
+  <div class="state-row">
+    <p class="state-label">.btn · rest · --accent fill, --accent-ink label at 5.26:1</p>
+    <p><a class="btn" href="DESIGN.md" data-state="rest">Read the editorial spec</a></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.btn · hover · fill goes to --ink, because blue to near-black is the strongest change available in a three-colour system</p>
+    <p><a class="btn" href="DESIGN.md" data-state="hover">Read the editorial spec</a></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.btn · active · fill goes to --ink-2, one step back off the hover</p>
+    <p><a class="btn" href="DESIGN.md" data-state="active">Read the editorial spec</a></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.btn · focus · a 2px --ring outline held off the edge by --ring-offset, 0.25rem, and the gap is filled with --ground</p>
+    <p><a class="btn" href="DESIGN.md" data-state="focus">Read the editorial spec</a></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.btn · disabled · --ground-3 fill, --hair border, --ink-3 label. The label carries the real disabled attribute as well as the forced state</p>
+    <p><button class="btn" type="button" disabled data-state="disabled">Read the editorial spec</button></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.btn--ghost · rest · transparent fill and an --ink-3 border, so it differs from the solid button in greyscale too</p>
+    <p><a class="btn btn--ghost" href="tokens.css" data-state="rest">Read the tokens</a></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.btn--ghost · hover · --ground-2 fill and the border darkens to --ink</p>
+    <p><a class="btn btn--ghost" href="tokens.css" data-state="hover">Read the tokens</a></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.btn--ghost · active · --ground-3 fill, the deepest field</p>
+    <p><a class="btn btn--ghost" href="tokens.css" data-state="active">Read the tokens</a></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.btn--ghost · focus · the same 2px --ring outline at the same --ring-offset as the solid button</p>
+    <p><a class="btn btn--ghost" href="tokens.css" data-state="focus">Read the tokens</a></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.btn--ghost · disabled · the real disabled attribute alongside the forced state</p>
+    <p><button class="btn btn--ghost" type="button" disabled data-state="disabled">Read the tokens</button></p>
+  </div>
+  <h3>Links in running prose</h3>
+  <div class="state-row">
+    <p class="state-label">link · rest · --ink with a 1px --accent underline</p>
+    <p>The policy is a blacklist, so the interesting question is never which face is allowed. The <a href="../../references/fonts.md" data-state="rest">font list</a> grows over time and is never inverted into a shortlist.</p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">link · hover · the word itself goes --accent</p>
+    <p>The policy is a blacklist, so the interesting question is never which face is allowed. The <a href="../../references/fonts.md" data-state="hover">font list</a> grows over time and is never inverted into a shortlist.</p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">link · active · the underline thickens to 2px, because there is no pressed token to reach for</p>
+    <p>The policy is a blacklist, so the interesting question is never which face is allowed. The <a href="../../references/fonts.md" data-state="active">font list</a> grows over time and is never inverted into a shortlist.</p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">link · focus · 2px --ring at --ring-offset, the same ring the buttons get</p>
+    <p>The policy is a blacklist, so the interesting question is never which face is allowed. The <a href="../../references/fonts.md" data-state="focus">font list</a> grows over time and is never inverted into a shortlist.</p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">link · disabled · --ink-3, the one text use this direction allows it, which WCAG 1.4.3 exempts as an inactive component</p>
+    <p>The policy is a blacklist, so the interesting question is never which face is allowed. The <a href="#states" aria-disabled="true" data-state="disabled">font list</a> grows over time and is never inverted into a shortlist.</p>
+  </div>
+  <h3>Form controls</h3>
+  <div class="state-row">
+    <p class="state-label">.field with a text input · rest · --ground fill and an --ink-3 border, square at --radius-md</p>
+    <p><span class="field"><label for="s-rest">Direction</label><input id="s-rest" type="text" value="editorial" data-state="rest"></span></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.field with a text input · hover · the border darkens to --ink</p>
+    <p><span class="field"><label for="s-hover">Direction</label><input id="s-hover" type="text" value="editorial" data-state="hover"></span></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.field with a text input · active · --ground-2 fill under an --ink border</p>
+    <p><span class="field"><label for="s-active">Direction</label><input id="s-active" type="text" value="editorial" data-state="active"></span></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.field with a text input · focus · 2px --ring outline at --ring-offset 0.25rem, the two tokens this section exists to apply</p>
+    <p><span class="field"><label for="s-focus">Direction</label><input id="s-focus" type="text" value="editorial" data-state="focus"></span></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.field with a text input · disabled · the real disabled attribute alongside the forced state, --ground-3 fill and an --ink-3 value</p>
+    <p><span class="field"><label for="s-disabled">Direction</label><input id="s-disabled" type="text" value="editorial" disabled data-state="disabled"></span></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.field with a select · rest, and rest only · the native control inherits --font-body at --text-meta</p>
+    <p><span class="field"><label for="s-shape">Artifact shape</label><select id="s-shape" data-state="rest"><option>page</option><option>document</option></select></span></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.field with a select · focus · 2px --ring at --ring-offset</p>
+    <p><span class="field"><label for="s-shape-focus">Artifact shape</label><select id="s-shape-focus" data-state="focus"><option>page</option><option>document</option></select></span></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.field with a textarea · rest, and rest only · vertical resize, no radius</p>
+    <p><span class="field"><label for="s-brief">Brief</label><textarea id="s-brief" rows="2" data-state="rest">A long read on a warm sheet.</textarea></span></p>
+  </div>
+  <div class="state-row">
+    <p class="state-label">.field with a textarea · focus · 2px --ring at --ring-offset</p>
+    <p><span class="field"><label for="s-brief-focus">Brief</label><textarea id="s-brief-focus" rows="2" data-state="focus">A long read on a warm sheet.</textarea></span></p>
+  </div>
+</section>
+
+<section class="section" id="tokens">
+  <p class="eyebrow">Index</p>
+  <h2>Token index</h2>
+  <p>All forty custom properties tokens.css declares, in declaration order, with the value and the job each one has here. Judge whether any row describes something the sections above did not show you.</p>
+  <div class="table-wrap">
+    <table>
+      <caption class="caption">The completeness proof: one row per declared property, forty rows, nothing collapsed into a family.</caption>
+      <thead>
+        <tr><th>Token</th><th>Value</th><th>What it means here</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>--ground</td><td data-label="Value">oklch(0.972 0.004 85)</td><td data-label="What it means here">the sheet, every page and every section</td></tr>
+        <tr><td>--ground-2</td><td data-label="Value">oklch(0.945 0.005 85)</td><td data-label="What it means here">sunk field: code block, table header</td></tr>
+        <tr><td>--ground-3</td><td data-label="Value">oklch(0.900 0.005 85)</td><td data-label="What it means here">deepest field: row hover, badge fill</td></tr>
+        <tr><td>--ink</td><td data-label="Value">oklch(0.235 0.010 65)</td><td data-label="What it means here">all display and body type, and the button hover fill</td></tr>
+        <tr><td>--ink-2</td><td data-label="Value">oklch(0.475 0.010 65)</td><td data-label="What it means here">utility type: eyebrow, caption, meta, table header</td></tr>
+        <tr><td>--ink-3</td><td data-label="Value">oklch(0.640 0.008 65)</td><td data-label="What it means here">structural rules and the ghost button border. Never text</td></tr>
+        <tr><td>--hair</td><td data-label="Value">oklch(0.855 0.006 65)</td><td data-label="What it means here">every repeated rule: section tops, table rows, footer</td></tr>
+        <tr><td>--accent</td><td data-label="Value">oklch(0.510 0.128 245.4)</td><td data-label="What it means here">link underline, solid button fill, focus ring. Nothing else</td></tr>
+        <tr><td>--accent-ink</td><td data-label="Value">oklch(0.972 0.004 85)</td><td data-label="What it means here">paper, as the label on the solid button</td></tr>
+        <tr><td>--ring</td><td data-label="Value">oklch(0.510 0.128 245.4)</td><td data-label="What it means here">the focus-visible ring, the accent's third and last job</td></tr>
+        <tr><td>--ring-offset</td><td data-label="Value">0.25rem</td><td data-label="What it means here">the gap between the ring and what it rings, always filled with --ground</td></tr>
+        <tr><td>--radius-sm</td><td data-label="Value">0</td><td data-label="What it means here">inert by design: the default corner is square</td></tr>
+        <tr><td>--radius-md</td><td data-label="Value">0</td><td data-label="What it means here">inert by design: the default corner is square</td></tr>
+        <tr><td>--radius-lg</td><td data-label="Value">4px</td><td data-label="What it means here">the table container only</td></tr>
+        <tr><td>--radius-pill</td><td data-label="Value">999px</td><td data-label="What it means here">the badge, and the solid button if the page has one</td></tr>
+        <tr><td>--font-display</td><td data-label="Value">"Source Serif 4", Georgia, serif</td><td data-label="What it means here">h1, h2, h3, and the direction name in a stacked table</td></tr>
+        <tr><td>--font-body</td><td data-label="Value">"Hanken Grotesk", system-ui, sans-serif</td><td data-label="What it means here">body, lead, and all utility type</td></tr>
+        <tr><td>--font-mono</td><td data-label="Value">"IBM Plex Mono", ui-monospace, Menlo, monospace</td><td data-label="What it means here">the code block only</td></tr>
+        <tr><td>--text-base</td><td data-label="Value">21px</td><td data-label="What it means here">body, and the reference's article body size</td></tr>
+        <tr><td>--text-h1</td><td data-label="Value">clamp(30px, 1.6rem + 1.14vw, 42px)</td><td data-label="What it means here">the measured 30 to 42px headline, fluid between them</td></tr>
+        <tr><td>--text-h2</td><td data-label="Value">clamp(24px, 1.36rem + 0.57vw, 30px)</td><td data-label="What it means here">section headings, topping out at the headline's floor</td></tr>
+        <tr><td>--text-h3</td><td data-label="Value">21px</td><td data-label="What it means here">equals --text-base on purpose: a run-in serif subhead, set italic</td></tr>
+        <tr><td>--text-meta</td><td data-label="Value">15px</td><td data-label="What it means here">table cells, captions, footnotes, figure credits</td></tr>
+        <tr><td>--text-small</td><td data-label="Value">13px</td><td data-label="What it means here">utility type, and the code block</td></tr>
+        <tr><td>--leading-body</td><td data-label="Value">1.5</td><td data-label="What it means here">the reference's 21px / 1.5em body</td></tr>
+        <tr><td>--leading-h3</td><td data-label="Value">1.2</td><td data-label="What it means here">the run-in subhead, which --leading-display would collide on</td></tr>
+        <tr><td>--leading-display</td><td data-label="Value">1.0667</td><td data-label="What it means here">the reference's headline leading, at every heading level</td></tr>
+        <tr><td>--track-display</td><td data-label="Value">normal</td><td data-label="What it means here">inert by design, and the point of the direction</td></tr>
+        <tr><td>--track-body</td><td data-label="Value">normal</td><td data-label="What it means here">inert by design. Negative tracking has no token here</td></tr>
+        <tr><td>--measure</td><td data-label="Value">64ch</td><td data-label="What it means here">every run of prose, whatever the viewport</td></tr>
+        <tr><td>--rail</td><td data-label="Value">10rem</td><td data-label="What it means here">the left rail the signature move is built on</td></tr>
+        <tr><td>--space-1</td><td data-label="Value">0.25rem</td><td data-label="What it means here">inside a badge, the focus-ring offset</td></tr>
+        <tr><td>--space-2</td><td data-label="Value">0.5rem</td><td data-label="What it means here">badge padding, nav gaps</td></tr>
+        <tr><td>--space-3</td><td data-label="Value">0.75rem</td><td data-label="What it means here">label to value</td></tr>
+        <tr><td>--space-4</td><td data-label="Value">1rem</td><td data-label="What it means here">table cell padding, code block padding</td></tr>
+        <tr><td>--space-5</td><td data-label="Value">1.5rem</td><td data-label="What it means here">paragraph to paragraph, page gutter</td></tr>
+        <tr><td>--space-6</td><td data-label="Value">2rem</td><td data-label="What it means here">hairline to heading, the rail gutter, heading to table</td></tr>
+        <tr><td>--space-7</td><td data-label="Value">3rem</td><td data-label="What it means here">section to section</td></tr>
+        <tr><td>--space-8</td><td data-label="Value">6rem</td><td data-label="What it means here">masthead to body, once per page</td></tr>
+        <tr><td>--shadow-1</td><td data-label="Value">none</td><td data-label="What it means here">inert by design. Depth is rules and space</td></tr>
+      </tbody>
+    </table>
   </div>
 </section>
 

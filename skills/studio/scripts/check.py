@@ -91,6 +91,10 @@ VOCAB_PAGE = {
     "stat-row", "stat", "quote", "table-wrap", "list", "steps", "cta",
     "btn", "note", "figure", "caption", "divider", "code", "badge",
     "meta", "footer",
+    "swatch-grid", "swatch", "swatch-chip", "swatch-name", "swatch-value",
+    "pair", "pair-label", "type-row", "type-sample", "type-spec", "glyphs",
+    "scale-row", "scale-bar", "scale-label", "radius-row", "radius-tile",
+    "elev-row", "elev-tile", "state-row", "state-label", "field",
 }
 
 

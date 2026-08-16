@@ -97,10 +97,20 @@ a {
   text-decoration-color: color-mix(in oklch, var(--accent), transparent 55%);
   text-underline-offset: 0.2em;
 }
-a:hover { text-decoration-color: var(--accent); }
-a:active { color: color-mix(in oklch, var(--accent), var(--accent-ink) 18%); }
+/* Link states come from the accent, never a second hue: hover lifts toward the
+   page's own white, active steps back into the ground. Each state is written
+   once as a selector list, so a forced demo copy cannot drift from the real
+   pseudo-class. */
+a:hover, a[data-state="hover"] {
+  color: color-mix(in oklch, var(--accent), var(--ink) 25%);
+  text-decoration-color: currentColor;
+}
+a:active, a[data-state="active"] { color: color-mix(in oklch, var(--accent), var(--ground) 20%); }
 
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+:focus-visible, [data-state="focus"] {
+  outline: 2px solid var(--ring);
+  outline-offset: var(--ring-offset);
+}
 
 code {
   padding: 0.15em 0.4em;
@@ -141,6 +151,8 @@ strong { font-weight: 500; color: var(--ink); }
   font-weight: 500;
   letter-spacing: -0.01em;
 }
+
+.nav { min-width: 0; }
 
 .nav ul {
   display: flex;
@@ -198,15 +210,22 @@ strong { font-weight: 500; color: var(--ink); }
   font-weight: 500;
   text-decoration: none;
 }
-.btn:hover { background: color-mix(in oklch, var(--accent), var(--ink) 14%); }
-.btn:active { background: color-mix(in oklch, var(--accent), var(--accent-ink) 12%); }
+.btn:hover, .btn[data-state="hover"] {
+  background: color-mix(in oklch, var(--accent), var(--ink) 14%);
+  color: var(--accent-ink);
+}
+.btn:active, .btn[data-state="active"] {
+  background: color-mix(in oklch, var(--accent), var(--accent-ink) 12%);
+  color: var(--accent-ink);
+}
 
 .btn--ghost {
   background: var(--ground-2);
   color: var(--ink);
   box-shadow: inset 0 0 0 1px var(--hair);
 }
-.btn--ghost:hover { background: var(--ground-3); }
+.btn--ghost:hover, .btn--ghost[data-state="hover"] { background: var(--ground-3); color: var(--ink); }
+.btn--ghost:active, .btn--ghost[data-state="active"] { background: var(--ground-2); color: var(--ink); }
 
 .section { padding-block: var(--space-7); }
 .section-head { margin-bottom: var(--space-5); }
@@ -283,7 +302,6 @@ tbody th .badge { margin-left: var(--space-2); }
   padding: var(--space-4);
   overflow-x: auto;
   border: 1px solid var(--hair);
-  border-radius: var(--radius-md);
   background: var(--ground-2);
   color: var(--ink-2);
   font-family: var(--font-mono);
@@ -363,6 +381,271 @@ tbody th .badge { margin-left: var(--space-2); }
   font-size: var(--text-small);
 }
 
+/* ---- Specimen -------------------------------------------------------------
+   Everything below the composed page is the same token set shown doing its
+   job, named, with its literal value printed beside it. No colour, size or
+   radius enters here that the tokens do not already carry. */
+
+h3 {
+  margin: var(--space-6) 0 var(--space-3);
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 500;
+  line-height: var(--leading-h3);
+  letter-spacing: -0.014em;
+}
+
+/* One declaration per radius value, grouped into a single rule, so no value is
+   written four times over and the scale never reads as uniform. */
+.code, .elev-tile, .field input, .field select, .field textarea {
+  border-radius: var(--radius-md);
+}
+
+/* An inline link gets a 44px hit box from padding-block, which does not change
+   the line box, so the prose stays exactly where it was set. */
+p a { padding-block: 0.65em; }
+
+button.btn { font-family: var(--font-body); cursor: pointer; }
+
+/* Disabled drains the fill toward the ground and drops the label to the label
+   tier. The cursor is the second signal, because a fill alone is colour only. */
+.btn[disabled], .btn[data-state="disabled"] {
+  background: color-mix(in oklch, var(--accent), var(--ground) 55%);
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+.btn--ghost[disabled], .btn--ghost[data-state="disabled"] {
+  background: var(--ground-2);
+  color: var(--ink-3);
+}
+
+.swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.swatch-chip {
+  display: flex;
+  align-items: flex-end;
+  min-height: 4.5rem;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+}
+
+/* An alpha token has no colour of its own, so its chip states its backdrop. */
+.swatch--alpha { padding: var(--space-3); background: var(--ground-2); }
+
+.swatch-name {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+}
+
+.swatch-value {
+  display: block;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  overflow-wrap: anywhere;
+}
+
+.pair {
+  padding: var(--space-4) 0;
+  border-top: 1px solid color-mix(in oklch, var(--hair), transparent 40%);
+}
+.pair > * { margin: 0 0 var(--space-2); }
+.pair > *:last-child { margin-bottom: 0; }
+.pair > p { padding: var(--space-3); max-width: none; }
+.pair hr { height: 1px; margin: 0; border: 0; background: var(--hair); }
+.pair-label {
+  display: block;
+  max-width: none;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+}
+
+.type-row {
+  padding: var(--space-5) 0;
+  border-top: 1px solid color-mix(in oklch, var(--hair), transparent 40%);
+}
+.type-sample { margin: 0 0 var(--space-3); max-width: none; color: var(--ink); }
+.type-sample--h1, p.hero-title {
+  font-family: var(--font-display);
+  font-size: var(--text-h1);
+  font-weight: 500;
+  line-height: var(--leading-display);
+  letter-spacing: clamp(var(--track-display), -0.036em + 0.022rem, -0.012em);
+  max-width: none;
+}
+.type-sample--h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  font-weight: 500;
+  line-height: calc(var(--leading-display) + 0.05);
+  letter-spacing: clamp(-0.018em, -0.03em + 0.02rem, -0.01em);
+}
+.type-sample--h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 500;
+  line-height: var(--leading-h3);
+  letter-spacing: -0.014em;
+}
+.type-sample--base {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  letter-spacing: var(--track-body);
+}
+.type-sample--small {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+}
+.type-spec {
+  margin: 0;
+  max-width: none;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+}
+
+.glyphs {
+  margin: 0 0 var(--space-2);
+  padding-bottom: var(--space-2);
+  max-width: none;
+  overflow-x: auto;
+  color: var(--ink-2);
+  font-size: var(--text-h3);
+  line-height: var(--leading-h3);
+  white-space: nowrap;
+}
+.glyphs--display { font-family: var(--font-display); font-weight: 500; }
+.glyphs--body { font-family: var(--font-body); }
+.glyphs--mono { font-family: var(--font-mono); }
+
+.scale-row { padding: var(--space-2) 0; }
+.scale-bar { height: 10px; background: var(--ink-3); }
+.scale-label {
+  display: block;
+  margin-bottom: var(--space-1);
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+}
+
+.radius-row { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+.radius-tile {
+  flex: 0 1 11rem;
+  min-height: 5.5rem;
+  padding: var(--space-3);
+  background: var(--ground-3);
+  box-shadow: var(--shadow-1);
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+}
+
+.elev-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+.elev-tile {
+  min-height: 7rem;
+  padding: var(--space-5);
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+}
+.elev-tile--page { background: var(--ground); }
+.elev-tile--flat { background: var(--ground-2); border: 1px solid var(--hair); box-shadow: none; }
+.elev-tile--tint { background: var(--ground-3); }
+.elev-tile--raised { background: var(--ground-3); box-shadow: var(--shadow-1); }
+
+#components .hero { padding: 0 0 var(--space-5); }
+
+.feature {
+  margin-bottom: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--hair);
+}
+
+.stat-row { display: flex; flex-wrap: wrap; gap: var(--space-6); margin-bottom: var(--space-5); }
+.stat strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  font-weight: 500;
+  line-height: var(--leading-display);
+  letter-spacing: -0.018em;
+  font-variant-numeric: tabular-nums;
+}
+.stat span { color: var(--ink-3); font-size: var(--text-small); }
+
+.steps {
+  display: grid;
+  gap: var(--space-3);
+  max-width: var(--measure);
+  margin: 0 0 var(--space-4);
+  padding-left: var(--space-5);
+  color: var(--ink-2);
+}
+.steps li::marker { color: var(--ink-3); font-family: var(--font-mono); }
+
+.figure svg { display: block; width: 100%; max-width: 720px; height: auto; }
+
+.state-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-4) 0;
+  border-top: 1px solid color-mix(in oklch, var(--hair), transparent 40%);
+}
+.state-row .btn { justify-self: start; }
+.state-row p { margin: 0; max-width: 32ch; }
+.state-label {
+  display: block;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  overflow-wrap: anywhere;
+}
+
+.field { display: grid; gap: var(--space-2); min-width: 0; }
+.field label { color: var(--ink-2); font-size: var(--text-small); }
+.field input, .field select, .field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--hair);
+  background: var(--ground-2);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+}
+.field textarea { min-height: 5.5rem; resize: vertical; }
+.field input:hover, .field input[data-state="hover"] { background: var(--ground-3); }
+.field input:active, .field input[data-state="active"] { background: var(--ground-3); }
+.field input[disabled], .field input[data-state="disabled"] {
+  background: var(--ground);
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+/* In the token index every cell in the value column is a literal, so a chip
+   around each one is noise the table does not need. */
+#tokens tbody code { padding: 0; background: none; }
+
 @media (min-width: 48rem) {
   .hero { padding-block: var(--space-8) var(--space-7); }
   .section { padding-block: var(--space-8); }
@@ -425,7 +708,9 @@ tbody th .badge { margin-left: var(--space-2); }
   .nav ul { display: flex; gap: 1rem; }
   .nav a { border-left: 0; padding: 0; color: #444; }
   .hero, .section, .footer { padding-inline: 0; }
-  .panel, .note, .table-wrap, .code {
+  /* The specimen's structural surfaces invert with the page. The colour chips
+     and the radius tiles keep their fills, because the fill is the data. */
+  .panel, .note, .table-wrap, .code, .elev-tile, .field input, .field select, .field textarea {
     background: #fff; border: 1px solid #ccc; box-shadow: none;
   }
   h1, h2, h3, strong { color: #111; }
@@ -442,6 +727,14 @@ tbody th .badge { margin-left: var(--space-2); }
       <li><a href="#directions" aria-current="true">Directions</a></li>
       <li><a href="#gate">Render gate</a></li>
       <li><a href="#fonts">Fonts</a></li>
+      <li><a href="#palette">Colour</a></li>
+      <li><a href="#type">Type</a></li>
+      <li><a href="#space">Space</a></li>
+      <li><a href="#radius">Radius</a></li>
+      <li><a href="#elevation">Elevation</a></li>
+      <li><a href="#components">Components</a></li>
+      <li><a href="#states">States</a></li>
+      <li><a href="#tokens">Tokens</a></li>
     </ul>
   </nav>
 </header>
@@ -600,6 +893,718 @@ playwright screenshot --viewport-size=1440,900 page.html shot-1440.png</code></p
   <p>So the ring holds the depth and the tracking holds the temperature. Loosen the
     headings past &minus;0.01em and this stops being a product page, whatever the
     shadows are doing.</p>
+</section>
+
+<hr class="divider">
+
+<section class="section" id="palette">
+  <div class="section-head">
+    <p class="eyebrow">Colour</p>
+    <h2>Every colour the direction declares</h2>
+  </div>
+  <p>One chip per colour-valued token in declaration order, its literal value printed
+    beneath it, then each ink shown only in the role this direction sanctions for it.</p>
+  <div class="swatch-grid">
+    <div class="swatch">
+      <div class="swatch-chip" style="background: var(--ground); color: var(--ink)">--ink</div>
+      <span class="swatch-name">--ground</span>
+      <span class="swatch-value">oklch(0.139 0.003 248), the measured #08090A</span>
+    </div>
+    <div class="swatch">
+      <div class="swatch-chip" style="background: var(--ground-2); color: var(--ink)">--ink</div>
+      <span class="swatch-name">--ground-2</span>
+      <span class="swatch-value">oklch(0.177 0.003 248), the measured #101112</span>
+    </div>
+    <div class="swatch">
+      <div class="swatch-chip" style="background: var(--ground-3); color: var(--ink)">--ink</div>
+      <span class="swatch-name">--ground-3</span>
+      <span class="swatch-value">oklch(0.225 0.003 248), #1B1C1D, one step past the measured #161718</span>
+    </div>
+    <div class="swatch">
+      <div class="swatch-chip" style="background: var(--ink); color: var(--ground)">--ground</div>
+      <span class="swatch-name">--ink</span>
+      <span class="swatch-value">oklch(0.940 0.002 248), #EAEBEC, dimmer than the measured #F7F8F8 on purpose</span>
+    </div>
+    <div class="swatch">
+      <div class="swatch-chip" style="background: var(--ink-2); color: var(--ground)">--ground</div>
+      <span class="swatch-name">--ink-2</span>
+      <span class="swatch-value">oklch(0.735 0.012 248), derived rather than measured</span>
+    </div>
+    <div class="swatch">
+      <div class="swatch-chip" style="background: var(--ink-3); color: var(--ground)">--ground</div>
+      <span class="swatch-name">--ink-3</span>
+      <span class="swatch-value">oklch(0.645 0.012 248), moved up from 0.615 when --ground-3 moved</span>
+    </div>
+    <div class="swatch swatch--alpha">
+      <div class="swatch-chip" style="background: var(--hair)">over --ground-2</div>
+      <span class="swatch-name">--hair</span>
+      <span class="swatch-value">oklch(1 0 0 / 0.08), which composites to #232425 on --ground-2</span>
+    </div>
+    <div class="swatch">
+      <div class="swatch-chip" style="background: var(--accent); color: var(--accent-ink)">--accent-ink</div>
+      <span class="swatch-name">--accent</span>
+      <span class="swatch-value">oklch(0.660 0.120 272), #798DDC, chosen and not measured</span>
+    </div>
+    <div class="swatch">
+      <div class="swatch-chip" style="background: var(--ring); color: var(--accent-ink)">--accent-ink</div>
+      <span class="swatch-name">--ring</span>
+      <span class="swatch-value">oklch(0.660 0.120 272), the same indigo as --accent, spent only on :focus-visible</span>
+    </div>
+  </div>
+  <div class="pair">
+    <p style="background: var(--ground); color: var(--ink)">Depth is one alpha tint and a
+      one-pixel ring, never a shadow.</p>
+    <span class="pair-label">--ink on --ground, 16.72:1. Body and headings, and the only
+      tier running prose gets.</span>
+  </div>
+  <div class="pair">
+    <p style="background: var(--ground-2); color: var(--ink-2)">Secondary prose, a caption,
+      and the cell text sitting under a table's heading row.</p>
+    <span class="pair-label">--ink-2 on --ground-2, 8.06:1.</span>
+  </div>
+  <div class="pair">
+    <p class="eyebrow" style="background: var(--ground-3)">Labels, eyebrows, metadata</p>
+    <span class="pair-label">--ink-3 on --ground-3, 5.19:1. Avoid-list item 8 keeps it out
+      of running body copy: it clears AA, so no checker catches it, but paragraphs in it
+      make the whole page feel dimmed.</span>
+  </div>
+  <div class="pair">
+    <p style="background: var(--ground)">Links in prose, like
+      <a href="#tokens">this one</a>, and nothing else that
+      reads as text.</p>
+    <span class="pair-label">--accent on --ground, 6.29:1. The fill of the primary button,
+      links in prose, and the focus ring. Never a heading, never a border, never a section
+      background.</span>
+  </div>
+  <div class="pair">
+    <p style="background: var(--accent); color: var(--accent-ink)">The primary button's
+      label sits on the accent, not beside it.</p>
+    <span class="pair-label">--accent-ink on --accent. A tinted near-black rather than
+      white, because white on this indigo fails AA; darkening the ink keeps the accent
+      recognisable as one colour wherever it turns up.</span>
+  </div>
+  <div class="pair">
+    <div style="padding: var(--space-4); background: var(--ground-2)">
+      <hr>
+      <hr style="margin-top: var(--space-4); background: color-mix(in oklch, var(--hair), transparent 40%)">
+    </div>
+    <span class="pair-label">--hair is a rule colour and never text: at 0.08 alpha of white
+      it has no ink value at all. The softer line under it is color-mix(in oklch,
+      var(--hair), transparent 40%), the measured 0.05 tier derived rather than declared as
+      a third value.</span>
+  </div>
+</section>
+
+<section class="section" id="type">
+  <div class="section-head">
+    <p class="eyebrow">Typography</p>
+    <h2>Five steps, two families</h2>
+  </div>
+  <p>Each step is set in real words from the direction's own thesis, with its token, family,
+    size, weight, line-height and tracking printed beside it.</p>
+  <div class="type-row">
+    <p class="type-sample type-sample--h1">Depth is one alpha tint</p>
+    <p class="type-spec">--text-h1 &middot; --font-display, Geist 500 &middot;
+      clamp(2.375rem, 1.75rem + 2.6vw, 4rem), 38px at 390 and the measured 64px from
+      1385px up &middot; --leading-display 1.05 &middot; --track-display -0.022em, clamped
+      toward -0.012em as the size falls</p>
+  </div>
+  <div class="type-row">
+    <p class="type-sample type-sample--h2">A sticky left rail, and the measure hung off it</p>
+    <p class="type-spec">--text-h2 &middot; --font-display, Geist 500 &middot;
+      clamp(1.75rem, 1.35rem + 1.55vw, 2.625rem), 28px at 390 and 42px at 1440 &middot;
+      calc(--leading-display + 0.05), so 1.10 &middot; -0.018em, clamped toward -0.01em</p>
+  </div>
+  <div class="type-row">
+    <p class="type-sample type-sample--h3">Edges hard enough to read at 1px</p>
+    <p class="type-spec">--text-h3 &middot; --font-display, Geist 500 &middot; 1.3125rem,
+      21px &middot; --leading-h3 1.25 &middot; -0.014em. The lead takes the same size at 400
+      on --leading-body, so weight and leading are what separate them.</p>
+  </div>
+  <div class="type-row">
+    <p class="type-sample type-sample--base">One desaturated accent, tracking pulled tight
+      on display type, body copy at the measured 16 on 24.</p>
+    <p class="type-spec">--text-base &middot; --font-body, Geist 400 &middot; 1rem, 16px
+      &middot; --leading-body 1.5 &middot; --track-body normal, left alone exactly as the
+      reference leaves it</p>
+  </div>
+  <div class="type-row">
+    <p class="type-sample type-sample--small">Everything else stays out of the way.</p>
+    <p class="type-spec">--text-small &middot; --font-body, Geist 400, and 500 on a button
+      &middot; 0.8125rem, 13px, the measured button size &middot; --leading-body 1.5
+      &middot; normal. The eyebrow and the badge take this step in --font-mono at +0.08em
+      and +0.04em.</p>
+  </div>
+  <p class="glyphs glyphs--display">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 &amp;@#%$()[]{}/|+-=*</p>
+  <p class="type-spec">--font-display: "Geist", ui-sans-serif, system-ui, sans-serif, shown
+    at 500.</p>
+  <p class="glyphs glyphs--body">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 &amp;@#%$()[]{}/|+-=*</p>
+  <p class="type-spec">--font-body: "Geist", ui-sans-serif, system-ui, sans-serif, shown at
+    400. The same stack as --font-display, which is the direction and not an oversight:
+    two neo-grotesques with near-identical metrics read as one family set inconsistently.</p>
+  <p class="glyphs glyphs--mono">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 &amp;@#%$()[]{}/|+-=*</p>
+  <p class="type-spec">--font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular,
+    monospace. Code, eyebrows and badge labels only.</p>
+  <p>It should read like the product's own UI escaped onto a marketing page, which is the
+    point. The reader of a developer tool already knows what a dark interface feels like,
+    and a page that feels different from the product is promising something the product
+    does not deliver.</p>
+  <p class="meta">That paragraph is --font-body at --text-base on --leading-body, capped at
+    --measure, which is 60ch. Tighter than a reading document needs, because at 16px on a
+    dark ground a shorter line makes the return sweep easier and keeps the page feeling
+    like an interface.</p>
+</section>
+
+<section class="section" id="space">
+  <div class="section-head">
+    <p class="eyebrow">Spacing</p>
+    <h2>Uneven on purpose</h2>
+  </div>
+  <p>Each bar is drawn at its own token, so the ramp's deliberate unevenness is visible:
+    fine grain where things touch, a jump for the component itself, then the gaps between
+    sections.</p>
+  <div class="scale-row">
+    <span class="scale-label">--space-1 &middot; 0.25rem, 4px &middot; gap inside a control, badge padding, and what --ring-offset resolves to</span>
+    <div class="scale-bar" style="width: var(--space-1)"></div>
+  </div>
+  <div class="scale-row">
+    <span class="scale-label">--space-2 &middot; 0.5rem, 8px &middot; label to value, icon to text</span>
+    <div class="scale-bar" style="width: var(--space-2)"></div>
+  </div>
+  <div class="scale-row">
+    <span class="scale-label">--space-3 &middot; 0.75rem, 12px &middot; nav item padding, tight list gaps</span>
+    <div class="scale-bar" style="width: var(--space-3)"></div>
+  </div>
+  <div class="scale-row">
+    <span class="scale-label">--space-4 &middot; 1rem, 16px &middot; paragraph spacing, code block padding at 390</span>
+    <div class="scale-bar" style="width: var(--space-4)"></div>
+  </div>
+  <div class="scale-row">
+    <span class="scale-label">--space-5 &middot; 1.5rem, 24px &middot; page gutter, panel padding, grid gap, the rail's sticky top</span>
+    <div class="scale-bar" style="width: var(--space-5)"></div>
+  </div>
+  <div class="scale-row">
+    <span class="scale-label">--space-6 &middot; 2.5rem, 40px &middot; panel padding at 1440, heading to body</span>
+    <div class="scale-bar" style="width: var(--space-6)"></div>
+  </div>
+  <div class="scale-row">
+    <span class="scale-label">--space-7 &middot; 4rem, 64px &middot; section padding at 390, section head to content</span>
+    <div class="scale-bar" style="width: var(--space-7)"></div>
+  </div>
+  <div class="scale-row">
+    <span class="scale-label">--space-8 &middot; 6rem, 96px &middot; section padding at 1440</span>
+    <div class="scale-bar" style="width: var(--space-8)"></div>
+  </div>
+  <div class="scale-row">
+    <span class="scale-label">--rail &middot; 13rem, 208px &middot; a layout measure, not a rhythm step: the sticky left nav column the content hangs off</span>
+    <div class="scale-bar" style="width: var(--rail)"></div>
+  </div>
+</section>
+
+<section class="section" id="radius">
+  <div class="section-head">
+    <p class="eyebrow">Radius</p>
+    <h2>Four steps, never uniform</h2>
+  </div>
+  <p>Four samples off the measured 2 / 4 / 6 / 8 / 12 / 16 ramp, each on a raised tile, so
+    the question is whether any two corners in one view are the same.</p>
+  <div class="radius-row">
+    <div class="radius-tile" style="border-radius: var(--radius-sm)"><strong>--radius-sm</strong> 4px. Inline code, small fills, anything under about 2rem tall.</div>
+    <div class="radius-tile" style="border-radius: var(--radius-md)"><strong>--radius-md</strong> 8px. The working radius: panels, table shells, code blocks.</div>
+    <div class="radius-tile" style="border-radius: var(--radius-lg)"><strong>--radius-lg</strong> 12px. The widest surfaces only, a figure or a full-width note.</div>
+    <div class="radius-tile" style="border-radius: var(--radius-pill)"><strong>--radius-pill</strong> 9999px. Buttons and badges, matching the measured button exactly.</div>
+  </div>
+  <p>None of the four is zero, and none of them repeats: if four things in one artifact all
+    want 8px, three of them are the wrong size for it.</p>
+</section>
+
+<section class="section" id="elevation">
+  <div class="section-head">
+    <p class="eyebrow">Elevation</p>
+    <h2>A ring, never a blur</h2>
+  </div>
+  <p>Four rungs of one ladder: the page itself, a flat container fenced on it, the nearer
+    tint every hovered and pressed state takes, and the raised surface that adds the rings.</p>
+  <div class="elev-row">
+    <div class="elev-tile elev-tile--page"><strong>--ground</strong> No fill of its own and no edge. The page, and the fill a chip cuts down to when it sits on a nearer surface.</div>
+    <div class="elev-tile elev-tile--flat"><strong>--ground-2</strong> with a 1px --hair border and box-shadow: none. Flat, fenced on the ground rather than lifted off it.</div>
+    <div class="elev-tile elev-tile--tint"><strong>--ground-3</strong> alone, with no ring. The nearer tint: hover, pressed, a table's header row, a badge fill. One signal per event.</div>
+    <div class="elev-tile elev-tile--raised"><strong>--shadow-1</strong> over --ground-3, and no border at all, because the ring is the border.</div>
+  </div>
+  <p class="caption">--shadow-1 is 0 0 0 1px oklch(0 0 0 / 0.2), 0 0 0 2px oklch(0 0 0 / 0.1),
+    inset 0 0 0 1px oklch(1 0 0 / 0.04): two outer alpha rings darkening the seam where the
+    surface meets the ground, one inset hairline drawing the surface's own top edge, and a
+    blur radius of zero on all three. There is one shadow token because there is exactly one
+    raised tier, and a pressed control moves to --ground-3 rather than taking a second one.</p>
+  <p>The tint and the ladder are the same mechanism, which is the finding this direction is
+    built on. --ground-3 sits 1.11:1 in fill above --ground-2, one step past the measured
+    #161718, and that is the smallest step here that survives a phone held at arm's length
+    in daylight.</p>
+  <ul class="list">
+    <li><strong>Flat</strong> tables, code blocks, notes, and the resting fill of a ghost
+      control.</li>
+    <li><strong>Raised</strong> one tint up and ringed, never nested inside another raised
+      surface.</li>
+    <li><strong>Neither</strong> the rail, which is chrome rather than a surface: no fill,
+      no ring, separated from the content by space alone.</li>
+  </ul>
+</section>
+
+<section class="section" id="components">
+  <div class="section-head">
+    <p class="eyebrow">Components</p>
+    <h2>Every primitive the page above leaves out</h2>
+  </div>
+  <p>Judge whether each one still reads as the same object as the page above: one ring for
+    depth, one border for the flat tier, and never both on the same element.</p>
+
+  <h3>Hero</h3>
+  <div class="hero">
+    <p class="hero-title">Depth is one tint and one ring</p>
+    <p class="hero-sub">Three grounds three or four per cent apart, and edges hard enough to
+      read at 1px.</p>
+    <div class="cta">
+      <a class="btn" href="#tokens">Read the token index</a>
+      <a class="btn btn--ghost" href="#palette">Back to colour</a>
+    </div>
+  </div>
+  <p class="meta">The hero's own title is a p here, not a heading, because this file's single
+    h1 belongs to the masthead. Its gutter is stripped too: on the page the shell supplies
+    it, and a nested hero would take it twice.</p>
+
+  <div class="section-head">
+    <p class="eyebrow">Heading block</p>
+    <h3>A section head is an eyebrow, a heading, and nothing else</h3>
+  </div>
+  <p class="lead">Developer tools, dashboards-as-marketing, changelogs, API and
+    infrastructure pages, and anything whose real product UI is already dark.</p>
+
+  <h3>Panels in a grid</h3>
+  <p>The measured ramp runs 2 / 4 / 6 / 8 / 12 / 16 plus a pill, and three steps are left
+    out. One panel each, so the grid carries an argument rather than a rhythm.</p>
+  <div class="grid">
+    <div class="panel">
+      <p class="eyebrow">2px</p>
+      <p>On a near-black ground a 2px corner is indistinguishable from a rendering
+        artefact, so it spends a token on nothing.</p>
+    </div>
+    <div class="panel">
+      <p class="eyebrow">6px</p>
+      <p>It sits close enough to 8px that no reader could tell them apart, and a scale
+        whose steps are invisible is not a scale.</p>
+    </div>
+    <div class="panel">
+      <p class="eyebrow">16px</p>
+      <p>Softer than anything the reference puts on a bordered surface, and it starts to
+        read as the calm direction instead of this one.</p>
+    </div>
+  </div>
+
+  <h3>Feature blocks</h3>
+  <div class="feature">
+    <p><strong>Two families, not three.</strong> Geist carries display, body and UI, and
+      JetBrains Mono carries literals. An earlier version gave display to Geist and body to
+      Inter: two neo-grotesques with near-identical metrics, so the switch was invisible as
+      hierarchy and visible only as an inconsistency in the g and the a.</p>
+  </div>
+  <div class="feature">
+    <p><strong>One accent, spent three times.</strong> The primary button fill, links in
+      prose, and the focus-visible ring. Never a heading, never a border, never a section
+      background, and never a second hue for a secondary state, because a ghost button on
+      --hair is the secondary state.</p>
+  </div>
+
+  <h3>Measured figures</h3>
+  <div class="stat-row">
+    <div class="stat"><strong>16.72:1</strong><span>--ink on --ground</span></div>
+    <div class="stat"><strong>510</strong><span>the reference's own h1 weight</span></div>
+    <div class="stat"><strong>1.11:1</strong><span>--ground-3 in fill over --ground-2</span></div>
+    <div class="stat"><strong>0px</strong><span>blur on all three rings of --shadow-1</span></div>
+  </div>
+  <p class="note">A border and a ring shadow never appear on the same element. The ring's
+    inset hairline already is the edge, so doubling it gives a 2px muddy rim and destroys
+    the only thing separating the flat tier from the raised one.</p>
+
+  <h3>Quote, list and steps</h3>
+  <p class="quote">Linear stands alone as near-black with alpha-tint elevation and
+    white-alpha hairlines.</p>
+  <p class="meta">docs/2026-08-16-studio-reference-values.md, grouping verdict.</p>
+  <p>The mono is confined to the three places a developer-tool page genuinely means "this is
+    a literal value":</p>
+  <ul class="list">
+    <li><strong>Code</strong> blocks and inline spans.</li>
+    <li><strong>Eyebrows</strong>, uppercase at 13px with +0.08em of tracking.</li>
+    <li><strong>Badge</strong> labels, at +0.04em.</li>
+  </ul>
+  <ol class="steps">
+    <li>Brief. The inferred shape and output path, which direction, and the font question,
+      asked once with free pre-selected.</li>
+    <li>Read. The direction's DESIGN.md and tokens.css, then the anti-patterns, then the
+      matching half of the vocabulary.</li>
+    <li>Build. tokens.css inline first, then the artifact against those custom
+      properties.</li>
+    <li>Gate. Both screenshot widths and check.py, in the main agent, never in a
+      subagent.</li>
+    <li>Revise once. Below eighty, or on any failing check: fix, then re-run both
+      commands.</li>
+    <li>Hand off. The path, the open command, the direction, the score, and anything the
+      vocabulary could not hold.</li>
+  </ol>
+
+  <h3>Badge and figure</h3>
+  <p>A badge is a container for a value, so it never ships empty of one. These two are the
+    labels this direction sorts its own tokens with: <span class="badge">measured</span> for
+    a value taken off the reference, <span class="badge">chosen</span> for one the direction
+    picked itself.</p>
+  <figure class="figure">
+    <svg viewBox="0 0 720 132" role="img" aria-labelledby="rail-figure-title">
+      <title id="rail-figure-title">The rail fixed to the left edge, the content column
+        immediately to its right at the measure, and every remaining pixel of a 1440
+        viewport left as slack on the right.</title>
+      <rect x="8" y="16" width="60" height="8" style="fill: var(--ink-3)"></rect>
+      <rect x="8" y="34" width="60" height="8" style="fill: var(--ink-3)"></rect>
+      <rect x="8" y="52" width="60" height="8" style="fill: var(--ink-3)"></rect>
+      <rect x="104" y="0" width="1" height="132" style="fill: var(--ink-3)"></rect>
+      <rect x="136" y="16" width="258" height="100" style="fill: var(--ground-2)"></rect>
+    </svg>
+    <figcaption class="caption">Drawn at half scale from a 1440 viewport: --rail at 13rem on
+      the left holding the section links, its right edge the one hairline in --hair, then
+      --space-7 of gutter, then the content column at --measure. Everything past it is
+      slack, which is what a dashboard looks like and the opposite of a centred
+      container.</figcaption>
+  </figure>
+</section>
+
+<section class="section" id="states">
+  <div class="section-head">
+    <p class="eyebrow">States</p>
+    <h2>Rest, hover, active, focus, disabled</h2>
+  </div>
+  <p>Every interactive element repeated across its states, each copy forced with a
+    data-state attribute that shares its rule with the real pseudo-class, so a demo copy
+    cannot drift from what the element actually does.</p>
+
+  <h3>Primary button</h3>
+  <div class="state-row">
+    <button class="btn" type="button" data-state="rest">Render the artifact</button>
+    <span class="state-label">rest &middot; --accent fill, --accent-ink label, --radius-pill, 44px tall</span>
+    <button class="btn" type="button" data-state="hover">Render the artifact</button>
+    <span class="state-label">hover &middot; --accent mixed 14% toward --ink</span>
+    <button class="btn" type="button" data-state="active">Render the artifact</button>
+    <span class="state-label">active &middot; --accent mixed 12% toward --accent-ink</span>
+    <button class="btn" type="button" data-state="focus">Render the artifact</button>
+    <span class="state-label">focus &middot; 2px of --ring with --ring-offset of clearance</span>
+    <button class="btn" type="button" data-state="disabled" disabled>Render the artifact</button>
+    <span class="state-label">disabled &middot; fill drained 55% into --ground, label at --ink-3, cursor not-allowed as the second signal</span>
+  </div>
+
+  <h3>Ghost button</h3>
+  <div class="state-row">
+    <button class="btn btn--ghost" type="button" data-state="rest">Compare directions</button>
+    <span class="state-label">rest &middot; --ground-2 fill inside a 1px --hair inset ring</span>
+    <button class="btn btn--ghost" type="button" data-state="hover">Compare directions</button>
+    <span class="state-label">hover &middot; --ground-3, the same nearer tint a hovered row takes</span>
+    <button class="btn btn--ghost" type="button" data-state="active">Compare directions</button>
+    <span class="state-label">active &middot; back down to --ground-2</span>
+    <button class="btn btn--ghost" type="button" data-state="focus">Compare directions</button>
+    <span class="state-label">focus &middot; the same 2px --ring and --ring-offset as the primary</span>
+    <button class="btn btn--ghost" type="button" data-state="disabled" disabled>Compare directions</button>
+    <span class="state-label">disabled &middot; --ground-2 held, label at --ink-3</span>
+  </div>
+
+  <h3>Inline link</h3>
+  <div class="state-row">
+    <p>The gate runs <a href="#gate" data-state="rest">in the main agent</a>, never in a subagent.</p>
+    <span class="state-label">rest &middot; --accent at 6.29:1 on --ground</span>
+    <p>The gate runs <a href="#gate" data-state="hover">in the main agent</a>, never in a subagent.</p>
+    <span class="state-label">hover &middot; --accent mixed 25% toward --ink, never a second hue</span>
+    <p>The gate runs <a href="#gate" data-state="active">in the main agent</a>, never in a subagent.</p>
+    <span class="state-label">active &middot; --accent mixed 20% into --ground</span>
+    <p>The gate runs <a href="#gate" data-state="focus">in the main agent</a>, never in a subagent.</p>
+    <span class="state-label">focus &middot; 2px of --ring at --ring-offset, the same ring every control takes</span>
+    <p>The gate runs <a data-state="disabled" aria-disabled="true">in the main agent</a>, never in a subagent.</p>
+    <span class="state-label">disabled &middot; --ink-3 with the underline dropped. An anchor has no disabled attribute, so the href goes and aria-disabled says why</span>
+  </div>
+
+  <h3>Text field</h3>
+  <div class="state-row">
+    <div class="field">
+      <label for="path-rest">Output path</label>
+      <input id="path-rest" type="text" value="page.html" data-state="rest">
+    </div>
+    <span class="state-label">rest &middot; --ground-2 inside a 1px --hair border, 44px tall</span>
+    <div class="field">
+      <label for="path-hover">Output path</label>
+      <input id="path-hover" type="text" value="page.html" data-state="hover">
+    </div>
+    <span class="state-label">hover &middot; --ground-3</span>
+    <div class="field">
+      <label for="path-active">Output path</label>
+      <input id="path-active" type="text" value="page.html" data-state="active">
+    </div>
+    <span class="state-label">active &middot; --ground-3 held while pressed</span>
+    <div class="field">
+      <label for="path-focus">Output path</label>
+      <input id="path-focus" type="text" value="page.html" data-state="focus">
+    </div>
+    <span class="state-label">focus &middot; 2px of --ring with --ring-offset of clearance, which is the one place those two tokens are spent</span>
+    <div class="field">
+      <label for="path-disabled">Output path</label>
+      <input id="path-disabled" type="text" value="page.html" data-state="disabled" disabled>
+    </div>
+    <span class="state-label">disabled &middot; cut down to --ground, value at --ink-3</span>
+  </div>
+
+  <h3>Select and textarea</h3>
+  <div class="state-row">
+    <div class="field">
+      <label for="dir-rest">Direction</label>
+      <select id="dir-rest" data-state="rest">
+        <option>editorial</option>
+        <option>instrument</option>
+        <option selected>product-dark</option>
+        <option>calm</option>
+      </select>
+    </div>
+    <span class="state-label">rest &middot; color-scheme: dark keeps the native control's own chrome on this ground</span>
+    <div class="field">
+      <label for="dir-focus">Direction</label>
+      <select id="dir-focus" data-state="focus">
+        <option>editorial</option>
+        <option>instrument</option>
+        <option selected>product-dark</option>
+        <option>calm</option>
+      </select>
+    </div>
+    <span class="state-label">focus &middot; 2px of --ring at --ring-offset</span>
+    <div class="field">
+      <label for="brief-rest">Brief</label>
+      <textarea id="brief-rest" data-state="rest">Free fonts (safe to share) or your licensed set (this machine only)?</textarea>
+    </div>
+    <span class="state-label">rest &middot; --ground-2 in a --hair border, resize left vertical</span>
+    <div class="field">
+      <label for="brief-focus">Brief</label>
+      <textarea id="brief-focus" data-state="focus">Free fonts (safe to share) or your licensed set (this machine only)?</textarea>
+    </div>
+    <span class="state-label">focus &middot; 2px of --ring at --ring-offset</span>
+  </div>
+</section>
+
+<section class="section" id="tokens">
+  <div class="section-head">
+    <p class="eyebrow">Token index</p>
+    <h2>All thirty-nine, in declaration order</h2>
+  </div>
+  <p>Every custom property tokens.css declares, its literal value, and what it is for, so
+    the specimen above can be checked for anything it left out.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Token</th>
+          <th scope="col">Value</th>
+          <th scope="col">What it is for</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row"><code>--ground</code></th>
+          <td><code>oklch(0.139 0.003 248)</code></td>
+          <td>The page, the measured #08090A. Doubles as the fill for a chip sitting on a nearer surface, so a chip is a well cut down to the page rather than a fourth tone.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--ground-2</code></th>
+          <td><code>oklch(0.177 0.003 248)</code></td>
+          <td>Every flat container: tables, code blocks, notes, and the resting fill of a ghost control. Measured #101112.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--ground-3</code></th>
+          <td><code>oklch(0.225 0.003 248)</code></td>
+          <td>One step nearer: the raised tier, hover, pressed, a table's header row, badge fill. #1B1C1D, one step past the measured #161718 so the fill difference survives daylight.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--ink</code></th>
+          <td><code>oklch(0.940 0.002 248)</code></td>
+          <td>Body and headings. #EAEBEC, deliberately dimmer than the measured #F7F8F8 to stop near-white haloing on near-black.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--ink-2</code></th>
+          <td><code>oklch(0.735 0.012 248)</code></td>
+          <td>Secondary prose, captions, and table cell text under a heading row. Derived, not measured.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--ink-3</code></th>
+          <td><code>oklch(0.645 0.012 248)</code></td>
+          <td>Labels, eyebrows, metadata. The floor for text, and never running body copy.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--hair</code></th>
+          <td><code>oklch(1 0 0 / 0.08)</code></td>
+          <td>The one border colour, at the measured 0.08 alpha. The 0.05 tier is color-mix(in oklch, var(--hair), transparent 40%) rather than a second declared value.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--accent</code></th>
+          <td><code>oklch(0.660 0.120 272)</code></td>
+          <td>Indigo, #798DDC, chosen rather than measured. Button fill, links, focus ring.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--accent-ink</code></th>
+          <td><code>oklch(0.160 0.006 248)</code></td>
+          <td>The ink that sits on --accent. A tinted near-black, because white on this indigo fails AA.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--ring</code></th>
+          <td><code>oklch(0.660 0.120 272)</code></td>
+          <td>The focus-visible ring, --accent at 2px.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--ring-offset</code></th>
+          <td><code>0.25rem</code></td>
+          <td>4px of clearance between that ring and the element it marks.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--radius-sm</code></th>
+          <td><code>4px</code></td>
+          <td>Inline code, small fills, anything under about 2rem tall.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--radius-md</code></th>
+          <td><code>8px</code></td>
+          <td>The working radius. Panels, table shells, code blocks.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--radius-lg</code></th>
+          <td><code>12px</code></td>
+          <td>The widest surfaces only: a figure, a full-width note.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--radius-pill</code></th>
+          <td><code>9999px</code></td>
+          <td>Buttons and badges, matching the measured button exactly.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--font-display</code></th>
+          <td><code>"Geist", ui-sans-serif, system-ui, sans-serif</code></td>
+          <td>Geist at 500. Falls back to ui-sans-serif, never to a named second sans.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--font-body</code></th>
+          <td><code>"Geist", ui-sans-serif, system-ui, sans-serif</code></td>
+          <td>Geist at 400 and 500. The same stack as --font-display, which is the direction rather than an oversight.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--font-mono</code></th>
+          <td><code>"JetBrains Mono", ui-monospace, SFMono-Regular, monospace</code></td>
+          <td>Code, eyebrows and badge labels. Stands in for a licensed face so the artifact stays shareable.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--text-base</code></th>
+          <td><code>1rem</code></td>
+          <td>16px, the measured body size.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--text-h1</code></th>
+          <td><code>clamp(2.375rem, 1.75rem + 2.6vw, 4rem)</code></td>
+          <td>38px at 390, and the measured 64px from 1385px through 1440.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--text-h2</code></th>
+          <td><code>clamp(1.75rem, 1.35rem + 1.55vw, 2.625rem)</code></td>
+          <td>28px at 390, 42px at 1440.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--text-h3</code></th>
+          <td><code>1.3125rem</code></td>
+          <td>21px. The lead, the hero sub, and a real h3.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--text-small</code></th>
+          <td><code>0.8125rem</code></td>
+          <td>13px, the measured button size. Also meta, caption, badge, eyebrow and code.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--leading-body</code></th>
+          <td><code>1.5</code></td>
+          <td>Exactly the measured 16 on 24.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--leading-h3</code></th>
+          <td><code>1.25</code></td>
+          <td>A real h3, which takes the --text-h3 step at 500 and sits above the lead rather than beside it.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--leading-display</code></th>
+          <td><code>1.05</code></td>
+          <td>The measured value is 1, taken on a headline that fit one line. At the 38px floor the h1 wraps and 1.0 puts descenders into the next line's caps; h2 derives a further 0.05 with calc().</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--track-display</code></th>
+          <td><code>-0.022em</code></td>
+          <td>Measured at 64px, and clamped toward -0.012em as the fluid --text-h1 shrinks.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--track-body</code></th>
+          <td><code>normal</code></td>
+          <td>Measured, and deliberately inert: the temptation on a dark ground is to tighten body copy too, and the reference does not.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--measure</code></th>
+          <td><code>60ch</code></td>
+          <td>The prose cap, tighter than a reading document needs so the return sweep stays short and the page keeps feeling like an interface.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--rail</code></th>
+          <td><code>13rem</code></td>
+          <td>The sticky left nav column. The direction's page-level idea, and the reason the content column is not centred.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--space-1</code></th>
+          <td><code>0.25rem</code></td>
+          <td>4px. Gap inside a control, badge padding, and the value --ring-offset resolves to.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--space-2</code></th>
+          <td><code>0.5rem</code></td>
+          <td>8px. Label to value, icon to text.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--space-3</code></th>
+          <td><code>0.75rem</code></td>
+          <td>12px. Nav item padding, tight list gaps.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--space-4</code></th>
+          <td><code>1rem</code></td>
+          <td>16px. Paragraph spacing, code block padding at 390.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--space-5</code></th>
+          <td><code>1.5rem</code></td>
+          <td>24px. Page gutter, panel padding, grid gap, the rail's sticky top.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--space-6</code></th>
+          <td><code>2.5rem</code></td>
+          <td>40px. Panel padding at 1440, heading to body.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--space-7</code></th>
+          <td><code>4rem</code></td>
+          <td>64px. Section padding at 390, section head to content.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--space-8</code></th>
+          <td><code>6rem</code></td>
+          <td>96px. Section padding at 1440.</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>--shadow-1</code></th>
+          <td><code>0 0 0 1px oklch(0 0 0 / 0.2), 0 0 0 2px oklch(0 0 0 / 0.1), inset 0 0 0 1px oklch(1 0 0 / 0.04)</code></td>
+          <td>The measured elevation stack: three rings, blur zero on all three. The inset is an alpha rather than an opaque grey, so it composites correctly on any ground instead of only on --ground-3.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </section>
 
 </main>

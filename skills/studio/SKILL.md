@@ -62,6 +62,11 @@ suggest one from the "Suits" column and name the reason in one line. (Kohra
 becomes the default later; it has no type scale, spacing, radius or surface
 ladder yet.)
 
+The fastest way to choose is to open the four `directions/<name>/example.html`
+files: each is a full specimen of that direction's colour ladder, type scale,
+spacing and radius scales, elevation mechanism, components and interaction
+states, with every token named and its value printed beside it.
+
 **`product-dark` in the `document` shape prints inverted, not dark.** Its
 `@media print` block swaps the ground to paper, the ink to near-black and every
 alpha ring to a hairline. A near-black page either prints as a solid block of

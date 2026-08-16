@@ -61,3 +61,36 @@ drift to avoid — keep them in sync.
 - `.badge` — a small status or category marker.
 - `.meta` — small supporting metadata (date, author, tag).
 - `.footer` — the closing footer.
+
+## Specimen set
+
+These are part of the page set, not a third shape: `check.py --shape page`
+accepts them. They exist because a direction's `example.html` is a spec sheet,
+and a spec sheet needs primitives a marketing page does not.
+
+- `.swatch-grid` — the colour section's grid of chips.
+- `.swatch` — one chip plus its labels.
+- `.swatch-chip` — the colour area itself.
+- `.swatch-name` — the token name, printed.
+- `.swatch-value` — the token's literal value, printed.
+- `.pair` — one ink shown in its sanctioned role on one ground.
+- `.pair-label` — which two tokens that row is showing.
+- `.type-row` — one step of the type scale.
+- `.type-sample` — the words set at that step.
+- `.type-spec` — token, family, size, weight, line-height, tracking for that step.
+- `.glyphs` — the uppercase, lowercase, numeral and punctuation run for one family.
+- `.scale-row` — one step of the spacing scale.
+- `.scale-bar` — the bar whose width is that step.
+- `.scale-label` — the step's token name and value.
+- `.radius-row` — the radius scale laid out.
+- `.radius-tile` — one corner sample.
+- `.elev-row` — the elevation comparison laid out.
+- `.elev-tile` — one surface in the comparison.
+- `.state-row` — one interactive element repeated across its five states.
+- `.state-label` — which state a copy is showing.
+- `.field` — a form control with its label.
+
+Forced states use `data-state`, not a class. Write each state once as a
+selector list — `.btn:hover, .btn[data-state="hover"]` — so a forced state
+and the real pseudo-class can never drift, and so no `.is-*` class has to
+enter the vocabulary.
