@@ -1,1252 +1,1516 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>studio: the editorial direction</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400&amp;family=Hanken+Grotesk:wght@400;500&amp;family=IBM+Plex+Mono:wght@400&amp;display=swap">
-<style>
-/* studio direction: editorial
-   Measured against The New Yorker (Pope.L article, served CSS, not computed).
-   The palette is the operator's own production paper/ink ladder rather than the
-   reference's #fff/#000. Hexes and contrast ratios are tabulated in DESIGN.md. */
-
-:root {
-  color-scheme: light;
-
-  --ground:          oklch(0.972 0.004 85);
-  --ground-2:        oklch(0.945 0.005 85);
-  --ground-3:        oklch(0.900 0.005 85);
-
-  --ink:             oklch(0.235 0.010 65);
-  --ink-2:           oklch(0.475 0.010 65);
-  --ink-3:           oklch(0.640 0.008 65);
-
-  --hair:            oklch(0.855 0.006 65);
-
-  --accent:          oklch(0.510 0.128 245.4);
-  --accent-ink:      oklch(0.972 0.004 85);
-
-  --ring:            oklch(0.510 0.128 245.4);
-  --ring-offset:     0.25rem;
-
-  --radius-sm:       0;
-  --radius-md:       0;
-  --radius-lg:       4px;
-  --radius-pill:     999px;
-
-  --font-display:    "Source Serif 4", Georgia, serif;
-  --font-body:       "Hanken Grotesk", system-ui, sans-serif;
-  --font-mono:       "IBM Plex Mono", ui-monospace, Menlo, monospace;
-
-  --text-base:       21px;
-  --text-h1:         clamp(30px, 1.6rem + 1.14vw, 42px);
-  --text-h2:         clamp(24px, 1.36rem + 0.57vw, 30px);
-  --text-h3:         21px;
-  --text-meta:       15px;
-  --text-small:      13px;
-
-  --leading-body:    1.5;
-  --leading-h3:      1.2;
-  --leading-display: 1.0667;
-
-  /* Zero, at every size, including the 42px headline. The defining constraint. */
-  --track-display:   normal;
-  --track-body:      normal;
-
-  --measure:         64ch;
-  --rail:            10rem;
-
-  --space-1:         0.25rem;
-  --space-2:         0.5rem;
-  --space-3:         0.75rem;
-  --space-4:         1rem;
-  --space-5:         1.5rem;
-  --space-6:         2rem;
-  --space-7:         3rem;
-  --space-8:         6rem;
-
-  /* The reference's article shell has no shadow. Depth is rules and space. */
-  --shadow-1:        none;
-}
-
-*, *::before, *::after { box-sizing: border-box; }
-
-html { -webkit-text-size-adjust: 100%; }
-
-body {
-  margin: 0;
-  padding-block: var(--space-6) var(--space-8);
-  background: var(--ground);
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: var(--text-base);
-  font-weight: 400;
-  line-height: var(--leading-body);
-  letter-spacing: var(--track-body);
-}
-
-.page-header, .section, .footer {
-  max-width: 58rem;
-  margin-inline: auto;
-  padding-inline: var(--space-5);
-}
-
-h1, h2, h3 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 400;
-  line-height: var(--leading-display);
-  letter-spacing: var(--track-display);
-}
-
-h1 { font-size: var(--text-h1); }
-h2 { font-size: var(--text-h2); }
-/* The run-in subhead. Same size and weight as body, so the family switch alone
-   was one variable of separation; the italic is the second. */
-h3 {
-  font-size: var(--text-h3);
-  font-style: italic;
-  line-height: var(--leading-h3);
-  margin-top: var(--space-6);
-}
-
-/* Italic is a role here, not an effect: emphasis, a cited title, a pull quote. */
-em, cite, blockquote { font-family: var(--font-display); font-style: italic; }
-
-p, ul { margin: var(--space-5) 0 0; max-width: var(--measure); }
-
-/* Loaded weights are 400 and 500 only, so bold resolves to the medium. */
-strong { font-weight: 500; }
-
-/* Labels. The reference's -0.0125em is the only negative tracking in the
-   direction, and it is confined to short strings at 13px. */
-.eyebrow, .meta, .badge, .nav a, th, td::before {
-  font-family: var(--font-body);
-  font-size: var(--text-small);
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: -0.0125em;
-  color: var(--ink-2);
-}
-
-/* --text-meta sits between 21px body and 13px utility. Without it a caption
-   takes a size the reference chose for a navigation bar. */
-.caption, .note {
-  font-size: var(--text-meta);
-  line-height: 1.45;
-  color: var(--ink-2);
-  max-width: var(--measure);
-}
-
-table { font-variant-numeric: tabular-nums; }
-
-a {
-  color: var(--ink);
-  text-decoration-line: underline;
-  text-decoration-color: var(--accent);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.15em;
-}
-
-a:hover, a[data-state="hover"] { color: var(--accent); }
-a:active, a[data-state="active"] { text-decoration-thickness: 2px; }
-
-:focus-visible, [data-state="focus"] { outline: 2px solid var(--ring); outline-offset: var(--ring-offset); }
-
-/* Masthead ------------------------------------------------------------------ */
-
-.meta { margin: 0; }
-
-.badge {
-  display: inline-block;
-  padding: var(--space-1) var(--space-2);
-  margin-right: var(--space-1);
-  background: var(--ground-3);
-  border-radius: var(--radius-pill);
-  color: var(--ink);
-}
-
-.hero-title { margin-top: var(--space-4); }
-
-.hero-sub {
-  margin-top: var(--space-2);
-  font-family: var(--font-display);
-  font-size: var(--text-h3);
-  line-height: 1.3;
-  color: var(--ink-2);
-}
-
-.lead { margin-top: var(--space-5); }
-
-.nav {
-  display: flex;
-  flex-wrap: wrap;
-  column-gap: var(--space-5);
-  margin-top: var(--space-4);
-}
-
-.nav a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  text-decoration: none;
-}
-
-.nav a:hover {
-  color: var(--ink);
-  text-decoration-line: underline;
-  text-decoration-color: var(--accent);
-}
-
-.nav a:active { color: var(--ink); }
-
-/* Sections: the standing rule, with the label in the margin ----------------- */
-
-.section {
-  margin-top: var(--space-7);
-  padding-top: var(--space-6);
-  border-top: 1px solid var(--hair);
-}
-
-/* The masthead division is the first section's rule, drawn heavier. */
-.page-header + .section {
-  margin-top: var(--space-8);
-  border-top-color: var(--ink-3);
-}
-
-.eyebrow { margin: 0 0 var(--space-2); }
-
-h2 { margin-top: 0; }
-
-.footer {
-  margin-top: var(--space-7);
-  padding-top: var(--space-5);
-  border-top: 1px solid var(--hair);
-}
-
-/* Table --------------------------------------------------------------------- */
-
-.table-wrap {
-  margin-top: var(--space-6);
-  border: 1px solid var(--hair);
-  border-radius: var(--radius-lg);
-  overflow-x: auto;
-}
-
-table { width: 100%; border-collapse: collapse; }
-
-.caption {
-  padding: var(--space-4);
-  border-bottom: 1px solid var(--hair);
-  text-align: left;
-}
-
-th, td { padding: var(--space-4); text-align: left; vertical-align: top; }
-
-th { white-space: nowrap; border-bottom: 1px solid var(--ink-3); }
-
-td { font-size: var(--text-small); line-height: 1.4; }
-
-td:first-child {
-  font-family: var(--font-display);
-  font-size: var(--text-base);
-  line-height: 1.2;
-}
-
-tbody tr + tr td { border-top: 1px solid var(--hair); }
-tbody tr:hover td { background: var(--ground-3); }
-
-/* Code, list, buttons ------------------------------------------------------- */
-
-.code {
-  margin: var(--space-5) 0 0;
-  padding: var(--space-4);
-  max-width: var(--measure);
-  background: var(--ground-2);
-  font-family: var(--font-mono);
-  font-size: var(--text-small);
-  line-height: 1.5;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-}
-
-.code code { font: inherit; }
-
-.list { padding-left: var(--space-5); }
-.list li + li { margin-top: var(--space-4); }
-
-.note { margin-top: var(--space-5); }
-
-.cta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-  margin-top: var(--space-6);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding-inline: var(--space-5);
-  background: var(--accent);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius-pill);
-  color: var(--accent-ink);
-  font-size: var(--text-small);
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.btn:hover, .btn[data-state="hover"] { background: var(--ink); border-color: var(--ink); color: var(--accent-ink); }
-.btn:active, .btn[data-state="active"] { background: var(--ink-2); border-color: var(--ink-2); }
-
-.btn[aria-disabled="true"], .btn:disabled, .btn[data-state="disabled"] {
-  background: var(--ground-3);
-  border-color: var(--hair);
-  color: var(--ink-3);
-  pointer-events: none;
-}
-
-.btn--ghost { background: transparent; border-color: var(--ink-3); color: var(--ink); }
-.btn--ghost:hover, .btn--ghost[data-state="hover"] { background: var(--ground-2); border-color: var(--ink); color: var(--ink); }
-.btn--ghost:active, .btn--ghost[data-state="active"] { background: var(--ground-3); }
-
-/* Specimen ------------------------------------------------------------------
-   The eight sections below the composed page. Every forced state is written as
-   a selector list beside its real pseudo-class, so the demonstration and the
-   behaviour cannot drift apart. */
-
-button, input, select, textarea {
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  color: inherit;
-}
-
-.nav { row-gap: var(--space-2); }
-
-.divider {
-  max-width: 58rem;
-  margin: var(--space-7) auto 0;
-  border: 0;
-  border-top: 1px solid var(--ink-3);
-}
-
-.pair-label, .scale-label, .state-label, .type-spec, .field label {
-  font-family: var(--font-body);
-  font-size: var(--text-small);
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: -0.0125em;
-  color: var(--ink-2);
-}
-
-/* Colour -------------------------------------------------------------------- */
-
-/* No chip is bordered: the 1px grid gap lets --hair through, so the cells are
-   separated by a rule rather than boxed. */
-.swatch-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 1px;
-  margin-top: var(--space-6);
-  background: var(--hair);
-  border: 1px solid var(--hair);
-}
-
-.swatch { background: var(--ground); }
-
-.swatch-chip {
-  display: flex;
-  align-items: flex-end;
-  min-height: 4.5rem;
-  padding: var(--space-2);
-  border-bottom: 1px solid var(--hair);
-  font-size: var(--text-small);
-  line-height: 1.4;
-  letter-spacing: -0.0125em;
-}
-
-.swatch-chip--ground { background: var(--ground); }
-.swatch-chip--ground-2 { background: var(--ground-2); }
-.swatch-chip--ground-3 { background: var(--ground-3); }
-.swatch-chip--ink { background: var(--ink); }
-.swatch-chip--ink-2 { background: var(--ink-2); }
-.swatch-chip--ink-3 { background: var(--ink-3); }
-.swatch-chip--hair { background: var(--hair); }
-.swatch-chip--accent { background: var(--accent); color: var(--accent-ink); }
-.swatch-chip--ring { background: var(--ring); }
-
-.swatch-name {
-  margin: 0;
-  padding: var(--space-2) var(--space-2) 0;
-  font-size: var(--text-small);
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: -0.0125em;
-}
-
-.swatch-value {
-  margin: var(--space-3) 0 0;
-  padding: 0 var(--space-2) var(--space-2);
-  font-size: var(--text-small);
-  line-height: 1.4;
-  letter-spacing: -0.0125em;
-  color: var(--ink-2);
-  font-variant-numeric: tabular-nums;
-}
-
-.pair {
-  margin-top: var(--space-5);
-  padding: var(--space-4);
-  max-width: var(--measure);
-}
-
-.pair p { margin: 0; }
-.pair-label { margin: 0 0 var(--space-3); }
-
-.pair--ink { background: var(--ground); color: var(--ink); }
-.pair--ink-2 { background: var(--ground-3); color: var(--ink-2); }
-.pair--rule { background: var(--ground); border-top: 1px solid var(--ink-3); }
-.pair--accent { background: var(--ground-2); color: var(--accent); }
-
-.pair--ink-2 p, .pair--rule p, .pair--accent p { font-size: var(--text-meta); line-height: 1.45; }
-.pair--rule p { color: var(--ink-2); }
-
-/* Typography ---------------------------------------------------------------- */
-
-.type-row {
-  margin-top: var(--space-5);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--hair);
-}
-
-.type-sample {
-  margin: 0;
-  max-width: var(--measure);
-  font-family: var(--font-display);
-  font-weight: 400;
-  line-height: var(--leading-display);
-  letter-spacing: var(--track-display);
-}
-
-.type-sample--h1 { font-size: var(--text-h1); }
-.type-sample--h2 { font-size: var(--text-h2); }
-.type-sample--h3 { font-size: var(--text-h3); font-style: italic; line-height: var(--leading-h3); }
-.type-sample--base { font-family: var(--font-body); font-size: var(--text-base); line-height: var(--leading-body); letter-spacing: var(--track-body); }
-.type-sample--meta { font-family: var(--font-body); font-size: var(--text-meta); line-height: 1.45; letter-spacing: var(--track-body); }
-.type-sample--small { font-family: var(--font-body); font-size: var(--text-small); font-weight: 500; line-height: 1.4; letter-spacing: -0.0125em; }
-
-.type-spec { margin: var(--space-3) 0 0; max-width: var(--measure); font-variant-numeric: tabular-nums; }
-
-.glyphs {
-  margin: var(--space-3) 0 0;
-  max-width: var(--measure);
-  font-size: var(--text-meta);
-  line-height: 1.6;
-  overflow-wrap: break-word;
-}
-
-.glyphs--display { font-family: var(--font-display); }
-.glyphs--body { font-family: var(--font-body); }
-.glyphs--mono { font-family: var(--font-mono); }
-
-/* Spacing ------------------------------------------------------------------- */
-
-/* The bar track is exactly --rail wide, so the last row fills it end to end. */
-.scale-row {
-  display: grid;
-  grid-template-columns: var(--rail) minmax(0, 1fr);
-  align-items: center;
-  gap: var(--space-3);
-  padding-block: var(--space-2);
-  border-top: 1px solid var(--hair);
-}
-
-.scale-bar { height: var(--space-3); background: var(--ink); }
-
-.scale-bar--1 { width: var(--space-1); }
-.scale-bar--2 { width: var(--space-2); }
-.scale-bar--3 { width: var(--space-3); }
-.scale-bar--4 { width: var(--space-4); }
-.scale-bar--5 { width: var(--space-5); }
-.scale-bar--6 { width: var(--space-6); }
-.scale-bar--7 { width: var(--space-7); }
-.scale-bar--8 { width: var(--space-8); }
-.scale-bar--rail { width: var(--rail); }
-
-.scale-label { margin: 0; font-variant-numeric: tabular-nums; }
-
-.type-row:first-of-type, .scale-row:first-of-type { margin-top: var(--space-6); }
-
-/* Radius and elevation ------------------------------------------------------ */
-
-.radius-row, .elev-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-5);
-  margin-top: var(--space-6);
-}
-
-.radius-tile, .elev-tile {
-  padding: var(--space-4);
-  font-size: var(--text-small);
-  line-height: 1.4;
-  letter-spacing: -0.0125em;
-  color: var(--ink-2);
-  font-variant-numeric: tabular-nums;
-}
-
-.radius-tile p, .elev-tile p { margin: 0; }
-
-/* Short and wide, so 999px reads as a pill rather than as an ellipse. The
-   longer reasoning sits in the note under the row and in the token index. */
-.radius-tile {
-  display: flex;
-  align-items: center;
-  min-height: 3.5rem;
-  background: var(--ground-2);
-}
-
-.radius-tile--sm { border-radius: var(--radius-sm); }
-.radius-tile--md { border-radius: var(--radius-md); }
-.radius-tile--lg { border-radius: var(--radius-lg); }
-.radius-tile--pill { border-radius: var(--radius-pill); padding-inline: var(--space-6); }
-
-.elev-tile--flat { background: var(--ground-2); }
-.elev-tile--shadow { background: var(--ground-2); box-shadow: var(--shadow-1); }
-.elev-tile--hair { border-top: 1px solid var(--hair); }
-.elev-tile--rule { border-top: 1px solid var(--ink-3); }
-
-/* Components ---------------------------------------------------------------- */
-
-.section-head { margin-top: var(--space-6); }
-
-/* The rail rule is a direct-child rule, so a nested label keeps the base
-   treatment rather than being right-aligned against a gutter it is not in. */
-.section-head .eyebrow, .panel .eyebrow, .feature .eyebrow { margin: 0 0 var(--space-2); }
-
-.hero { margin-top: var(--space-6); }
-
-p.hero-title {
-  font-family: var(--font-display);
-  font-size: var(--text-h1);
-  font-weight: 400;
-  line-height: var(--leading-display);
-  letter-spacing: var(--track-display);
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-  gap: var(--space-5);
-  margin-top: var(--space-6);
-}
-
-.panel { padding: var(--space-4); background: var(--ground-2); }
-.panel p, .feature p { margin: var(--space-3) 0 0; font-size: var(--text-meta); line-height: 1.45; }
-
-.feature {
-  margin-top: var(--space-6);
-  padding-top: var(--space-4);
-  max-width: var(--measure);
-  border-top: 1px solid var(--hair);
-}
-
-.stat-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-  gap: var(--space-5);
-  margin-top: var(--space-6);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--hair);
-}
-
-.stat { font-variant-numeric: tabular-nums; }
-
-.stat strong {
-  display: block;
-  font-family: var(--font-display);
-  font-size: var(--text-h2);
-  font-weight: 400;
-  line-height: var(--leading-display);
-}
-
-.stat span {
-  display: block;
-  margin-top: var(--space-3);
-  font-size: var(--text-small);
-  line-height: 1.4;
-  letter-spacing: -0.0125em;
-  color: var(--ink-2);
-}
-
-.quote {
-  margin: var(--space-6) 0 0;
-  max-width: var(--measure);
-  font-size: var(--text-h3);
-  line-height: 1.3;
-}
-
-.quote p { margin: 0; }
-
-.quote cite {
-  display: block;
-  margin-top: var(--space-3);
-  font-family: var(--font-body);
-  font-style: normal;
-  font-size: var(--text-small);
-  letter-spacing: -0.0125em;
-  color: var(--ink-2);
-}
-
-.steps { padding-left: var(--space-5); }
-.steps li + li { margin-top: var(--space-4); }
-
-.figure { margin: var(--space-6) 0 0; max-width: var(--measure); }
-.figure svg { display: block; width: 100%; height: auto; }
-.figure line { stroke: var(--hair); }
-.figure text { fill: var(--ink-2); font-family: var(--font-body); font-size: 11px; letter-spacing: -0.0125em; }
-.figure g text { fill: var(--ink); font-family: var(--font-display); letter-spacing: normal; }
-
-/* The numerals are drawn at their own token sizes inside the viewBox, so the
-   five steps keep their true ratios however wide the figure ends up. */
-.figure g text:nth-of-type(1) { font-size: 42px; }
-.figure g text:nth-of-type(2) { font-size: 30px; }
-.figure g text:nth-of-type(3) { font-size: 21px; }
-.figure g text:nth-of-type(4) { font-size: 15px; }
-.figure g text:nth-of-type(5) { font-size: 13px; }
-.caption--figure { padding: var(--space-3) 0 0; border-bottom: 0; }
-
-/* States -------------------------------------------------------------------- */
-
-.state-row {
-  display: grid;
-  gap: var(--space-3);
-  margin-top: var(--space-5);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--hair);
-}
-
-.state-row p { margin: 0; max-width: var(--measure); }
-.state-label { margin: 0; }
-
-.field { display: grid; gap: var(--space-2); max-width: 22rem; }
-
-/* Bordered and not filled: --ink-3 is the ghost button's border colour, and a
-   form control is the other thing it is allowed to outline. */
-.field input, .field select, .field textarea {
-  min-height: 44px;
-  padding: var(--space-2) var(--space-3);
-  background: var(--ground);
-  border: 1px solid var(--ink-3);
-  border-radius: var(--radius-md);
-  font-size: var(--text-meta);
-  line-height: 1.45;
-}
-
-.field textarea { min-height: 5.5rem; resize: vertical; }
-
-.field input:hover, .field input[data-state="hover"] { border-color: var(--ink); }
-.field input:active, .field input[data-state="active"] { background: var(--ground-2); border-color: var(--ink); }
-.field input:disabled, .field input[data-state="disabled"] { background: var(--ground-3); border-color: var(--hair); color: var(--ink-3); }
-
-/* The one text use --ink-3 gets: an inactive control's label, which WCAG 1.4.3
-   exempts as an inactive component and which is supposed to recede. */
-a[data-state="disabled"], .field input:disabled + .state-label { color: var(--ink-3); }
-
-/* Forty rows of index. --text-meta is the cell size this direction declares for
-   exactly this, rather than sending a whole table to 13px. */
-#tokens td, #tokens td:first-child {
-  font-family: var(--font-body);
-  font-size: var(--text-meta);
-  line-height: 1.45;
-}
-
-#tokens table { font-variant-numeric: tabular-nums; }
-
-/* One breakpoint. Above it the rail opens; below it every label sits on top. */
-
-@media (min-width: 840px) {
-  .section {
-    display: grid;
-    grid-template-columns: 10rem minmax(0, 1fr);
-    column-gap: var(--space-6);
-    align-items: start;
-  }
-
-  .section > .eyebrow { grid-row: 1; grid-column: 1; margin: 0; text-align: right; }
-  .section > :not(.eyebrow) { grid-column: 2; }
-  .section > .table-wrap { grid-column: 1 / -1; }
-}
-
-@media (max-width: 839px) {
-  .table-wrap { border: 0; }
-  .caption { padding: 0 0 var(--space-2); border-bottom: 0; }
-  table, tbody, tr, td { display: block; }
-  thead { display: none; }
-  tbody tr { padding: var(--space-4) 0; border-top: 1px solid var(--hair); }
-  tbody tr + tr td { border-top: 0; }
-  td { padding: 0; }
-  td + td { margin-top: var(--space-2); }
-  td:first-child { margin-bottom: var(--space-2); }
-  td::before { content: attr(data-label); display: block; }
-}
-
-@media (min-width: 840px) {
-  /* Nine chips, three across, three rows, and no orphan cell. */
-  .swatch-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-
-  /* Four tiles across in one row, so neither scale reads as having wrapped. */
-  .radius-row, .elev-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-
-  .state-row {
-    grid-template-columns: var(--rail) minmax(0, 1fr);
-    align-items: center;
-  }
-
-  .state-label { text-align: right; }
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Studio / Editorial — One reading system, many kinds of evidence</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Source+Sans+3:wght@200..900&amp;family=Source+Code+Pro:wght@200..900&amp;display=swap">
+  <style>
+    :root {
+      color-scheme: light;
+
+      --ground:          oklch(0.968 0.012 86);
+      --ground-2:        oklch(0.940 0.014 84);
+      --ground-3:        oklch(0.900 0.016 82);
+      --ink:             oklch(0.220 0.018 55);
+      --ink-2:           oklch(0.440 0.015 55);
+      --ink-3:           oklch(0.620 0.012 60);
+      --hair:            oklch(0.820 0.012 75);
+      --accent:          oklch(0.440 0.180 265);
+      --accent-ink:      oklch(0.968 0.012 86);
+      --ring:            oklch(0.440 0.180 265);
+      --ring-offset:     0.1875rem;
+
+      --radius-sm:       0;
+      --radius-md:       0.125rem;
+      --radius-lg:       0.25rem;
+      --radius-pill:     999px;
+
+      --font-display:    "Newsreader", Georgia, serif;
+      --font-body:       "Newsreader", Georgia, serif;
+      --font-utility:    "Source Sans 3", system-ui, sans-serif;
+      --font-mono:       "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+      --text-base:       1.1875rem;
+      --text-h1:         clamp(2.5rem, 1.95rem + 2.25vw, 4rem);
+      --text-h2:         clamp(1.75rem, 1.48rem + 1.1vw, 2.5rem);
+      --text-h3:         1.375rem;
+      --text-meta:       0.875rem;
+      --text-small:      0.75rem;
+
+      --leading-body:    1.57895;
+      --leading-h3:      1.27273;
+      --leading-display: 1.05;
+      --track-display:   normal;
+      --track-body:      normal;
+
+      --measure:         66ch;
+      --rail:            17rem;
+
+      --space-1:         0.25rem;
+      --space-2:         0.5rem;
+      --space-3:         0.9375rem;
+      --space-4:         1.40625rem;
+      --space-5:         1.875rem;
+      --space-6:         2.8125rem;
+      --space-7:         clamp(3.75rem, 2.92rem + 3.4vw, 5.625rem);
+      --space-8:         clamp(5.625rem, 4.29rem + 5.5vw, 7.5rem);
+
+      --shadow-1:        none;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--ground);
+      scroll-behavior: auto;
+    }
+
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      background: var(--ground);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      font-weight: 400;
+      line-height: var(--leading-body);
+      letter-spacing: var(--track-body);
+      font-optical-sizing: auto;
+    }
+
+    h1,
+    h2,
+    h3,
+    p,
+    ul,
+    ol,
+    figure,
+    table {
+      margin: 0;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--font-display);
+      font-optical-sizing: auto;
+      color: var(--ink);
+    }
+
+    h1 {
+      font-size: var(--text-h1);
+      font-weight: 500;
+      line-height: var(--leading-display);
+      letter-spacing: var(--track-display);
+    }
+
+    h2 {
+      font-size: var(--text-h2);
+      font-weight: 500;
+      line-height: var(--leading-display);
+      letter-spacing: var(--track-display);
+    }
+
+    h3 {
+      font-size: var(--text-h3);
+      font-weight: 500;
+      line-height: var(--leading-h3);
+      letter-spacing: var(--track-display);
+    }
+
+    p + p,
+    p + ul,
+    p + ol,
+    ul + p,
+    ol + p {
+      margin-top: var(--space-5);
+    }
+
+    ul,
+    ol {
+      padding-inline-start: 1.25em;
+    }
+
+    li + li {
+      margin-top: var(--space-3);
+    }
+
+    a {
+      color: var(--ink);
+      text-decoration-line: underline;
+      text-decoration-color: var(--accent);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.18em;
+    }
+
+    a:hover,
+    a[data-state="hover"] {
+      color: var(--accent);
+    }
+
+    a:active,
+    a[data-state="active"] {
+      text-decoration-thickness: 2px;
+    }
+
+    a:focus-visible,
+    a[data-state="focus"] {
+      outline: 2px solid var(--ring);
+      outline-offset: var(--ring-offset);
+    }
+
+    a[aria-disabled="true"],
+    a[data-state="disabled"] {
+      color: var(--ink-3);
+      cursor: not-allowed;
+      text-decoration-color: var(--ink-3);
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button:focus-visible,
+    button[data-state="focus"],
+    input:focus-visible,
+    input[data-state="focus"] {
+      outline: 2px solid var(--ring);
+      outline-offset: var(--ring-offset);
+    }
+
+    .page-header,
+    .section,
+    .footer {
+      --page-gutter: var(--space-5);
+      width: calc(100% - var(--page-gutter) - var(--page-gutter));
+      max-width: calc(var(--measure) + var(--rail) + var(--space-6));
+      margin-inline: auto;
+    }
+
+    .page-header {
+      padding-block: var(--space-8) var(--space-7);
+    }
+
+    .section {
+      padding-block: var(--space-7);
+    }
+
+    .section + .section {
+      padding-block-start: var(--space-6);
+    }
+
+    #typography,
+    #evidence,
+    #reference {
+      border-top: 1px solid var(--hair);
+    }
+
+    .footer {
+      padding-block: var(--space-7) var(--space-8);
+    }
+
+    .grid {
+      display: grid;
+      gap: var(--space-6);
+      min-width: 0;
+    }
+
+    .page-header .grid {
+      align-items: end;
+    }
+
+    .section-head {
+      display: grid;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+      max-width: var(--measure);
+    }
+
+    .eyebrow,
+    .meta,
+    .caption,
+    .state-label,
+    .nav,
+    th,
+    .swatch-name,
+    .swatch-value,
+    .scale-label,
+    .type-spec,
+    .pair-label,
+    .footer {
+      font-family: var(--font-utility);
+      font-optical-sizing: auto;
+    }
+
+    .eyebrow,
+    .meta,
+    .state-label,
+    .swatch-name,
+    .swatch-value,
+    .scale-label,
+    .pair-label {
+      color: var(--ink-2);
+      font-size: var(--text-meta);
+      line-height: 1.42857;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: var(--text-small);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      max-width: 17ch;
+    }
+
+    .hero-sub,
+    .lead {
+      max-width: var(--measure);
+      font-size: 1.25rem;
+      line-height: 1.4;
+    }
+
+    .hero-sub {
+      margin-top: var(--space-5);
+    }
+
+    .nav {
+      font-size: var(--text-small);
+      font-weight: 600;
+      line-height: 1.33333;
+    }
+
+    .nav ol {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-2) var(--space-4);
+      padding: 0;
+      list-style: none;
+    }
+
+    .nav li {
+      margin: 0;
+    }
+
+    .nav a {
+      display: inline-flex;
+      min-block-size: 44px;
+      align-items: center;
+    }
+
+    .quote {
+      margin-block: var(--space-6);
+      padding-inline-start: var(--space-5);
+      border-inline-start: 2px solid var(--accent);
+      font-size: clamp(1.5rem, 1.25rem + 0.9vw, 2rem);
+      font-style: italic;
+      line-height: 1.2;
+    }
+
+    .note {
+      padding: var(--space-4);
+      background: var(--ground-2);
+      border-inline-start: 2px solid var(--hair);
+      color: var(--ink-2);
+      font-family: var(--font-utility);
+      font-size: var(--text-meta);
+      line-height: 1.42857;
+    }
+
+    .note strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .type-row {
+      display: grid;
+      gap: var(--space-3);
+      padding-block: var(--space-5);
+      border-top: 1px solid var(--hair);
+    }
+
+    .type-row:first-child {
+      padding-block-start: 0;
+      border-top: 0;
+    }
+
+    .type-sample {
+      color: var(--ink);
+      font-family: var(--font-display);
+      font-optical-sizing: auto;
+    }
+
+    .type-sample[data-role="body"] {
+      font-size: var(--text-base);
+      line-height: var(--leading-body);
+    }
+
+    .type-sample[data-role="display"] {
+      font-size: var(--text-h2);
+      font-weight: 500;
+      line-height: var(--leading-display);
+    }
+
+    .type-sample[data-role="italic"] {
+      font-size: 1.5rem;
+      font-style: italic;
+      line-height: 1.25;
+    }
+
+    .type-sample[data-role="utility"] {
+      font-family: var(--font-utility);
+      font-size: var(--text-meta);
+      line-height: 1.42857;
+    }
+
+    .type-sample[data-role="mono"] {
+      font-family: var(--font-mono);
+      font-size: var(--text-meta);
+      font-variant-ligatures: none;
+      font-variant-numeric: tabular-nums lining-nums;
+      line-height: 1.42857;
+    }
+
+    .type-spec,
+    .meta,
+    .code,
+    td:first-child,
+    #token-index th {
+      color: var(--ink-2);
+      font-size: var(--text-meta);
+      font-variant-ligatures: none;
+      font-variant-numeric: tabular-nums lining-nums;
+    }
+
+    .type-spec {
+      line-height: 1.5;
+    }
+
+    .glyphs {
+      padding-block: var(--space-4);
+      color: var(--ink-2);
+      font-family: var(--font-display);
+      font-size: 1.375rem;
+      font-optical-sizing: auto;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .glyphs[data-family="utility"] {
+      font-family: var(--font-utility);
+      font-size: var(--text-meta);
+    }
+
+    .glyphs[data-family="mono"] {
+      font-family: var(--font-mono);
+      font-size: var(--text-meta);
+      font-variant-ligatures: none;
+      font-variant-numeric: tabular-nums lining-nums;
+    }
+
+    .scale-row {
+      display: grid;
+      grid-template-columns: minmax(5rem, 0.4fr) minmax(0, 1fr);
+      gap: var(--space-4);
+      align-items: center;
+      padding-block: var(--space-3);
+      border-top: 1px solid var(--hair);
+    }
+
+    .scale-row:first-child {
+      border-top: 0;
+    }
+
+    .scale-bar {
+      display: block;
+      height: 0.75rem;
+      max-width: 100%;
+      background: var(--accent);
+    }
+
+    .scale-row[data-space="1"] .scale-bar { width: 0.25rem; }
+    .scale-row[data-space="2"] .scale-bar { width: 0.5rem; }
+    .scale-row[data-space="3"] .scale-bar { width: 0.9375rem; }
+    .scale-row[data-space="4"] .scale-bar { width: 1.40625rem; }
+    .scale-row[data-space="5"] .scale-bar { width: 1.875rem; }
+    .scale-row[data-space="6"] .scale-bar { width: 2.8125rem; }
+    .scale-row[data-space="7"] .scale-bar { width: min(5.625rem, 100%); }
+    .scale-row[data-space="8"] .scale-bar { width: min(7.5rem, 100%); }
+
+    .figure {
+      grid-column: 1 / -1;
+      margin-top: var(--space-6);
+      padding-block: var(--space-5);
+      border-block: 1px solid var(--hair);
+    }
+
+    .figure svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      color: var(--ink);
+    }
+
+    .figure svg text {
+      font-family: var(--font-utility);
+      font-size: 12px;
+    }
+
+    .caption {
+      display: block;
+      margin-top: var(--space-3);
+      color: var(--ink-2);
+      font-size: var(--text-meta);
+      line-height: 1.42857;
+    }
+
+    .table-wrap {
+      max-width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--hair);
+      border-radius: var(--radius-sm);
+      background: var(--ground);
+      scrollbar-color: var(--ink-2) var(--ground-2);
+    }
+
+    .table-wrap:focus-visible {
+      outline: 2px solid var(--ring);
+      outline-offset: var(--ring-offset);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    caption {
+      padding: var(--space-3) var(--space-4);
+      background: var(--ground-2);
+      color: var(--ink);
+      font-family: var(--font-utility);
+      font-size: var(--text-meta);
+      font-weight: 600;
+      line-height: 1.42857;
+      text-align: left;
+    }
+
+    th,
+    td {
+      padding: var(--space-3) var(--space-4);
+      border-top: 1px solid var(--hair);
+      vertical-align: top;
+    }
+
+    thead th {
+      border-top: 0;
+      color: var(--ink);
+      font-size: var(--text-meta);
+      font-weight: 600;
+      line-height: 1.42857;
+    }
+
+    tbody th {
+      color: var(--ink);
+      font-family: var(--font-utility);
+      font-size: var(--text-meta);
+      font-weight: 600;
+      line-height: 1.42857;
+    }
+
+    tbody td {
+      font-size: var(--text-meta);
+      line-height: 1.42857;
+    }
+
+    #comparison-table {
+      min-width: 48rem;
+    }
+
+    #comparison-table td:not(:first-child),
+    #comparison-table th:not(:first-child),
+    #inventory td:nth-child(2),
+    #inventory th:nth-child(2) {
+      font-family: var(--font-mono);
+      font-variant-ligatures: none;
+      font-variant-numeric: tabular-nums lining-nums;
+      font-size: var(--text-meta);
+    }
+
+    #inventory td:first-child,
+    #inventory th:first-child,
+    #token-index th {
+      font-family: var(--font-mono);
+      font-variant-ligatures: none;
+      font-variant-numeric: tabular-nums lining-nums;
+    }
+
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+
+    .swatch {
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .swatch-chip {
+      display: block;
+      min-height: 3.5rem;
+      border: 1px solid var(--hair);
+      border-radius: var(--radius-sm);
+    }
+
+    .swatch-chip[data-token="ground"] { background: var(--ground); }
+    .swatch-chip[data-token="ground-2"] { background: var(--ground-2); }
+    .swatch-chip[data-token="ground-3"] { background: var(--ground-3); }
+    .swatch-chip[data-token="ink"] { background: var(--ink); }
+    .swatch-chip[data-token="ink-2"] { background: var(--ink-2); }
+    .swatch-chip[data-token="ink-3"] { background: var(--ink-3); }
+    .swatch-chip[data-token="hair"] { background: var(--hair); }
+    .swatch-chip[data-token="accent"] { background: var(--accent); }
+    .swatch-chip[data-token="accent-ink"] { background: var(--accent-ink); }
+    .swatch-chip[data-token="ring"] { background: var(--ring); }
+
+    .pair {
+      display: grid;
+      gap: var(--space-2);
+      padding: var(--space-4);
+      background: var(--ground-2);
+      border: 1px solid var(--hair);
+    }
+
+    .pair[data-ground="deep"] {
+      background: var(--ground-3);
+    }
+
+    .pair strong {
+      font-family: var(--font-body);
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .radius-row,
+    .elev-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+
+    .radius-tile,
+    .elev-tile {
+      display: grid;
+      min-height: 5rem;
+      align-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3);
+      border: 1px solid var(--hair);
+      background: var(--ground-2);
+      text-align: center;
+    }
+
+    .radius-tile[data-radius="sm"] { border-radius: var(--radius-sm); }
+    .radius-tile[data-radius="md"] { border-radius: var(--radius-md); }
+    .radius-tile[data-radius="lg"] { border-radius: var(--radius-lg); }
+    .radius-tile[data-radius="pill"] { border-radius: var(--radius-pill); }
+
+    .elev-tile[data-shadow="none"] {
+      box-shadow: var(--shadow-1);
+    }
+
+    .state-row {
+      display: grid;
+      gap: var(--space-3);
+      padding-block: var(--space-5);
+      border-top: 1px solid var(--hair);
+    }
+
+    .state-row:first-child {
+      border-top: 0;
+      padding-block-start: 0;
+    }
+
+    .state-label {
+      display: grid;
+      grid-template-columns: 5rem minmax(0, 1fr);
+      gap: var(--space-4);
+      align-items: center;
+      min-height: 44px;
+    }
+
+    .state-label > :last-child {
+      justify-self: start;
+    }
+ 
+    .state-label > a {
+      display: inline-flex;
+      min-block-size: 44px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      min-block-size: 44px;
+      min-inline-size: 9rem;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-2) var(--space-4);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius-md);
+      background: var(--accent);
+      color: var(--accent-ink);
+      cursor: pointer;
+      font-family: var(--font-utility);
+      font-size: var(--text-small);
+      font-weight: 600;
+      line-height: 1.33333;
+    }
+
+    .btn:hover,
+    .btn[data-state="hover"] {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: var(--ground);
+    }
+
+    .btn:active,
+    .btn[data-state="active"] {
+      border: 2px solid var(--accent);
+      background: var(--ground-2);
+      color: var(--ink);
+    }
+
+    .btn:disabled,
+    .btn[data-state="disabled"] {
+      border-color: var(--ground-3);
+      background: var(--ground-3);
+      color: var(--ink-3);
+      cursor: not-allowed;
+    }
+
+    .field {
+      display: grid;
+      gap: var(--space-2);
+      min-inline-size: min(100%, 20rem);
+      color: var(--ink-2);
+      font-family: var(--font-utility);
+      font-size: var(--text-small);
+      line-height: 1.33333;
+    }
+
+    .field input {
+      min-block-size: 44px;
+      min-inline-size: min(100%, 20rem);
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--ink-3);
+      border-radius: var(--radius-md);
+      background: var(--ground);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+    }
+
+    .field input:hover,
+    .field input[data-state="hover"] {
+      border-color: var(--ink-2);
+    }
+
+    .field input:active,
+    .field input[data-state="active"] {
+      border-color: var(--ink);
+    }
+
+    .field input:disabled,
+    .field input[data-state="disabled"] {
+      border-color: var(--ground-3);
+      background: var(--ground-3);
+      color: var(--ink-3);
+    }
+
+    .code {
+      font-family: var(--font-mono);
+      font-variant-ligatures: none;
+      font-variant-numeric: tabular-nums lining-nums;
+    }
+
+    #token-index {
+      table-layout: fixed;
+    }
+
+    #token-index th,
+    #token-index td {
+      overflow-wrap: anywhere;
+    }
+
+    #token-index th:first-child,
+    #token-index td:first-child {
+      width: 26%;
+    }
+
+    #token-index td:nth-child(2) {
+      font-family: var(--font-mono);
+      font-variant-ligatures: none;
+      font-variant-numeric: tabular-nums lining-nums;
+      font-size: var(--text-small);
+    }
+
+    .footer {
+      display: grid;
+      gap: var(--space-3);
+      color: var(--ink-2);
+      font-size: var(--text-small);
+      line-height: 1.5;
+    }
+
+    .footer .code {
+      color: var(--ink);
+    }
+
+    @media (min-width: 66rem) {
+      .page-header,
+      .section,
+      .footer {
+        --page-gutter: var(--space-6);
+      }
+
+      .grid {
+        grid-template-columns: minmax(0, var(--measure)) minmax(12rem, var(--rail));
+        column-gap: var(--space-6);
+        align-items: start;
+      }
+
+      .grid > aside {
+        grid-column: 2;
+      }
+
+      .grid > article,
+      .grid > .table-wrap,
+      .grid > .figure,
+      .grid > .swatch-grid,
+      .grid > .pair,
+      .grid > .radius-row,
+      .grid > .elev-row,
+      .grid > .state-row {
+        grid-column: 1;
+      }
+
+      .grid > .figure,
+      .grid > .table-wrap,
+      .grid > .swatch-grid,
+      .grid > .pair,
+      .grid > .radius-row,
+      .grid > .elev-row,
+      .grid > .state-row {
+        grid-column: 1 / -1;
+      }
+
+      .page-header .grid > nav {
+        grid-column: 2;
+      }
+    }
+
+    @media (max-width: 48rem) {
+      #inventory thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      #inventory,
+      #inventory tbody,
+      #inventory tr,
+      #inventory td,
+      #inventory th {
+        display: block;
+        width: 100%;
+      }
+
+      #inventory tr {
+        padding-block: var(--space-3);
+        border-top: 1px solid var(--hair);
+      }
+
+      #inventory tbody tr:first-child {
+        border-top: 0;
+      }
+
+      #inventory td,
+      #inventory th {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(8rem, 0.4fr) minmax(0, 1fr);
+        gap: var(--space-3);
+        padding: var(--space-2) var(--space-3);
+        border: 0;
+      }
+
+      #inventory td::before,
+      #inventory th::before {
+        content: attr(data-label);
+        color: var(--ink-2);
+        font-family: var(--font-utility);
+        font-size: var(--text-small);
+        font-weight: 600;
+        line-height: 1.33333;
+      }
+    }
+
+    @media (max-width: 22rem) {
+      .nav ol {
+        grid-template-columns: 1fr;
+      }
+
+      .state-label {
+        grid-template-columns: 1fr;
+        gap: var(--space-1);
+      }
+    }
+
+    @media (forced-colors: active) {
+      body,
+      html {
+        background: Canvas;
+        color: CanvasText;
+      }
+
+      h1,
+      h2,
+      h3,
+      a,
+      .note,
+      .pair,
+      .radius-tile,
+      .elev-tile,
+      .footer,
+      .type-spec,
+      .meta,
+      .caption,
+      .state-label,
+      .scale-label,
+      .swatch-name,
+      .swatch-value,
+      .pair-label {
+        color: CanvasText;
+      }
+
+      a,
+      a[data-state="hover"],
+      a[data-state="active"] {
+        color: LinkText;
+        text-decoration-color: LinkText;
+      }
+
+      button,
+      .btn,
+      .btn[data-state="hover"],
+      .btn[data-state="active"] {
+        background: ButtonFace;
+        color: ButtonText;
+        border-color: CanvasText;
+      }
+
+      input,
+      .field input,
+      .field input[data-state="hover"],
+      .field input[data-state="active"] {
+        background: Canvas;
+        color: CanvasText;
+        border-color: CanvasText;
+      }
+
+      a:focus-visible,
+      a[data-state="focus"],
+      button:focus-visible,
+      button[data-state="focus"],
+      input:focus-visible,
+      input[data-state="focus"],
+      .table-wrap:focus-visible {
+        outline-color: Highlight;
+      }
+
+      a[aria-disabled="true"],
+      a[data-state="disabled"],
+      button:disabled,
+      button[data-state="disabled"],
+      input:disabled,
+      input[data-state="disabled"] {
+        color: GrayText;
+        border-color: GrayText;
+      }
+
+      .note,
+      .table-wrap,
+      .figure,
+      .type-row,
+      .scale-row,
+      .state-row,
+      th,
+      td {
+        border-color: CanvasText;
+      }
+
+      .note,
+      caption,
+      .pair,
+      .radius-tile,
+      .elev-tile,
+      .field input:disabled,
+      .field input[data-state="disabled"],
+      .btn:disabled,
+      .btn[data-state="disabled"] {
+        background: Canvas;
+      }
+
+      .swatch-chip,
+      .scale-bar {
+        background: CanvasText;
+        border-color: CanvasText;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 18mm 16mm;
+      }
+
+      :root {
+        --ground: #fff;
+        --ground-2: #f5f5f3;
+        --ground-3: #ececea;
+        --ink: #111;
+        --ink-2: #444;
+        --ink-3: #767676;
+        --hair: #b8b8b8;
+        --accent: #111;
+        --accent-ink: #fff;
+        --ring: #000;
+      }
+
+      body {
+        background: var(--ground);
+        color: var(--ink);
+        font-size: 10.5pt;
+        line-height: 15pt;
+      }
+
+      .page-header,
+      .section,
+      .footer {
+        --page-gutter: 0;
+        width: 100%;
+        max-width: none;
+      }
+
+      .page-header {
+        padding-block: 0 24pt;
+      }
+
+      .section {
+        padding-block: 24pt;
+      }
+
+      .section + .section {
+        padding-block-start: 18pt;
+      }
+
+      .footer {
+        padding-block: 24pt 0;
+      }
+
+      .grid {
+        grid-template-columns: minmax(0, 2.25fr) 10rem;
+        column-gap: 12pt;
+        align-items: start;
+      }
+
+      .page-header .grid > nav,
+      .grid > aside {
+        grid-column: 2;
+      }
+
+      .grid > article {
+        grid-column: 1;
+      }
+
+      .figure,
+      .grid > .figure,
+      .grid > .table-wrap,
+      .grid > .swatch-grid,
+      .grid > .pair,
+      .grid > .radius-row,
+      .grid > .elev-row,
+      .grid > .state-row {
+        grid-column: 1 / -1;
+      }
+
+      .section-head {
+        margin-bottom: 18pt;
+      }
+
+      .hero-title {
+        max-width: none;
+      }
+
+      .hero-sub,
+      .lead {
+        font-size: 12pt;
+        line-height: 15pt;
+      }
+
+      a {
+        color: var(--ink);
+        text-decoration-color: var(--ink);
+      }
+
+      .nav a,
+      .btn,
+      .field input {
+        min-block-size: 0;
+      }
+
+      .state-label[data-state] {
+        display: none;
+      }
+
+      .btn,
+      .field input {
+        border-color: var(--ink);
+        background: var(--ground);
+        color: var(--ink);
+      }
+
+      .table-wrap {
+        overflow: visible;
+        border-color: var(--hair);
+      }
+ 
+      #components .grid {
+        display: block;
+      }
+ 
+      #reference {
+        break-before: page;
+      }
+
+
+      #comparison-table,
+      #inventory,
+      #token-index {
+        min-width: 0;
+      }
+
+      #inventory thead {
+        position: static;
+        width: auto;
+        height: auto;
+        margin: 0;
+        overflow: visible;
+        clip: auto;
+        white-space: normal;
+      }
+
+      #inventory,
+      #inventory tbody,
+      #inventory tr,
+      #inventory td,
+      #inventory th {
+        display: table-row-group;
+        width: auto;
+      }
+
+      #inventory tr {
+        display: table-row;
+        padding: 0;
+        border: 0;
+      }
+
+      #inventory td,
+      #inventory th {
+        display: table-cell;
+        width: auto;
+        padding: 6pt 8pt;
+        border-top: 1px solid var(--hair);
+      }
+
+      #inventory td::before,
+      #inventory th::before {
+        content: none;
+      }
+
+      .figure,
+      .state-row,
+      tr {
+        break-inside: avoid;
+      }
+
+      .swatch-chip,
+      .scale-bar {
+        print-color-adjust: exact;
+      }
+    }
+  </style>
 </head>
 <body>
+  <header class="page-header">
+    <div class="grid">
+      <article>
+        <p class="eyebrow">Studio / Editorial</p>
+        <h1 class="hero-title">One reading system, many kinds of evidence.</h1>
+        <p class="hero-sub">Reports, essays, culture writing, and data journalism share one reading column. Prose stays stable; evidence moves between the page and its right-hand bay.</p>
+      </article>
+      <nav class="nav" aria-label="Contents">
+        <ol>
+          <li><a href="#thesis">Thesis and fit</a></li>
+          <li><a href="#typography">Type roles</a></li>
+          <li><a href="#rhythm">Text rhythm</a></li>
+          <li><a href="#evidence">Evidence tables</a></li>
+          <li><a href="#components">Component states</a></li>
+          <li><a href="#reference">Token appendix</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
 
-<header class="page-header">
-  <p class="meta"><span class="badge">editorial</span> measured against The New Yorker</p>
-  <h1 class="hero-title">studio</h1>
-  <p class="hero-sub">Paper and ink, two families, and not one negative letterspace value.</p>
-  <p class="lead">studio builds one self-contained HTML artifact against a named direction, renders it at 390 and 1440, scores it, and revises once before handing it over.</p>
-  <nav class="nav">
-    <a href="#directions">The four directions</a>
-    <a href="#gate">The render gate</a>
-    <a href="#fonts">Font policy</a>
-    <a href="#palette">Colour</a>
-    <a href="#type">Typography</a>
-    <a href="#space">Spacing</a>
-    <a href="#radius">Radius</a>
-    <a href="#elevation">Elevation</a>
-    <a href="#components">Components</a>
-    <a href="#states">States</a>
-    <a href="#tokens">Token index</a>
-  </nav>
-</header>
+  <main>
+    <section class="section" id="thesis">
+      <div class="section-head">
+        <p class="eyebrow">01 / Thesis</p>
+        <h2>One screen-first reading system keeps prose stable while evidence changes form around it.</h2>
+      </div>
+      <div class="grid">
+        <article>
+          <p class="lead">This direction supports reports, essays, culture writing, and data journalism through sustained prose, comparison tables, figures and captions, annotations, and measured data.</p>
+          <blockquote class="quote">Prose stays stable while evidence changes form around it.</blockquote>
+          <p>Use the system when a reader needs to stay with an argument, inspect its evidence, or move between prose and data without changing the page's basic grammar. It does not create separate density presets. The reading system stays stable; the evidence mode changes around the reading column.</p>
+        </article>
+        <aside class="note">
+          <strong>Four supported composition modes</strong>
+          <p>Reports, essays, culture writing, and data journalism. The example is an English/Latin proof specimen, with the publication first and its inspectable appendix second.</p>
+        </aside>
+      </div>
+    </section>
 
-<section class="section" id="directions">
-  <p class="eyebrow">Comparison</p>
-  <h2>The four directions</h2>
-  <p>Each direction is measured against a real reference: Ramp for instrument, Linear for product-dark, The New Yorker for editorial, Headspace for calm. There is no default, so the direction is asked for or proposed before anything is built.</p>
-  <div class="table-wrap">
-    <table>
-      <caption class="caption">Ground, character and fit. This fact set is identical across all four direction examples.</caption>
-      <thead>
-        <tr><th>Direction</th><th>Ground</th><th>Character</th><th>Suits</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>editorial</td>
-          <td data-label="Ground">light paper</td>
-          <td data-label="Character">two families, no negative tracking, almost no radius</td>
-          <td data-label="Suits">long reads, essays, explainers, reports</td>
-        </tr>
-        <tr>
-          <td>instrument</td>
-          <td data-label="Ground">white</td>
-          <td data-label="Character">one grotesque, one accent, bordered cards, zero shadow</td>
-          <td data-label="Suits">pricing, comparisons, technical product pages</td>
-        </tr>
-        <tr>
-          <td>product-dark</td>
-          <td data-label="Ground">near-black</td>
-          <td data-label="Character">alpha-tint elevation, white-alpha hairlines, tight tracking</td>
-          <td data-label="Suits">developer tools, dashboards-as-marketing</td>
-        </tr>
-        <tr>
-          <td>calm</td>
-          <td data-label="Ground">warm off-white</td>
-          <td data-label="Character">one family, large flat colour fields, large radii</td>
-          <td data-label="Suits">consumer, wellbeing, onboarding, anything friendly</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <p class="note">None of the measured references uses blur for elevation. Ramp uses a 1px border and no shadow, Linear uses 0 0 0 1px and 0 0 0 2px rings, V7 uses nothing, and this direction's own reference has none in its article shell. The agent default of 0 4px 6px rgba(0,0,0,0.1) matches none of them, which is why it is on the <a href="../../references/anti-patterns.md">anti-pattern list</a>.</p>
-</section>
+    <section class="section" id="typography">
+      <div class="section-head">
+        <p class="eyebrow">02 / Typography</p>
+        <h2>Type roles, proof specimens, and the families that carry them</h2>
+      </div>
+      <div class="grid">
+        <article>
+          <div class="type-row">
+            <div class="type-sample" data-role="body">Body reading keeps a measured 66ch column, with a 19px face and a 30px line box. Sustained prose, a citation <em>in true italic</em>, and <strong>strong emphasis</strong> remain part of the same reading voice.</div>
+            <p class="type-spec"><span class="code">Body</span> · Newsreader · 400 · 19px / 30px · normal tracking · 66ch · optical sizing auto · Georgia, serif fallback</p>
+          </div>
+          <div class="type-row">
+            <div class="type-sample" data-role="display">Reading-column and evidence-bay layout, responsive behaviour, and source-order ownership.</div>
+            <p class="type-spec"><span class="code">h2</span> · Newsreader · 500 · 28–40px / 1.05 · normal tracking · optical sizing auto · Georgia, serif fallback</p>
+          </div>
+          <div class="type-row">
+            <div class="type-sample" data-role="italic">A cited passage keeps its emphasis in the real italic face rather than a synthetic slant.</div>
+            <p class="type-spec"><span class="code">Emphasis / citation / pull quote</span> · Newsreader true italic · 400 · inherited size and leading · normal tracking</p>
+          </div>
+          <div class="type-row">
+            <div class="type-sample" data-role="utility">Captions and table headings use compact utility text without changing the reading column.</div>
+            <p class="type-spec"><span class="code">Utility</span> · Source Sans 3 · 400 · 14px / 20px · normal tracking · system-ui, sans-serif fallback</p>
+          </div>
+          <div class="type-row">
+            <div class="type-sample" data-role="mono">2026-08-17 · 0123456789 · A/B · % Δ ± £ € — data stays tabular.</div>
+            <p class="type-spec"><span class="code">Data / metadata</span> · Source Code Pro · 400 · 14px / 20px · tabular-nums lining-nums · ligatures none · ui-monospace fallback</p>
+          </div>
+          <div class="glyphs">Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz · á é ï ñ Æ œ ß</div>
+          <div class="glyphs" data-family="utility">Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz · 14px / 20px</div>
+          <div class="glyphs meta" data-family="mono">0123456789 · 01,234.50 · 2026-08-17 · () [] {} &lt;&gt; /\ — ligatures off</div>
+        </article>
+        <aside class="note">
+          <strong>Three unique families, four slots</strong>
+          <p><span class="code">--font-display</span> and <span class="code">--font-body</span> resolve to Newsreader. <span class="code">--font-utility</span> resolves to Source Sans 3. <span class="code">--font-mono</span> resolves to Source Code Pro. Newsreader has no verified Devanagari or Arabic design in the inspected metadata.</p>
+        </aside>
+      </div>
+    </section>
 
-<section class="section" id="gate">
-  <p class="eyebrow">Verification</p>
-  <h2>The render gate</h2>
-  <p>A direction is not finished when the file is written. It is finished when someone has looked at it, at both ends of the range it has to hold.</p>
-  <h3>The two shots</h3>
-  <pre class="code"><code>playwright screenshot --viewport-size=390,844 page.html shot-390.png
-playwright screenshot --viewport-size=1440,900 page.html shot-1440.png</code></pre>
-  <h3>The score</h3>
-  <p>Out of 100. The direction's own avoid list carries 60 of those points, because a universal rubric is what makes everything average. Below 80 the artifact is revised once and both commands run again.</p>
-</section>
+    <section class="section" id="rhythm">
+      <div class="section-head">
+        <p class="eyebrow">03 / Rhythm</p>
+        <h2>Text-derived rhythm starts with one 30px body line box</h2>
+      </div>
+      <div class="grid">
+        <article>
+          <p class="lead">The body line box is <span class="code">19px × 1.57895 = 30px</span>. The middle spacing values are half a line, three quarters, one line, and one and a half lines.</p>
+          <div class="scale-row" data-space="1"><span class="scale-label"><span class="code">--space-1</span> · 0.25rem</span><span class="scale-bar" aria-hidden="true"></span></div>
+          <div class="scale-row" data-space="2"><span class="scale-label"><span class="code">--space-2</span> · 0.5rem</span><span class="scale-bar" aria-hidden="true"></span></div>
+          <div class="scale-row" data-space="3"><span class="scale-label"><span class="code">--space-3</span> · 0.9375rem · half line</span><span class="scale-bar" aria-hidden="true"></span></div>
+          <div class="scale-row" data-space="4"><span class="scale-label"><span class="code">--space-4</span> · 1.40625rem · three quarters</span><span class="scale-bar" aria-hidden="true"></span></div>
+          <div class="scale-row" data-space="5"><span class="scale-label"><span class="code">--space-5</span> · 1.875rem · one line</span><span class="scale-bar" aria-hidden="true"></span></div>
+          <div class="scale-row" data-space="6"><span class="scale-label"><span class="code">--space-6</span> · 2.8125rem · one and a half</span><span class="scale-bar" aria-hidden="true"></span></div>
+          <div class="scale-row" data-space="7"><span class="scale-label"><span class="code">--space-7</span> · fluid chapter interval</span><span class="scale-bar" aria-hidden="true"></span></div>
+          <div class="scale-row" data-space="8"><span class="scale-label"><span class="code">--space-8</span> · fluid opening interval</span><span class="scale-bar" aria-hidden="true"></span></div>
+        </article>
+        <aside class="note">
+          <strong>Small variable set</strong>
+          <p>Use <span class="code">--space-1</span> and <span class="code">--space-2</span> only for micro control gaps. Use <span class="code">--space-7</span> and <span class="code">--space-8</span> only for fluid chapter and opening intervals.</p>
+        </aside>
+        <figure class="figure">
+          <svg viewBox="0 0 900 210" role="img" aria-label="Schematic of a 66ch reading column, a 17rem evidence bay, and a 45px gap" preserveAspectRatio="xMinYMid meet">
+            <rect x="24" y="54" width="548" height="86" fill="none" stroke="currentColor" stroke-width="2"></rect>
+            <rect x="617" y="54" width="238" height="86" fill="none" stroke="var(--accent)" stroke-width="2"></rect>
+            <line x1="572" y1="96" x2="617" y2="96" stroke="var(--hair)" stroke-width="2"></line>
+            <line x1="24" y1="167" x2="572" y2="167" stroke="var(--hair)" stroke-width="1"></line>
+            <line x1="617" y1="167" x2="855" y2="167" stroke="var(--hair)" stroke-width="1"></line>
+            <text x="24" y="39">66ch reading column</text>
+            <text x="617" y="39">17rem evidence bay</text>
+            <text x="574" y="88" text-anchor="middle">45px</text>
+            <text x="24" y="190">stable reading edge</text>
+            <text x="617" y="190">evidence returns inline below 66rem</text>
+          </svg>
+          <figcaption class="caption">At 66rem and above, a 66ch reading column sits beside a 17rem evidence bay with a 45px gap. Below the breakpoint, evidence returns inline.</figcaption>
+        </figure>
+      </div>
+    </section>
 
-<section class="section" id="fonts">
-  <p class="eyebrow">Type</p>
-  <h2>Font policy</h2>
-  <p>The policy is a blacklist, so the interesting question is never which face is allowed. It is which faces are on the machine, and whether the artifact is going anywhere.</p>
-  <ul class="list">
-    <li><strong>Blacklist, not whitelist.</strong> Twenty families are banned outright and everything else is available. The <a href="../../references/fonts.md">list</a> grows over time; it is never inverted into a shortlist of approved faces.</li>
-    <li><strong>Inter is body and UI only, never display.</strong> Inter at 72px in a hero is the loudest signal that an agent made the page.</li>
-    <li><strong>Licensing is asked once, in the brief.</strong> "Free fonts (safe to share) or your licensed set (this machine only)?"</li>
-  </ul>
-  <p class="note">This direction takes Source Serif 4 for display, Hanken Grotesk for body and labels, and IBM Plex Mono for code. Two families, plus a mono that only ever sets code. Every measured reference keeps to one family or two.</p>
-</section>
+    <section class="section" id="evidence">
+      <div class="section-head">
+        <p class="eyebrow">04 / Evidence</p>
+        <h2>Comparison stays a table; inventory changes its row shape</h2>
+      </div>
+      <div class="grid">
+        <div class="table-wrap" tabindex="0" role="region" aria-labelledby="comparison-caption">
+          <table id="comparison-table">
+            <caption id="comparison-caption">Composition modes and the evidence each mode can carry</caption>
+            <thead>
+              <tr>
+                <th scope="col">Mode</th>
+                <th scope="col">Primary unit</th>
+                <th scope="col">Evidence form</th>
+                <th scope="col">Measure</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Reports</th>
+                <td>Findings</td>
+                <td>Figures, captions, annotations</td>
+                <td>66ch</td>
+              </tr>
+              <tr>
+                <th scope="row">Essays</th>
+                <td>Argument</td>
+                <td>Sustained prose, citations</td>
+                <td>66ch</td>
+              </tr>
+              <tr>
+                <th scope="row">Culture writing</th>
+                <td>Observation</td>
+                <td>Pull quotes, comparison</td>
+                <td>66ch</td>
+              </tr>
+              <tr>
+                <th scope="row">Data journalism</th>
+                <td>Measured data</td>
+                <td>Tables, dates, numerals</td>
+                <td>66ch</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-wrap meta" tabindex="0" role="region" aria-labelledby="inventory-caption">
+          <table id="inventory" data-responsive="stack">
+            <caption id="inventory-caption">Declared values used by this specimen</caption>
+            <thead>
+              <tr>
+                <th scope="col">Token group</th>
+                <th scope="col">Declared value</th>
+                <th scope="col">Proof location</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" data-label="Token group">Reading measure</th>
+                <td data-label="Declared value">66ch</td>
+                <td data-label="Proof location">Body and grid</td>
+              </tr>
+              <tr>
+                <th scope="row" data-label="Token group">Evidence rail</th>
+                <td data-label="Declared value">17rem</td>
+                <td data-label="Proof location">Wide grid bay</td>
+              </tr>
+              <tr>
+                <th scope="row" data-label="Token group">Wide breakpoint</th>
+                <td data-label="Declared value">66rem</td>
+                <td data-label="Proof location">Responsive grid</td>
+              </tr>
+              <tr>
+                <th scope="row" data-label="Token group">Body rhythm</th>
+                <td data-label="Declared value">19px / 30px</td>
+                <td data-label="Proof location">Type and spacing</td>
+              </tr>
+              <tr>
+                <th scope="row" data-label="Token group">Ink on paper</th>
+                <td data-label="Declared value">15.83:1</td>
+                <td data-label="Proof location">Verified contrast</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-<section class="section" id="signature">
-  <p class="eyebrow">This direction</p>
-  <h2>The signature move</h2>
-  <p>The standing rule, with the label in the margin. Every section opens with a hairline across the full width. Below it the category sits in the left rail, right-aligned against the gutter, so it reads as a margin note rather than a label stuck on top of a heading. The heading hangs in the content column at up to 42px, weight 400, tracking zero. Under 840px the rail closes and each label sits directly above its heading.</p>
-  <p>It is the reference's twelve-column grid, which starts its content at column 3 and spans 8, reduced to two columns: a rail and the measure. The page gets an asymmetric left edge and a visible sense of margin without a single box, card or coloured band.</p>
-  <div class="cta">
-    <a class="btn" href="DESIGN.md">Read the editorial spec</a>
-    <a class="btn btn--ghost" href="tokens.css">Read the tokens</a>
-  </div>
-</section>
+    <section class="section" id="components">
+      <div class="section-head">
+        <p class="eyebrow">05 / Components</p>
+        <h2>State changes use colour, line weight, and a non-colour cue</h2>
+      </div>
+      <div class="grid">
+        <div class="state-row">
+          <h3>Link</h3>
+          <div class="state-label"><span>Rest</span><a href="#reference" aria-label="Live link in rest state">Read the token appendix</a></div>
+          <div class="state-label" data-state="hover"><span>Hover</span><a href="#reference" data-state="hover" aria-label="Link in hover state">Read the token appendix</a></div>
+          <div class="state-label" data-state="active"><span>Active</span><a href="#reference" data-state="active" aria-label="Link in active state">Read the token appendix</a></div>
+          <div class="state-label" data-state="focus"><span>Focus</span><a href="#reference" data-state="focus" aria-label="Link in focus state">Read the token appendix</a></div>
+          <div class="state-label" data-state="disabled"><span>Disabled</span><a aria-disabled="true" tabindex="-1" data-state="disabled" aria-label="Disabled link">Read the token appendix</a></div>
+        </div>
+        <div class="state-row">
+          <h3>Solid button</h3>
+          <div class="state-label"><span>Rest</span><button class="btn" type="button">Save evidence</button></div>
+          <div class="state-label" data-state="hover"><span>Hover</span><button class="btn" type="button" data-state="hover">Save evidence</button></div>
+          <div class="state-label" data-state="active"><span>Active</span><button class="btn" type="button" data-state="active">Save evidence</button></div>
+          <div class="state-label" data-state="focus"><span>Focus</span><button class="btn" type="button" data-state="focus">Save evidence</button></div>
+          <div class="state-label" data-state="disabled"><span>Disabled</span><button class="btn" type="button" disabled data-state="disabled">Save evidence</button></div>
+        </div>
+        <div class="state-row meta">
+          <h3>Text field</h3>
+          <div class="state-label"><span>Rest</span><label class="field">Search evidence<input type="text" value="reading column" aria-label="Live text field in rest state"></label></div>
+          <div class="state-label" data-state="hover"><span>Hover</span><label class="field">Search evidence<input type="text" value="reading column" data-state="hover" aria-label="Text field in hover state"></label></div>
+          <div class="state-label" data-state="active"><span>Active</span><label class="field">Search evidence<input type="text" value="reading column" data-state="active" aria-label="Text field in active state"></label></div>
+          <div class="state-label" data-state="focus"><span>Focus</span><label class="field">Search evidence<input type="text" value="reading column" data-state="focus" aria-label="Text field in focus state"></label></div>
+          <div class="state-label" data-state="disabled"><span>Disabled</span><label class="field">Search evidence<input type="text" value="reading column" disabled data-state="disabled" aria-label="Disabled text field"></label></div>
+        </div>
+      </div>
+    </section>
 
-<hr class="divider">
+    <section class="section" id="reference">
+      <div class="section-head">
+        <p class="eyebrow">06 / Reference</p>
+        <h2>The interchangeable vocabulary, proved in one appendix</h2>
+      </div>
+      <div class="grid">
+        <article>
+          <h3>Palette pairs</h3>
+          <div class="swatch-grid">
+            <div class="swatch"><span class="swatch-chip" data-token="ground"></span><span class="swatch-name">--ground</span><span class="swatch-value">oklch(0.968 0.012 86)</span></div>
+            <div class="swatch"><span class="swatch-chip" data-token="ground-2"></span><span class="swatch-name">--ground-2</span><span class="swatch-value">oklch(0.940 0.014 84)</span></div>
+            <div class="swatch"><span class="swatch-chip" data-token="ground-3"></span><span class="swatch-name">--ground-3</span><span class="swatch-value">oklch(0.900 0.016 82)</span></div>
+            <div class="swatch"><span class="swatch-chip" data-token="ink"></span><span class="swatch-name">--ink</span><span class="swatch-value">oklch(0.220 0.018 55)</span></div>
+            <div class="swatch"><span class="swatch-chip" data-token="ink-2"></span><span class="swatch-name">--ink-2</span><span class="swatch-value">oklch(0.440 0.015 55)</span></div>
+            <div class="swatch"><span class="swatch-chip" data-token="ink-3"></span><span class="swatch-name">--ink-3</span><span class="swatch-value">oklch(0.620 0.012 60)</span></div>
+            <div class="swatch"><span class="swatch-chip" data-token="hair"></span><span class="swatch-name">--hair</span><span class="swatch-value">oklch(0.820 0.012 75)</span></div>
+            <div class="swatch"><span class="swatch-chip" data-token="accent"></span><span class="swatch-name">--accent</span><span class="swatch-value">oklch(0.440 0.180 265)</span></div>
+            <div class="swatch"><span class="swatch-chip" data-token="accent-ink"></span><span class="swatch-name">--accent-ink</span><span class="swatch-value">oklch(0.968 0.012 86)</span></div>
+            <div class="swatch"><span class="swatch-chip" data-token="ring"></span><span class="swatch-name">--ring</span><span class="swatch-value">oklch(0.440 0.180 265)</span></div>
+          </div>
 
-<section class="section" id="palette">
-  <p class="eyebrow">Colour</p>
-  <h2>The paper and ink ladder</h2>
-  <p>Nine chips in tokens.css declaration order, then each ink in the one role this direction sanctions for it. Judge whether the two sunk fields still tell themselves apart, and whether the sheet reads as warm paper rather than as cream.</p>
-  <div class="swatch-grid">
-    <div class="swatch">
-      <div class="swatch-chip swatch-chip--ground"></div>
-      <p class="swatch-name">--ground</p>
-      <p class="swatch-value">oklch(0.972 0.004 85) · #f7f6f3 · 1.00:1 against the sheet · the sheet, every page and every section</p>
-    </div>
-    <div class="swatch">
-      <div class="swatch-chip swatch-chip--ground-2"></div>
-      <p class="swatch-name">--ground-2</p>
-      <p class="swatch-value">oklch(0.945 0.005 85) · #eeede9 · 1.08:1 against the sheet · sunk field: code block, table header</p>
-    </div>
-    <div class="swatch">
-      <div class="swatch-chip swatch-chip--ground-3"></div>
-      <p class="swatch-name">--ground-3</p>
-      <p class="swatch-value">oklch(0.900 0.005 85) · #dfdeda · 1.24:1 against the sheet · deepest field: row hover, badge fill</p>
-    </div>
-    <div class="swatch">
-      <div class="swatch-chip swatch-chip--ink"></div>
-      <p class="swatch-name">--ink</p>
-      <p class="swatch-value">oklch(0.235 0.010 65) · #211d19 · 15.39:1 against the sheet · all display and body type, and the button hover fill</p>
-    </div>
-    <div class="swatch">
-      <div class="swatch-chip swatch-chip--ink-2"></div>
-      <p class="swatch-name">--ink-2</p>
-      <p class="swatch-value">oklch(0.475 0.010 65) · #605b56 · 6.17:1 against the sheet · utility type: eyebrow, caption, meta, table header</p>
-    </div>
-    <div class="swatch">
-      <div class="swatch-chip swatch-chip--ink-3"></div>
-      <p class="swatch-name">--ink-3</p>
-      <p class="swatch-value">oklch(0.640 0.008 65) · #908b87 · 3.11:1 against the sheet · structural rules and the ghost button border. Never text</p>
-    </div>
-    <div class="swatch">
-      <div class="swatch-chip swatch-chip--hair"></div>
-      <p class="swatch-name">--hair</p>
-      <p class="swatch-value">oklch(0.855 0.006 65) · #d2cfcb · 1.44:1 against the sheet · every repeated rule: section tops, table rows, footer</p>
-    </div>
-    <div class="swatch">
-      <div class="swatch-chip swatch-chip--accent">--accent-ink</div>
-      <p class="swatch-name">--accent</p>
-      <p class="swatch-value">oklch(0.510 0.128 245.4) · link underline, solid button fill, focus ring, nothing else. The label printed on the chip is --accent-ink, oklch(0.972 0.004 85), the paper set as the solid button's label at 5.26:1</p>
-    </div>
-    <div class="swatch">
-      <div class="swatch-chip swatch-chip--ring"></div>
-      <p class="swatch-name">--ring</p>
-      <p class="swatch-value">oklch(0.510 0.128 245.4) · the same value as --accent, declared separately · the focus-visible ring, the accent's third and last job</p>
-    </div>
-  </div>
-  <div class="pair pair--ink">
-    <p class="pair-label">--ink on --ground · 15.39:1, measured against the sheet · all display and body type</p>
-    <p>Nothing floats, nothing is rounded, nothing is bold. The only decision the reader should notice is where the next section starts.</p>
-  </div>
-  <div class="pair pair--ink-2">
-    <p class="pair-label">--ink-2 on --ground-3 · 4.97:1, measured against the deepest field · utility type, captions and labels</p>
-    <p>On the deepest field small text has to be this ink. The one below it is a rule colour, and the accent reaches only 4.23:1 here, so it may not set text on this ground at all.</p>
-  </div>
-  <div class="pair pair--rule">
-    <p class="pair-label">--ink-3 on --ground · 3.11:1, measured against the sheet · rule colour, never text, and why</p>
-    <p>The rule above this block is --ink-3, drawn one step darker than --hair so the two weights read as clearly different rather than as nearly the same. At 3.11:1 it clears the WCAG non-text threshold and nothing beyond it, so it carries the two divisions with structural weight and never a word anyone has to read. Its one text use is an inactive control's label, which the states section below shows.</p>
-  </div>
-  <div class="pair pair--accent">
-    <p class="pair-label">--accent on --ground-2 · 4.86:1, measured against the sunk field · a link colour inside a long read</p>
-    <p>Legal as text on the sheet at 5.26:1 and on this sunk field at 4.86:1. Illegal on the deepest field. One hue, and the measured rubric red stays unused.</p>
-  </div>
-</section>
+          <h3>Contrast pairs</h3>
+          <div class="pair"><span class="pair-label">--ink on --ground</span><strong>15.83:1 · body and display</strong></div>
+          <div class="pair" data-ground="deep"><span class="pair-label">--ink-2 on --ground-3</span><strong>5.78:1 · secondary information</strong></div>
+          <div class="pair"><span class="pair-label">--accent-ink on --accent</span><strong>7.41:1 · action label</strong></div>
+          <div class="pair" data-ground="deep"><span class="pair-label">--ink-3 and --hair</span><strong>Structural and disabled tiers only</strong></div>
 
-<section class="section" id="type">
-  <p class="eyebrow">Typography</p>
-  <h2>Two families, tracking at zero</h2>
-  <p>Six steps largest first, each beside the tokens that produce it, then a glyph run per family and one paragraph at the measure. Judge whether 42px at weight 400 still reads as a headline, and whether the run-in italic separates from the paragraph under it.</p>
-  <div class="type-row">
-    <p class="type-sample type-sample--h1">A long read on a warm sheet</p>
-    <p class="type-spec">--text-h1 · --font-display · clamp(30px, 1.6rem + 1.14vw, 42px) · weight 400 · --leading-display 1.0667 · --track-display normal</p>
-  </div>
-  <div class="type-row">
-    <p class="type-sample type-sample--h2">Structure comes from a hairline</p>
-    <p class="type-spec">--text-h2 · --font-display · clamp(24px, 1.36rem + 0.57vw, 30px) · weight 400 · --leading-display 1.0667 · --track-display normal</p>
-  </div>
-  <div class="type-row">
-    <p class="type-sample type-sample--h3">Nothing floats, nothing is rounded, nothing is bold</p>
-    <p class="type-spec">--text-h3 · --font-display italic · 21px · weight 400 · --leading-h3 1.2 · --track-display normal. Equal to --text-base on purpose: the family switch alone was one variable of separation, and the italic is the second</p>
-  </div>
-  <div class="type-row">
-    <p class="type-sample type-sample--base">The only decision the reader should notice is where the next section starts.</p>
-    <p class="type-spec">--text-base · --font-body · 21px · weight 400 · --leading-body 1.5 · --track-body normal</p>
-  </div>
-  <div class="type-row">
-    <p class="type-sample type-sample--meta">The standing rule with the label in the margin</p>
-    <p class="type-spec">--text-meta · --font-body · 15px · weight 400 · line-height 1.45, untokenised · --track-body normal. Table cells, captions, footnotes and figure credits live here rather than at 13px</p>
-  </div>
-  <div class="type-row">
-    <p class="type-sample type-sample--small">Every section opens with a hairline across the full width</p>
-    <p class="type-spec">--text-small · --font-body · 13px · weight 500 · line-height 1.4, untokenised · tracking -0.0125em, the reference's own value, given no token so it cannot drift upward onto a headline</p>
-  </div>
-  <p class="type-spec">--font-display · "Source Serif 4", Georgia, serif</p>
-  <p class="glyphs glyphs--display">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 &amp;@#%$()[]{}/|+-=*</p>
-  <p class="type-spec">--font-body · "Hanken Grotesk", system-ui, sans-serif</p>
-  <p class="glyphs glyphs--body">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 &amp;@#%$()[]{}/|+-=*</p>
-  <p class="type-spec">--font-mono · "IBM Plex Mono", ui-monospace, Menlo, monospace</p>
-  <p class="glyphs glyphs--mono">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 &amp;@#%$()[]{}/|+-=*</p>
-  <p>Every section opens with a hairline across the full width. Below it, in a left rail of 10rem, the section's category is set in 13px utility type at -0.0125em and right-aligned against the gutter, so it reads as a margin note rather than as a label stuck on top of a heading. The heading hangs in the content column on the same line, at up to 42px, weight 400, tracking zero. Below 840px the rail collapses and the category sits directly above the heading.</p>
-  <p class="meta">The paragraph above is set at --measure, 64ch, in --font-body at --leading-body 1.5, which is the reference's own 21px / 1.5em body. Every run of prose sits inside that measure whatever the viewport is.</p>
-</section>
+          <h3>Radius tokens</h3>
+          <div class="radius-row">
+            <div class="radius-tile" data-radius="sm"><span class="code">--radius-sm</span><span class="meta">0 · content surfaces</span></div>
+            <div class="radius-tile" data-radius="md"><span class="code">--radius-md</span><span class="meta">0.125rem · controls</span></div>
+            <div class="radius-tile" data-radius="lg"><span class="code">--radius-lg</span><span class="meta">0.25rem · appendix proof</span></div>
+            <div class="radius-tile" data-radius="pill"><span class="code">--radius-pill</span><span class="meta">999px · appendix proof</span></div>
+          </div>
 
-<section class="section" id="space">
-  <p class="eyebrow">Spacing</p>
-  <h2>Eight steps and one measure</h2>
-  <p>Each bar is drawn at the width of its own token, in a track exactly one rail wide. Judge whether the intervals widen rather than narrow, and whether the last two steps read as different kinds of break.</p>
-  <div class="scale-row">
-    <span class="scale-bar scale-bar--1"></span>
-    <p class="scale-label">--space-1 · 0.25rem · inside a badge, and the focus-ring offset</p>
-  </div>
-  <div class="scale-row">
-    <span class="scale-bar scale-bar--2"></span>
-    <p class="scale-label">--space-2 · 0.5rem · badge padding, nav gaps</p>
-  </div>
-  <div class="scale-row">
-    <span class="scale-bar scale-bar--3"></span>
-    <p class="scale-label">--space-3 · 0.75rem · label to value. Added at the bottom of the measured set, where the gap between a 13px label and its value needs a step between 0.5 and 1</p>
-  </div>
-  <div class="scale-row">
-    <span class="scale-bar scale-bar--4"></span>
-    <p class="scale-label">--space-4 · 1rem · table cell padding, code block padding</p>
-  </div>
-  <div class="scale-row">
-    <span class="scale-bar scale-bar--5"></span>
-    <p class="scale-label">--space-5 · 1.5rem · paragraph to paragraph, page gutter</p>
-  </div>
-  <div class="scale-row">
-    <span class="scale-bar scale-bar--6"></span>
-    <p class="scale-label">--space-6 · 2rem · hairline to heading, the rail gutter, heading to table</p>
-  </div>
-  <div class="scale-row">
-    <span class="scale-bar scale-bar--7"></span>
-    <p class="scale-label">--space-7 · 3rem · section to section</p>
-  </div>
-  <div class="scale-row">
-    <span class="scale-bar scale-bar--8"></span>
-    <p class="scale-label">--space-8 · 6rem · masthead to body, once per page. At double the section break, the one longest interval on the page is unmistakable</p>
-  </div>
-  <div class="scale-row">
-    <span class="scale-bar scale-bar--rail"></span>
-    <p class="scale-label">--rail · 10rem · a layout measure, not a rhythm step: the left rail the signature move is built on, and the full width of this track</p>
-  </div>
-  <p class="meta">The measured set ended 2 / 2.5 / 3rem, three values inside a 20% span, so 2.5rem was dropped: at section scale the reader cannot tell them apart.</p>
-</section>
+          <h3>Elevation</h3>
+          <div class="elev-row">
+            <div class="elev-tile" data-shadow="none"><span class="code">--shadow-1</span><span class="meta">none · flat paper</span></div>
+          </div>
+        </article>
+        <aside class="note">
+          <strong>Appendix rule</strong>
+          <p>Radius-lg and radius-pill appear only as labelled token tiles. Content surfaces use radius-sm, controls use radius-md, and no surface receives a shadow.</p>
+        </aside>
+        <div class="table-wrap" tabindex="0" role="region" aria-labelledby="token-index-caption">
+          <table id="token-index">
+            <caption id="token-index-caption">Complete 41-property token index, in declaration order</caption>
+            <thead>
+              <tr>
+                <th scope="col">Token</th>
+                <th scope="col">Value</th>
+                <th scope="col">Role</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">--ground</th><td>oklch(0.968 0.012 86)</td><td>Reading sheet</td></tr>
+              <tr><th scope="row">--ground-2</th><td>oklch(0.940 0.014 84)</td><td>Sunk field</td></tr>
+              <tr><th scope="row">--ground-3</th><td>oklch(0.900 0.016 82)</td><td>Deep field</td></tr>
+              <tr><th scope="row">--ink</th><td>oklch(0.220 0.018 55)</td><td>Primary ink</td></tr>
+              <tr><th scope="row">--ink-2</th><td>oklch(0.440 0.015 55)</td><td>Secondary ink</td></tr>
+              <tr><th scope="row">--ink-3</th><td>oklch(0.620 0.012 60)</td><td>Disabled and structural tier</td></tr>
+              <tr><th scope="row">--hair</th><td>oklch(0.820 0.012 75)</td><td>Hairline rule</td></tr>
+              <tr><th scope="row">--accent</th><td>oklch(0.440 0.180 265)</td><td>Action and focus</td></tr>
+              <tr><th scope="row">--accent-ink</th><td>oklch(0.968 0.012 86)</td><td>Text on action</td></tr>
+              <tr><th scope="row">--ring</th><td>oklch(0.440 0.180 265)</td><td>Focus ring</td></tr>
+              <tr><th scope="row">--ring-offset</th><td>0.1875rem</td><td>Focus separation</td></tr>
+              <tr><th scope="row">--radius-sm</th><td>0</td><td>Content surface radius</td></tr>
+              <tr><th scope="row">--radius-md</th><td>0.125rem</td><td>Control radius</td></tr>
+              <tr><th scope="row">--radius-lg</th><td>0.25rem</td><td>Appendix-only proof</td></tr>
+              <tr><th scope="row">--radius-pill</th><td>999px</td><td>Appendix-only proof</td></tr>
+              <tr><th scope="row">--font-display</th><td>Newsreader, Georgia, serif</td><td>Display face</td></tr>
+              <tr><th scope="row">--font-body</th><td>Newsreader, Georgia, serif</td><td>Reading face</td></tr>
+              <tr><th scope="row">--font-utility</th><td>Source Sans 3, system-ui, sans-serif</td><td>Utility face</td></tr>
+              <tr><th scope="row">--font-mono</th><td>Source Code Pro, ui-monospace, SFMono-Regular, Menlo, monospace</td><td>Data face</td></tr>
+              <tr><th scope="row">--text-base</th><td>1.1875rem</td><td>Body size</td></tr>
+              <tr><th scope="row">--text-h1</th><td>clamp(2.5rem, 1.95rem + 2.25vw, 4rem)</td><td>Main heading</td></tr>
+              <tr><th scope="row">--text-h2</th><td>clamp(1.75rem, 1.48rem + 1.1vw, 2.5rem)</td><td>Section heading</td></tr>
+              <tr><th scope="row">--text-h3</th><td>1.375rem</td><td>Subheading</td></tr>
+              <tr><th scope="row">--text-meta</th><td>0.875rem</td><td>Caption and metadata</td></tr>
+              <tr><th scope="row">--text-small</th><td>0.75rem</td><td>Compact utility</td></tr>
+              <tr><th scope="row">--leading-body</th><td>1.57895</td><td>Body line-height</td></tr>
+              <tr><th scope="row">--leading-h3</th><td>1.27273</td><td>H3 line-height</td></tr>
+              <tr><th scope="row">--leading-display</th><td>1.05</td><td>Display line-height</td></tr>
+              <tr><th scope="row">--track-display</th><td>normal</td><td>Display tracking</td></tr>
+              <tr><th scope="row">--track-body</th><td>normal</td><td>Body tracking</td></tr>
+              <tr><th scope="row">--measure</th><td>66ch</td><td>Reading measure</td></tr>
+              <tr><th scope="row">--rail</th><td>17rem</td><td>Evidence bay</td></tr>
+              <tr><th scope="row">--space-1</th><td>0.25rem</td><td>Micro gap</td></tr>
+              <tr><th scope="row">--space-2</th><td>0.5rem</td><td>Small gap</td></tr>
+              <tr><th scope="row">--space-3</th><td>0.9375rem</td><td>Half-line rhythm</td></tr>
+              <tr><th scope="row">--space-4</th><td>1.40625rem</td><td>Three-quarter-line rhythm</td></tr>
+              <tr><th scope="row">--space-5</th><td>1.875rem</td><td>One-line rhythm</td></tr>
+              <tr><th scope="row">--space-6</th><td>2.8125rem</td><td>One-and-a-half-line rhythm</td></tr>
+              <tr><th scope="row">--space-7</th><td>clamp(3.75rem, 2.92rem + 3.4vw, 5.625rem)</td><td>Fluid chapter interval</td></tr>
+              <tr><th scope="row">--space-8</th><td>clamp(5.625rem, 4.29rem + 5.5vw, 7.5rem)</td><td>Fluid opening interval</td></tr>
+              <tr><th scope="row">--shadow-1</th><td>none</td><td>No elevation</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
 
-<section class="section" id="radius">
-  <p class="eyebrow">Radius</p>
-  <h2>Four tokens, two of them zero</h2>
-  <p>Radius is the exception in this direction rather than the default, so two of the four tiles below are square. Judge whether either non-zero token is doing anything the hard corner beside it was not already doing.</p>
-  <div class="radius-row">
-    <div class="radius-tile radius-tile--sm">
-      <p>--radius-sm · 0 · inert by design: the default corner is square</p>
-    </div>
-    <div class="radius-tile radius-tile--md">
-      <p>--radius-md · 0 · inert by design: the default corner is square</p>
-    </div>
-    <div class="radius-tile radius-tile--lg">
-      <p>--radius-lg · 4px · the table container only</p>
-    </div>
-    <div class="radius-tile radius-tile--pill">
-      <p>--radius-pill · 999px</p>
-    </div>
-  </div>
-  <p class="note">--radius-sm and --radius-md are two tokens refusing the same thing, and they stay separate rather than collapsing because a consumer swapping another direction's tokens.css in has to overwrite both. Reaching for a rounded corner means typing a different token name and noticing that you did. --radius-lg is the reference's own 4px table container, which the composed page above uses once, and --radius-pill comes from its 64px sticky utility bar, the one place that page lets a control round.</p>
-  <p class="note">Never round a panel, a section, an image, a table cell or a code block. Four rounded corners on a panel turns a printed page into an app screen, which is a different direction's job.</p>
-</section>
-
-<section class="section" id="elevation">
-  <p class="eyebrow">Elevation</p>
-  <h2>There is no elevation</h2>
-  <p>Four tiles: a filled sunk field, the shadow token applied to a second copy of it, and the two rule weights that carry the work instead. Judge whether the page reads as one sheet with fields cut into it rather than as cards sitting above it.</p>
-  <div class="elev-row">
-    <div class="elev-tile elev-tile--flat">
-      <p>--ground-2 · 1.08:1 against the sheet · a filled sunk field. A field is filled, never bordered and filled</p>
-    </div>
-    <div class="elev-tile elev-tile--shadow">
-      <p>--shadow-1 · none · this tile has the shadow token applied and is identical to the one beside it. The reference's article shell has no shadow at all, and neither does this</p>
-    </div>
-    <div class="elev-tile elev-tile--hair">
-      <p>--hair · 1.44:1 against the sheet · the rule for repeated separation: section tops, table rows, the footer</p>
-    </div>
-    <div class="elev-tile elev-tile--rule">
-      <p>--ink-3 · 3.11:1 against the sheet · the rule for the two divisions with structural weight, drawn one step darker</p>
-    </div>
-  </div>
-  <p class="note">What carries depth instead is recession and vertical space. The three grounds are fields cut into the same sheet and nothing ever sits above it, which is why --shadow-1 is declared as none rather than left out: a consumer swapping another direction's tokens.css in has to overwrite it.</p>
-</section>
-
-<section class="section" id="components">
-  <p class="eyebrow">Primitives</p>
-  <h2>Components</h2>
-  <p>Every primitive the composed page above leaves unused, once each, with content taken from this direction's own spec and from the measured reference notes. Judge whether any of them needed a box to be legible.</p>
-  <div class="section-head">
-    <p class="eyebrow">Opening</p>
-    <h3>Section head, hero and lead</h3>
-  </div>
-  <p>The block above is a section head: a label and a heading together. The composed page sends its labels to the rail instead, which is why the specimen has to show the block standing on its own.</p>
-  <div class="hero">
-    <p class="hero-title">A long read on a warm sheet</p>
-    <p class="hero-sub">Structure comes from a hairline and the space around it, never from a box.</p>
-  </div>
-  <p class="lead">A lead is body size with a paragraph gap above it and nothing else: no larger size, no lighter ink, no rule. The hero title above is a paragraph rather than a heading, because the one heading of that rank on this page is the masthead.</p>
-  <p class="meta"><span class="badge">page</span> the shape this file is scored as, and the shape every section in it is written in.</p>
-  <h3>Panels and features</h3>
-  <div class="grid">
-    <div class="panel">
-      <p class="eyebrow">Two rule weights</p>
-      <p>--hair at 1.44:1 for repeated separation, --ink-3 at 3.11:1 for the two divisions with structural weight. A view carries no third weight.</p>
-    </div>
-    <div class="panel">
-      <p class="eyebrow">Two families</p>
-      <p>Source Serif 4 for display at weight 400, Hanken Grotesk for body and every label, and IBM Plex Mono for the code block and nothing else.</p>
-    </div>
-  </div>
-  <div class="feature">
-    <p class="eyebrow">Departure three</p>
-    <p>The accent is darkened. The reference's action blue #0879bf reaches 4.31:1 against this paper rather than the 4.69:1 it gets against #fff, so it fails AA for body text as a link colour. oklch(0.510 0.128 245.4) holds the measured hue and reaches 5.26:1.</p>
-  </div>
-  <div class="feature">
-    <p class="eyebrow">Departure five</p>
-    <p>The ground ladder's deepest step is pushed down. Matching the measured #e5e5e5 border tier put --ground-3 only 1.09:1 from --ground-2, which is two sunk fields nobody can tell apart, so the tier was given up and the separation kept at 1.15:1.</p>
-  </div>
-  <h3>Figures and measured numbers</h3>
-  <div class="stat-row">
-    <p class="stat"><strong>40</strong><span>custom properties in this direction's tokens.css, every one of them indexed below</span></p>
-    <p class="stat"><strong>2</strong><span>rule weights in a view: --hair for repetition, --ink-3 for structure</span></p>
-    <p class="stat"><strong>0</strong><span>shadows painted anywhere, because --shadow-1 resolves to none, matching the reference's article shell</span></p>
-    <p class="stat"><strong>21px</strong><span>body size and 1.5 line-height, the reference's own served values</span></p>
-  </div>
-  <blockquote class="quote">
-    <p>Tracking separates the references more cleanly than typeface does. New Yorker normal at 42px, Ramp -0.01px at 64px, Linear -0.022em, V7 and Headspace -0.03em.</p>
-    <cite>docs/2026-08-16-studio-reference-values.md, cross-reference findings</cite>
-  </blockquote>
-  <div class="figure">
-    <svg viewBox="0 0 320 96" role="img" aria-label="The five type sizes set on one baseline at their own token values: 42, 30, 21, 15 and 13 pixels.">
-      <g>
-        <text x="0" y="48">42</text>
-        <text x="52" y="48">30</text>
-        <text x="92" y="48">21</text>
-        <text x="123" y="48">15</text>
-        <text x="148" y="48">13</text>
-      </g>
-      <line x1="0" y1="48" x2="320" y2="48"></line>
-      <text x="0" y="68">--text-h1 42 · --text-h2 30 · --text-base 21</text>
-      <text x="0" y="86">--text-h3 21 · --text-meta 15 · --text-small 13</text>
-    </svg>
-    <p class="caption caption--figure">The five numerals are set at their own token sizes inside the viewBox and sit on one baseline, so the steps keep their true ratios however wide the figure is drawn. --text-h3 equals --text-base exactly, which is the reason it is set italic instead.</p>
-  </div>
-  <h3>Procedure, caveat and the calls to action</h3>
-  <ol class="steps">
-    <li>Ask for the direction, or propose one. There is no default, and the four are not interchangeable.</li>
-    <li>Build one self-contained HTML file against that direction's tokens.css and DESIGN.md.</li>
-    <li>Render it at 390 by 844 and 1440 by 900, then score it against the direction's own avoid list.</li>
-    <li>Revise once below 80, and render again before handing it over.</li>
-  </ol>
-  <ul class="list">
-    <li><strong>A card grid standing in for a comparison is out.</strong> Four items with four attributes each is a table, and a grid of panels costs the reader the ability to compare down a column.</li>
-    <li><strong>Centred prose is out.</strong> The left rail exists to break the symmetry, and a centred column with centred headings throws away the one structural idea the direction has.</li>
-  </ul>
-  <p class="note">Visual complexity follows informational complexity. A 400-word note gets a header, prose, and nothing else — the specimen sheet below the masthead is long because there are 40 tokens to account for, not because length is a virtue.</p>
-  <div class="cta">
-    <a class="btn" href="../../references/anti-patterns.md">Read the anti-pattern list</a>
-    <a class="btn btn--ghost" href="../../references/vocabularies.md">Read the vocabularies</a>
-  </div>
-</section>
-
-<section class="section" id="states">
-  <p class="eyebrow">Interaction</p>
-  <h2>States</h2>
-  <p>Every interactive element repeated across the states it has, each copy forced with a data-state attribute written into the same selector list as the real pseudo-class. Judge whether the state changes read without colour, and whether every target clears 44px.</p>
-  <h3>Buttons</h3>
-  <div class="state-row">
-    <p class="state-label">.btn · rest · --accent fill, --accent-ink label at 5.26:1</p>
-    <p><a class="btn" href="DESIGN.md" data-state="rest">Read the editorial spec</a></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.btn · hover · fill goes to --ink, because blue to near-black is the strongest change available in a three-colour system</p>
-    <p><a class="btn" href="DESIGN.md" data-state="hover">Read the editorial spec</a></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.btn · active · fill goes to --ink-2, one step back off the hover</p>
-    <p><a class="btn" href="DESIGN.md" data-state="active">Read the editorial spec</a></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.btn · focus · a 2px --ring outline held off the edge by --ring-offset, 0.25rem, and the gap is filled with --ground</p>
-    <p><a class="btn" href="DESIGN.md" data-state="focus">Read the editorial spec</a></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.btn · disabled · --ground-3 fill, --hair border, --ink-3 label. The label carries the real disabled attribute as well as the forced state</p>
-    <p><button class="btn" type="button" disabled data-state="disabled">Read the editorial spec</button></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.btn--ghost · rest · transparent fill and an --ink-3 border, so it differs from the solid button in greyscale too</p>
-    <p><a class="btn btn--ghost" href="tokens.css" data-state="rest">Read the tokens</a></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.btn--ghost · hover · --ground-2 fill and the border darkens to --ink</p>
-    <p><a class="btn btn--ghost" href="tokens.css" data-state="hover">Read the tokens</a></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.btn--ghost · active · --ground-3 fill, the deepest field</p>
-    <p><a class="btn btn--ghost" href="tokens.css" data-state="active">Read the tokens</a></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.btn--ghost · focus · the same 2px --ring outline at the same --ring-offset as the solid button</p>
-    <p><a class="btn btn--ghost" href="tokens.css" data-state="focus">Read the tokens</a></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.btn--ghost · disabled · the real disabled attribute alongside the forced state</p>
-    <p><button class="btn btn--ghost" type="button" disabled data-state="disabled">Read the tokens</button></p>
-  </div>
-  <h3>Links in running prose</h3>
-  <div class="state-row">
-    <p class="state-label">link · rest · --ink with a 1px --accent underline</p>
-    <p>The policy is a blacklist, so the interesting question is never which face is allowed. The <a href="../../references/fonts.md" data-state="rest">font list</a> grows over time and is never inverted into a shortlist.</p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">link · hover · the word itself goes --accent</p>
-    <p>The policy is a blacklist, so the interesting question is never which face is allowed. The <a href="../../references/fonts.md" data-state="hover">font list</a> grows over time and is never inverted into a shortlist.</p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">link · active · the underline thickens to 2px, because there is no pressed token to reach for</p>
-    <p>The policy is a blacklist, so the interesting question is never which face is allowed. The <a href="../../references/fonts.md" data-state="active">font list</a> grows over time and is never inverted into a shortlist.</p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">link · focus · 2px --ring at --ring-offset, the same ring the buttons get</p>
-    <p>The policy is a blacklist, so the interesting question is never which face is allowed. The <a href="../../references/fonts.md" data-state="focus">font list</a> grows over time and is never inverted into a shortlist.</p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">link · disabled · --ink-3, the one text use this direction allows it, which WCAG 1.4.3 exempts as an inactive component</p>
-    <p>The policy is a blacklist, so the interesting question is never which face is allowed. The <a href="#states" aria-disabled="true" data-state="disabled">font list</a> grows over time and is never inverted into a shortlist.</p>
-  </div>
-  <h3>Form controls</h3>
-  <div class="state-row">
-    <p class="state-label">.field with a text input · rest · --ground fill and an --ink-3 border, square at --radius-md</p>
-    <p><span class="field"><label for="s-rest">Direction</label><input id="s-rest" type="text" value="editorial" data-state="rest"></span></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.field with a text input · hover · the border darkens to --ink</p>
-    <p><span class="field"><label for="s-hover">Direction</label><input id="s-hover" type="text" value="editorial" data-state="hover"></span></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.field with a text input · active · --ground-2 fill under an --ink border</p>
-    <p><span class="field"><label for="s-active">Direction</label><input id="s-active" type="text" value="editorial" data-state="active"></span></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.field with a text input · focus · 2px --ring outline at --ring-offset 0.25rem, the two tokens this section exists to apply</p>
-    <p><span class="field"><label for="s-focus">Direction</label><input id="s-focus" type="text" value="editorial" data-state="focus"></span></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.field with a text input · disabled · the real disabled attribute alongside the forced state, --ground-3 fill and an --ink-3 value</p>
-    <p><span class="field"><label for="s-disabled">Direction</label><input id="s-disabled" type="text" value="editorial" disabled data-state="disabled"></span></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.field with a select · rest, and rest only · the native control inherits --font-body at --text-meta</p>
-    <p><span class="field"><label for="s-shape">Artifact shape</label><select id="s-shape" data-state="rest"><option>page</option><option>document</option></select></span></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.field with a select · focus · 2px --ring at --ring-offset</p>
-    <p><span class="field"><label for="s-shape-focus">Artifact shape</label><select id="s-shape-focus" data-state="focus"><option>page</option><option>document</option></select></span></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.field with a textarea · rest, and rest only · vertical resize, no radius</p>
-    <p><span class="field"><label for="s-brief">Brief</label><textarea id="s-brief" rows="2" data-state="rest">A long read on a warm sheet.</textarea></span></p>
-  </div>
-  <div class="state-row">
-    <p class="state-label">.field with a textarea · focus · 2px --ring at --ring-offset</p>
-    <p><span class="field"><label for="s-brief-focus">Brief</label><textarea id="s-brief-focus" rows="2" data-state="focus">A long read on a warm sheet.</textarea></span></p>
-  </div>
-</section>
-
-<section class="section" id="tokens">
-  <p class="eyebrow">Index</p>
-  <h2>Token index</h2>
-  <p>All forty custom properties tokens.css declares, in declaration order, with the value and the job each one has here. Judge whether any row describes something the sections above did not show you.</p>
-  <div class="table-wrap">
-    <table>
-      <caption class="caption">The completeness proof: one row per declared property, forty rows, nothing collapsed into a family.</caption>
-      <thead>
-        <tr><th>Token</th><th>Value</th><th>What it means here</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>--ground</td><td data-label="Value">oklch(0.972 0.004 85)</td><td data-label="What it means here">the sheet, every page and every section</td></tr>
-        <tr><td>--ground-2</td><td data-label="Value">oklch(0.945 0.005 85)</td><td data-label="What it means here">sunk field: code block, table header</td></tr>
-        <tr><td>--ground-3</td><td data-label="Value">oklch(0.900 0.005 85)</td><td data-label="What it means here">deepest field: row hover, badge fill</td></tr>
-        <tr><td>--ink</td><td data-label="Value">oklch(0.235 0.010 65)</td><td data-label="What it means here">all display and body type, and the button hover fill</td></tr>
-        <tr><td>--ink-2</td><td data-label="Value">oklch(0.475 0.010 65)</td><td data-label="What it means here">utility type: eyebrow, caption, meta, table header</td></tr>
-        <tr><td>--ink-3</td><td data-label="Value">oklch(0.640 0.008 65)</td><td data-label="What it means here">structural rules and the ghost button border. Never text</td></tr>
-        <tr><td>--hair</td><td data-label="Value">oklch(0.855 0.006 65)</td><td data-label="What it means here">every repeated rule: section tops, table rows, footer</td></tr>
-        <tr><td>--accent</td><td data-label="Value">oklch(0.510 0.128 245.4)</td><td data-label="What it means here">link underline, solid button fill, focus ring. Nothing else</td></tr>
-        <tr><td>--accent-ink</td><td data-label="Value">oklch(0.972 0.004 85)</td><td data-label="What it means here">paper, as the label on the solid button</td></tr>
-        <tr><td>--ring</td><td data-label="Value">oklch(0.510 0.128 245.4)</td><td data-label="What it means here">the focus-visible ring, the accent's third and last job</td></tr>
-        <tr><td>--ring-offset</td><td data-label="Value">0.25rem</td><td data-label="What it means here">the gap between the ring and what it rings, always filled with --ground</td></tr>
-        <tr><td>--radius-sm</td><td data-label="Value">0</td><td data-label="What it means here">inert by design: the default corner is square</td></tr>
-        <tr><td>--radius-md</td><td data-label="Value">0</td><td data-label="What it means here">inert by design: the default corner is square</td></tr>
-        <tr><td>--radius-lg</td><td data-label="Value">4px</td><td data-label="What it means here">the table container only</td></tr>
-        <tr><td>--radius-pill</td><td data-label="Value">999px</td><td data-label="What it means here">the badge, and the solid button if the page has one</td></tr>
-        <tr><td>--font-display</td><td data-label="Value">"Source Serif 4", Georgia, serif</td><td data-label="What it means here">h1, h2, h3, and the direction name in a stacked table</td></tr>
-        <tr><td>--font-body</td><td data-label="Value">"Hanken Grotesk", system-ui, sans-serif</td><td data-label="What it means here">body, lead, and all utility type</td></tr>
-        <tr><td>--font-mono</td><td data-label="Value">"IBM Plex Mono", ui-monospace, Menlo, monospace</td><td data-label="What it means here">the code block only</td></tr>
-        <tr><td>--text-base</td><td data-label="Value">21px</td><td data-label="What it means here">body, and the reference's article body size</td></tr>
-        <tr><td>--text-h1</td><td data-label="Value">clamp(30px, 1.6rem + 1.14vw, 42px)</td><td data-label="What it means here">the measured 30 to 42px headline, fluid between them</td></tr>
-        <tr><td>--text-h2</td><td data-label="Value">clamp(24px, 1.36rem + 0.57vw, 30px)</td><td data-label="What it means here">section headings, topping out at the headline's floor</td></tr>
-        <tr><td>--text-h3</td><td data-label="Value">21px</td><td data-label="What it means here">equals --text-base on purpose: a run-in serif subhead, set italic</td></tr>
-        <tr><td>--text-meta</td><td data-label="Value">15px</td><td data-label="What it means here">table cells, captions, footnotes, figure credits</td></tr>
-        <tr><td>--text-small</td><td data-label="Value">13px</td><td data-label="What it means here">utility type, and the code block</td></tr>
-        <tr><td>--leading-body</td><td data-label="Value">1.5</td><td data-label="What it means here">the reference's 21px / 1.5em body</td></tr>
-        <tr><td>--leading-h3</td><td data-label="Value">1.2</td><td data-label="What it means here">the run-in subhead, which --leading-display would collide on</td></tr>
-        <tr><td>--leading-display</td><td data-label="Value">1.0667</td><td data-label="What it means here">the reference's headline leading, at every heading level</td></tr>
-        <tr><td>--track-display</td><td data-label="Value">normal</td><td data-label="What it means here">inert by design, and the point of the direction</td></tr>
-        <tr><td>--track-body</td><td data-label="Value">normal</td><td data-label="What it means here">inert by design. Negative tracking has no token here</td></tr>
-        <tr><td>--measure</td><td data-label="Value">64ch</td><td data-label="What it means here">every run of prose, whatever the viewport</td></tr>
-        <tr><td>--rail</td><td data-label="Value">10rem</td><td data-label="What it means here">the left rail the signature move is built on</td></tr>
-        <tr><td>--space-1</td><td data-label="Value">0.25rem</td><td data-label="What it means here">inside a badge, the focus-ring offset</td></tr>
-        <tr><td>--space-2</td><td data-label="Value">0.5rem</td><td data-label="What it means here">badge padding, nav gaps</td></tr>
-        <tr><td>--space-3</td><td data-label="Value">0.75rem</td><td data-label="What it means here">label to value</td></tr>
-        <tr><td>--space-4</td><td data-label="Value">1rem</td><td data-label="What it means here">table cell padding, code block padding</td></tr>
-        <tr><td>--space-5</td><td data-label="Value">1.5rem</td><td data-label="What it means here">paragraph to paragraph, page gutter</td></tr>
-        <tr><td>--space-6</td><td data-label="Value">2rem</td><td data-label="What it means here">hairline to heading, the rail gutter, heading to table</td></tr>
-        <tr><td>--space-7</td><td data-label="Value">3rem</td><td data-label="What it means here">section to section</td></tr>
-        <tr><td>--space-8</td><td data-label="Value">6rem</td><td data-label="What it means here">masthead to body, once per page</td></tr>
-        <tr><td>--shadow-1</td><td data-label="Value">none</td><td data-label="What it means here">inert by design. Depth is rules and space</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<footer class="footer">
-  <p class="meta">studio, editorial direction. Page shape, rendered at 390 by 844 and 1440 by 900. Measured against The New Yorker, Pope.L article, served CSS rather than computed.</p>
-</footer>
-
+  <footer class="footer">
+    <p><span class="code">Studio / Editorial</span> · page shape: publication-first specimen · verification targets: 390 / 768 / 1440 / print</p>
+    <p>Remote-font dependency: Newsreader, Source Sans 3, and Source Code Pro from Google Fonts. Print translation uses white stock, visible rules, and the A4 portrait grid.</p>
+  </footer>
 </body>
 </html>

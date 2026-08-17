@@ -1,63 +1,55 @@
-/* studio direction: editorial
-   Measured against The New Yorker (Pope.L article, served CSS, not computed).
-   The palette is the operator's own production paper/ink ladder rather than the
-   reference's #fff/#000. Hexes and contrast ratios are tabulated in DESIGN.md. */
+/* studio direction: editorial */
 
 :root {
   color-scheme: light;
 
-  --ground:          oklch(0.972 0.004 85);
-  --ground-2:        oklch(0.945 0.005 85);
-  --ground-3:        oklch(0.900 0.005 85);
-
-  --ink:             oklch(0.235 0.010 65);
-  --ink-2:           oklch(0.475 0.010 65);
-  --ink-3:           oklch(0.640 0.008 65);
-
-  --hair:            oklch(0.855 0.006 65);
-
-  --accent:          oklch(0.510 0.128 245.4);
-  --accent-ink:      oklch(0.972 0.004 85);
-
-  --ring:            oklch(0.510 0.128 245.4);
-  --ring-offset:     0.25rem;
+  --ground:          oklch(0.968 0.012 86);
+  --ground-2:        oklch(0.940 0.014 84);
+  --ground-3:        oklch(0.900 0.016 82);
+  --ink:             oklch(0.220 0.018 55);
+  --ink-2:           oklch(0.440 0.015 55);
+  --ink-3:           oklch(0.620 0.012 60);
+  --hair:            oklch(0.820 0.012 75);
+  --accent:          oklch(0.440 0.180 265);
+  --accent-ink:      oklch(0.968 0.012 86);
+  --ring:            oklch(0.440 0.180 265);
+  --ring-offset:     0.1875rem;
 
   --radius-sm:       0;
-  --radius-md:       0;
-  --radius-lg:       4px;
+  --radius-md:       0.125rem;
+  --radius-lg:       0.25rem;
   --radius-pill:     999px;
 
-  --font-display:    "Source Serif 4", Georgia, serif;
-  --font-body:       "Hanken Grotesk", system-ui, sans-serif;
-  --font-mono:       "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --font-display:    "Newsreader", Georgia, serif;
+  --font-body:       "Newsreader", Georgia, serif;
+  --font-utility:    "Source Sans 3", system-ui, sans-serif;
+  --font-mono:       "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --text-base:       21px;
-  --text-h1:         clamp(30px, 1.6rem + 1.14vw, 42px);
-  --text-h2:         clamp(24px, 1.36rem + 0.57vw, 30px);
-  --text-h3:         21px;
-  --text-meta:       15px;
-  --text-small:      13px;
+  --text-base:       1.1875rem;
+  --text-h1:         clamp(2.5rem, 1.95rem + 2.25vw, 4rem);
+  --text-h2:         clamp(1.75rem, 1.48rem + 1.1vw, 2.5rem);
+  --text-h3:         1.375rem;
+  --text-meta:       0.875rem;
+  --text-small:      0.75rem;
 
-  --leading-body:    1.5;
-  --leading-h3:      1.2;
-  --leading-display: 1.0667;
-
-  /* Zero, at every size, including the 42px headline. The defining constraint. */
+  --leading-body:    1.57895;
+  --leading-h3:      1.27273;
+  --leading-display: 1.05;
   --track-display:   normal;
   --track-body:      normal;
 
-  --measure:         64ch;
-  --rail:            10rem;
+  --measure:         66ch;
+  --rail:            17rem;
 
   --space-1:         0.25rem;
   --space-2:         0.5rem;
-  --space-3:         0.75rem;
-  --space-4:         1rem;
-  --space-5:         1.5rem;
-  --space-6:         2rem;
-  --space-7:         3rem;
-  --space-8:         6rem;
+  --space-3:         0.9375rem;
+  --space-4:         1.40625rem;
+  --space-5:         1.875rem;
+  --space-6:         2.8125rem;
+  --space-7:         clamp(3.75rem, 2.92rem + 3.4vw, 5.625rem);
+  --space-8:         clamp(5.625rem, 4.29rem + 5.5vw, 7.5rem);
 
-  /* The reference's article shell has no shadow. Depth is rules and space. */
   --shadow-1:        none;
 }
+
