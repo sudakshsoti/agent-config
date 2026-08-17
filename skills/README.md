@@ -56,6 +56,7 @@ deliberately not installed — see [`_archive/README.md`](_archive/README.md).
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
 - `find-skills` — Discover and install agent skills when asked "is there a skill for X".
 - `finite` — The advisor for a finite life: a daily orient across Linear/Todoist/notes, on-demand triage that names what a new commitment displaces, and the forced cull into a durable Season ledger. Burkeman-flavoured — kind, unflinching, subtractive.
+- `frontend-craft` — Visual direction for new UI, plus typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
 - `git-guardrails` — Set up a hook that blocks dangerous git commands (`push`, `reset --hard`, `clean -f`, `branch -D`) before Claude Code runs them.
 - `grilling` — Interview the user relentlessly about a plan/decision, round by round over a design tree, until nothing is left unsettled.
 - `handoff` — Structured session-handoff docs for continuity across sessions.
@@ -82,10 +83,10 @@ deliberately not installed — see [`_archive/README.md`](_archive/README.md).
 - `wizard` — Generate an interactive bash wizard for a manual procedure only a human can do (provisioning, credentials, third-party dashboards). `/wizard`.
 - `writing-for-agents` — Reference for writing any document an agent consumes: context pointers, information hierarchy, leading words, pruning.
 
-The eight frontend/design skills are `typography-craft`, `motion-craft`,
-`motion-review`, `design-foil`, `prototype`, `ux-writing`, `pick-ui-library`,
-and `maintainability-review`. There is no visual-system skill: broad visual
-direction and self-contained HTML documents are unowned.
+The nine frontend/design skills are `frontend-craft`, `typography-craft`,
+`motion-craft`, `motion-review`, `design-foil`, `prototype`, `ux-writing`,
+`pick-ui-library`, and `maintainability-review`. No skill owns self-contained
+HTML documents: `html-doc` was retired with studio and has not been restored.
 
 ## Installing per surface
 
