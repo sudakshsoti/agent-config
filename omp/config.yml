@@ -1,22 +1,14 @@
-# INVARIANT: no `anthropic/` selector may appear anywhere in `fallbackChains`.
-# Claude directs the judgment roles below, so an Anthropic rung in the retry
-# ladder means a failed Claude call retries on Claude. Same lineage, no
-# independent check, which is the whole point of the ladder. Every rung is a
-# different vendor from the one above it.
+# Normal work stays on the OpenAI subscription. OpenCode Go is reserved for
+# the cross-lineage adversary, and OpenCode Zen is only the fallback provider.
 modelRoles:
-  default: anthropic/claude-sonnet-5:medium
-  plan: anthropic/claude-opus-5:medium
-  slow: anthropic/claude-opus-5:medium
-  designer: anthropic/claude-sonnet-5:medium
-  vision: anthropic/claude-opus-5:medium
+  default: openai-codex/gpt-5.6-terra:medium
+  plan: openai-codex/gpt-5.6-sol:medium
+  slow: openai-codex/gpt-5.6-sol:medium
+  designer: openai-codex/gpt-5.6-terra:medium
+  vision: openai-codex/gpt-5.6-sol:medium
   task: openai-codex/gpt-5.6-luna:xhigh
-  # Adversary was DeepSeek V4 Pro. Dropped: it is accurate but painfully slow,
-  # and a plan review you wait on is a plan review you skip. Gemini 3.7 Flash is
-  # a different lineage from every director model here, has a 1M window so it can
-  # read the plan plus the files it cites, and returns in a fraction of the time.
-  # On openrouter, not opencode-zen: same model, $0.375/$1.875 vs $1.50/$7.50.
-  # That openrouter price is a promo that may expire 2026-12-31 — revisit then.
-  adversary: openrouter/google/gemini-3.7-flash:high
+  # Keep OpenCode Go rare: only explicit cross-lineage peer review reaches it.
+  adversary: opencode-go/minimax-m3:high
   # prewalk.enabled is deliberately left off. On, omp switches from the active
   # model to this `smol` role at the first edit/write after the todo list
   # exists: Opus thinks and plans, luna:low types. That is worth having, but it
@@ -48,28 +40,19 @@ retry:
   usageAwareFallback: true
   usageReservePct: 15
   usageReservePolicy: confirm
-  fallbackChains: 
-    # Claude out of quota -> ChatGPT -> Google. Never back to Claude.
-    anthropic/*: 
+  fallbackChains:
+    # Normal OpenAI work falls back to a non-OpenAI model on OpenCode Zen.
+    openai-codex/*:
+      - opencode-zen/minimax-m3:high
+    # The Go subscription is reserved for peer review. If it is unavailable,
+    # retry through Zen rather than consuming another Go request.
+    opencode-go/*:
+      - opencode-zen/minimax-m3:high
+    # A failed Zen fallback gets one final attempt on the OpenAI subscription.
+    opencode-zen/*:
       - openai-codex/gpt-5.6-luna:xhigh
-      - openrouter/google/gemini-3.7-flash:high
-    # ChatGPT out of quota -> Google -> MiniMax. Never Claude.
-    openai-codex/*: 
-      - openrouter/google/gemini-3.7-flash:high
-      - opencode-go/minimax-m3:high
-    # Covers the adversary role. Ordered by remaining quota, not preference:
-    # on 2026-08-15 `omp usage` had Codex at 21% of its 7-day limit and OpenCode
-    # Go at 86% weekly, so Codex answers first and MiniMax is the last thing
-    # tried. OpenCode Go is last in every chain it appears in for that reason.
-    # Re-check with `omp usage` before reordering; the vendor-diversity
-    # invariant at the top of this file outranks the capacity ordering.
-    openrouter/*: 
-      - openai-codex/gpt-5.6-luna:xhigh
-      - opencode-go/minimax-m3:high
-    opencode-go/*: 
-      - openai-codex/gpt-5.6-luna:xhigh
-    default: 
-      - openrouter/google/gemini-3.7-flash:high
+    default:
+      - opencode-zen/minimax-m3:high
 symbolPreset: nerd
 theme: 
   dark: dark-lunar
@@ -134,8 +117,6 @@ providers:
   # what the `auto` thinking-level decisions actually cost.
   autoThinkingModel: online
   autoThinkingMaxEffort: xhigh
-  anthropic:
-    serverSideFallback: false
   webSearchOrder:
     - tavily
     - exa
