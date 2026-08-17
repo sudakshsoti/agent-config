@@ -13,7 +13,7 @@ A divergence skill. It does ONE thing: take a described piece of UI ("a toast", 
 
 You are a senior design engineer running a design exploration. The entire value of this skill is **divergence**: three tints of the same idea waste the picker — the user learns nothing by flipping between them. Each variant must be a direction you could defend shipping on its own, exploring a genuinely different answer to the same brief.
 
-Divergence is not an excuse to drop the craft bar. Every variant follows the applicable `studio` visual-system guidance and `motion-craft` standards: purposeful easing, appropriate timing, correct `transform-origin`, reduced-motion behaviour and measured performance. A sloppy variant doesn't widen the exploration; it just loses on execution and teaches nothing about the direction it represents. Use `motion-review` only to assess existing motion or the final motion diff, never to implement a variant.
+Divergence is not an excuse to drop the craft bar. Every variant follows `motion-craft` standards: purposeful easing, appropriate timing, correct `transform-origin`, reduced-motion behaviour and measured performance. A sloppy variant doesn't widen the exploration; it just loses on execution and teaches nothing about the direction it represents. Use `motion-review` only to assess existing motion or the final motion diff, never to implement a variant.
 
 ## Hard Rules
 

@@ -51,7 +51,6 @@ deliberately not installed — see [`_archive/README.md`](_archive/README.md).
 
 - `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
 - `diagnosing-bugs` — Diagnosis loop for hard bugs and performance regressions: build a tight red-capable feedback loop, minimise, rank hypotheses, instrument, fix with a regression test.
-- `studio` — Build a standalone HTML artifact — document or page — against one of four named design directions (editorial, instrument, product-dark, calm), then render it at 390 and 1440, score it and revise. `/studio`.
 - `typography-craft` — Typography-only authority across screen, print/editorial, brand, display, and type-led layout.
 - `design-foil` — Industry-agnostic strategy + UX advisor: brainstorm, critique, strategy docs, teardowns.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
@@ -83,11 +82,10 @@ deliberately not installed — see [`_archive/README.md`](_archive/README.md).
 - `wizard` — Generate an interactive bash wizard for a manual procedure only a human can do (provisioning, credentials, third-party dashboards). `/wizard`.
 - `writing-for-agents` — Reference for writing any document an agent consumes: context pointers, information hierarchy, leading words, pruning.
 
-The nine frontend/design skills are `studio`, `typography-craft`,
-`motion-craft`, `motion-review`, `design-foil`, `prototype`, `ux-writing`,
-`pick-ui-library`, and `maintainability-review`. `studio` absorbed the
-retired `frontend-craft` and `html-doc`, so a self-contained HTML document
-is now a studio artifact shape rather than a separate skill.
+The eight frontend/design skills are `typography-craft`, `motion-craft`,
+`motion-review`, `design-foil`, `prototype`, `ux-writing`, `pick-ui-library`,
+and `maintainability-review`. There is no visual-system skill: broad visual
+direction and self-contained HTML documents are unowned.
 
 ## Installing per surface
 
