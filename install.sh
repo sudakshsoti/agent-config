@@ -29,6 +29,7 @@
 # Also symlinked (the owning tool rewrites it, but writes follow the link and it
 # holds no secrets — see step 3e):
 #   omp/config.yml -> ~/.omp/agent/config.yml
+#   omp/lsp.yml -> ~/.omp/agent/lsp.yml
 #     OMP's model roles, thinking level, statusline and task settings. Changing
 #     a setting from the OMP TUI edits the repo copy directly; review with
 #     `git diff` before committing. Only linked if ~/.omp/agent exists.
@@ -228,7 +229,7 @@ fi
 #     ~/.omp/agent/config.yml` look like it passed on a machine that never got
 #     the links.
 if [ ! -d "$OMP" ]; then
-  echo "⚠️  SKIP omp — no $OMP (OMP not installed). config.yml, models.yml and agents/ not linked."
+  echo "⚠️  SKIP omp — no $OMP (OMP not installed). config.yml, lsp.yml, models.yml and agents/ not linked."
 fi
 
 # 3e. OMP config: symlinked, unlike codex/config.toml above. OMP *does* rewrite
@@ -245,7 +246,15 @@ if [ -d "$OMP" ] && [ -f "$REPO/omp/config.yml" ]; then
   link_into "$REPO/omp/config.yml" "$OMP/config.yml"
 fi
 
-# 3f. OMP subagents: symlinked the same way. `adversary` is the cross-lineage
+# 3f. OMP LSP preferences: partial overrides of OMP's built-in server
+#     definitions. The server binaries are machine dependencies; OMP activates
+#     each one only when its root markers match the current working directory.
+if [ -d "$OMP" ] && [ -f "$REPO/omp/lsp.yml" ]; then
+  mkdir -p "$OMP"
+  link_into "$REPO/omp/lsp.yml" "$OMP/lsp.yml"
+fi
+
+# 3g. OMP subagents: symlinked the same way. `adversary` is the cross-lineage
 #     plan reviewer — it pins `model: "@adversary"`, so it follows the role in
 #     omp/config.yml and can never resolve to an Anthropic model.
 if [ -d "$OMP" ] && [ -d "$REPO/omp/agents" ]; then
@@ -255,7 +264,7 @@ if [ -d "$OMP" ] && [ -d "$REPO/omp/agents" ]; then
   done
 fi
 
-# 3g. OMP custom models: the local Ollama provider that serves session titles
+# 3h. OMP custom models: the local Ollama provider that serves session titles
 #     and the `auto` thinking classifier. Symlinked for the same reason as
 #     config.yml — OMP reads this file and never writes it, so the repo is the
 #     only source of truth and the rationale comments in it survive.

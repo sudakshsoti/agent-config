@@ -1,0 +1,18 @@
+# OMP merges these partial entries onto its built-in server definitions, then
+# starts a server only when its binary exists and its root markers match cwd.
+# Machine dependencies:
+#   pnpm add --global typescript typescript-language-server \
+#     bash-language-server yaml-language-server vscode-langservers-extracted
+#   pnpm add --global pyright
+#   brew install lua-language-server
+servers:
+  typescript-language-server: {}
+  pyright: {}
+  bashls: {}
+  yamlls: {}
+  vscode-html-language-server: {}
+  vscode-css-language-server: {}
+  # OMP's built-in Lua markers omit ordinary dotfile repositories. The Lua
+  # files under dotfiles are still a valid workspace, so allow any git root.
+  lua-language-server:
+    rootMarkers: [".luarc.json", ".luarc.jsonc", ".luacheckrc", ".stylua.toml", "stylua.toml", ".git"]
