@@ -28,9 +28,9 @@ model than the one that wrote the plan.
 
 In omp, do not run this prompt yourself — dispatch the `adversary` subagent with
 the plan file. It pins `model: "@adversary"`, which resolves through the
-`adversary` role in `omp/config.yml` to Gemini 3.7 Flash, and whose fallback
-chain contains no Anthropic model. Running it inline would review a Claude plan
-with Claude.
+`adversary` role in `omp/config.yml` to GPT-5.6 Sol at high effort, and whose
+fallback chain contains no Anthropic model. Running it inline would review a
+Claude plan with Claude.
 
 On any other surface, run the prompt above in a session that is not on the same
 vendor as the plan's author.

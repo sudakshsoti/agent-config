@@ -1,14 +1,26 @@
-# Normal work stays on the OpenAI subscription. OpenCode Go is reserved for
-# the cross-lineage adversary, and OpenCode Zen is only the fallback provider.
+# Claude directs; the ladder below it is Codex -> OpenCode Go -> Zen. Anthropic
+# is the primary subscription and carries the roles where model quality changes
+# the answer. Every rung but the last is a subscription already paid for, so
+# prepaid Zen balance is only reached after three plans have failed.
+#
+# INVARIANT: no `anthropic/` selector may appear in the `openai-codex/*` chain.
+# That chain backs the `adversary` role, and Claude writes the plans it reviews,
+# so an Anthropic rung there means a Claude plan gets reviewed by Claude. The
+# invariant is scoped to that one chain on purpose — Anthropic rungs elsewhere
+# are correct and expected now that Claude is the director again.
 modelRoles:
-  default: openai-codex/gpt-5.6-terra:medium
-  plan: openai-codex/gpt-5.6-sol:medium
-  slow: openai-codex/gpt-5.6-sol:high
-  designer: openai-codex/gpt-5.6-terra:medium
-  vision: openai-codex/gpt-5.6-sol:medium
+  default: anthropic/claude-sonnet-5:medium
+  plan: anthropic/claude-opus-5:medium
+  slow: anthropic/claude-opus-5:high
+  designer: anthropic/claude-sonnet-5:medium
+  vision: anthropic/claude-sonnet-5:medium
   task: openai-codex/gpt-5.6-luna:xhigh
-  # Keep OpenCode Go rare: only explicit cross-lineage peer review reaches it.
-  adversary: opencode-go/minimax-m3:high
+  # Cross-lineage against a Claude-authored plan, and free under the Codex
+  # subscription. Was opencode-go/minimax-m3 while OpenAI wrote the plans; that
+  # pairing stopped being cross-lineage the moment Claude took the plan role
+  # back. Keeping the Go subscription out of this frees it to be the overflow
+  # tier in the chains below.
+  adversary: openai-codex/gpt-5.6-sol:high
   # prewalk.enabled is deliberately left off. On, omp switches from the active
   # model to this `smol` role at the first edit/write after the todo list
   # exists: Opus thinks and plans, luna:low types. That is worth having, but it
@@ -39,20 +51,33 @@ retry:
   modelFallback: true
   usageAwareFallback: true
   usageReservePct: 15
-  usageReservePolicy: confirm
+  # `auto`, not `confirm`. Claude is the plan most likely to run out, and a
+  # confirm prompt at 15% remaining interrupts the session to ask a question
+  # with only one sensible answer. Enum is confirm | auto | fail-closed.
+  usageReservePolicy: auto
   fallbackChains:
-    # Normal OpenAI work falls back to a non-OpenAI model on OpenCode Zen.
+    # Claude out of quota -> Codex -> OpenCode Go -> Zen. Three subscriptions
+    # before anything metered.
+    anthropic/*:
+      - openai-codex/gpt-5.6-sol:high
+      - opencode-go/minimax-m3:high
+      - opencode-zen/deepseek-v4-flash:high
+    # No `anthropic/` rung here — see the invariant at the top of this file.
     openai-codex/*:
-      - opencode-zen/minimax-m3:high
-    # The Go subscription is reserved for peer review. If it is unavailable,
-    # retry through Zen rather than consuming another Go request.
+      - opencode-go/minimax-m3:high
+      - opencode-zen/deepseek-v4-flash:high
     opencode-go/*:
-      - opencode-zen/minimax-m3:high
-    # A failed Zen fallback gets one final attempt on the OpenAI subscription.
+      - opencode-zen/deepseek-v4-flash:high
+    # A failed Zen call retries on the Go subscription rather than spending more
+    # balance.
     opencode-zen/*:
-      - openai-codex/gpt-5.6-luna:xhigh
+      - opencode-go/minimax-m3:high
+    # deepseek-v4-flash, not minimax-m3: $0.14/$0.28 per M against $0.30/$1.20,
+    # with a 1M window and 384K output. This rung should almost never fire, so
+    # it is priced to be nearly free when it does. Note it offers only
+    # low/high/max — there is no `medium` effort on this model.
     default:
-      - opencode-zen/minimax-m3:high
+      - opencode-zen/deepseek-v4-flash:high
 symbolPreset: nerd
 theme: 
   dark: dark-lunar

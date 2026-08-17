@@ -28,7 +28,7 @@ graph TD
     B --> C[plan-critic subagent<br/>cold Opus, read-only]
     C --> D[Opus revises plan]
     D --> E["/peer-review in omp"]
-    E --> F["adversary subagent<br/>Gemini 3.7 Flash, read-only"]
+    E --> F["adversary subagent<br/>GPT-5.6 Sol, read-only"]
     F --> H[Paste critique back to Opus]
     H --> I[Opus integrates, plan is hardened]
 ```
@@ -39,12 +39,12 @@ graph TD
 - **What runs:** the [[#plan-critic|plan-critic]] subagent — Opus, read-only, prompted as a hostile reviewer with _no loyalty_ to the plan. It runs in a **fresh context window**, so it isn't anchored by the reasoning that produced the plan.
 - **Output:** assumptions → internal inconsistencies → blind spots → over-engineering → verdict. Opus then revises in place and shows ==only what changed==.
 
-### Stage 2 — cross-lineage (different model family, costs OpenRouter credits)
+### Stage 2 — cross-lineage (different model family, covered by the Codex subscription)
 
 - **Trigger:** open `omp` on the plan file and run `/peer-review`.
-- **What runs:** the `adversary` subagent (`omp/agents/adversary.md`), read-only, pinned to `model: "@adversary"`. That role resolves to **Gemini 3.7 Flash** on OpenRouter, and its fallback chain contains no Anthropic model — so a retry can never quietly hand a Claude plan back to Claude.
-- **Why Gemini and not DeepSeek:** DeepSeek V4 Pro held this slot until 2026-08-15 and was accurate, but slow enough that the review got skipped. Flash returns fast, reads the plan plus every file it cites in one 1M-token window, and is a lineage nobody here directs with.
-- **Cost:** OpenRouter is metered, not a subscription. Flash is $0.375 / $1.875 per 1M tokens — a promo that may end 2026-12-31, worth revisiting then.
+- **What runs:** the `adversary` subagent (`omp/agents/adversary.md`), read-only, pinned to `model: "@adversary"`. That role resolves to **GPT-5.6 Sol at high effort** on the Codex subscription, and its fallback chain contains no Anthropic model — so a retry can never hand a Claude plan back to Claude.
+- **Why Codex and not OpenCode Go:** the adversary sat on MiniMax M3 (OpenCode Go) between 2026-08-17 and this change, which was cross-lineage only while OpenAI wrote the plans. Claude directs the `plan` role again, so OpenAI is the different lineage now — and Sol is a stronger critic than MiniMax M3 (Artificial Analysis intelligence 45.4). Moving it off Go also frees that subscription to be the overflow tier in the retry ladder.
+- **Cost:** none beyond the $20 Codex subscription. Earlier occupants of this slot were DeepSeek V4 Pro (accurate but slow enough that the review got skipped), then Gemini 3.7 Flash on OpenRouter, then MiniMax M3 on OpenCode Go. OpenRouter is no longer referenced by any role.
 
 ## Daily ritual
 
@@ -52,7 +52,7 @@ graph TD
 >
 > 1. Opus proposes a plan in plan mode.
 > 2. Type `/self-review` → plan-critic critiques it cold, Opus revises.
-> 3. Open the plan in `omp`, run `/peer-review` → the `adversary` subagent critiques it on Gemini 3.7 Flash.
+> 3. Open the plan in `omp`, run `/peer-review` → the `adversary` subagent critiques it on GPT-5.6 Sol.
 > 4. Paste anything new back to Opus.
 
 ## Commands & aliases
@@ -76,7 +76,7 @@ graph TD
 - `peer-review` skill — `agent-config/skills/peer-review/SKILL.md` → `~/.agents/skills/`. Tracked: ✅ git + symlink.
 - `adversary` agent — `agent-config/omp/agents/adversary.md` → `~/.omp/agent/agents/`. Tracked: ✅ git + symlink.
 - `adversary` model role — `agent-config/omp/config.yml` → `~/.omp/agent/config.yml`. Tracked: ✅ git + symlink.
-- OpenRouter API key — omp auth store (`~/.local/share/opencode/auth.json`). Tracked: ❌ (secret)
+- Anthropic + Codex credentials — omp auth broker, not the plain auth store (`~/.local/share/opencode/auth.json` does not list Anthropic). Tracked: ❌ (secret)
 
 > [!note] Why a skill, not a command file
 > This repo has no `commands/` directory — its mechanism for a slash command is a `user-invocable: true` skill. `/self-review` is functionally identical to a command file.
@@ -114,8 +114,8 @@ cross-lineage reviewer is a one-line edit and the fallback chain follows it.
 
 > [!question] Why this order, and why two models?
 >
-> - **Cheap-first.** Stage 1 runs every time at no marginal cost; Stage 2 spends OpenRouter credits, so it only runs on plans Stage 1 has already tightened.
-> - **Lineage diversity.** Claude reviewing Claude shares the same blind spots. A different model family is the point — it sees what self-review structurally cannot. This is why no `anthropic/` selector appears anywhere in `retry.fallbackChains`: a rung back onto Claude would silently undo Stage 2.
+> - **Cheap-first.** Stage 1 runs every time at no marginal cost; Stage 2 spends Codex quota, so it only runs on plans Stage 1 has already tightened.
+> - **Lineage diversity.** Claude reviewing Claude shares the same blind spots. A different model family is the point — it sees what self-review structurally cannot. This is why no `anthropic/` selector appears in the `openai-codex/*` fallback chain: a rung back onto Claude would undo Stage 2. Note the scope — that one chain, not the whole file. Anthropic rungs appear elsewhere in `retry.fallbackChains` by design, because Claude directs the judgment roles again.
 > - **Fast enough to actually run.** A reviewer you wait three minutes on is a reviewer you skip. Speed is a correctness property here, not a comfort.
 > - **Fresh context.** plan-critic reviews cold, with no loyalty to the plan's original reasoning.
 
@@ -123,11 +123,11 @@ cross-lineage reviewer is a one-line edit and the fallback chain follows it.
 
 > [!todo] First-run / new-machine checklist
 >
-> - [ ] `omp auth login openrouter` (paste key) — the `adversary` role needs it
+> - [ ] `omp usage` shows both an Anthropic and a Codex account — the `default` and `adversary` roles need them
 > - [ ] `./install.sh` in `agent-config` to symlink the agents, skills, and omp config
 > - [ ] Restart Claude Code so `plan-critic` and `/self-review` load
 > - [ ] Smoke test Stage 1: `/self-review` on any plan
-> - [ ] Smoke test Stage 2: `omp --model gemini-3.7-flash -p "reply OK"`
+> - [ ] Smoke test Stage 2: `omp --model gpt-5.6-sol -p "reply OK"`
 
 ## Related
 
