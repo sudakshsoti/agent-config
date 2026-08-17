@@ -103,5 +103,4 @@ Do not write implementation code or edit product source. Hand fixes to
 This skill evaluates motion; it never implements product-source changes.
 `opportunities` and `diff` are strictly read-only. `audit` may write tracked
 plans only. Use `motion-craft` for implementation, gesture work or motion
-terminology. Use `studio` for visual-system choices and `design-foil`
-for product or design-process critique.
+terminology. Use `design-foil` for product or design-process critique.
