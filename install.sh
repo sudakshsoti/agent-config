@@ -13,8 +13,6 @@
 #     budget (it warns about truncating descriptions when that fills up).
 #     Step 1b removes copies left there by the older mirror mechanism.
 #   agents/<name>.md -> ~/.claude/agents/<name>.md
-#   commands/<name>.md -> ~/.claude/commands/<name>.md
-#   hooks/<name> -> ~/.claude/hooks/<name>
 #   claude-powerline.json -> ~/.claude/claude-powerline.json
 #     the active statusline as of 2026-07-31 (@owloops/claude-powerline).
 #     Symlinked, not copied — the binary only ever reads its config, there is
@@ -94,7 +92,7 @@ case "$REPO" in
     ;;
 esac
 
-mkdir -p "$CLAUDE/skills" "$CLAUDE/agents" "$CLAUDE/commands" "$CLAUDE/hooks"
+mkdir -p "$CLAUDE/skills" "$CLAUDE/agents"
 # Mirror skills into the shared ~/.agents/skills root, but only if Codex is
 # actually installed (its own dir already exists) — never create ~/.agents on a
 # Claude-only box. Codex scans BOTH ~/.codex/skills and ~/.agents/skills, so
@@ -174,22 +172,6 @@ fi
 for file in "$REPO"/agents/*.md; do
   [ -f "$file" ] || continue
   link_into "$file" "$CLAUDE/agents/$(basename "$file")"
-done
-
-# 2b. Commands: every markdown file in commands/ becomes a global slash command.
-for file in "$REPO"/commands/*.md; do
-  [ -f "$file" ] || continue
-  link_into "$file" "$CLAUDE/commands/$(basename "$file")"
-done
-
-# 2c. Hooks: every script in hooks/ becomes a hook helper. Symlinked, since
-#     Claude Code only ever executes these — it never rewrites them. The
-#     settings.json entries that invoke them are baked into the repo copy in
-#     step 3, and reference "$HOME/.claude/hooks/<name>" so they survive a
-#     different checkout path.
-for file in "$REPO"/hooks/*; do
-  [ -f "$file" ] || continue
-  link_into "$file" "$CLAUDE/hooks/$(basename "$file")"
 done
 
 # 3. Settings file: copy only if missing (new-machine bootstrap).
