@@ -43,7 +43,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-23 skills, all worth reaching for by name. Trimmed from 37 on 2026-08-19 after a
+24 skills, all worth reaching for by name. Trimmed from 37 on 2026-08-19 after a
 usage audit: any skill unused across 1,203 transcripts (2026-07 through
 2026-08-19, at least 9 days old) was retired. Recoverable from git history.
 
@@ -69,6 +69,7 @@ usage audit: any skill unused across 1,203 transcripts (2026-07 through
 - `push` — Safe push — sets upstream, shows outgoing commits, `--force-with-lease`, warns on main. `/push`.
 - `self-review` — Self-review the plan you just proposed via the plan-critic subagent, then revise it. `/self-review`.
 - `typography-craft` — Typography-only authority across screen, print/editorial, brand, display, and type-led layout.
+- `update-branch-name` — Rename the current branch to a semantic-prefix + kebab-case convention, preferring GitHub's server-side rename so an open PR isn't orphaned. `/update-branch-name`.
 - `ux-writing` — User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.
 
 The frontend/design skills are `frontend-craft`, `typography-craft`,
