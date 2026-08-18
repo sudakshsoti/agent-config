@@ -4,11 +4,12 @@ description: >-
   Implement a known outcome autonomously, in the smallest complete change, and
   prove it works against the real thing rather than the diff. Use when the user
   already knows what they want and has said so ("add X", "make Y do Z", "wire
-  this up", "ship it"), or types /build-mode. Bounds the scope, forces
+  this up"), or types /build-mode. Bounds the scope, forces
   verification of actual behaviour for UI, config, deployment and automation
   work, and ends the session cleanly when the objective drifts. Skip it when the
   request is vague or exploratory (shape the scope first), when something is
-  broken and the cause is unknown (diagnose first), or for a one-line edit.
+  broken and the cause is unknown (diagnose first), or for a one-line edit. If
+  the user wants it built test-first, use `tdd` for the loop instead.
 user-invocable: true
 ---
 

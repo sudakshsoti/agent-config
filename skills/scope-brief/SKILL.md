@@ -3,8 +3,9 @@ name: scope-brief
 description: >-
   Use once the target is roughly known but needs bounding - before build-mode
   when the task spans more than one session, has an ambiguous outcome, touches
-  3+ subsystems, risks adjacent-feature creep, or the builder asks for
-  scoping.
+  3+ subsystems, risks adjacent-feature creep, or the builder asks for scoping.
+  For a lighter synthesis of what you have already discussed, with no interview,
+  use `to-spec` instead.
 user-invocable: true
 ---
 

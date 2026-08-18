@@ -43,7 +43,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-The 33 skills below are the ones worth reaching for by name. Thirty-six are
+The 34 skills below are the ones worth reaching for by name. Thirty-seven are
 installed in all; `build-mode`, `to-spec`, and `wait-what` are omitted here
 and route on their own triggers rather than being picked from a list.
 Anything under `skills/_archive/` is kept for reference only and is
@@ -66,6 +66,7 @@ deliberately not installed — see [`_archive/README.md`](_archive/README.md).
 - `merge` — Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`.
 - `motion-craft` — Implement motion, gesture physics and component interaction polish, or name an animation effect exactly.
 - `motion-review` — Find justified motion opportunities, audit a repo's existing motion, or review a motion diff without modifying product source.
+- `nightjar` — NIGHTJAR house style: the visual language for one-off generated artifacts — decks, dashboards, reports, mockups, diagrams. `frontend-craft` owns a product UI's own system; nightjar owns the artifact.
 - `n8n-deploy` — RIGID homelab procedure: deploy/edit n8n workflows via the sqlite3 dance without clobbering the DB.
 - `obsidian-markdown` — Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.
 - `orient` — HTML guide to a repo — what it is, what decisions shaped it, and where sprawl lives. Every claim cited to file:line. `/orient`.
@@ -83,10 +84,22 @@ deliberately not installed — see [`_archive/README.md`](_archive/README.md).
 - `wizard` — Generate an interactive bash wizard for a manual procedure only a human can do (provisioning, credentials, third-party dashboards). `/wizard`.
 - `writing-for-agents` — Reference for writing any document an agent consumes: context pointers, information hierarchy, leading words, pruning.
 
-The nine frontend/design skills are `frontend-craft`, `typography-craft`,
-`motion-craft`, `motion-review`, `design-foil`, `prototype`, `ux-writing`,
-`pick-ui-library`, and `maintainability-review`. No skill owns self-contained
-HTML documents: `html-doc` was retired with studio and has not been restored.
+The ten frontend/design skills are `frontend-craft`, `typography-craft`,
+`motion-craft`, `motion-review`, `design-foil`, `nightjar`, `prototype`,
+`ux-writing`, `pick-ui-library`, and `maintainability-review`. No skill owns
+self-contained HTML documents: `html-doc` was retired with studio and has not
+been restored.
+
+`git-guardrails` conflicts with `push`, `pr` and `merge` by design: the hook it
+installs blocks `git push` in **all** variants, which is the exact command those
+three run. The hook is not installed on this machine — nothing in either
+`settings.json` references `block-dangerous-git.sh` — so this is latent, not a
+live bug. Don't install it on a machine where you use the git skills.
+
+`skillOverrides` in `settings.json` keeps eight entries for superpowers skills
+(`executing-plans`, `test-driven-development`, and so on). The plugin is
+deliberately not installed (see `plugins.txt`) but its marketplace cache is
+present, so the overrides are cheap insurance against it being pulled in.
 
 ## Installing per surface
 

@@ -4,9 +4,11 @@ description: >
   Integrated visual direction, subject-specific art direction, colour, hierarchy,
   layout systems, responsive visual behaviour, CSS and design tokens, @theme,
   @font-face, OKLCH and design-system styling. Use for building or reshaping a
-  UI's visual system. For typography-primary work, use `typography-craft`; do not
-  invoke this skill solely because a task touches React, Vue, Svelte, component
-  behaviour, state, data flow, API wiring or tests.
+  product UI's own visual system in its codebase. For typography-primary work,
+  use `typography-craft`; for a standalone generated artifact — a deck,
+  dashboard, report, mockup or diagram — use `nightjar`. Do not invoke this
+  skill solely because a task touches React, Vue, Svelte, component behaviour,
+  state, data flow, API wiring or tests.
 ---
 
 # Frontend craft

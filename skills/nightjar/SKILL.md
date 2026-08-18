@@ -1,15 +1,17 @@
 ---
 name: nightjar
 description: >
-  NIGHTJAR house style — the visual language for generated design artifacts:
-  decks, dashboards, app UI and prototypes, documents and reports, diagrams and
-  infographics. Use whenever producing or publishing an artifact, an HTML page,
-  a deck, a dashboard, a mockup, a report, a chart or a diagram, and whenever
-  the user says "nightjar", "house style", or "our usual style". Supplies
-  surfaces, accent, status colour, type, spacing, controls, per-artifact rules
-  and a self-check. Pairs with `artifact-design`, which decides how much design
-  a request warrants; Nightjar decides what it looks like. Not a code-quality,
-  component-architecture or copywriting skill.
+  NIGHTJAR house style — the visual language for one-off generated artifacts:
+  decks, dashboards, documents and reports, mockups, diagrams and infographics.
+  Use whenever producing or publishing an artifact, an HTML page, a deck, a
+  dashboard, a mockup, a report, a chart or a diagram, and whenever the user
+  says "nightjar", "house style", or "our usual style". Supplies surfaces,
+  accent, status colour, type, spacing, controls, per-artifact rules and a
+  self-check. For a product UI's own living visual system in its codebase — its
+  tokens, CSS and component styling — use `frontend-craft` instead. Pairs with
+  `artifact-design`, which decides how much design a request warrants; Nightjar
+  decides what it looks like. Not a code-quality, component-architecture or
+  copywriting skill.
 ---
 
 # NIGHTJAR — house style
