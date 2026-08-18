@@ -119,9 +119,8 @@ utility-class soup. When extending shadcn/ui, retain and extend its token names
 such as `--background`, `--foreground`, `--primary` and `--ring`.
 
 Use this skill for visual-system choices, not behaviour-only components or data
-flow. For motion, gesture physics and interaction detail use `motion-craft`. For
-interface language use `ux-writing`. For a self-contained HTML document rather
-than application UI use `html-doc`.
+flow. For interface language use `ux-writing`. For a self-contained HTML document
+rather than application UI use `html-doc`.
 
 ## Operator context
 

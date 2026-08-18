@@ -8,8 +8,12 @@ that removal.
 
 Installed under `skills/`:
 
-`diagnosing-bugs`, `git-guardrails`, `grilling`, `research`,
-`tdd`, `to-spec`, `wait-what`, `wizard`, `writing-for-agents`.
+`diagnosing-bugs`, `grilling`.
+
+The other seven — `git-guardrails`, `research`, `tdd`, `to-spec`, `wait-what`,
+`wizard`, `writing-for-agents` — were retired 2026-08-19 after a usage audit
+found zero invocations across 9+ days of transcripts. Recoverable from git
+history if a real need for one turns up.
 
 Deliberately not vendored — either redundant with a skill already in this
 repo, or tuned for team-scale process this repo doesn't run:

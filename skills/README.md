@@ -43,63 +43,38 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-The 34 skills below are the ones worth reaching for by name. Thirty-seven are
-installed in all; `build-mode`, `to-spec`, and `wait-what` are omitted here
-and route on their own triggers rather than being picked from a list.
-Anything under `skills/_archive/` is kept for reference only and is
-deliberately not installed — see [`_archive/README.md`](_archive/README.md).
+23 skills, all worth reaching for by name. Trimmed from 37 on 2026-08-19 after a
+usage audit: any skill unused across 1,203 transcripts (2026-07 through
+2026-08-19, at least 9 days old) was retired. Recoverable from git history.
 
+- `backlog` — Run any project's backlog in Linear like a PM: capture, triage, grooming, acceptance criteria, and milestone/session planning (batch Ready issues into equal-effort, one-sitting Linear Milestones).
 - `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
-- `diagnosing-bugs` — Diagnosis loop for hard bugs and performance regressions: build a tight red-capable feedback loop, minimise, rank hypotheses, instrument, fix with a regression test.
-- `typography-craft` — Typography-only authority across screen, print/editorial, brand, display, and type-led layout.
 - `design-foil` — Industry-agnostic strategy + UX advisor: brainstorm, critique, strategy docs, teardowns.
+- `diagnosing-bugs` — Diagnosis loop for hard bugs and performance regressions: build a tight red-capable feedback loop, minimise, rank hypotheses, instrument, fix with a regression test.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
 - `find-skills` — Discover and install agent skills when asked "is there a skill for X".
 - `finite` — The advisor for a finite life: a daily orient across Linear/Todoist/notes, on-demand triage that names what a new commitment displaces, and the forced cull into a durable Season ledger. Burkeman-flavoured — kind, unflinching, subtractive.
 - `frontend-craft` — Visual direction for new UI, plus typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
-- `git-guardrails` — Set up a hook that blocks dangerous git commands (`push`, `reset --hard`, `clean -f`, `branch -D`) before Claude Code runs them.
 - `grilling` — Interview the user relentlessly about a plan/decision, round by round over a design tree, until nothing is left unsettled.
 - `handoff` — Structured session-handoff docs for continuity across sessions.
-- `backlog` — Run any project's backlog in Linear like a PM: capture, triage, grooming, acceptance criteria, and milestone/session planning (batch Ready issues into equal-effort, one-sitting Linear Milestones).
 - `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, including the safe rclone-torbox recreate.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
 - `merge` — Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`.
-- `motion-craft` — Implement motion, gesture physics and component interaction polish, or name an animation effect exactly.
-- `motion-review` — Find justified motion opportunities, audit a repo's existing motion, or review a motion diff without modifying product source.
-- `nightjar` — NIGHTJAR house style: the visual language for one-off generated artifacts — decks, dashboards, reports, mockups, diagrams. `frontend-craft` owns a product UI's own system; nightjar owns the artifact.
 - `n8n-deploy` — RIGID homelab procedure: deploy/edit n8n workflows via the sqlite3 dance without clobbering the DB.
+- `nightjar` — NIGHTJAR house style: the visual language for one-off generated artifacts — decks, dashboards, reports, mockups, diagrams. `frontend-craft` owns a product UI's own system; nightjar owns the artifact.
 - `obsidian-markdown` — Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.
 - `orient` — HTML guide to a repo — what it is, what decisions shaped it, and where sprawl lives. Every claim cited to file:line. `/orient`.
 - `peer-review` — Adversarial cross-lineage review of an engineering plan written by another agent. `/peer-review`.
-- `pick-ui-library` — Pick the right frontend library for a task from a curated, opinionated list. `/pick-ui-library`.
 - `pr` — Open a GitHub PR via `gh` — title from commits, why-first body, no AI footer. `/pr`.
-- `prose-editor` — Critique + rewrite personal essays to a high editorial bar.
-- `prototype` — Build several genuinely different versions of a UI piece behind a visual picker. `/prototype`.
 - `push` — Safe push — sets upstream, shows outgoing commits, `--force-with-lease`, warns on main. `/push`.
-- `research` — Delegate reading legwork to a background agent: investigate a question against primary sources, write findings to a cited Markdown file.
-- `scope-brief` — Tiered scoping document for multi-session or ambiguous work: interview, forced non-goals, a locked scope table, then write the plan directly. `/scope-brief`.
 - `self-review` — Self-review the plan you just proposed via the plan-critic subagent, then revise it. `/self-review`.
-- `tdd` — Test-driven development reference: what a good test is, seams, anti-patterns, the red-green loop's rules.
+- `typography-craft` — Typography-only authority across screen, print/editorial, brand, display, and type-led layout.
 - `ux-writing` — User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.
-- `wizard` — Generate an interactive bash wizard for a manual procedure only a human can do (provisioning, credentials, third-party dashboards). `/wizard`.
-- `writing-for-agents` — Reference for writing any document an agent consumes: context pointers, information hierarchy, leading words, pruning.
 
-The ten frontend/design skills are `frontend-craft`, `typography-craft`,
-`motion-craft`, `motion-review`, `design-foil`, `nightjar`, `prototype`,
-`ux-writing`, `pick-ui-library`, and `maintainability-review`. No skill owns
-self-contained HTML documents: `html-doc` was retired with studio and has not
-been restored.
-
-`git-guardrails` conflicts with `push`, `pr` and `merge` by design: the hook it
-installs blocks `git push` in **all** variants, which is the exact command those
-three run. The hook is not installed on this machine — nothing in either
-`settings.json` references `block-dangerous-git.sh` — so this is latent, not a
-live bug. Don't install it on a machine where you use the git skills.
-
-`skillOverrides` in `settings.json` keeps eight entries for superpowers skills
-(`executing-plans`, `test-driven-development`, and so on). The plugin is
-deliberately not installed (see `plugins.txt`) but its marketplace cache is
-present, so the overrides are cheap insurance against it being pulled in.
+The frontend/design skills are `frontend-craft`, `typography-craft`,
+`design-foil`, `nightjar`, `ux-writing`, and `maintainability-review`. No skill
+owns self-contained HTML documents: `html-doc` was retired with studio and has
+not been restored.
 
 ## Installing per surface
 
@@ -120,21 +95,21 @@ cd ~/dev/agent-config && ./install.sh
 single skill by hand instead:
 
 ```bash
-ln -s "$PWD/skills/prose-editor" ~/.claude/skills/prose-editor      # personal
-ln -s "$PWD/skills/prose-editor" /path/to/project/.claude/skills/   # project-scoped
+ln -s "$PWD/skills/commit" ~/.claude/skills/commit      # personal
+ln -s "$PWD/skills/commit" /path/to/project/.claude/skills/   # project-scoped
 ```
 
-Claude discovers each by `name`/`description`; invoke implicitly or with `/prose-editor`.
+Claude discovers each by `name`/`description`; invoke implicitly or with `/commit`.
 
 ### Claude.ai (Pro / Max / Team / Enterprise, code execution on)
 
 Upload as a **zip of the skill folder** via Settings → Features → Skills:
 
 ```bash
-cd skills && zip -r prose-editor.zip prose-editor && cd -
+cd skills && zip -r commit.zip commit && cd -
 ```
 
-Then upload `prose-editor.zip`. Uploaded per-user; re-upload after edits.
+Then upload `commit.zip`. Uploaded per-user; re-upload after edits.
 
 ### Claude API
 
