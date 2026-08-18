@@ -17,12 +17,12 @@
 marketplace anthropics/claude-plugins-official
 marketplace anthropics/claude-plugins-community
 marketplace blader/humanizer
-marketplace ayghri/i-have-adhd
 
 # superpowers is deliberately NOT installed. Its skills are vendored into
 # skills/ instead, because the plugin's SessionStart hook injects ~650 tokens
 # into every session and after every /clear, and Claude Code has no way to
-# disable one hook from a plugin. See docs/vendored-superpowers.md.
+# disable one hook from a plugin. See docs/vendored-mattpocock-skills.md for
+# what replaced it.
 # plugin superpowers@claude-plugins-official
 # frontend-design is deliberately disabled. It is prose-only guidance with no
 # style catalog, no tokens and no gate — the category StyleSeed's own benchmark
@@ -31,12 +31,3 @@ marketplace ayghri/i-have-adhd
 plugin vercel@claude-plugins-official
 plugin claude-code-setup@claude-plugins-official
 plugin humanizer@humanizer
-
-# Response-shaping ruleset for an ADHD reader. The skill is
-# `disable-model-invocation: true`, so it is /i-have-adhd only. Its SessionStart
-# hook can inject the full ruleset every session, but only if
-# ~/.claude/.i-have-adhd-always exists — deliberately NOT created, since that
-# costs ~1,600 tokens per startup/clear/compact. The standing version lives
-# compressed in global-CLAUDE.md's "Response shape" section instead; this plugin
-# is the on-demand escalation.
-plugin i-have-adhd@i-have-adhd
