@@ -5,13 +5,13 @@ modelRoles:
   designer: anthropic/claude-sonnet-5:medium
   vision: anthropic/claude-sonnet-5:medium
   task: openai-codex/gpt-5.6-luna:xhigh
-  adversary: openai-codex/gpt-5.6-sol:high
+  adversary: openai-codex/gpt-5.6-sol:low
   smol: openai-codex/gpt-5.6-luna:xhigh
   tiny: ollama-local/qwen3.5:0.8b
   commit: openai-codex/gpt-5.6-luna:low
 task: 
   batch: true
-  enableEffort: true
+  enableEffort: false
   eager: preferred
   enableLsp: true
 retry: 
@@ -22,18 +22,18 @@ retry:
   usageReservePolicy: auto
   fallbackChains: 
     anthropic/*: 
-      - openai-codex/gpt-5.6-sol:high
-      - opencode-go/minimax-m3:high
-      - opencode-zen/deepseek-v4-flash:high
+      - openai-codex/gpt-5.6-sol:low
+      - opencode-go/minimax-m3:low
+      - opencode-zen/deepseek-v4-flash:low
     openai-codex/*: 
-      - opencode-go/minimax-m3:high
-      - opencode-zen/deepseek-v4-flash:high
+      - opencode-go/minimax-m3:low
+      - opencode-zen/deepseek-v4-flash:low
     opencode-go/*: 
-      - opencode-zen/deepseek-v4-flash:high
+      - opencode-zen/deepseek-v4-flash:low
     opencode-zen/*: 
-      - opencode-go/minimax-m3:high
+      - opencode-go/minimax-m3:low
     default: 
-      - opencode-zen/deepseek-v4-flash:high
+      - opencode-zen/deepseek-v4-flash:low
 symbolPreset: nerd
 theme: 
   dark: quiet-lunar
