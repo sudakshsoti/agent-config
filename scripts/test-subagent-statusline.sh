@@ -6,8 +6,7 @@
 # a subset of rows. It fails open by design — any error path must still exit
 # 0, and a row it declines to touch must simply be omitted, never break the
 # panel. That "never break the panel" property is exactly the kind of thing
-# a human never notices going wrong, hence tests, mirroring
-# test-context-size.sh's shape.
+# a human never notices going wrong, hence tests.
 #
 #   ./scripts/test-subagent-statusline.sh
 set -uo pipefail

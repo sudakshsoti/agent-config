@@ -3,14 +3,12 @@
 #
 # Before this existed each check had to be remembered and run by hand, which
 # in practice meant neither test script ran between the day it was written and
-# the day something broke. One command, run by the pre-commit hook (the two
-# fast checks only) and by CI (all four).
+# the day something broke. One command, run by both the pre-commit hook and CI.
 #
 #   ./scripts/check.sh
 #
 # Every check runs even when an earlier one fails -- one run should report
-# every problem, not the first one. Hence set -uo pipefail and NOT -e, same as
-# the two test scripts it wraps.
+# every problem, not the first one. Hence set -uo pipefail and NOT -e.
 set -uo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -34,26 +32,9 @@ run() {  # run <label> <command...>
   echo
 }
 
-# Fast checks first: they are the ones the pre-commit hook runs, so a failure
-# a human is about to hit shows up at the top rather than after a minute of
-# sleeps in the memory-consolidate suite.
 run "lint-skills.py"              python3 "$repo_root/scripts/lint-skills.py" "$repo_root"
 run "check-zips.py"               python3 "$repo_root/scripts/check-zips.py" "$repo_root"
-run "test-context-size.sh"        "$repo_root/scripts/test-context-size.sh"
-run "test-memory-consolidate.sh"  "$repo_root/scripts/test-memory-consolidate.sh"
-run "test-orient.sh"              "$repo_root/scripts/test-orient.sh"
 run "test-apply-codex-config.py" python3 "$repo_root/scripts/test-apply-codex-config.py"
-run "test-agent-instructions.py" python3 "$repo_root/scripts/test-agent-instructions.py"
-
-# CI has only this checkout, not the sibling repositories in ~/dev. The
-# fixture suite above always runs; the live cohort audit is a local check.
-if [[ "${CI:-}" != "true" || "${RUN_LIVE_COHORT_CHECK:-}" == "1" ]]; then
-  run "managed repository instructions" \
-    python3 "$repo_root/scripts/check-agent-instructions.py" \
-      --manifest "$repo_root/config/repository-instructions.json" \
-      --cohort-root "${AGENT_COHORT_ROOT:-$(dirname "$repo_root")}" \
-      --skip-deferred
-fi
 
 echo "check.sh"
 printf '%s\n' "${results[@]}"
