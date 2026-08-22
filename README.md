@@ -27,6 +27,8 @@ cd ~/dev/agent-config && ./install.sh
   Symlinked to `~/.omp/agent/config.yml`, so `omp config set` and TUI toggles
   edit the repo copy directly — check `git diff` before committing. Only linked
   if `~/.omp/agent` exists.
+- `omp/themes/*.json` — Tracked OMP themes, symlinked individually into
+  `~/.omp/agent/themes/`. Other live theme files remain machine-local.
 - `omp/agents/` — OMP subagents, symlinked into `~/.omp/agent/agents/`. Just
   `adversary` for now: the cross-lineage plan reviewer behind `/peer-review`.
   See `docs/two-stage-plan-review.md`.

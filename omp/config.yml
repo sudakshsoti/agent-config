@@ -41,14 +41,23 @@ retry:
       - opencode-zen/deepseek-v4-flash:low
 symbolPreset: nerd
 theme: 
-  dark: quiet-lunar
-setupVersion: 1
+  dark: dark-lunar-statusline
+  light: light
+setupVersion: 2
 statusLine: 
   preset: default
-  separator: powerline-thin
-  sessionAccent: false
+  separator: none
+  sessionAccent: true
   compactThinkingLevel: false
-  transparent: false
+  transparent: true
+  leftSegments: 
+    []
+  rightSegments: 
+    []
+  contextLine: annotated
+  showHookStatus: true
+  segmentOptions: 
+    {}
 startup: 
   quiet: true
 autoResume: false

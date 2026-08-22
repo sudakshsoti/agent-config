@@ -25,12 +25,16 @@
 #     credentials, so it cannot safely be symlinked or replaced wholesale.
 #
 # Also symlinked (the owning tool rewrites it, but writes follow the link and it
-# holds no secrets — see step 3e):
+# holds no secrets — see the OMP steps below):
 #   omp/config.yml -> ~/.omp/agent/config.yml
-#   omp/lsp.yml -> ~/.omp/agent/lsp.yml
 #     OMP's model roles, thinking level, statusline and task settings. Changing
 #     a setting from the OMP TUI edits the repo copy directly; review with
-#     `git diff` before committing. Only linked if ~/.omp/agent exists.
+#     `git diff` before committing.
+#   omp/lsp.yml -> ~/.omp/agent/lsp.yml
+#   omp/themes/*.json -> ~/.omp/agent/themes/*.json
+#     Tracked themes are linked individually; other live theme files remain
+#     machine-local. Only linked if ~/.omp/agent exists.
+
 #
 # Deliberately NOT tracked or linked (machine-local by design):
 #   ~/.omp/agent/mcp.json — see the "Secrets policy" section of README.md.
@@ -206,12 +210,12 @@ if [ -d "$CODEX" ] && [ -f "$REPO/codex/config.toml" ]; then
   echo "merged  codex/config.toml"
 fi
 
-# 3e/3f/3g only run when OMP is installed. Say so out loud when it isn't —
+# 3e/3f/3g/3h/3i only run when OMP is installed. Say so out loud when it isn't —
 #     a silent no-op makes a verify of the form `./install.sh && readlink
 #     ~/.omp/agent/config.yml` look like it passed on a machine that never got
 #     the links.
 if [ ! -d "$OMP" ]; then
-  echo "⚠️  SKIP omp — no $OMP (OMP not installed). config.yml, lsp.yml, models.yml and agents/ not linked."
+  echo "⚠️  SKIP omp — no $OMP (OMP not installed). config.yml, lsp.yml, models.yml, themes/ and agents/ not linked."
 fi
 
 # 3e. OMP config: symlinked, unlike codex/config.toml above. OMP *does* rewrite
@@ -227,8 +231,17 @@ if [ -d "$OMP" ] && [ -f "$REPO/omp/config.yml" ]; then
   mkdir -p "$OMP"
   link_into "$REPO/omp/config.yml" "$OMP/config.yml"
 fi
+# 3f. OMP themes: tracked files are symlinked individually so machine-local
+#     themes already present in ~/.omp/agent/themes remain untouched.
+if [ -d "$OMP" ] && [ -d "$REPO/omp/themes" ]; then
+  mkdir -p "$OMP/themes"
+  for theme_file in "$REPO"/omp/themes/*.json; do
+    [ -f "$theme_file" ] || continue
+    link_into "$theme_file" "$OMP/themes/$(basename "$theme_file")"
+  done
+fi
 
-# 3f. OMP LSP preferences: partial overrides of OMP's built-in server
+# 3g. OMP LSP preferences: partial overrides of OMP's built-in server
 #     definitions. The server binaries are machine dependencies; OMP activates
 #     each one only when its root markers match the current working directory.
 if [ -d "$OMP" ] && [ -f "$REPO/omp/lsp.yml" ]; then
@@ -236,7 +249,7 @@ if [ -d "$OMP" ] && [ -f "$REPO/omp/lsp.yml" ]; then
   link_into "$REPO/omp/lsp.yml" "$OMP/lsp.yml"
 fi
 
-# 3g. OMP subagents: symlinked the same way. `adversary` is the cross-lineage
+# 3h. OMP subagents: symlinked the same way. `adversary` is the cross-lineage
 #     plan reviewer — it pins `model: "@adversary"`, so it follows the role in
 #     omp/config.yml and can never resolve to an Anthropic model.
 if [ -d "$OMP" ] && [ -d "$REPO/omp/agents" ]; then
@@ -246,7 +259,7 @@ if [ -d "$OMP" ] && [ -d "$REPO/omp/agents" ]; then
   done
 fi
 
-# 3h. OMP custom models: the local Ollama provider that serves session titles
+# 3i. OMP custom models: the local Ollama provider that serves session titles
 #     and the `auto` thinking classifier. Symlinked for the same reason as
 #     config.yml — OMP reads this file and never writes it, so the repo is the
 #     only source of truth and the rationale comments in it survive.
