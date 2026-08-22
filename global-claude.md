@@ -1,5 +1,5 @@
 # Global Claude preferences
-
+@AGENTS.md
 ## Web scraping
 
 When a webpage needs scraping or clean Markdown extraction, run `crwl crawl <url> -o markdown`. `crwl` is installed globally and available on `PATH`; no per-agent configuration is required. If it is unavailable or the target is blocked, report that and use the current approved web-reading path.
