@@ -75,12 +75,14 @@ advisor:
   syncBacklog: "off"
 terminal: 
   showProgress: false
+  showImages: true
 display: 
   shimmer: classic
   smoothStreaming: true
-  showTokenUsage: true
+  showTokenUsage: false
   collapseCompacted: true
   cacheMissMarker: false
+  hideToolActivity: false
 defaultThinkingLevel: auto
 providers: 
   autoThinkingModel: online
@@ -93,11 +95,14 @@ textVerbosity: medium
 tier: 
   openai: none
   subagent: inherit
-personality: friendly
+personality: default
 steeringMode: one-at-a-time
 compaction: 
-  strategy: snapcompact
   handoffSaveToDisk: true
+  methodOrder: 
+    - snapcompact
+    - remote
+    - soft
 snapcompact: 
   systemPrompt: none
 bashInterceptor: 
@@ -118,3 +123,21 @@ tools:
 tui: 
   textSizing: false
   tight: false
+  renderMermaid: true
+  codexResetFireworks: false
+  titleState: true
+  hyperlinks: auto
+  scrollbackRebuild: false
+  imeSafeCursor: false
+  maxInlineImageColumns: 100
+  maxInlineImageRows: 20
+  maxInlineImages: 8
+composer: 
+  shape: claude
+github: 
+  enabled: true
+vault: 
+  enabled: true
+spelling: 
+  autocomplete: false
+  typoDetection: false
