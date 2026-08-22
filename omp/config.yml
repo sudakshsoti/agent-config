@@ -22,17 +22,22 @@ retry:
   usageReservePolicy: auto
   fallbackChains: 
     anthropic/*: 
+      - opencode-go/muse-spark-1.2-contributor:low
+      - opencode-go/minimax-m3:low
       - openai-codex/gpt-5.6-sol:low
-      - opencode-go/minimax-m3:low
-      - opencode-zen/deepseek-v4-flash:low
     openai-codex/*: 
+      - opencode-go/muse-spark-1.2-contributor:low
       - opencode-go/minimax-m3:low
-      - opencode-zen/deepseek-v4-flash:low
     opencode-go/*: 
+      - opencode-go/muse-spark-1.2-contributor:low
+      - opencode-go/minimax-m3:low
       - opencode-zen/deepseek-v4-flash:low
     opencode-zen/*: 
+      - opencode-go/muse-spark-1.2-contributor:low
       - opencode-go/minimax-m3:low
     default: 
+      - opencode-go/muse-spark-1.2-contributor:low
+      - opencode-go/minimax-m3:low
       - opencode-zen/deepseek-v4-flash:low
 symbolPreset: nerd
 theme: 
