@@ -1,12 +1,12 @@
 modelRoles: 
-  default: opencode-go/muse-spark-1.2-contributor:medium
-  plan: opencode-go/muse-spark-1.2-contributor:high
-  slow: opencode-go/qwen3.8-max:high
+  default: anthropic/claude-sonnet-5:medium
+  plan: anthropic/claude-opus-5:medium
+  slow: anthropic/claude-opus-5:high
   designer: anthropic/claude-sonnet-5:medium
   vision: anthropic/claude-sonnet-5:medium
   task: openai-codex/gpt-5.6-luna:xhigh
   adversary: openai-codex/gpt-5.6-sol:low
-  smol: opencode-go/muse-spark-1.2-contributor:low
+  smol: openai-codex/gpt-5.6-luna:xhigh
   tiny: ollama-local/qwen3.5:0.8b
   commit: openai-codex/gpt-5.6-luna:low
 task: 
@@ -59,17 +59,17 @@ statusLine:
   segmentOptions: 
     {}
 startup: 
-  quiet: true
+  quiet: false
 autoResume: false
 modelRoleStorage: global
 memory: 
   backend: local
 autolearn: 
-  enabled: true
+  enabled: false
   autoContinue: true
 dev: 
   autoqaConsent: denied
-hideThinkingBlock: true
+hideThinkingBlock: false
 advisor: 
   enabled: false
   syncBacklog: "off"
@@ -90,23 +90,36 @@ providers:
   webSearchOrder: 
     - tavily
     - exa
+    - firecrawl
+    - gemini
+    - codex
+    - public
   memoryModel: online
+  anthropic: 
+    serverSideFallback: false
 textVerbosity: medium
 tier: 
   openai: none
   subagent: inherit
-personality: friendly
+personality: default
 steeringMode: one-at-a-time
 compaction: 
   handoffSaveToDisk: true
   methodOrder: 
     - snapcompact
-    - remote
+    - handoff
     - soft
+    - shake
+    - remote
+  thresholdPercent: 50
+  thresholdTokens: 150000
+  idleEnabled: true
+  idleThresholdTokens: 200000
+  idleTimeoutSeconds: 300
 snapcompact: 
   systemPrompt: none
 bashInterceptor: 
-  enabled: true
+  enabled: false
 skills: 
   ignoredSkills: 
     - artifact-*
@@ -133,7 +146,10 @@ tui:
   maxInlineImageRows: 20
   maxInlineImages: 8
 composer: 
-  shape: claude
+  shape: rail
+bash: 
+  autoBackground: 
+    enabled: true
 github: 
   enabled: true
 vault: 
