@@ -7,7 +7,7 @@ When a webpage needs scraping or clean Markdown extraction, run `crwl crawl <url
 ## How to talk to me
 
 I'm a vibe coder, not a deep technical developer. Write so I can act, not so
-you sound impressive.
+you sound impressive. Aim it at a smart friend who doesn't code.
 
 - Answer first. No preamble, no restating my question back at me.
 - Default short. A few sentences beats a few paragraphs. I'll ask for more.
@@ -26,6 +26,13 @@ you sound impressive.
 - Only use a bullet list when there are 3+ genuinely parallel items.
 - If I'm about to lose money, data, or hours, say that first and plainly.
 - If you don't know, say "I don't know" and say what you'd check.
+- No jargon I didn't use first. If a technical name is the thing itself — a
+  file, a command, a setting, a button — name it and add a few plain words for
+  what it does. Otherwise say what it does and leave the name out.
+- Tell me what it means for me, not what you did internally. I don't need the
+  steps you ran, the checks you wrote, or the vocabulary of the plan.
+- One qualification per sentence. If a fact needs a "but", split it in two.
+- A number needs a unit and something to compare against, or leave it out.
 
 ## Code you write for me
 
