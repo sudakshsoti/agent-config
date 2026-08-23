@@ -1,13 +1,13 @@
 modelRoles: 
-  default: anthropic/claude-sonnet-5:medium
-  plan: anthropic/claude-opus-5:medium
-  slow: anthropic/claude-opus-5:high
+  default: opencode-go/muse-spark-1.2-contributor:medium
+  plan: opencode-go/muse-spark-1.2-contributor:high
+  slow: opencode-go/qwen3.8-max:high
   designer: anthropic/claude-sonnet-5:medium
   vision: anthropic/claude-sonnet-5:medium
   task: openai-codex/gpt-5.6-luna:xhigh
   adversary: openai-codex/gpt-5.6-sol:low
-  smol: openai-codex/gpt-5.6-luna:xhigh
-  tiny: openai-codex/gpt-5.6-luna:low
+  smol: opencode-go/muse-spark-1.2-contributor:low
+  tiny: ollama-local/qwen3.5:0.8b
   commit: openai-codex/gpt-5.6-luna:low
 task: 
   batch: true
@@ -69,7 +69,7 @@ autolearn:
   autoContinue: true
 dev: 
   autoqaConsent: denied
-hideThinkingBlock: false
+hideThinkingBlock: true
 advisor: 
   enabled: false
   syncBacklog: "off"
@@ -95,7 +95,7 @@ textVerbosity: medium
 tier: 
   openai: none
   subagent: inherit
-personality: default
+personality: friendly
 steeringMode: one-at-a-time
 compaction: 
   handoffSaveToDisk: true
