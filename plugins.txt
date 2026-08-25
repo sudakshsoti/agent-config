@@ -32,6 +32,7 @@ marketplace blader/humanizer
 # Re-enable this line and re-run install.sh to bring it back.
 # plugin vercel@claude-plugins-official
 plugin claude-code-setup@claude-plugins-official
+plugin figma@claude-plugins-official
 plugin pyright-lsp@claude-plugins-official
 plugin typescript-lsp@claude-plugins-official
 plugin humanizer@humanizer
