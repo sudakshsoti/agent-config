@@ -28,6 +28,10 @@ marketplace blader/humanizer
 # style catalog, no tokens and no gate — the category StyleSeed's own benchmark
 # measured at -3.7 for Claude.
 # plugin frontend-design@claude-plugins-official
-plugin vercel@claude-plugins-official
+# vercel is uninstalled for now — removed 2026-08-25 to trim the MCP list.
+# Re-enable this line and re-run install.sh to bring it back.
+# plugin vercel@claude-plugins-official
 plugin claude-code-setup@claude-plugins-official
+plugin pyright-lsp@claude-plugins-official
+plugin typescript-lsp@claude-plugins-official
 plugin humanizer@humanizer
