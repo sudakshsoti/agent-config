@@ -4,10 +4,10 @@ modelRoles:
   slow: anthropic/claude-opus-5:high
   designer: anthropic/claude-sonnet-5:medium
   vision: anthropic/claude-sonnet-5:medium
-  task: openai-codex/gpt-5.6-luna:xhigh
+  task: anthropic/claude-sonnet-5:medium
   adversary: openai-codex/gpt-5.6-sol:low
   smol: openai-codex/gpt-5.6-luna:xhigh
-  tiny: ollama-local/qwen3.5:0.8b
+  tiny: anthropic/claude-haiku-4-5:low
   commit: openai-codex/gpt-5.6-luna:low
 task: 
   batch: true
@@ -36,9 +36,9 @@ retry:
       - opencode-go/muse-spark-1.2-contributor:low
       - opencode-go/minimax-m3:low
     default: 
-      - opencode-go/muse-spark-1.2-contributor:low
-      - opencode-go/minimax-m3:low
-      - opencode-zen/deepseek-v4-flash:low
+      - opencode-go/muse-spark-1.2-contributor
+      - opencode-go/minimax-m3
+      - opencode-zen/deepseek-v4-flash
 symbolPreset: nerd
 theme: 
   dark: dark-lunar-statusline
@@ -63,7 +63,7 @@ startup:
 autoResume: false
 modelRoleStorage: global
 memory: 
-  backend: local
+  backend: "off"
 autolearn: 
   enabled: false
   autoContinue: true
@@ -111,11 +111,13 @@ compaction:
     - soft
     - shake
     - remote
-  thresholdPercent: 50
-  thresholdTokens: 150000
+  thresholdPercent: -1
+  thresholdTokens: 200000
   idleEnabled: true
   idleThresholdTokens: 200000
   idleTimeoutSeconds: 300
+  enabled: true
+  midTurnEnabled: true
 snapcompact: 
   systemPrompt: none
 bashInterceptor: 
@@ -131,8 +133,79 @@ skills:
     - fewer-permission-prompts
     - loop
     - schedule
+    - marketing-*
+    - ab-testing
+    - ad-creative
+    - ads
+    - ai-seo
+    - analytics
+    - aso
+    - attribution
+    - churn-prevention
+    - co-marketing
+    - cold-email
+    - community-marketing
+    - competitor-profiling
+    - competitors
+    - content-strategy
+    - copy-editing
+    - copywriting
+    - cro
+    - customer-research
+    - directory-submissions
+    - emails
+    - free-tools
+    - image
+    - influencer-marketing
+    - launch
+    - lead-magnets
+    - offers
+    - onboarding
+    - paywalls
+    - popups
+    - pricing
+    - product-marketing
+    - programmatic-seo
+    - prospecting
+    - public-relations
+    - referrals
+    - revops
+    - sales-enablement
+    - schema
+    - seo-audit
+    - signup
+    - site-architecture
+    - sms
+    - social
+    - ux-writing
+    - video
+    - vercel-*
+    - ai-gateway
+    - ai-sdk
+    - auth
+    - bootstrap
+    - cdn-caching
+    - chat-sdk
+    - deployments-cicd
+    - env-vars
+    - eve
+    - knowledge-update
+    - marketplace
+    - microfrontends
+    - next-cache-components
+    - next-forge
+    - next-upgrade
+    - nextjs
+    - react-best-practices
+    - routing-middleware
+    - runtime-cache
+    - shadcn
+    - turbopack
+    - verification
+    - workflow
 tools: 
   approvalMode: yolo
+  xdev: false
 tui: 
   textSizing: false
   tight: false
@@ -157,3 +230,4 @@ vault:
 spelling: 
   autocomplete: false
   typoDetection: false
+extendedContext: true
