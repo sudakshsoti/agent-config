@@ -69,7 +69,7 @@ autolearn:
   autoContinue: true
 dev:
   autoqaConsent: denied
-hideThinkingBlock: false
+hideThinkingBlock: true
 advisor:
   enabled: false
   syncBacklog: "off"
