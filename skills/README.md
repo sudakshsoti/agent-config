@@ -43,18 +43,22 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-24 skills, all worth reaching for by name. Trimmed from 37 on 2026-08-19 after a
+33 skills, all worth reaching for by name. Trimmed from 37 on 2026-08-19 after a
 usage audit: any skill unused across 1,203 transcripts (2026-07 through
 2026-08-19, at least 9 days old) was retired. Recoverable from git history.
 
 - `backlog` — Run any project's backlog in Linear like a PM: capture, triage, grooming, acceptance criteria, and milestone/session planning (batch Ready issues into equal-effort, one-sitting Linear Milestones).
+- `brand-studio` — Commercial brand partner: positioning, naming, verbal identity, presence audits, teardowns, and conversion diagnosis.
+- `clinical-reasoning` — Clinical decision support for clinicians in India: diagnostics, differentials, labs, imaging, drug interactions, prescribing, and escalation.
 - `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
+- `dbt` — Dialectical Behaviour Therapy in the Linehan tradition: skills coaching, chain analysis, and DBT materials.
 - `design-foil` — Industry-agnostic strategy + UX advisor: brainstorm, critique, strategy docs, teardowns.
 - `diagnosing-bugs` — Diagnosis loop for hard bugs and performance regressions: build a tight red-capable feedback loop, minimise, rank hypotheses, instrument, fix with a regression test.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
 - `find-skills` — Discover and install agent skills when asked "is there a skill for X".
 - `finite` — The advisor for a finite life: a daily orient across Linear/Todoist/notes, on-demand triage that names what a new commitment displaces, and the forced cull into a durable Season ledger. Burkeman-flavoured — kind, unflinching, subtractive.
 - `frontend-craft` — Visual direction for new UI, plus typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
+- `geopolitics` — Opinionated analyst for wars, sanctions, trade, defence, elections, negotiations, and other statecraft between countries.
 - `grilling` — Interview the user relentlessly about a plan/decision, round by round over a design tree, until nothing is left unsettled.
 - `handoff` — Structured session-handoff docs for continuity across sessions.
 - `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, including the safe rclone-torbox recreate.
@@ -67,10 +71,15 @@ usage audit: any skill unused across 1,203 transcripts (2026-07 through
 - `peer-review` — Adversarial cross-lineage review of an engineering plan written by another agent. `/peer-review`.
 - `pr` — Open a GitHub PR via `gh` — title from commits, why-first body, no AI footer. `/pr`.
 - `push` — Safe push — sets upstream, shows outgoing commits, `--force-with-lease`, warns on main. `/push`.
+- `rights-counsel` — Indian consumer, EPF, and insurance rights analyst for advice, complaints, notices, and representations.
 - `self-review` — Self-review the plan you just proposed via the plan-critic subagent, then revise it. `/self-review`.
+- `shopping-research` — Purchase advisor for buying in India: product comparisons, pricing, sellers, deals, and when to buy.
+- `strategy-counsel` — Strategic advisor for power, influence, and negotiation inside organisations and in arm's-length dealings.
 - `typography-craft` — Typography-only authority across screen, print/editorial, brand, display, and type-led layout.
 - `update-branch-name` — Rename the current branch to a semantic-prefix + kebab-case convention, preferring GitHub's server-side rename so an open PR isn't orphaned. `/update-branch-name`.
 - `ux-writing` — User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.
+- `vedic-astrology` — Vedic astrology (Jyotish) advisor for charts, dashas, transits, timing, compatibility, and remedies.
+- `writing-editor` — Writing partner for personal essays and blog posts: get words onto the page, then shape them into something publishable.
 
 The frontend/design skills are `frontend-craft`, `typography-craft`,
 `design-foil`, `nightjar`, `ux-writing`, and `maintainability-review`. No skill
