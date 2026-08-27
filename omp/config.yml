@@ -1,4 +1,4 @@
-modelRoles: 
+modelRoles:
   default: anthropic/claude-sonnet-5:medium
   plan: anthropic/claude-opus-5:medium
   slow: anthropic/claude-opus-5:high
@@ -9,74 +9,74 @@ modelRoles:
   smol: openai-codex/gpt-5.6-luna:xhigh
   tiny: anthropic/claude-haiku-4-5:low
   commit: openai-codex/gpt-5.6-luna:low
-task: 
+task:
   batch: true
   enableEffort: false
   eager: preferred
   enableLsp: true
-retry: 
+retry:
   enabled: true
   modelFallback: true
   usageAwareFallback: true
   usageReservePct: 15
   usageReservePolicy: auto
-  fallbackChains: 
-    anthropic/*: 
+  fallbackChains:
+    anthropic/*:
       - opencode-go/muse-spark-1.2-contributor:low
       - opencode-go/minimax-m3:low
       - openai-codex/gpt-5.6-sol:low
-    openai-codex/*: 
+    openai-codex/*:
       - opencode-go/muse-spark-1.2-contributor:low
       - opencode-go/minimax-m3:low
-    opencode-go/*: 
+    opencode-go/*:
       - opencode-go/muse-spark-1.2-contributor:low
       - opencode-go/minimax-m3:low
       - opencode-zen/deepseek-v4-flash:low
-    opencode-zen/*: 
+    opencode-zen/*:
       - opencode-go/muse-spark-1.2-contributor:low
       - opencode-go/minimax-m3:low
-    default: 
+    default:
       - opencode-go/muse-spark-1.2-contributor
       - opencode-go/minimax-m3
       - opencode-zen/deepseek-v4-flash
 symbolPreset: nerd
-theme: 
+theme:
   dark: dark-lunar-statusline
   light: light
 setupVersion: 2
-statusLine: 
+statusLine:
   preset: default
   separator: none
   sessionAccent: true
   compactThinkingLevel: false
   transparent: true
-  leftSegments: 
+  leftSegments:
     []
-  rightSegments: 
+  rightSegments:
     []
   contextLine: annotated
   showHookStatus: true
-  segmentOptions: 
+  segmentOptions:
     {}
-startup: 
+startup:
   quiet: false
 autoResume: false
 modelRoleStorage: global
-memory: 
+memory:
   backend: "off"
-autolearn: 
+autolearn:
   enabled: false
   autoContinue: true
-dev: 
+dev:
   autoqaConsent: denied
-hideThinkingBlock: true
-advisor: 
+hideThinkingBlock: false
+advisor:
   enabled: false
   syncBacklog: "off"
-terminal: 
+terminal:
   showProgress: false
   showImages: true
-display: 
+display:
   shimmer: classic
   smoothStreaming: true
   showTokenUsage: false
@@ -84,10 +84,10 @@ display:
   cacheMissMarker: false
   hideToolActivity: false
 defaultThinkingLevel: auto
-providers: 
+providers:
   autoThinkingModel: online
   autoThinkingMaxEffort: xhigh
-  webSearchOrder: 
+  webSearchOrder:
     - tavily
     - exa
     - firecrawl
@@ -95,17 +95,17 @@ providers:
     - codex
     - public
   memoryModel: online
-  anthropic: 
+  anthropic:
     serverSideFallback: false
 textVerbosity: medium
-tier: 
+tier:
   openai: none
   subagent: inherit
 personality: default
 steeringMode: one-at-a-time
-compaction: 
+compaction:
   handoffSaveToDisk: true
-  methodOrder: 
+  methodOrder:
     - snapcompact
     - handoff
     - soft
@@ -118,12 +118,12 @@ compaction:
   idleTimeoutSeconds: 300
   enabled: true
   midTurnEnabled: true
-snapcompact: 
+snapcompact:
   systemPrompt: none
-bashInterceptor: 
+bashInterceptor:
   enabled: false
-skills: 
-  ignoredSkills: 
+skills:
+  ignoredSkills:
     - artifact-*
     - claude-in-chrome
     - claude-api
@@ -203,10 +203,10 @@ skills:
     - turbopack
     - verification
     - workflow
-tools: 
+tools:
   approvalMode: yolo
   xdev: false
-tui: 
+tui:
   textSizing: false
   tight: false
   renderMermaid: true
@@ -218,16 +218,16 @@ tui:
   maxInlineImageColumns: 100
   maxInlineImageRows: 20
   maxInlineImages: 8
-composer: 
+composer:
   shape: rail
-bash: 
-  autoBackground: 
+bash:
+  autoBackground:
     enabled: true
-github: 
+github:
   enabled: true
-vault: 
+vault:
   enabled: true
-spelling: 
+spelling:
   autocomplete: false
   typoDetection: false
 extendedContext: true
