@@ -177,6 +177,7 @@
     "social": "user-invocable-only",
     "typography-craft": "user-invocable-only",
     "ux-writing": "user-invocable-only",
-    "video": "user-invocable-only"
+    "video": "user-invocable-only",
+    "humanizer": "user-invocable-only"
   }
 }

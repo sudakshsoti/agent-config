@@ -16,7 +16,6 @@
 
 marketplace anthropics/claude-plugins-official
 marketplace anthropics/claude-plugins-community
-marketplace blader/humanizer
 
 # superpowers is deliberately NOT installed. Its skills are vendored into
 # skills/ instead, because the plugin's SessionStart hook injects ~650 tokens
@@ -35,4 +34,8 @@ plugin claude-code-setup@claude-plugins-official
 plugin figma@claude-plugins-official
 plugin pyright-lsp@claude-plugins-official
 plugin typescript-lsp@claude-plugins-official
-plugin humanizer@humanizer
+# humanizer is vendored into skills/humanizer instead of installed as a plugin,
+# so opencode and Codex see it too (they read ~/.claude/skills and
+# ~/.agents/skills but not Claude plugins) and there is only one copy in
+# Claude's skill list.
+# plugin humanizer@humanizer
