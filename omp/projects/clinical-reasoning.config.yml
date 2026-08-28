@@ -52,7 +52,6 @@ retry:
   # exists globally, even to say the same thing.
   fallbackChains:
     adversary:
-      - xai-oauth/grok-4.6:high
       - opencode-go/glm-5.3-flash:high
     anthropic/*:
       - opencode-go/glm-5.3-flash:high

@@ -133,9 +133,10 @@ Key specificity is `provider/model-id` > `provider/*` > role name > `default`
 - There is **no `openai-codex/*` key**. It would shadow the `adversary` role
   chain, which is the only reason a Codex model is still assigned.
 - The `adversary` role chain puts **Grok first**, so the cross-lineage property
-  survives a Codex failure. It is unresolvable until `/login xai-oauth`;
-  unavailable entries are skipped, so it is safe to carry now and activates
-  itself on login.
+  survives a Codex failure. It routes through `opencode-go/grok-4.6:high`, which
+  the OpenCode Go plan already serves, so it works today with no extra login.
+  The two carve-out files omit Grok entirely and fall straight to GLM-5.3-Flash,
+  to keep the provider set on the clinical repos unchanged.
 
 Two invariants worth restating because they are easy to undo:
 
@@ -212,7 +213,15 @@ Also confirmed at apply time:
   `opencode-go/muse-spark-1.2-contributor` is present in `omp models`.
 - **The catalog lists its input as text + image only**, not the video/PDF the
   docs advertise. Don't route PDFs at it expecting native handling.
-- **`xai-oauth/grok-4.6` does not resolve yet**, as expected without SuperGrok.
+- **`xai-oauth/*` resolves to nothing**, and the stale `xai` key in
+  `~/.local/share/opencode/auth.json` is dead (`xai/grok-4.6` fails auth).
+  Grok therefore comes from `opencode-go/grok-4.6`, not from xAI directly.
+- **`openrouter` and `opencode-zen` are not usable routes.** Probing
+  `openrouter/openai/gpt-5.6-sol` returns a plausible reply, but it is the
+  fallback answering: the OpenRouter key returns `401 User not found` and no
+  Zen key exists. Confirmed by diffing `model_perf.samples` across a probe,
+  which credited `muse-spark`. **Always verify a route that way**, because a
+  successful-looking `omp -p` proves nothing about which model served it.
 - **`--model` rejects a `:level` suffix on some model ids, but config files
   never do.** `omp -p ... --model opencode-go/glm-5.3-flash:high` fails with
   `Model not found`, deterministically, at every level. So does
@@ -292,19 +301,35 @@ Two other measured results worth keeping:
   samples to be a verdict, but combined with its total absence from SWE-bench
   Verified it is not a model to hand real work to yet.
 
-## The Codex handover
+## The Codex handover — retired 2026-08-29
 
-When the ChatGPT subscription lapses, one line:
+Paid 8/4/2026 as **ChatGPT Pro 5x ₹9,516.88**, not Plus. Monthly billing puts
+the next charge at **Sep 4, 2026** even though `omp usage` reports its
+`prolite` 7-day window expiring Sep 21 — the window is not the billing date.
+The image you sent confirms cancellation holds access through Sep 4.
+
+Retired 2026-08-29, six days early:
 
 ```yaml
-adversary: xai-oauth/grok-4.6:high
+adversary: opencode-go/grok-4.6:high
 ```
 
-Then `/login xai-oauth`. omp runs an RFC 8628 device flow against `auth.x.ai`
-with the `grok-cli:access` scope and bills the SuperGrok quota at zero marginal
-cost, so it never touches the OpenCode Go budget. Grok is already first in the
-`adversary` fallback chain, so nothing else moves. See [[Two-Stage Plan Review]]
+No login step. Grok 4.6 is in the OpenCode Go catalog (verified 7s) and now
+serves the role directly. Fallback is Muse Spark; the carve-outs keep their own
+fallback (`glm-5.3-flash:high`) so Muse Spark never touches OQGA or
+clinical-reasoning. Cost is Go quota, whose binding limit is the monthly one
+(71% used with 4d18h left at time of switch). See [[Two-Stage Plan Review]]
 for the pipeline it feeds.
+
+Grok 4.6 on Go carries a 500k context window against Sol's 1M, so a very large
+plan review is the one case where losing Sol actually costs something.
+
+Fallback verified 2026-08-29: a throwaway `.omp/config.yml` pointed
+`adversary` at a dead-credential catalog id (`openrouter/openai/gpt-5.6-sol`),
+and `model_perf` credited `opencode-go/grok-4.6=5`, with the turn returning
+"**Verdict: rethink** — caching every API …". An *unknown* model id hard-errors
+instead ("No model selected"), so the chain only saves you when the id is
+valid — which `openai-codex/gpt-5.6-sol` remains even after the sub ends.
 
 > [!note] Grok effort suffixes may be ignored
 > Grok honours `reasoning.effort` only for models on an allowlist over
@@ -316,6 +341,28 @@ If Codex survives instead, `smol: openai-codex/gpt-5.6-luna:medium` is worth
 considering — SWE-V 93.0% and TB2.1 75.7% at $1/$6 beats anything in the Go
 fleet on *verified* numbers. Luna is also reachable through OpenCode Go at 2,050
 req/5h with no ChatGPT subscription at all.
+## Which subscription
+
+Decided 2026-08-29. You paid **ChatGPT Pro 5x ₹9,516.88** on 8/4/2026, not Plus.
+The choice on the table was Pro 5x at ₹9,517/mo against SuperGrok at ₹699/mo,
+with Claude Max 5x and OpenCode Go staying either way. You cancelled effective
+Sep 4, keeping access through the end of the billing period.
+
+**Neither.** `opencode-go/grok-4.6` answers in 7s and is already in the Go
+plan, so SuperGrok resells a model you own. Pro 5x is the closer call, because
+Go carries only `gpt-5.6-luna`, the cheapest GPT-5.6 tier ($1/$6 against Sol's
+$5/$30), which is not a substitute for Sol. But Sol served exactly one role,
+`adversary`, and `omp usage` showed it at **3% of its 7-day allowance** with
+5-hour Spark at 0% — ₹9.5k for a review agent you barely touched.
+
+`adversary` reviews plans, not code, which is why Grok survives the comparison.
+Its strong results are abstract-reasoning ones (ARC-AGI-2 67.1%, Artificial
+Analysis 61 against Sonnet's 55); its weak ones are code-execution benchmarks
+this role never runs. Sol is the better programmer and that is not what the role
+asks for.
+
+What Pro 5x bought beyond omp was the ChatGPT app, Sora and deep research;
+₹699 would buy the Grok app and X integration. Consumer-app calls, not config ones.
 
 ## Benchmark data behind the picks
 

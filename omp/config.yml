@@ -5,7 +5,7 @@ modelRoles:
   designer: anthropic/claude-sonnet-5:high
   vision: anthropic/claude-sonnet-5:medium
   task: anthropic/claude-sonnet-5:medium
-  adversary: openai-codex/gpt-5.6-sol:low
+  adversary: opencode-go/grok-4.6:high
   smol: opencode-go/deepseek-v4-flash:low
   tiny: anthropic/claude-haiku-4-5:low
   commit: opencode-go/muse-spark-1.2-contributor:low
@@ -29,7 +29,6 @@ retry:
   usageReservePolicy: auto
   fallbackChains:
     adversary:
-      - xai-oauth/grok-4.6:high
       - opencode-go/muse-spark-1.2-contributor:high
     anthropic/*:
       - opencode-go/muse-spark-1.2-contributor:high
