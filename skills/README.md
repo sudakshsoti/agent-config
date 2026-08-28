@@ -43,7 +43,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-35 skills, all worth reaching for by name. Trimmed from 37 on 2026-08-19 after a
+36 skills, all worth reaching for by name. Trimmed from 37 on 2026-08-19 after a
 usage audit: any skill unused across 1,203 transcripts (2026-07 through
 2026-08-19, at least 9 days old) was retired. Recoverable from git history.
 
@@ -80,13 +80,14 @@ usage audit: any skill unused across 1,203 transcripts (2026-07 through
 - `typography-craft` — Typography-only authority across screen, print/editorial, brand, display, and type-led layout.
 - `update-branch-name` — Rename the current branch to a semantic-prefix + kebab-case convention, preferring GitHub's server-side rename so an open PR isn't orphaned. `/update-branch-name`.
 - `ux-writing` — User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.
+- `vbc-design` — Deep payer/provider healthcare design: value-based-care economics, role workflows, data and attribution gotchas, registry and cohort design, grounded in Value Connect.
 - `vedic-astrology` — Vedic astrology (Jyotish) advisor for charts, dashas, transits, timing, compatibility, and remedies.
 - `writing-editor` — Writing partner for personal essays and blog posts: get words onto the page, then shape them into something publishable.
 
 The frontend/design skills are `frontend-craft`, `typography-craft`,
-`design-foil`, `nightjar`, `ux-writing`, and `maintainability-review`. No skill
-owns self-contained HTML documents: `html-doc` was retired with studio and has
-not been restored.
+`design-foil`, `nightjar`, `ux-writing`, `maintainability-review`, and
+`vbc-design`. No skill owns self-contained HTML documents: `html-doc` was
+retired with studio and has not been restored.
 
 ## Installing per surface
 
