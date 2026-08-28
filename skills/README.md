@@ -43,7 +43,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-33 skills, all worth reaching for by name. Trimmed from 37 on 2026-08-19 after a
+34 skills, all worth reaching for by name. Trimmed from 37 on 2026-08-19 after a
 usage audit: any skill unused across 1,203 transcripts (2026-07 through
 2026-08-19, at least 9 days old) was retired. Recoverable from git history.
 
@@ -60,6 +60,7 @@ usage audit: any skill unused across 1,203 transcripts (2026-07 through
 - `frontend-craft` — Visual direction for new UI, plus typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
 - `geopolitics` — Opinionated analyst for wars, sanctions, trade, defence, elections, negotiations, and other statecraft between countries.
 - `grilling` — Interview the user relentlessly about a plan/decision, round by round over a design tree, until nothing is left unsettled.
+- `gtd` — Sudaksh's personal GTD system: capture, inbox processing, daily/weekly reviews, Todoist/calendar routing, overwhelm triage, email triage, and procrastination audits.
 - `handoff` — Structured session-handoff docs for continuity across sessions.
 - `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, including the safe rclone-torbox recreate.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
