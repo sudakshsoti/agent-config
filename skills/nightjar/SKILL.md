@@ -12,6 +12,7 @@ description: >
   `artifact-design`, which decides how much design a request warrants; Nightjar
   decides what it looks like. Not a code-quality, component-architecture or
   copywriting skill.
+disable-model-invocation: true
 ---
 
 # NIGHTJAR — house style

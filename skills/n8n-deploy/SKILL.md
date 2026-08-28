@@ -10,6 +10,7 @@ description: |
   workflow_history / the sqlite3 deploy dance. RIGID — follow the steps exactly;
   the obvious tools (import:workflow, update:workflow, the API) silently corrupt
   state and MUST NOT be used.
+disable-model-invocation: true
 ---
 
 # n8n Workflow Deploy (Homelab)

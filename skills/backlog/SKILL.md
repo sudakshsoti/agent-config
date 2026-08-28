@@ -12,6 +12,7 @@ description: |
   **Milestones** sized to finish in one sitting, balanced by T-shirt effort. Triggers on
   backlog, issue, ticket, Linear, milestone, session, Priority/Estimate, triage,
   prioritize. RIGID taxonomy — Linear is the single source of truth.
+disable-model-invocation: true
 ---
 
 # Backlog — the PM

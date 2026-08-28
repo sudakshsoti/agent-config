@@ -12,6 +12,7 @@ description: |
   politics, workplace influence, stakeholder manoeuvring, internal negotiation and
   org design belong to strategy-counsel, not here. The dividing line is states and
   their instruments versus people and their employers.
+disable-model-invocation: true
 ---
 
 # Geopolitics

@@ -3,6 +3,7 @@ name: orient
 description: |
   Write one self-contained HTML guide to a repo — what it is, what its author decided and why, and where the sprawl is — in plain English, two layers deep, every claim cited to file:line. Built for someone returning to their own vibe-coded repo after weeks away. Use when the user says "I've lost track of this repo", "explain my own codebase", "what is all this", "I vibe-coded this and can't remember how it fits together", "map this repo", "coming back to a project after weeks away", or types /orient. It describes, it never prescribes: for debt and refactor advice use maintainability-review (audit/triage). To capture context from a session you are ending rather than from the repo, use `handoff` instead. Writes orient/index.html and orient/payload.json into the target repo, and commits nothing.
 user-invocable: true
+disable-model-invocation: true
 ---
 
 # Orient

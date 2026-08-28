@@ -11,6 +11,7 @@ description: |
   and uncaptured life admin; no single tracker is authoritative. Triggers on overwhelmed,
   overcommitted, spread thin, burnt out, priorities, what next, drop, cull, capacity,
   saying no. Advises first, writes back only on approval.
+disable-model-invocation: true
 ---
 
 # Finite

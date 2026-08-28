@@ -6,6 +6,7 @@ description: >-
   the agent's own capabilities with a skill. Do not use for general "how do I do
   X" questions — those belong to the relevant domain skill, not to skill
   shopping.
+disable-model-invocation: true
 ---
 
 # Find Skills

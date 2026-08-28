@@ -9,6 +9,7 @@ description: |
   to touch main/master, and prefers GitHub's server-side rename so an open
   PR isn't orphaned.
 user-invocable: true
+disable-model-invocation: true
 ---
 
 # Update Branch Name

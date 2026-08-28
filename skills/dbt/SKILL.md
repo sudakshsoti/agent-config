@@ -13,6 +13,7 @@ description: |
   acceptance, validation levels, diary card, chain analysis, DBT worksheet
   or handout. Carries Indian crisis-line escalation. Diagnosis, formulation, assessment and
   medication reasoning belong to clinical-reasoning, not here.
+disable-model-invocation: true
 ---
 
 # DBT

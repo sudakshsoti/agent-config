@@ -7,6 +7,7 @@ description: >-
   asks to have their own thinking pressure-tested in conversation. This is an
   interactive interview of the user, round by round; for a one-shot written
   verdict on a plan document someone already wrote, use `peer-review`.
+disable-model-invocation: true
 ---
 
 Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.

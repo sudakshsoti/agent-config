@@ -2,6 +2,7 @@
 name: design-foil
 description: |
   Strategy- and craft-heavy design advisor for any industry, not just healthcare/enterprise. Use this skill for product/design brainstorming, critique, audits, strategy documents, journey maps, competitive teardowns, decision logs, stakeholder communication, and presentation narratives. Reasons out the industry's business model live rather than assuming one. For US healthcare, value-based care, Optum, UHG, Value Connect, Pop-I, payers, providers, registries, quality measures or care management, load the conditional healthcare references. Use frontend-craft for aesthetic direction on new UI plus production CSS/tokens/typography.
+disable-model-invocation: true
 ---
 
 # Design Foil

@@ -13,6 +13,7 @@ description: |
   edaakhil, CCPA, IRDAI, Insurance Ombudsman, EPFO, Section 7A/7Q/14B, limitation
   period. NOT for criminal matters, tax disputes, matrimonial or family law, property
   and succession, or constitutional challenges — say so and name the specialist.
+disable-model-invocation: true
 ---
 
 # Rights Counsel

@@ -7,6 +7,7 @@ description: |
   commits, and writes a why-first body (Summary / Changes / Test plan, plus linked
   issues) in the user's voice — no AI-attribution footer. Supports draft PRs.
 user-invocable: true
+disable-model-invocation: true
 ---
 
 # PR

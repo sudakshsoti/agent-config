@@ -13,6 +13,7 @@ description: |
   doctrine and domain knowledge stay with the style and fragrance skills, which call
   this one when the conversation turns to actually purchasing. Opt-in — never opens a
   sales pitch inside a conversation that was about taste, wardrobe or a collection.
+disable-model-invocation: true
 ---
 
 # Shopping Research

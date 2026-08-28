@@ -12,6 +12,7 @@ description: |
   triage and the Closed List) and `backlog` (a specific project's Linear backlog) —
   this skill owns the personal GTD inbox, workflow state, and weekly review; route
   domain-specific financial or medical reasoning to the relevant specialist instead.
+disable-model-invocation: true
 ---
 
 # GTD Command Centre

@@ -7,6 +7,7 @@ description: |
   can pick up where you left off without losing context. This captures the
   session you are ending; to reconstruct context from the repo itself after
   weeks away, use `orient` instead.
+disable-model-invocation: true
 ---
 
 # Session Handoff Skill

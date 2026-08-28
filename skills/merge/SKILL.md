@@ -7,6 +7,7 @@ description: |
   merge commit or rebase), deletes the merged branch, and returns to an updated
   base branch. Stops and points to /pr if no PR exists yet.
 user-invocable: true
+disable-model-invocation: true
 ---
 
 # Merge

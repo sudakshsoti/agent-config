@@ -13,6 +13,7 @@ description: |
   formulation, including pharmacokinetic dosing. For delivering DBT itself — skills
   training, diary cards, chain analysis — use the `dbt` skill; this one stops at
   assessment, formulation and prescription.
+disable-model-invocation: true
 ---
 
 # Clinical Reasoning

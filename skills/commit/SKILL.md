@@ -8,6 +8,7 @@ description: |
   diff, splits unrelated changes into separate commits, and matches the repo's
   own convention when it differs from the default.
 user-invocable: true
+disable-model-invocation: true
 ---
 
 # Commit

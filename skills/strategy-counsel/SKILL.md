@@ -13,6 +13,7 @@ description: |
   is people and their employers versus states and their instruments. NOT for product or
   design strategy, critique, or design stakeholder storytelling — that is design-foil.
   This skill is power and negotiation method only.
+disable-model-invocation: true
 ---
 
 # Strategy Counsel

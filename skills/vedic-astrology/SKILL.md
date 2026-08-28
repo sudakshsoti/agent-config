@@ -11,6 +11,7 @@ description: |
   "is this a good time for X". Do not use for Western or tropical astrology, sun-sign
   horoscopes, or natal charts cast on the tropical zodiac, unless the user explicitly asks
   to compare the two systems.
+disable-model-invocation: true
 ---
 
 # Vedic Astrology

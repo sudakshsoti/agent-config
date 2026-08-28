@@ -13,6 +13,7 @@ description: |
   explains so they fix it. NOT interface microcopy — buttons, errors, empty states, form
   labels and UI strings belong to ux-writing. NOT an AI-tell cleanup pass — that is
   humanizer.
+disable-model-invocation: true
 ---
 
 # Writing Editor

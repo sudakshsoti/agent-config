@@ -10,6 +10,7 @@ description: |
   "add a subdomain", or editing any file under stacks/ in the repo. RIGID — the order
   matters and two mechanisms (bare `up -d rclone-torbox`, n8n import) silently break
   things; follow the steps exactly.
+disable-model-invocation: true
 ---
 
 # Homelab Deploy

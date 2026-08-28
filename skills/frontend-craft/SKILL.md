@@ -9,6 +9,7 @@ description: >
   dashboard, report, mockup or diagram — use `nightjar`. Do not invoke this
   skill solely because a task touches React, Vue, Svelte, component behaviour,
   state, data flow, API wiring or tests.
+disable-model-invocation: true
 ---
 
 # Frontend craft
