@@ -34,11 +34,18 @@
 #   omp/themes/*.json -> ~/.omp/agent/themes/*.json
 #     Tracked themes are linked individually; other live theme files remain
 #     machine-local. Only linked if ~/.omp/agent exists.
+#   omp/projects/<repo>.config.yml -> ~/dev/<repo>/.omp/config.yml
+#     Per-project model-role overrides. Skipped when that repo isn't on this
+#     machine. Each target repo needs '.omp/' in its .gitignore; step 3j
+#     warns when it doesn't.
 
 #
 # Deliberately NOT tracked or linked (machine-local by design):
 #   ~/.omp/agent/mcp.json — see the "Secrets policy" section of README.md.
 #   ~/.omp/agent/extensions/ — written and overwritten by the tool that owns it.
+#   ~/.omp/agent/models.yml — nothing to link. Step 3i used to install an
+#     `ollama-local` provider here for session titles; removed 2026-08-29 when
+#     the Ollama desktop app went away. See docs/2026-08-29-model-roles-post-codex.md.
 #
 # Copies, only if missing (the owning tool rewrites these itself, so a symlink
 # would break; never clobbers an existing file):
@@ -210,21 +217,32 @@ if [ -d "$CODEX" ] && [ -f "$REPO/codex/config.toml" ]; then
   echo "merged  codex/config.toml"
 fi
 
-# 3e/3f/3g/3h/3i only run when OMP is installed. Say so out loud when it isn't —
+# 3e/3f/3g/3h only run when OMP is installed. Say so out loud when it isn't —
 #     a silent no-op makes a verify of the form `./install.sh && readlink
 #     ~/.omp/agent/config.yml` look like it passed on a machine that never got
-#     the links.
+#     the links. 3j is separate: it links into ~/dev repos, not ~/.omp.
 if [ ! -d "$OMP" ]; then
-  echo "⚠️  SKIP omp — no $OMP (OMP not installed). config.yml, lsp.yml, models.yml, themes/ and agents/ not linked."
+  echo "⚠️  SKIP omp — no $OMP (OMP not installed). config.yml, lsp.yml, themes/ and agents/ not linked."
 fi
 
 # 3e. OMP config: symlinked, unlike codex/config.toml above. OMP *does* rewrite
-#     this file (`omp config set`, and TUI toggles), but a write follows the
-#     symlink and lands in the repo intact — verified: only trailing whitespace
-#     is normalised, nothing is reordered or dropped — and the file carries no
-#     credentials (OMP keeps auth in its own state dir, not here). So the repo
-#     stays the live source of truth and settings changed from the TUI show up
-#     as a plain `git diff` to review before committing, with no sync step.
+#     this file (`omp config set`, and TUI toggles), and a write follows the
+#     symlink and lands in the repo, carrying no credentials (OMP keeps auth in
+#     its own state dir, not here). So the repo stays the live source of truth
+#     and settings changed from the TUI show up as a plain `git diff` to review
+#     before committing, with no sync step.
+#
+#     CORRECTION 2026-08-29: an earlier version of this comment claimed
+#     "nothing is reordered or dropped". That is FALSE for comments. A fully
+#     annotated modelRoles/retry block written by hand was replaced during a
+#     single session by a value-identical version with every `#` line gone.
+#     Values survived exactly; the rationale did not. So do NOT keep decision
+#     rationale in this file — it belongs in docs/, and the model-role
+#     reasoning lives in docs/2026-08-29-model-roles-post-codex.md.
+#     omp/projects/*.config.yml is the opposite: OMP reads those and never
+#     writes them, so comments there are durable. Verified: 35 and 30 comment
+#     lines still present after the global file was stripped to 0.
+#
 #     Caveat: OMP locks the *resolved* path, so writes leave an empty
 #     omp/config.yml.lock in the checkout — .gitignore covers it.
 if [ -d "$OMP" ] && [ -f "$REPO/omp/config.yml" ]; then
@@ -259,16 +277,40 @@ if [ -d "$OMP" ] && [ -d "$REPO/omp/agents" ]; then
   done
 fi
 
-# 3i. OMP custom models: the local Ollama provider that serves session titles
-#     and the `auto` thinking classifier. Symlinked for the same reason as
-#     config.yml — OMP reads this file and never writes it, so the repo is the
-#     only source of truth and the rationale comments in it survive.
-#     Depends on `ollama pull qwen3.5:0.8b` having been run. If it hasn't,
-#     the role just fails and the session stays untitled — nothing falls back
-#     to a paid provider.
-if [ -d "$OMP" ] && [ -f "$REPO/omp/models.yml" ]; then
-  mkdir -p "$OMP"
-  link_into "$REPO/omp/models.yml" "$OMP/models.yml"
+# 3j. OMP per-project model roles: omp/projects/<repo>.config.yml is symlinked
+#     to ~/dev/<repo>/.omp/config.yml. Project roles override the global ones
+#     and OMP reapplies them as the authoritative project model-role layer;
+#     roles a project file omits still fall through to global.
+#
+#     These exist for one reason: `opencode-go/muse-spark-1.2-contributor` is
+#     the only Go model that trains on your prompts, and OQGA (Optum HEDIS
+#     chart abstraction) and clinical-reasoning (real patient notes) must not
+#     reach it. Each project file pins every Muse Spark role to a ZDR model.
+#
+#     Unlike the ~/.omp and ~/.claude links above, these point into OTHER git
+#     repos, so each target repo needs `.omp/` in its .gitignore — the link is
+#     machine-local and its absolute path is meaningless in a clone. Checked
+#     below rather than assumed, because a committed absolute symlink would
+#     silently resolve to nothing on any other machine.
+if [ -d "$REPO/omp/projects" ]; then
+  DEV="$(dirname "$REPO")"
+  for proj_cfg in "$REPO"/omp/projects/*.config.yml; do
+    [ -f "$proj_cfg" ] || continue
+    proj_name="$(basename "$proj_cfg" .config.yml)"
+    proj_dir="$DEV/$proj_name"
+    if [ ! -d "$proj_dir" ]; then
+      echo "⚠️  SKIP $proj_name/.omp/config.yml — no $proj_dir on this machine."
+      continue
+    fi
+    mkdir -p "$proj_dir/.omp"
+    link_into "$proj_cfg" "$proj_dir/.omp/config.yml"
+    # Nag, don't fix: editing another repo's .gitignore from this installer
+    # would be a surprise. Refuses to be silent about it either way.
+    if git -C "$proj_dir" rev-parse --git-dir >/dev/null 2>&1 &&
+      ! git -C "$proj_dir" check-ignore -q .omp 2>/dev/null; then
+      echo "⚠️  $proj_name: add '.omp/' to its .gitignore — the symlink is machine-local."
+    fi
+  done
 fi
 
 # 3d. Git hooks: point git at the tracked .githooks/ instead of .git/hooks, so

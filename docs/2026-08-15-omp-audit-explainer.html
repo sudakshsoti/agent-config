@@ -227,6 +227,10 @@ footer {
   <h1>What changed in omp, what was left alone, and what is still dangerous</h1>
   <p class="standfirst">Ten audit items. Nine changes landed, two risks are still open by choice.
   Every claim below has a commit behind it, and every change can be undone with one command.</p>
+  <p class="standfirst">Status: partly superseded on 2026-08-29. The session-titles item below is a
+  historical record, not current state &mdash; see the callout inside it, and
+  <code>docs/2026-08-29-model-roles-post-codex.md</code> ("Model Roles After Codex") for what replaced
+  it.</p>
 </header>
 
 <div class="key">
@@ -400,10 +404,26 @@ dev:
     <div class="rail"><span class="tag t-fixed">Cost</span><span class="sha">0706cb7<br>c474b30<br>8c56c74</span></div>
     <div class="body">
       <h3>Session titles now run on your own Mac</h3>
+      <div class="aside warn"><strong>Superseded 2026-08-29.</strong> The <code>ollama-local</code>
+      provider described in this item is gone. Ollama's desktop app was removed, so nothing listens on
+      port 11434 and no local model can serve titles any more; the Homebrew CLI
+      (<code>ollama 0.33.0</code> at <code>/opt/homebrew/bin/ollama</code>) is still installed but idle,
+      a loose end for a future <code>brew uninstall ollama</code>. The <code>ollama-local</code> block
+      in <code>omp/models.yml</code> is deleted, and the <code>install.sh</code> symlink step that
+      installed it (step 3i) is deleted with it. <code>tiny</code> is now
+      <code>anthropic/claude-haiku-4-5:low</code>: Haiku 4.5 is free under Claude Max 5x, it rides a
+      connection omp already has open, and a title prompt is only about 82 tokens, so the quota cost
+      next to one Sonnet turn is negligible &mdash; the trade only made sense while local inference was
+      free, and it is not free any more. <code>tiny</code> also fires before every turn
+      (<code>defaultThinkingLevel: auto</code> means it classifies each turn's difficulty first), so
+      its latency lands on your wait time, which is why it stays on a warm Anthropic connection instead
+      of a cheap gateway model. See <code>docs/2026-08-29-model-roles-post-codex.md</code>
+      ("Model Roles After Codex") for the current state. What follows is the 2026-08-15 record of how
+      it was built.</div>
       <p>Every omp session gets a short name, the three to six words in the session list. Generating
-      that name was a paid API call. It is the smallest job omp does and there is no reason to buy it.
-      The <code>tiny</code> model role now points at <code>ollama-local/qwen3.5:0.8b</code>, defined in
-      a new <code>omp/models.yml</code> that <code>install.sh</code> symlinks into place.</p>
+      that name was a paid API call. It was the smallest job omp did and there was no reason to buy it.
+      The <code>tiny</code> model role pointed at <code>ollama-local/qwen3.5:0.8b</code>, defined in
+      a new <code>omp/models.yml</code> that <code>install.sh</code> symlinked into place.</p>
       <p><strong>0.8B, not the 4B originally planned.</strong> A 4B was wired first and it worked. Then
       the machine's actual state surfaced: a 16GB Mac already at 10.6GB of swap out of 11GB, with 13%
       of memory free. The 4B holds about 4GB of RAM while loaded. Spending that on three-word titles is
@@ -413,36 +433,48 @@ dev:
       <div class="aside warn"><strong><code>omp -p</code> never generates titles.</strong> Title
       generation only fires on the interactive path. Test with <code>-p</code> and you will conclude the
       feature is broken when it is fine.</div>
-      <div class="aside"><strong>omp argues with itself about thinking.</strong> For a three-word title,
-      reasoning is pure waste, so the config tells the model not to. A logging proxy in front of Ollama
-      caught the real request: omp sends the instruction as asked, then sends
+      <div class="aside"><strong>omp argued with itself about thinking.</strong> For a three-word title,
+      reasoning was pure waste, so the config told the model not to. A logging proxy in front of Ollama
+      caught the real request: omp sent the instruction as asked, then sent
       <code>preserve_thinking: true</code> of its own alongside it. On the 4B omp's own flag won and a
-      single title took <strong>78 seconds</strong>. On the 0.8B it does not. The override that forces
-      it off is recorded in <code>omp/models.yml</code> in case a future omp update brings it back.</div>
+      single title took <strong>78 seconds</strong>. On the 0.8B it did not. The override that forced
+      it off was recorded in <code>omp/models.yml</code>, now deleted along with the rest of that
+      provider.</div>
       <p>Three more that cost time to find. Switching thinking off needed <em>both</em>
       <code>reasoning: false</code> on the model and <code>extraBody.reasoning_effort: none</code>;
-      either alone does nothing. A Modelfile cannot turn thinking off, it has to go in the request body.
-      And the provider needs <code>api: openai-completions</code>, because the similarly named
-      <code>openai-responses</code> garbles output with no clear error.</p>
-      <p>It is a full custom provider rather than a tweak to omp's built-in <code>ollama</code>, because
+      either alone did nothing. A Modelfile could not turn thinking off, it had to go in the request
+      body. And the provider needed <code>api: openai-completions</code>, because the similarly named
+      <code>openai-responses</code> garbled output with no clear error.</p>
+      <p>It was a full custom provider rather than a tweak to omp's built-in <code>ollama</code>, because
       the built-in discovers models by asking Ollama and caches the answer. That cache went stale: after
       an <code>ollama rm</code>, omp still listed the deleted model.</p>
-      <div class="aside">The 0.8B sits at 1.1GB of RAM while loaded, not the 600MB expected. It unloads
-      after five minutes idle. If the Mac feels heavy, <code>git revert c474b30</code> puts titles back
-      on the paid API. The 4B is still on disk at 3.7GB as <code>qwen3.5:4b-mlx</code> for summarising
-      articles by hand; omp does not touch it.</div>
+      <div class="aside"><strong>That call was vindicated after the fact.</strong> As of 2026-08-29,
+      <code>omp models</code> still lists two phantom entries, <code>ollama/qwen3.5:0.8b</code> and
+      <code>ollama/qwen3.5:4b-mlx</code>, from omp's built-in <code>ollama</code> provider. Nothing can
+      serve either: there is no server on port 11434 and no weights left on disk. It is the exact
+      stale-discovery-cache behaviour the original <code>omp/models.yml</code> comment warned about,
+      left as harmless history rather than something to fix.</div>
+      <div class="aside">The 0.8B sat at 1.1GB of RAM while loaded, not the 600MB expected. It unloaded
+      after five minutes idle. <strong>Superseded 2026-08-29:</strong> Ollama's desktop app is gone, so
+      <code>git revert c474b30</code> would not put titles back on the paid API on its own &mdash; the
+      provider it depends on no longer runs, and <code>tiny</code> is now
+      <code>anthropic/claude-haiku-4-5:low</code> regardless. <code>~/.ollama</code> no longer exists,
+      so both the 0.8B and the 4B (<code>qwen3.5:4b-mlx</code>) are gone with it &mdash; there is no
+      disk left to reclaim. The Homebrew CLI, <code>ollama 0.33.0</code>, is still installed at
+      <code>/opt/homebrew/bin/ollama</code> with nothing running or stored behind it.</div>
     </div>
   </article>
 </section>
 
 <div class="verified">
-  <h2>Verified working</h2>
+  <h2>Verified working &mdash; 2026-08-15, superseded 2026-08-29</h2>
   <pre><span class="ok">title-generator: success</span>  provider:"ollama-local"  id:"qwen3.5:0.8b"
 title:"Add retry to deployment webhook handler"
 cost total 0                            0.47s warm
 
 <span class="ok">./install.sh exit 0</span>       linked=50 mirrored=37 skipped=0 pruned=0
-INVARIANT block intact. Only `tiny` changed under modelRoles.</pre>
+INVARIANT block intact. Only `tiny` changed under modelRoles.
+<span class="cmt"># 2026-08-29: ollama-local provider deleted; tiny is now anthropic/claude-haiku-4-5:low</span></pre>
 </div>
 
 <section class="group">
@@ -517,8 +549,11 @@ INVARIANT block intact. Only `tiny` changed under modelRoles.</pre>
       <code>~/.omp/agent/cache/tiny-models/</code> was deleted too. It was fetched before the switch to
       Qwen3.5 and nothing referenced it: <code>autoThinkingModel</code> is <code>online</code>, and
       neither config file named it. The cache is now 385MB.</p>
-      <div class="aside warn"><strong>Leave <code>tiny-title-runtime</code> alone</strong> when
-      clearing that cache again. It is the runtime behind local title generation.</div>
+      <div class="aside warn"><strong>Superseded 2026-08-29: <code>tiny-title-runtime</code> is safe to
+      clear now.</strong> It was the runtime behind local title generation, but the
+      <code>ollama-local</code> provider is gone and <code>tiny</code> now runs on
+      <code>anthropic/claude-haiku-4-5:low</code>. The cache is no longer load-bearing; it measured
+      381MB as of 2026-08-29.</div>
       <p>Still outstanding:</p>
       <ul>
         <li>No calendar reminder for the OpenRouter promo expiry on <strong>2026-12-31</strong>, and no
@@ -585,8 +620,11 @@ INVARIANT block intact. Only `tiny` changed under modelRoles.</pre>
 
 git revert 7c4297a                    <span class="cmt"># adversary prompt</span>
 git revert 820f917                    <span class="cmt"># install.sh</span>
-git revert c474b30 0706cb7 8c56c74    <span class="cmt"># drop the local model entirely</span>
-ollama rm qwen3.5:0.8b                <span class="cmt"># then reclaim the disk</span></pre>
+<span class="cmt"># 2026-08-29: removed by hand, not by reverting c474b30/0706cb7/8c56c74 &mdash; omp/config.yml
+# had been rewritten substantially since those commits and a revert would conflict. The ollama-local
+# block in omp/models.yml and the install.sh symlink step (3i) are deleted; tiny is now
+# anthropic/claude-haiku-4-5:low. Weights are gone too (~/.ollama no longer exists), so there is no
+# disk left to reclaim. See docs/2026-08-29-model-roles-post-codex.md.</span></pre>
   </div>
   <div class="aside warn" style="margin-top:1.5rem"><strong>Never use <code>omp config set</code>.</strong>
   It rewrites the file and may strip the INVARIANT comment block that keeps Anthropic out of the retry
@@ -598,6 +636,7 @@ ollama rm qwen3.5:0.8b                <span class="cmt"># then reclaim the disk<
   <span>merged to main 9cc6ff4</span>
   <span>full detail: docs/2026-08-15-omp-audit.md</span>
   <span>state: handoff/2026-08-15-omp-audit-complete.md</span>
+  <span>superseded (session titles): docs/2026-08-29-model-roles-post-codex.md</span>
 </footer>
 
 </div>
