@@ -42,3 +42,20 @@ even if it's switched off for Claude via `skillOverrides`.
 `dist/`. These configure Claude Code specifically (subagents, its settings
 file, its statusline, its hooks, its plugin list, its skill zips) and Codex
 has no equivalent for any of them.
+
+## Gotchas
+
+- Model thinking levels are per-model. `deepseek-v4-flash`, `glm-5.3-flash` and
+  `kimi-k3` expose only low/high/max. Writing `medium` on those is not rejected:
+  it silently runs, and bills, as `high`.
+- omp rewrites `omp/config.yml` and deletes every comment line while keeping the
+  values byte-identical. Never keep decision rationale in that file; it belongs
+  in `docs/`.
+- In omp only one user-level context file survives, by provider priority: native
+  `~/.omp/agent/AGENTS.md` (100) beats `~/.claude/CLAUDE.md` (80) beats
+  `~/.codex/AGENTS.md` (70). Two different global files means the lower one is
+  never loaded. All four paths are symlinks to `global-agents.md`, so keep them
+  that way rather than editing one destination.
+- `link_into` in `install.sh` refuses to replace a real non-symlink file: it
+  prints a SKIP warning and continues. A missing symlink after an install run
+  usually means a real file is sitting in the destination.

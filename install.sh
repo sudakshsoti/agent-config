@@ -68,6 +68,7 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE="$HOME/.claude"
 CODEX="$HOME/.codex"
 OMP="$HOME/.omp/agent"
+OPENCODE="$HOME/.config/opencode"
 PRUNE=0
 FORCE=0
 PLUGINS=1
@@ -198,12 +199,17 @@ fi
 #     nothing to sync back.
 link_into "$REPO/claude-powerline.json" "$CLAUDE/claude-powerline.json"
 
-# 3b2. Global CLAUDE.md: symlinked for the same reason as claude-powerline.json
-#     above — Claude Code only ever reads this file, never rewrites it, so a
+# 3b2. Global agent preferences: symlinked for the same reason as
+#     claude-powerline.json above — none of these tools rewrite this file, so a
 #     repo edit goes live immediately with nothing to sync back. Named
-#     global-claude.md in the repo since the repo's own root CLAUDE.md (the
+#     global-agents.md in the repo since the repo's own root AGENTS.md (the
 #     project-instructions file for this checkout) already owns that name.
-link_into "$REPO/global-claude.md" "$CLAUDE/CLAUDE.md"
+#     Linked into every installed tool's user-level instruction path so a
+#     gotcha or preference added once reaches all of them.
+link_into "$REPO/global-agents.md" "$CLAUDE/CLAUDE.md"
+[ -d "$CODEX" ] && link_into "$REPO/global-agents.md" "$CODEX/AGENTS.md"
+[ -d "$OMP" ] && link_into "$REPO/global-agents.md" "$OMP/AGENTS.md"
+[ -d "$OPENCODE" ] && link_into "$REPO/global-agents.md" "$OPENCODE/AGENTS.md"
 
 # 3c. Codex config: merge only the non-secret keys tracked in codex/config.toml.
 #     Preserve unrelated user, MCP, desktop, and machine-managed settings.
