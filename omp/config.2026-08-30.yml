@@ -30,17 +30,16 @@ retry:
   fallbackChains:
     anthropic/*:
       - opencode-go/muse-spark-1.2-contributor:high
-      - opencode-go/glm-5.3-flash:high
-      - opencode-go/minimax-m3:medium
+      - opencode-go/deepseek-v4-flash:low
+      - openrouter/deepseek/deepseek-v4-flash-0731:low
     opencode-go/*:
-      - opencode-go/deepseek-v4-flash:low
-      - opencode-go/minimax-m3:medium
-      - openai-codex/gpt-5.3-codex-spark:medium
-      - anthropic/claude-haiku-4-5:low
+      - anthropic/claude-sonnet-5:low
+      - anthropic/claude-sonnet-5:medium
+      - openrouter/deepseek/deepseek-v4-flash-0731:low
     default:
-      - opencode-go/muse-spark-1.2-contributor
-      - opencode-go/deepseek-v4-flash:low
-      - openai-codex/gpt-5.3-codex-spark:medium
+      - opencode-go/muse-spark-1.2-contributor:high
+      - anthropic/claude-sonnet-5:low
+      - openrouter/deepseek/deepseek-v4-flash-0731:low
 symbolPreset: nerd
 theme:
   dark: dark-lunar-statusline
@@ -107,6 +106,7 @@ defaultThinkingLevel: auto
 providers:
   autoThinkingModel: online
   autoThinkingMaxEffort: xhigh
+  openrouterVariant: floor
   webSearchOrder:
     - tavily
     - exa
