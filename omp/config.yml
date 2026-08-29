@@ -19,7 +19,7 @@ task:
     scout: opencode-go/muse-spark-1.2-contributor:low
     librarian: opencode-go/muse-spark-1.2-contributor:high
     sonic: opencode-go/muse-spark-1.2-contributor:low
-    reviewer: opencode-go/kimi-k3:high
+    reviewer: opencode-go/glm-5.3:max
     security-reviewer: opencode-go/kimi-k3:high
 retry:
   enabled: true
