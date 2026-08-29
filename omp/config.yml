@@ -48,19 +48,36 @@ theme:
   light: light
 setupVersion: 2
 statusLine:
-  preset: default
+  preset: custom
   separator: none
-  sessionAccent: true
+  sessionAccent: false
   compactThinkingLevel: false
   transparent: true
   leftSegments:
-    []
+    - model
+    - mode
+    - collab
+    - path
+    - git
+    - pr
+    - context_pct
+    - cost
   rightSegments:
-    []
+    - session_name
   contextLine: annotated
   showHookStatus: true
   segmentOptions:
-    {}
+    model:
+      showThinkingLevel: true
+    path:
+      abbreviate: true
+      maxLength: 40
+      stripWorkPrefix: true
+    git:
+      showBranch: true
+      showStaged: true
+      showUnstaged: true
+      showUntracked: true
 startup:
   quiet: false
   checkUpdate: false
@@ -86,7 +103,7 @@ display:
   showTokenUsage: false
   collapseCompacted: true
   cacheMissMarker: false
-  hideToolActivity: false
+  hideToolActivity: true
 defaultThinkingLevel: auto
 providers:
   autoThinkingModel: online
@@ -138,52 +155,6 @@ skills:
     - fewer-permission-prompts
     - loop
     - schedule
-    - marketing-*
-    - ab-testing
-    - ad-creative
-    - ads
-    - ai-seo
-    - analytics
-    - aso
-    - attribution
-    - churn-prevention
-    - co-marketing
-    - cold-email
-    - community-marketing
-    - competitor-profiling
-    - competitors
-    - content-strategy
-    - copy-editing
-    - copywriting
-    - cro
-    - customer-research
-    - directory-submissions
-    - emails
-    - free-tools
-    - image
-    - influencer-marketing
-    - launch
-    - lead-magnets
-    - offers
-    - onboarding
-    - paywalls
-    - popups
-    - pricing
-    - product-marketing
-    - programmatic-seo
-    - prospecting
-    - public-relations
-    - referrals
-    - revops
-    - sales-enablement
-    - schema
-    - seo-audit
-    - signup
-    - site-architecture
-    - sms
-    - social
-    - ux-writing
-    - video
     - vercel-*
     - ai-gateway
     - ai-sdk

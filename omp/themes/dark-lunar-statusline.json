@@ -3,8 +3,7 @@
 	"name": "dark-lunar-statusline",
 	"symbols": {
 		"overrides": {
-			"icon.context": "󰊚",
-			"icon.pi": ""
+			"icon.context": "󰊚"
 		}
 	},
 	"vars": {
