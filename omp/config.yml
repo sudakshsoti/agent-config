@@ -16,10 +16,10 @@ task:
   eager: preferred
   enableLsp: true
   agentModelOverrides:
-    scout: opencode-go/deepseek-v4-flash:low
-    librarian: opencode-go/deepseek-v4-flash:high
+    scout: opencode-go/muse-spark-1.2-contributor:low
+    librarian: opencode-go/muse-spark-1.2-contributor:high
     sonic: opencode-go/muse-spark-1.2-contributor:low
-    reviewer: opencode-go/deepseek-v4-flash:high
+    reviewer: opencode-go/kimi-k3:high
     security-reviewer: opencode-go/kimi-k3:high
 retry:
   enabled: true
