@@ -33,13 +33,14 @@ retry:
       - opencode-go/glm-5.3-flash:high
       - opencode-go/minimax-m3:medium
     opencode-go/*:
-      - opencode-go/glm-5.3-flash:high
-      - opencode-go/minimax-m3:medium
       - opencode-go/deepseek-v4-flash:low
+      - opencode-go/minimax-m3:medium
+      - openai-codex/gpt-5.3-codex-spark:medium
+      - anthropic/claude-haiku-4-5:low
     default:
       - opencode-go/muse-spark-1.2-contributor
-      - opencode-go/glm-5.3-flash
-      - opencode-go/minimax-m3
+      - opencode-go/deepseek-v4-flash:low
+      - openai-codex/gpt-5.3-codex-spark:medium
 symbolPreset: nerd
 theme:
   dark: dark-lunar-statusline
