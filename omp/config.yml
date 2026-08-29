@@ -20,7 +20,7 @@ task:
     librarian: opencode-go/muse-spark-1.2-contributor:high
     sonic: opencode-go/muse-spark-1.2-contributor:low
     reviewer: opencode-go/glm-5.3:max
-    security-reviewer: opencode-go/kimi-k3:high
+    security-reviewer: opencode-go/glm-5.3:max
 retry:
   enabled: true
   modelFallback: true
