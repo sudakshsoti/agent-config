@@ -88,7 +88,7 @@ autolearn:
   autoContinue: true
 dev:
   autoqaConsent: denied
-hideThinkingBlock: true
+hideThinkingBlock: false
 advisor:
   enabled: false
   syncBacklog: "off"
@@ -101,7 +101,7 @@ display:
   showTokenUsage: false
   collapseCompacted: true
   cacheMissMarker: false
-  hideToolActivity: false
+  hideToolActivity: true
 defaultThinkingLevel: auto
 providers:
   autoThinkingModel: online
