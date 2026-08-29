@@ -34,10 +34,6 @@
 #   omp/themes/*.json -> ~/.omp/agent/themes/*.json
 #     Tracked themes are linked individually; other live theme files remain
 #     machine-local. Only linked if ~/.omp/agent exists.
-#   omp/projects/<repo>.config.yml -> ~/dev/<repo>/.omp/config.yml
-#     Per-project model-role overrides. Skipped when that repo isn't on this
-#     machine. Each target repo needs '.omp/' in its .gitignore; step 3j
-#     warns when it doesn't.
 
 #
 # Deliberately NOT tracked or linked (machine-local by design):
@@ -239,9 +235,6 @@ fi
 #     Values survived exactly; the rationale did not. So do NOT keep decision
 #     rationale in this file — it belongs in docs/, and the model-role
 #     reasoning lives in docs/2026-08-29-model-roles-post-codex.md.
-#     omp/projects/*.config.yml is the opposite: OMP reads those and never
-#     writes them, so comments there are durable. Verified: 35 and 30 comment
-#     lines still present after the global file was stripped to 0.
 #
 #     Caveat: OMP locks the *resolved* path, so writes leave an empty
 #     omp/config.yml.lock in the checkout — .gitignore covers it.
@@ -277,41 +270,11 @@ if [ -d "$OMP" ] && [ -d "$REPO/omp/agents" ]; then
   done
 fi
 
-# 3j. OMP per-project model roles: omp/projects/<repo>.config.yml is symlinked
-#     to ~/dev/<repo>/.omp/config.yml. Project roles override the global ones
-#     and OMP reapplies them as the authoritative project model-role layer;
-#     roles a project file omits still fall through to global.
-#
-#     These exist for one reason: `opencode-go/muse-spark-1.2-contributor` is
-#     the only Go model that trains on your prompts, and OQGA (Optum HEDIS
-#     chart abstraction) and clinical-reasoning (real patient notes) must not
-#     reach it. Each project file pins every Muse Spark role to a ZDR model.
-#
-#     Unlike the ~/.omp and ~/.claude links above, these point into OTHER git
-#     repos, so each target repo needs `.omp/` in its .gitignore — the link is
-#     machine-local and its absolute path is meaningless in a clone. Checked
-#     below rather than assumed, because a committed absolute symlink would
-#     silently resolve to nothing on any other machine.
-if [ -d "$REPO/omp/projects" ]; then
-  DEV="$(dirname "$REPO")"
-  for proj_cfg in "$REPO"/omp/projects/*.config.yml; do
-    [ -f "$proj_cfg" ] || continue
-    proj_name="$(basename "$proj_cfg" .config.yml)"
-    proj_dir="$DEV/$proj_name"
-    if [ ! -d "$proj_dir" ]; then
-      echo "⚠️  SKIP $proj_name/.omp/config.yml — no $proj_dir on this machine."
-      continue
-    fi
-    mkdir -p "$proj_dir/.omp"
-    link_into "$proj_cfg" "$proj_dir/.omp/config.yml"
-    # Nag, don't fix: editing another repo's .gitignore from this installer
-    # would be a surprise. Refuses to be silent about it either way.
-    if git -C "$proj_dir" rev-parse --git-dir >/dev/null 2>&1 &&
-      ! git -C "$proj_dir" check-ignore -q .omp 2>/dev/null; then
-      echo "⚠️  $proj_name: add '.omp/' to its .gitignore — the symlink is machine-local."
-    fi
-  done
-fi
+# 3j. RETIRED 2026-08-29. Symlinked omp/projects/<repo>.config.yml into
+#     ~/dev/<repo>/.omp/config.yml to keep `muse-spark-1.2-contributor` — the
+#     one Go model that trains on prompts — out of OQGA and clinical-reasoning.
+#     Removed when Muse Spark was accepted everywhere; see
+#     docs/2026-08-29-model-roles-post-codex.md.
 
 # 3d. Git hooks: point git at the tracked .githooks/ instead of .git/hooks, so
 #     the pre-commit lint arrives with a clone and works from a worktree (where

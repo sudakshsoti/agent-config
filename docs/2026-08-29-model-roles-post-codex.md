@@ -21,17 +21,16 @@ The applied `modelRoles` layout for `omp/config.yml`, sized for **Claude Max 5x
 + OpenCode Go**, with SuperGrok arriving next month and Codex on its way out.
 
 > [!abstract] One-line mental model
-> Anthropic drives, plans and looks at pictures. DeepSeek V4 Flash does the
-> work you wait on. Muse Spark does the work nobody waits on. SuperGrok is the
-> outside opinion. Two repos opt out of Muse Spark entirely.
+> Anthropic drives, plans and looks at pictures. Muse Spark does the cheap
+> volume, subagents included. Grok is the outside opinion. Nothing opts out.
 
 > [!success] Applied 2026-08-29
-> `omp/config.yml`, `omp/projects/*.config.yml`, `install.sh` steps 3e/3j, the
-> `.gitignore` entries in `OQGA` and `clinical-reasoning`, and the
+> `omp/config.yml`, `install.sh` step 3e and the
 > [Ollama removal](#ollama-removal) are all live. One thing is **not** done:
 > the [Codex handover](#the-codex-handover), which waits on SuperGrok.
 >
-> Muse Spark was then **measured** and moved off `scout` and `librarian`. See
+> Muse Spark was then **measured**, moved off `scout` and `librarian`, and moved
+> back the same day once price beat speed. See
 > [Measured, not guessed](#measured-not-guessed) — that section supersedes the
 > speed reasoning in any earlier draft of this file.
 
@@ -57,9 +56,9 @@ The price is real, though: it is the **only** model in the Go lineup marked
 [opencode.ai/docs/go](https://opencode.ai/docs/go). Meta says the same at
 [dev.meta.ai/docs/pricing-rate-limits](https://dev.meta.ai/docs/pricing-rate-limits)
 — the contributor tier is discounted *in exchange for* training rights. Every
-other Go model is "Not used / 0 days". That trade is fine for `homelab`,
-`dotfiles`, `agmtech` and the rest. It is not a personal call for two repos, so
-they get [their own configs](#the-two-carve-outs).
+other Go model is "Not used / 0 days". Accepted everywhere as of 2026-08-29,
+including `OQGA` and `clinical-reasoning` — see
+[the retired carve-outs](#the-two-carve-outs-retired-2026-08-29).
 
 **Cheap models go on named agents, never on the `task` role.** The `task` role
 stays Sonnet 5 so an unnamed or newly added agent lands on the capable model.
@@ -82,8 +81,8 @@ and nothing else.
 | `designer` | Sonnet 5 | high | `agmtech` brand and motion work needs the headroom |
 | `vision` | Sonnet 5 | medium | UI critique quality; cheap multimodals stay fallbacks |
 | `task` | Sonnet 5 | medium | fail-safe: unnamed agents get the capable model |
-| `adversary` | GPT-5.6 Sol | low | **temporary** — see [handover](#the-codex-handover) |
-| `smol` | DeepSeek V4 Flash | low | prewalk + vibe `fast` tier, so speed is everything: 119 tok/s, 1.12s TTFT, SWE-V 79% |
+| `adversary` | Grok 4.6 | high | Codex retired 2026-08-29 — see [handover](#the-codex-handover) |
+| `smol` | Muse Spark | low | prewalk + vibe `fast` tier. Was DeepSeek for speed; moved on price, since a spend budget makes 2.2x input / 3.3x output the thing you actually pay |
 | `tiny` | Haiku 4.5 | low | fires before every turn under `defaultThinkingLevel: auto`, so its TTFT lands on your wait; free under Max, warm connection |
 | `commit` | Muse Spark | low | cheaper on output than Qwen3.8-Flash and a far better model; budget irrelevant at 45,300/5h |
 | `advisor` | Muse Spark | high | reviews every transcript delta: huge input, tiny output, and cached input is $0.002/M. Inert while `advisor.enabled` is false |
@@ -92,8 +91,8 @@ Subagents:
 
 | Agent | Model | Effort | Reason |
 | --- | --- | --- | --- |
-| `scout` | DeepSeek V4 Flash | low | you wait on scouts, and it measured **faster than Sonnet** on identical work; 1M context, SWE-V 79%, ZDR |
-| `librarian` | DeepSeek V4 Flash | high | same reason — a library answer is a long report you are blocked on |
+| `scout` | Muse Spark | low | the volume role, and volume is what a spend budget charges for: $0.10/$0.20 per Mtok, 45,300 req/5h, 1M context. Slower per turn than DeepSeek and you do wait on it |
+| `librarian` | Muse Spark | high | same trade, and a library answer is long output where the $0.20 rate matters most |
 | `sonic` | Muse Spark | low | mechanical bulk, runs in parallel, nobody waits on any single one |
 | `reviewer` | Kimi K3 | high | SWE-V 93.4%, the highest verified score in the fleet; 110 req/5h is fine for review volume |
 | `security-reviewer` | Kimi K3 | high | same |
@@ -102,10 +101,14 @@ Subagents:
 `omp/agents/adversary.md` pins `model: "@adversary"`, so the role drives it and
 an override would be dead config.
 
-**The rule that decides Muse Spark placement:** it gets a role only when the
-output is short (`commit`), or nobody is blocked on it (`advisor`, `sonic`, the
-fallback chains). Every role where you sit and wait for a long answer —
-`default`, `smol`, `tiny`, `scout`, `librarian` — goes to Anthropic or DeepSeek.
+**The rule that decided Muse Spark placement, and how it changed.** Originally:
+Muse Spark gets a role only when the output is short (`commit`) or nobody is
+blocked on it (`advisor`, `sonic`, the fallback chains). Price overrode that on
+2026-08-29 — see [the reversal](#measured-not-guessed). `smol`, `scout` and
+`librarian` are Muse Spark now *despite* being roles you wait on, because Go
+bills spend rather than requests. `default`, `plan`, `slow`, `task`, `vision`
+and `tiny` stay on Anthropic, where the cost is Max quota rather than Go
+dollars, and `reviewer` stays on Kimi K3 for the verified score.
 
 > [!danger] Comments in `omp/config.yml` do not survive
 > This file was written with a full block of rationale comments on every role
@@ -117,10 +120,9 @@ fallback chains). Every role where you sit and wait for a long answer —
 > Consequence: this document is the only durable home for the reasoning. Do not
 > put rationale in `omp/config.yml`; it will be silently deleted.
 >
-> `omp/projects/*.config.yml` is the **opposite** — omp reads those and never
-> writes them. Verified: 35 and 30 comment lines still present after the global
-> file was stripped to zero. Rationale that must sit next to the values belongs
-> there.
+> `omp/projects/*.config.yml` used to be the opposite — omp read those and never
+> wrote them, so 35 and 30 comment lines survived a global strip to zero. Both
+> files were deleted 2026-08-29, so this document is the only durable home left.
 >
 > An earlier claim in `install.sh` step 3e that "nothing is reordered or
 > dropped" was false and has been corrected in place.
@@ -135,8 +137,6 @@ Key specificity is `provider/model-id` > `provider/*` > role name > `default`
 - The `adversary` role chain puts **Grok first**, so the cross-lineage property
   survives a Codex failure. It routes through `opencode-go/grok-4.6:high`, which
   the OpenCode Go plan already serves, so it works today with no extra login.
-  The two carve-out files omit Grok entirely and fall straight to GLM-5.3-Flash,
-  to keep the provider set on the clinical repos unchanged.
 
 Two invariants worth restating because they are easy to undo:
 
@@ -146,53 +146,53 @@ Two invariants worth restating because they are easy to undo:
   what failed, the next hop should not be another model behind the same path.
   GLM-5.3-Flash and MiniMax M3 are the diversity within Go.
 
-## The two carve-outs
+## The two carve-outs, retired 2026-08-29
 
 `OQGA` (Optum HEDIS chart abstraction) and `clinical-reasoning` (real nephrology
-handover notes in `cases/`) must not reach Muse Spark. Each gets a project
-config that pins every Muse Spark role to a ZDR model:
+handover notes in `cases/`) each had a project config whose only job was to keep
+Muse Spark out. **Both are deleted.** Muse Spark's training tier is now accepted
+on every repo, decided 2026-08-29 after the exposure was stated plainly: Meta
+trains on prompts and completions from the contributor tier, so client chart
+work and identifiable patient notes are in scope, and nothing sent is
+recallable.
 
-| Role | Carve-out model | Why |
-| --- | --- | --- |
-| `scout` | DeepSeek V4 Flash `low` | you wait on it, and it is the fastest measured thing in reach |
-| `librarian` | DeepSeek V4 Flash `high` | same |
-| `sonic` | Qwen3.8 Flash `low` | mechanical bulk, ZDR, nobody waits |
-| `advisor` | GLM-5.3-Flash `high` | huge input, tiny output, nobody waits, and `advisor.enabled` is false anyway |
-| `commit` | Haiku 4-5 `low` | free under Max, and a commit message is 20 tokens |
+Removed with them:
 
-`scout` and `librarian` were on GLM-5.3-Flash in the first version of these
-files. They moved to DeepSeek once Muse Spark was measured, because the same
-finding applies here: GLM reads **1.1 tok/s over 3 samples** in omp's
-`model_perf` and has no SWE-bench Verified score from anyone, so it should not
-hold a role you sit and wait on. It keeps `advisor`, where the latency is free.
-DeepSeek is `Not used / 0 days` on
-[opencode.ai/docs/go](https://opencode.ai/docs/go), so it is legal here — but
-see the [expiry warning](#expiry-warnings), because that is dated.
+- `omp/projects/OQGA.config.yml` and `omp/projects/clinical-reasoning.config.yml`
+- the now-empty `omp/projects/` directory
+- `install.sh` step 3j, the loop that symlinked those files to
+  `~/dev/<repo>/.omp/config.yml` and nagged when `.omp/` was missing from the
+  target repo's `.gitignore`. The step number is retired in place, like 3i.
+- the live symlinks and their `.omp/` directories in both target repos
 
-Project files live in **`omp/projects/<repo>.config.yml`** and are symlinked to
-`~/dev/<repo>/.omp/config.yml` by `install.sh` step 3j. The repo is the source
-of truth; the symlink is machine-local, which is why `.omp/` is in each target
-repo's `.gitignore` and why step 3j warns when it isn't.
+The `.gitignore` entries for `.omp/` in `OQGA` and `clinical-reasoning` are
+harmless and were left alone.
 
-This works despite `modelRoleStorage: global`: that setting governs where the
-TUI *saves* roles, not where they are read from. Per
-[config-usage.md](omp://config-usage.md), "Native `.omp/config.yml` model roles
-are then reapplied as the authoritative project model-role layer."
+Both repos now take the global roles: `scout` and `librarian` on Muse Spark,
+`sonic` on Muse Spark, `commit` and `advisor` on Muse Spark, `task` still on
+Sonnet 5. The five roles they used to pin — DeepSeek for `scout`/`librarian`,
+Qwen3.8 Flash for `sonic`, GLM-5.3-Flash for `advisor`, Haiku for `commit` — no
+longer apply anywhere.
 
-> [!danger] `fallbackChains` deep-merges — restate every key
-> A project file's `fallbackChains` merges with global, so any chain key it
-> omits **survives from global as-is**. The first version of these files omitted
-> `adversary`, and `omp config list` run from `OQGA` showed the global
-> `adversary` chain intact, Muse Spark included. The carve-out had a hole in it.
-> Both files now restate `adversary` explicitly. Restate every chain key that
-> exists globally, even to say the same thing.
+> [!note] What this closes off
+> `opencode-zen/muse-spark-1.2` is the same model *without* the training trade,
+> and would have been the clean fix. It is unreachable: no Zen key exists on
+> this machine and the OpenRouter key returns `401 User not found`. On OpenCode
+> Go the contributor tier is the only Muse Spark available, so there was no
+> route to Muse Spark's price without its training terms.
 
-Verify the carve-out from inside each repo:
+Two facts worth keeping from the retired setup, because they apply to any
+future project config:
 
-```sh
-cd ~/dev/OQGA && omp config list | grep -cE 'muse-spark'   # must be 0
-cd ~/dev && omp config list | grep -cE 'muse-spark'        # must be > 0
-```
+- **Project roles do override global despite `modelRoleStorage: global`.** That
+  setting governs where the TUI *saves* roles, not where they are read from. Per
+  [config-usage.md](omp://config-usage.md), "Native `.omp/config.yml` model
+  roles are then reapplied as the authoritative project model-role layer."
+- **`fallbackChains` deep-merges, so a project file must restate every key.**
+  Any chain key it omits survives from global as-is. The first version of these
+  files omitted `adversary`, and `omp config list` run from `OQGA` showed the
+  global `adversary` chain intact with Muse Spark in it. The exclusion had a
+  hole in it for a while.
 
 ## Gotchas found while applying
 
@@ -230,8 +230,8 @@ Also confirmed at apply time:
   works, and dropping the provider prefix (`--model glm-5.3-flash:high`) also
   works. **Config-file resolution is unaffected** — a project `.omp/config.yml`
   with `default: opencode-go/glm-5.3-flash:high` ran a real turn and registered
-  a `model_perf` row against GLM, so the roles in `omp/projects/*.config.yml`
-  are sound. This only bites when timing or spot-checking from the CLI; drop
+  a `model_perf` row against GLM, so config-file roles resolve correctly. This
+  only bites when timing or spot-checking from the CLI; drop
   the provider prefix and it resolves.
 
 ## Measured, not guessed
@@ -256,7 +256,22 @@ reasoning, not throughput.
 
 DeepSeek V4 Flash beat Sonnet. Muse Spark took ~1.8x Sonnet's wall and ~2x
 DeepSeek's, with a 2x spread run to run. That is why `scout` and `librarian`
-moved to DeepSeek.
+first moved to DeepSeek.
+
+> [!note] Reversed later the same day — price beat speed
+> Go is a spend budget, so DeepSeek's speed was being paid for in quota:
+> $0.22/$0.66 per Mtok against Muse Spark's $0.10/$0.20, plus Muse Spark's
+> $0.002 cached-input rate that DeepSeek has no equivalent for. That is 7,600
+> req/5h against 45,300. With the monthly window at 84% and four days left,
+> `smol`, `scout` and `librarian` went to
+> `opencode-go/muse-spark-1.2-contributor` — `:low`, `:low`, `:high`. Slower
+> per subagent turn, and subagents run in the background where the segment
+> stalls overlap with other work. Verified by running a scout turn and diffing
+> `model_perf`: Muse Spark +5 samples, DeepSeek unchanged.
+>
+> DeepSeek stays last in the `opencode-go/*` fallback chain. The two carve-outs
+> were retired the same day, so `OQGA` and `clinical-reasoning` get Muse Spark
+> for `scout` and `librarian` as well.
 
 ### Why it is slow, which is not what you'd guess
 
@@ -315,9 +330,8 @@ adversary: opencode-go/grok-4.6:high
 ```
 
 No login step. Grok 4.6 is in the OpenCode Go catalog (verified 7s) and now
-serves the role directly. Fallback is Muse Spark; the carve-outs keep their own
-fallback (`glm-5.3-flash:high`) so Muse Spark never touches OQGA or
-clinical-reasoning. Cost is Go quota, whose binding limit is the monthly one
+serves the role directly. Fallback is Muse Spark. Cost is Go quota, whose
+binding limit is the monthly one
 (71% used with 4d18h left at time of switch). See [[Two-Stage Plan Review]]
 for the pipeline it feeds.
 
@@ -431,20 +445,19 @@ $12.
 
 > [!danger] DeepSeek's zero-retention agreement expires 2026-08-31 — two days out
 > It renews monthly and was stated valid only through 2026-08-31. When the plan
-> was first written DeepSeek V4 Flash held **one** role. After the speed
-> measurements it holds **five**: `smol`, `scout` and `librarian` globally, plus
-> `scout` and `librarian` inside both carve-out repos. It is now the single
-> biggest privacy dependency in the config, and it is the one with a dated
-> agreement.
+> was first written DeepSeek V4 Flash held **one** role. The speed measurements
+> briefly gave it five, then the price comparison took all of them back: as of
+> 2026-08-29 DeepSeek holds **no role at all** and appears only as the last hop
+> in the `anthropic/*` and `opencode-go/*` fallback chains. The dated agreement
+> now matters much less than it did.
 >
 > Check [api-docs.deepseek.com](https://api-docs.deepseek.com/quick_start/pricing)
 > and OpenCode's own privacy table at [opencode.ai/docs/go](https://opencode.ai/docs/go)
 > on or after 2026-09-01.
 >
-> If ZDR has lapsed, the global roles are a judgment call, but the **carve-outs
-> are not** — DeepSeek joins Muse Spark as a model `OQGA` and
-> `clinical-reasoning` must exclude, from their roles *and* their fallback
-> chains, where it currently sits last in every chain.
+> If ZDR has lapsed, DeepSeek is a fallback-only exposure — it serves a turn
+> only when Muse Spark, GLM and MiniMax have all already failed. Judgment call,
+> not the hard problem it was when it held five roles.
 >
 > Replacements if it lapses, in order of preference:
 >
