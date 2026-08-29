@@ -103,7 +103,7 @@ display:
   showTokenUsage: false
   collapseCompacted: true
   cacheMissMarker: false
-  hideToolActivity: true
+  hideToolActivity: false
 defaultThinkingLevel: auto
 providers:
   autoThinkingModel: online

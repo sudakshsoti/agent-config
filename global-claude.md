@@ -47,3 +47,11 @@ you sound impressive. Aim it at a smart friend who doesn't code.
 - No new dependency without asking me.
 - If the task turns out bigger than I described, stop and tell me before you
   write code.
+
+## Git
+
+Push after every commit, whenever a remote exists or one can be set up
+(`git push -u origin <branch>` on the first push). I lose work when it only
+lives on my machine, so don't wait to be asked. Never merge or open a PR
+without me asking, and never commit straight to `main`/`master` — branch
+first.
