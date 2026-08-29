@@ -187,8 +187,9 @@ only in this one?
   this list under ten entries. If it outgrows that, something in it belongs in a
   repo instead.
 
-When a mistake repeats I say "add that to gotchas" and you decide which of the
-two it is, then write one line.
+Add one the moment you hit a mistake that would repeat, without waiting to be
+asked. Decide which of the two it is, then write one line and say what you
+added, in one sentence, so it isn't silently added.
 
 - A doc in a `docs/` directory is not memory. Nothing loads it automatically. If
   a rule needs to survive, it goes in an instructions file, not a doc.
