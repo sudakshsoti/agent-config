@@ -144,9 +144,10 @@ than pushing on. Write a handoff note first when continuity matters.
 
 ## Subagent economy
 
-Subagents inherit the main session's model, which is wasteful for mechanical
-work. Drop to the cheapest tier for a basic lookup, a single search, or a trivial
-fetch.
+Always pass an explicit model tier when spawning a subagent. Never let one inherit
+the session's model. Locating files, listing a directory, reading a config value,
+"which files use X": cheapest tier, no exceptions. One tier up the moment a
+judgement is involved.
 
 The cheapest tier is allowed only for work with no judgment in it: renames,
 config value changes, formatting, mass file moves. Anything involving a decision
