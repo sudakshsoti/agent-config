@@ -84,10 +84,19 @@ usage audit: any skill unused across 1,203 transcripts (2026-07 through
 - `vedic-astrology` — Vedic astrology (Jyotish) advisor for charts, dashas, transits, timing, compatibility, and remedies.
 - `writing-editor` — Writing partner for personal essays and blog posts: get words onto the page, then shape them into something publishable.
 
-The frontend/design skills are `frontend-craft`, `typography-craft`,
-`design-foil`, `nightjar`, `ux-writing`, `maintainability-review`, and
-`vbc-design`. No skill owns self-contained HTML documents: `html-doc` was
-retired with studio and has not been restored.
+The design skills are entered through `design`, which establishes the reference
+anchor and routes. Behind it: `interface-composition` (arrangement),
+`frontend-craft` (visual system), `typography-craft` (type), `nightjar`
+(one-off artifacts), `brand-studio` (identity), `design-foil` and `vbc-design`
+(strategy), `ux-writing` (interface copy), and `design-review`, the gate every
+visual deliverable finishes in.
+
+Order matters: arrangement before aesthetics before typesetting. A composition
+failure is invisible in a palette and survives any amount of colour work.
+
+`design-review/references/slop.md` is the canonical anti-slop list for visual
+work; `humanizer` owns prose. Self-contained artifacts go to `nightjar`;
+`html-doc` was retired with studio and has not been restored.
 
 ## Installing per surface
 
