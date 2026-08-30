@@ -3,11 +3,12 @@ name: update-branch-name
 description: |
   Rename the current git branch to fit a naming convention — a semantic
   prefix (feat/fix/chore/docs/...) plus a kebab-case slug — and keep the
-  remote, any open PR, and local tracking in sync. Use when the user types
-  /update-branch-name or says "rename this branch", "fix the branch name",
-  "this branch needs a prefix", or gives a specific new branch name. Refuses
-  to touch main/master, and prefers GitHub's server-side rename so an open
-  PR isn't orphaned.
+  remote, any open PR, local tracking, and the worktree directory name in
+  sync. Use when the user types /update-branch-name or says "rename this
+  branch", "fix the branch name", "this branch needs a prefix", "rename the
+  worktree too", or gives a specific new branch name. Refuses to touch
+  main/master, and prefers GitHub's server-side rename so an open PR isn't
+  orphaned.
 user-invocable: true
 disable-model-invocation: true
 ---
@@ -25,9 +26,11 @@ longer exists.
 - `git branch --show-current`. If it's `main`/`master` (or the repo's default
   branch), refuse — this is for feature branches. Offer to create one
   instead.
-- `git worktree list --porcelain`. If another worktree has this branch
-  checked out, `git branch -m` will fail outright — say so up front rather
-  than letting git's own error stand in for an explanation.
+- `git worktree list --porcelain`. Note whether this branch sits in a linked
+  worktree, and whether that worktree's directory name encodes the old branch
+  name — step 5 handles both. Renaming a branch that is checked out in
+  *another* worktree is fine: git rewrites that worktree's HEAD for you. It
+  does not fail, so don't refuse on those grounds.
 
 ## 2. Land on the new name
 
@@ -105,9 +108,59 @@ More caution needed here, since nothing auto-repoints a PR:
   git push origin --delete <old>
   ```
 
-## 5. Report
+## 5. Bring the worktree directory with it
+
+Git never renames a worktree's directory when you rename its branch, and
+nothing else does either — a worktree manager such as herdr derives the
+directory name once, at creation, then leaves it alone. So
+`~/.../worktree-green-valley-f1bb` keeps its old name while the branch inside
+it is now `chore/film-data-model`. Nothing breaks. It just reads wrong from
+then on.
+
+Only do this when the directory name actually encodes the old branch name. If
+the user named the directory themselves (`~/work/scratch`), leave it.
+
+Two rules make it safe:
+
+- **Rename the branch first, then move the directory.** The reverse leaves you
+  with a dead shell *and* a rollback to do if the branch rename then fails.
+- **Run the move from outside the worktree being moved.** The main worktree is
+  never the one moving, and it's the first entry of `worktree list`:
+
+```bash
+MAIN=$(git worktree list --porcelain | head -1 | cut -d' ' -f2)
+git -C "$MAIN" worktree move <old-dir> <new-dir>
+```
+
+Build `<new-dir>` by swapping only the slug inside the existing basename,
+keeping whatever convention is already there (`worktree-<slug>`,
+`<repo>-<slug>`, or a bare `<slug>`). Flatten `/` to `-`, because a slash
+would nest a directory instead of naming one: `chore/film-data-model` →
+`worktree-chore-film-data-model`.
+
+**Run it from inside the worktree and it exits 1 after having succeeded.** The
+directory and git's registry are both already updated, but git's final step
+resolves the now-dangling cwd and prints
+`error: working directory does not exist: <old-dir>`. Do not read that as a
+failure and do not retry — the retry fails for real, since the old path is
+genuinely gone by then. Run `git worktree list` before concluding anything.
+
+Never `mv` a worktree directory. Its `.git` file holds an absolute path, so
+`mv` severs the link while `git worktree move` updates both sides. If someone
+already ran the `mv`, `git worktree repair <new-dir>` relinks it.
+
+## 6. Report
 
 State the old and new name, whether the remote and any PR moved with it, and
-flag what the tool can't reach: other clones or worktrees still tracking
-`<old>` need their own `git fetch --prune` plus `git branch -m` (or a fresh
-checkout) to catch up.
+whether the worktree directory moved too. Then flag what the tool cannot
+reach:
+
+- **Every shell sitting in the old directory, including your own.** A process
+  cannot change its parent's working directory, so those shells are now in a
+  dangling one and every command there fails until someone runs
+  `cd <new-dir>`. Print the exact `cd` line. This is the one piece that cannot
+  be automated away.
+- Editors, terminal tabs and workspace managers opened at the old path need
+  reopening at the new one.
+- Other clones or worktrees still tracking `<old>` need their own
+  `git fetch --prune` plus `git branch -m`, or a fresh checkout.
