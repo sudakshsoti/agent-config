@@ -156,7 +156,6 @@
     "marketing-loops": "user-invocable-only",
     "marketing-plan": "user-invocable-only",
     "marketing-psychology": "user-invocable-only",
-    "nightjar": "user-invocable-only",
     "offers": "user-invocable-only",
     "onboarding": "user-invocable-only",
     "paywalls": "user-invocable-only",
@@ -175,8 +174,6 @@
     "site-architecture": "user-invocable-only",
     "sms": "user-invocable-only",
     "social": "user-invocable-only",
-    "typography-craft": "user-invocable-only",
-    "ux-writing": "user-invocable-only",
     "video": "user-invocable-only",
     "humanizer": "user-invocable-only"
   }

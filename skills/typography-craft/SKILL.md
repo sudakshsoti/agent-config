@@ -2,7 +2,6 @@
 name: typography-craft
 description: |
   Typography direction, systems, critique, and production across screen, print/editorial, brand identity, display type, and type-led layout. Use when selecting or pairing typefaces, designing hierarchy and scales, typesetting, evaluating fonts, specifying OpenType or variable-font behaviour, implementing webfonts, reviewing typography, or creating typographic brand guidance. Typography only: route broad visual direction, colour, imagery, motion, product strategy, and interface copy to their dedicated skills.
-disable-model-invocation: true
 ---
 
 # Typography craft
