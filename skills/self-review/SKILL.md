@@ -2,7 +2,6 @@
 name: self-review
 description: Self-review the engineering plan you just proposed via the plan-critic subagent, then revise it to address every point. Use right after proposing a plan in plan mode, or when the user types /self-review. Stage 1 of the two-stage plan-review pipeline — the cheap in-house filter before the cross-lineage `peer-review` pass.
 user-invocable: true
-disable-model-invocation: true
 ---
 
 # Self-review

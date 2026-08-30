@@ -7,7 +7,6 @@ description: |
   --force-with-lease instead), and warns before pushing straight to main/master.
   Offers to open a PR afterward when on a feature branch.
 user-invocable: true
-disable-model-invocation: true
 ---
 
 # Push
