@@ -16,6 +16,12 @@ description: >
 Two jobs, in order: make a direction specific to the subject, then execute it
 with real type, colour and token systems rather than defaults.
 
+**Arrangement comes first and is not this skill's job.** Run
+`interface-composition` before this one on any screen that repeats a unit,
+compares records, or carries per-item controls. A composition failure is invisible
+in a palette and survives any amount of colour and type work. Finish in
+`design-review`.
+
 ## 1. Ground the direction before markup
 
 Before writing code, state one sentence naming the concrete subject, audience,
@@ -74,8 +80,9 @@ up a composition.
 
 ## 2. Production visual system
 
-Check the rendered page at 390px and 1440px before claiming it is done; source
-alone cannot verify visual hierarchy or responsive behaviour.
+Run `design-review` before claiming it is done. It renders at 390/900/1440 and
+gates on a P0 count of zero. Source alone cannot verify visual hierarchy,
+responsive behaviour, or whether a grid fits its container.
 
 - **Spacing comes from the existing scale.** Use its steps, not arbitrary values.
 - **Type has an intentional scale.** Set roles, ratios, weight progression,
@@ -119,8 +126,11 @@ utility-class soup. When extending shadcn/ui, retain and extend its token names
 such as `--background`, `--foreground`, `--primary` and `--ring`.
 
 Use this skill for visual-system choices, not behaviour-only components or data
-flow. For interface language use `ux-writing`. For a self-contained HTML document
-rather than application UI use `html-doc`.
+flow. For interface language use `ux-writing`. For a self-contained artifact,
+deck, report or mockup rather than application UI, use `nightjar`.
+
+The canonical anti-slop list is `design-review/references/slop.md`. The short list
+above is the subset worth carrying inline; do not expand it here.
 
 ## Operator context
 
@@ -132,6 +142,13 @@ Whitney, Verlag, Knockout, Gotham, Domaine, Harriet, Söhne, plus Adelle, Tisa,
 Sentinel, Berkeley Mono and MonoLisa. Reads foundry discourse. Peer-level
 conversation; skip scaffolding. Recommend from the whole world of type when a
 better face exists; the library is context, not a shortlist.
+
+**The Dinamo licence is desktop only.** Never propose Diatype or Diatype
+Semi-Mono as a webfont without naming the separate web licence it needs and its
+cost. Serving a font from a site behind basic authentication is still web serving.
+Where a web licence is not in place, self-host a free OFL variable face; do not
+fall back to a system stack, which is a decision not taken. See
+`typography-craft`, "When the licence is the constraint".
 
 Indian English: organisation, prioritise, colour. INR (₹) and Indian numbering
 (lakh/crore) when money comes up. Metric units. No em dashes.

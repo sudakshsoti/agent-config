@@ -43,31 +43,34 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 ## Current skills
 
-36 skills, all worth reaching for by name. Trimmed from 37 on 2026-08-19 after a
+38 skills, all worth reaching for by name. Trimmed to 36 on 2026-08-19 after a
 usage audit: any skill unused across 1,203 transcripts (2026-07 through
-2026-08-19, at least 9 days old) was retired. Recoverable from git history.
+2026-08-19, at least 9 days old) was retired. Four design skills added and two
+archived on 2026-08-31. Everything removed is recoverable from git history.
 
+- `app-ui` — Product screen design: the shell, information architecture, type and spacing systems, action hierarchy, and every screen state. The primary skill for application UI; it outranks aesthetic-direction guidance there.
 - `backlog` — Run any project's backlog in Linear like a PM: capture, triage, grooming, acceptance criteria, and milestone/session planning (batch Ready issues into equal-effort, one-sitting Linear Milestones).
 - `brand-studio` — Commercial brand partner: positioning, naming, verbal identity, presence audits, teardowns, and conversion diagnosis.
 - `clinical-reasoning` — Clinical decision support for clinicians in India: diagnostics, differentials, labs, imaging, drug interactions, prescribing, and escalation.
 - `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
 - `dbt` — Dialectical Behaviour Therapy in the Linehan tradition: skills coaching, chain analysis, and DBT materials.
+- `design-brief` — Entry point for design work: establishes the project's reference anchor from real screenshots, routes to the right skills, runs the gate. `/design-brief`.
 - `design-foil` — Industry-agnostic strategy + UX advisor: brainstorm, critique, strategy docs, teardowns.
+- `design-review` — The gate for visual work: renders at 390/900/1440, compares against the project's reference images, reports absences and defects at P0/P1/P2. `/design-review`.
 - `diagnosing-bugs` — Diagnosis loop for hard bugs and performance regressions: build a tight red-capable feedback loop, minimise, rank hypotheses, instrument, fix with a regression test.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
 - `find-skills` — Discover and install agent skills when asked "is there a skill for X".
 - `finite` — The advisor for a finite life: a daily orient across Linear/Todoist/notes, on-demand triage that names what a new commitment displaces, and the forced cull into a durable Season ledger. Burkeman-flavoured — kind, unflinching, subtractive.
-- `frontend-craft` — Visual direction for new UI, plus typography systems, OKLCH colour ramps, variable fonts, Tailwind/shadcn token architecture.
 - `geopolitics` — Opinionated analyst for wars, sanctions, trade, defence, elections, negotiations, and other statecraft between countries.
 - `grilling` — Interview the user relentlessly about a plan/decision, round by round over a design tree, until nothing is left unsettled.
 - `gtd` — Sudaksh's personal GTD system: capture, inbox processing, daily/weekly reviews, Todoist/calendar routing, overwhelm triage, email triage, and procrastination audits.
 - `handoff` — Structured session-handoff docs for continuity across sessions.
 - `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, including the safe rclone-torbox recreate.
 - `humanizer` — Rewrite AI-sounding prose so it reads like a person, using Wikipedia's 35 "Signs of AI writing" patterns. Vendored from [blader/humanizer](https://github.com/blader/humanizer) (MIT). `/humanizer`.
+- `interface-composition` — The arrangement arithmetic that runs after `app-ui`: pattern selection, container maths, action counts, shared axes, density.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
 - `merge` — Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`.
 - `n8n-deploy` — RIGID homelab procedure: deploy/edit n8n workflows via the sqlite3 dance without clobbering the DB.
-- `nightjar` — NIGHTJAR house style: the visual language for one-off generated artifacts — decks, dashboards, reports, mockups, diagrams. `frontend-craft` owns a product UI's own system; nightjar owns the artifact.
 - `obsidian-markdown` — Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.
 - `orient` — HTML guide to a repo — what it is, what decisions shaped it, and where sprawl lives. Every claim cited to file:line. `/orient`.
 - `peer-review` — Adversarial cross-lineage review of an engineering plan written by another agent. `/peer-review`.
@@ -84,10 +87,28 @@ usage audit: any skill unused across 1,203 transcripts (2026-07 through
 - `vedic-astrology` — Vedic astrology (Jyotish) advisor for charts, dashas, transits, timing, compatibility, and remedies.
 - `writing-editor` — Writing partner for personal essays and blog posts: get words onto the page, then shape them into something publishable.
 
-The frontend/design skills are `frontend-craft`, `typography-craft`,
-`design-foil`, `nightjar`, `ux-writing`, `maintainability-review`, and
-`vbc-design`. No skill owns self-contained HTML documents: `html-doc` was
-retired with studio and has not been restored.
+The design skills are entered through `design-brief`, which establishes the
+project's reference anchor and routes. It is named `design-brief` because Claude
+Code ships a bundled `design` skill that opens a canvas artifact.
+
+Behind it: `app-ui` (product screens, the primary one), `interface-composition`
+(the arrangement arithmetic that runs after it), `typography-craft` (type),
+`brand-studio` (identity), `design-foil` and `vbc-design` (strategy),
+`ux-writing` (interface copy), and `design-review`, the gate every visual
+deliverable finishes in.
+
+**Product screens and marketing pages want opposite things.** A landing page
+should be memorable; a product screen should be unsurprising. `app-ui` wins for
+application screens; Anthropic's `frontend-design` plugin covers marketing and
+brand pages; `artifact-design` covers decks and reports.
+
+`nightjar` and `frontend-craft` are archived under `archive/skills/`. Their
+editorial doctrine — a signature element, two families strictly divided, edges
+earned by hairline rules — measurably damaged product screens. Sudaksh is
+remaking both. Until then, decks and reports rely on `artifact-design` alone.
+
+`design-review/references/slop.md` is scoped to marketing and brand surfaces;
+`humanizer` owns prose.
 
 ## Installing per surface
 
