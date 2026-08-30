@@ -111,46 +111,77 @@ and `tiny` stay on Anthropic, where the cost is Max quota rather than Go
 dollars. `reviewer` was Kimi K3 for the verified score, then GLM-5.3 at max
 effort, and is Muse Spark from 2026-08-30.
 
-**Why `reviewer` left GLM-5.3.** One `/review` on 2026-08-30 cost **$11.36 of a
-$10 monthly OpenCode window** — 542 subagent calls in 14 minutes, and it took
-the workspace to 100% with three days left. The bill was not the output. It was
-**28.68M cache-read tokens at $0.26/Mtok = $7.46**, against 1.39M fresh input
-and 445K output. A code reviewer re-reads the same diff every turn, so
-cache-read price is the only rate that matters for this role, and it is the rate
-nobody checks. Muse Spark charges $0.002/Mtok for cache reads, 130x less, so the
-identical run costs about **$0.29** — roughly 34 such reviews inside the same
-$10 window instead of none.
+**How the Go monthly limit actually works.** It is **not a dollar total**. Every
+model carries its own monthly dollar quota — $15, $30 or $60 by tier — and the
+plan's "Monthly limit" is the **sum of each model's used fraction, capped at
+100%**. The dashboard on 2026-08-30 read 102.6%, and the % column sums to
+exactly that. So the number to minimise is percentage points, not dollars, and
+**a dollar spent on a $60-quota model costs 1.67 points while the same dollar on
+a $15-quota model costs 6.67 points** — a 4x difference in plan cost for
+identical spend.
 
-> [!warning] Go's monthly allowance and the zen spending limit are two separate ceilings
-> Tested 2026-08-30, in this order. A zen call returned `401 Your workspace has
-> reached its monthly spending limit of $10`. The limit was then raised to $20 in
-> the OpenCode billing settings, and a direct `POST
+That reframes which model is expensive:
+
+| Model | Quota | Used | Share of the month |
+| --- | --- | --- | --- |
+| GPT 5.6 Luna | $15 | $11.08 | **55.1%** |
+| Hy3 | $60 | $8.29 | 10.3% |
+| GLM 5.3 | $15 | $1.89 | 9.4% |
+| Muse Spark 1.2 Contributor | $60 | $1.76 | 2.2% |
+| DeepSeek V4 Flash | $30 | $0.49 | 1.2% |
+| GLM 5.3 Flash | $30 | $0.17 | 0.4% |
+
+**Why `reviewer` left GLM-5.3.** Not the dollar bill, which was small. GLM 5.3
+sits on a $15 quota, so its 9.4% costs more of the month than Muse Spark's
+$1.76 costs on a $60 quota. Muse Spark is the most quota-efficient model on the
+plan: cheapest rates *and* the largest allowance. The mechanism still matters —
+a reviewer re-reads the same diff every turn, so **cache-read price is the only
+rate that decides this role**, and Muse Spark charges $0.002/Mtok against GLM
+5.3's $0.26, 130x less.
+
+> [!caution] omp's cost estimates are not OpenCode's meter
+> omp `stats` put that same review at **$11.36 on GLM 5.3**; the OpenCode
+> dashboard metered it at **$1.89**, 6x lower. In the other direction omp
+> estimated $2.67 for Luna against OpenCode's $11.08, 4x high. Use `omp stats`
+> only to find *which* model and *which* folder caused load. For how much plan
+> is left, the per-model dashboard is the only trustworthy source, and
+> `omp usage` shows just the capped aggregate.
+
+> [!warning] `usageAwareFallback` blocks Go on the aggregate, ignoring per-model quota
+> This is the trap, and it cost most of an afternoon to find. omp receives only
+> the capped aggregate from Go (`rolling-5h`, `weekly`, `monthly` — no per-model
+> rows, confirmed via `omp usage --json`). With `usageAwareFallback: true` and
+> the aggregate reading `exhausted`, the preflight **skips every
+> `opencode-go/*` selector**, including models sitting at 2% of their own quota.
+> Two `reviewer` runs were pushed onto `claude-sonnet-5` this way while Muse
+> Spark had 97.8% of its $60 allowance free. Setting `usageAwareFallback: false`
+> fixed it on the next run: the reviewer reached
+> `opencode-go/muse-spark-1.2-contributor` and billed $0.0022.
+>
+> The cost of `false` is one failed attempt when a model genuinely is out, which
+> is what `fallbackChains` exists to absorb. Keep it off while the plan meters
+> per model and omp only sees the total.
+>
+> One earlier observation had the same cause: an `adversary` run reached
+> `opencode-go/glm-5.3-flash` while the reviewer was being skipped. Not a
+> per-model difference — the usage cache had just been invalidated, so the
+> preflight had no report to skip on.
+
+> [!warning] zen is a second wallet, and it is real money
+> A zen call returned `401 Your workspace has reached its monthly spending limit
+> of $10`. After the limit was raised to $20, a direct `POST
 > https://opencode.ai/zen/v1/chat/completions` returned `200` with a real
-> `deepseek-v4-flash` completion. `omp usage invalidate` was run, and Go's
-> **Monthly limit still read 100.0%**. So raising the workspace limit frees zen
-> and does nothing for Go: the Go plan carries its own monthly allowance that
-> only time resets.
+> `deepseek-v4-flash` completion, while Go's monthly still read 100.0% after
+> `omp usage invalidate`. Two independent ceilings.
 >
-> The consequence worth remembering: **zen spend is real money on top of the $10
-> subscription**, bounded only by the workspace limit. At $20 set, a runaway
-> fallback can bill $20. That is why the zen rungs in `retry.fallbackChains`
-> name only `deepseek-v4-flash` ($0.14/$0.28 per Mtok, $0.028 cache reads) and
-> never a premium model.
->
-> **Exhaustion is not uniform across Go's models.** Same afternoon, after the
-> raise: an `adversary` run reached its primary `opencode-go/glm-5.3-flash` and
-> billed $0.00163, while two `reviewer` runs wanting
-> `opencode-go/muse-spark-1.2-contributor` were skipped and landed on
-> `claude-sonnet-5`. So a Go monthly reading of `exhausted` does not mean the
-> whole plan is shut; some models still serve. `omp usage --json` exposes only
-> the aggregate (`rolling-5h`, `weekly`, `monthly`) with no per-model rows, so
-> there is no way to see from omp which models are still open. The mechanism was
-> not determined — do not assume either a per-model allocation or a preflight
-> quirk without new evidence.
->
-> Also note omp's list-price estimate ran to $18.71 for a window OpenCode
-> metered as $10, so trust `omp usage` over `omp stats` for how much plan is
-> left, and `omp stats` only for which model caused it.
+> **zen spend bills on top of the $10 subscription**, bounded only by that
+> workspace limit. zen was therefore removed from every fallback chain on
+> 2026-08-30: all three permitted models exist on Go under plan quota, so there
+> is no reason to reach for cash. zen's catalog also cannot serve this fleet —
+> it has no `glm-5.3-flash` (newest is `glm-5.2`), its Muse Spark is the
+> non-contributor tier at $1.25/$4.25 rather than $0.10/$0.20, and both
+> contributor ids are dead (`-contributor` "not supported",
+> `-contributor-free` "Model is disabled").
 
 > [!danger] Comments in `omp/config.yml` do not survive
 > This file was written with a full block of rationale comments on every role

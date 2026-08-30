@@ -76,3 +76,17 @@ has no equivalent for any of them.
   (`omp://settings.md`). A role that must avoid a provider needs its own
   exact-model key — and even then, chain exhaustion falls through to `default`,
   so a chain cannot guarantee a provider is never reached.
+- OpenCode Go's monthly limit is a **sum of per-model quota fractions**, not a
+  dollar total. Each model has its own $15/$30/$60 monthly quota and the plan
+  caps the sum of used fractions at 100%. So $1 on a $60-quota model costs 1.67
+  points and $1 on a $15-quota model costs 6.67 points. Only the OpenCode
+  dashboard shows the per-model rows; `omp usage` shows the capped aggregate and
+  `omp stats` reports list-price estimates that ran 6x high and 4x low against
+  OpenCode's own meter on the same day. Keep Go usage to
+  `muse-spark-1.2-contributor` ($60), `deepseek-v4-flash` ($30) and
+  `glm-5.3-flash` ($30).
+- `retry.usageAwareFallback: true` skips **every** model of a provider whose
+  aggregate usage reads exhausted, even models at 2% of their own quota, because
+  omp never sees the per-model rows. It is set `false` here for that reason; the
+  cost is one failed attempt when a model really is out, absorbed by
+  `fallbackChains`.

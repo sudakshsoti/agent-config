@@ -24,24 +24,28 @@ task:
 retry:
   enabled: true
   modelFallback: true
-  usageAwareFallback: true
+  usageAwareFallback: false
   usageReservePct: 15
   usageReservePolicy: auto
   fallbackChains:
     anthropic/*:
       - opencode-go/muse-spark-1.2-contributor:high
       - opencode-go/glm-5.3-flash:high
-      - opencode-zen/deepseek-v4-flash:high
+      - opencode-go/deepseek-v4-flash:high
     opencode-go/glm-5.3-flash:
-      - opencode-zen/deepseek-v4-flash:max
+      - opencode-go/deepseek-v4-flash:max
       - opencode-go/muse-spark-1.2-contributor:xhigh
-    opencode-go/*:
+    opencode-go/muse-spark-1.2-contributor:
+      - opencode-go/deepseek-v4-flash:high
+      - opencode-go/glm-5.3-flash:high
       - anthropic/claude-sonnet-5:low
-      - opencode-zen/deepseek-v4-flash:high
-    default:
+    opencode-go/*:
       - opencode-go/muse-spark-1.2-contributor:high
       - anthropic/claude-sonnet-5:low
-      - opencode-zen/deepseek-v4-flash:high
+    default:
+      - opencode-go/muse-spark-1.2-contributor:high
+      - opencode-go/deepseek-v4-flash:high
+      - anthropic/claude-sonnet-5:low
 symbolPreset: nerd
 theme:
   dark: dark-lunar-statusline
@@ -90,7 +94,7 @@ autolearn:
   autoContinue: true
 dev:
   autoqaConsent: denied
-hideThinkingBlock: false
+hideThinkingBlock: true
 advisor:
   enabled: false
   syncBacklog: "off"
