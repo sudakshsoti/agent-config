@@ -59,3 +59,20 @@ has no equivalent for any of them.
 - `link_into` in `install.sh` refuses to replace a real non-symlink file: it
   prints a SKIP warning and continues. A missing symlink after an install run
   usually means a real file is sitting in the destination.
+- A bare `omp -p --model <id>` probe cannot prove a model works. When the model
+  fails, the fallback chain answers and the reply looks like a success. Three
+  `opencode-zen` `-free` ids returned a clean `ok` this way while actually
+  returning `401 Model is disabled`. Verify a route either by reading
+  `error_message` in `~/.omp/stats.db` after a real subagent run, or with a
+  direct `curl` to the provider endpoint.
+- `opencode-zen`'s `-free` model ids are dead: `muse-spark-1.2-contributor-free`
+  and `deepseek-v4-flash-free` return `401 Model is disabled`,
+  `minimax-m3-free` returns `401 ... is not supported`. Never put them in a
+  fallback chain. Paid `opencode-zen/deepseek-v4-flash` does work, billed
+  against the workspace spending limit at `opencode.ai/workspace/<id>/billing`,
+  which is real money separate from the Go subscription.
+- `retry.fallbackChains` resolves by specificity: exact `provider/model-id`
+  beats `provider/*`, then the role's chain, then `default`
+  (`omp://settings.md`). A role that must avoid a provider needs its own
+  exact-model key — and even then, chain exhaustion falls through to `default`,
+  so a chain cannot guarantee a provider is never reached.

@@ -39,12 +39,14 @@ graph TD
 - **What runs:** the [[#plan-critic|plan-critic]] subagent — Opus, read-only, prompted as a hostile reviewer with _no loyalty_ to the plan. It runs in a **fresh context window**, so it isn't anchored by the reasoning that produced the plan.
 - **Output:** assumptions → internal inconsistencies → blind spots → over-engineering → verdict. Opus then revises in place and shows ==only what changed==.
 
-### Stage 2 — cross-lineage (different model family, covered by the Codex subscription)
+### Stage 2 — cross-lineage (different model family, on the $10 OpenCode Go plan)
 
 - **Trigger:** open `omp` on the plan file and run `/peer-review`.
-- **What runs:** the `adversary` subagent (`omp/agents/adversary.md`), read-only, pinned to `model: "@adversary"`. That role resolves to **GPT-5.6 Sol at high effort** on the Codex subscription, and its fallback chain contains no Anthropic model — so a retry can never hand a Claude plan back to Claude.
-- **Why Codex and not OpenCode Go:** the adversary sat on MiniMax M3 (OpenCode Go) between 2026-08-17 and this change, which was cross-lineage only while OpenAI wrote the plans. Claude directs the `plan` role again, so OpenAI is the different lineage now — and Sol is a stronger critic than MiniMax M3 (Artificial Analysis intelligence 45.4). Moving it off Go also frees that subscription to be the overflow tier in the retry ladder.
-- **Cost:** none beyond the $20 Codex subscription. Earlier occupants of this slot were DeepSeek V4 Pro (accurate but slow enough that the review got skipped), then Gemini 3.7 Flash on OpenRouter, then MiniMax M3 on OpenCode Go. OpenRouter is no longer referenced by any role.
+- **What runs:** the `adversary` subagent (`omp/agents/adversary.md`), read-only, pinned to `model: "@adversary"`. That role resolves to **GLM-5.3-Flash at max effort** on OpenCode Go. It has its own exact-model chain in `retry.fallbackChains` (`opencode-go/glm-5.3-flash`), and both rungs are non-Anthropic: zen DeepSeek V4 Flash, then Go Muse Spark.
+- **What happens when both rungs are quota-blocked:** the chain is exhausted, omp falls to the `default` chain, and the critique runs on Sonnet. Verified 2026-08-30: with the OpenCode workspace at its $10 monthly limit, an adversary run landed on `claude-sonnet-5`. Chain config alone cannot prevent this, because the terminal fallback must be a provider that works. **When that happens, stage 2 has silently degraded into a second stage 1** — same lineage, no independent view. Check with `omp usage`; if OpenCode monthly reads 100%, re-run `/peer-review` after the window resets rather than trusting the verdict.
+- **Why not Codex any more:** Sol held this slot until 2026-08-30, when the Codex Pro 5x subscription was dropped. Sol was the better critic, but it cost $100/month and sat at roughly 37% weekly utilisation, and ChatGPT Plus at $20 caps Sol at 10–100 messages per 5-hour window — far below the 2,805 Sol calls the previous week. GLM-5.3-Flash is Z.ai, so cross-lineage against a Claude-written plan survives the move.
+- **Why GLM-5.3-Flash and not Muse Spark:** the `reviewer` agent runs Muse Spark. Splitting the two stages across families means one provider outage cannot take out both, and a plan critique is low volume, so $0.075/$0.25 per Mtok is cents per run.
+- **Cost:** none beyond the $10 Go subscription. Earlier occupants: DeepSeek V4 Pro (accurate but slow enough that the review got skipped), Gemini 3.7 Flash on OpenRouter, MiniMax M3 on Go, then GPT-5.6 Sol on Codex. OpenRouter is no longer referenced by any role.
 
 ## Daily ritual
 

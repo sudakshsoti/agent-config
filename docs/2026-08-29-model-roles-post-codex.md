@@ -94,8 +94,8 @@ Subagents:
 | `scout` | Muse Spark | low | the volume role, and volume is what a spend budget charges for: $0.10/$0.20 per Mtok, 45,300 req/5h, 1M context. Slower per turn than DeepSeek and you do wait on it |
 | `librarian` | Muse Spark | high | same trade, and a library answer is long output where the $0.20 rate matters most |
 | `sonic` | Muse Spark | low | mechanical bulk, runs in parallel, nobody waits on any single one |
-| `reviewer` | Kimi K3 | high | SWE-V 93.4%, the highest verified score in the fleet; 110 req/5h is fine for review volume |
-| `security-reviewer` | Kimi K3 | high | same |
+| `reviewer` | Muse Spark | xhigh | changed 2026-08-30, see below. Cache reads at $0.002/Mtok are what decide this role, because a reviewer re-reads the same diff on every subagent turn |
+| `security-reviewer` | Muse Spark | xhigh | same |
 
 `adversary` is deliberately **absent** from `agentModelOverrides` —
 `omp/agents/adversary.md` pins `model: "@adversary"`, so the role drives it and
@@ -108,7 +108,49 @@ blocked on it (`advisor`, `sonic`, the fallback chains). Price overrode that on
 `librarian` are Muse Spark now *despite* being roles you wait on, because Go
 bills spend rather than requests. `default`, `plan`, `slow`, `task`, `vision`
 and `tiny` stay on Anthropic, where the cost is Max quota rather than Go
-dollars, and `reviewer` stays on Kimi K3 for the verified score.
+dollars. `reviewer` was Kimi K3 for the verified score, then GLM-5.3 at max
+effort, and is Muse Spark from 2026-08-30.
+
+**Why `reviewer` left GLM-5.3.** One `/review` on 2026-08-30 cost **$11.36 of a
+$10 monthly OpenCode window** — 542 subagent calls in 14 minutes, and it took
+the workspace to 100% with three days left. The bill was not the output. It was
+**28.68M cache-read tokens at $0.26/Mtok = $7.46**, against 1.39M fresh input
+and 445K output. A code reviewer re-reads the same diff every turn, so
+cache-read price is the only rate that matters for this role, and it is the rate
+nobody checks. Muse Spark charges $0.002/Mtok for cache reads, 130x less, so the
+identical run costs about **$0.29** — roughly 34 such reviews inside the same
+$10 window instead of none.
+
+> [!warning] Go's monthly allowance and the zen spending limit are two separate ceilings
+> Tested 2026-08-30, in this order. A zen call returned `401 Your workspace has
+> reached its monthly spending limit of $10`. The limit was then raised to $20 in
+> the OpenCode billing settings, and a direct `POST
+> https://opencode.ai/zen/v1/chat/completions` returned `200` with a real
+> `deepseek-v4-flash` completion. `omp usage invalidate` was run, and Go's
+> **Monthly limit still read 100.0%**. So raising the workspace limit frees zen
+> and does nothing for Go: the Go plan carries its own monthly allowance that
+> only time resets.
+>
+> The consequence worth remembering: **zen spend is real money on top of the $10
+> subscription**, bounded only by the workspace limit. At $20 set, a runaway
+> fallback can bill $20. That is why the zen rungs in `retry.fallbackChains`
+> name only `deepseek-v4-flash` ($0.14/$0.28 per Mtok, $0.028 cache reads) and
+> never a premium model.
+>
+> **Exhaustion is not uniform across Go's models.** Same afternoon, after the
+> raise: an `adversary` run reached its primary `opencode-go/glm-5.3-flash` and
+> billed $0.00163, while two `reviewer` runs wanting
+> `opencode-go/muse-spark-1.2-contributor` were skipped and landed on
+> `claude-sonnet-5`. So a Go monthly reading of `exhausted` does not mean the
+> whole plan is shut; some models still serve. `omp usage --json` exposes only
+> the aggregate (`rolling-5h`, `weekly`, `monthly`) with no per-model rows, so
+> there is no way to see from omp which models are still open. The mechanism was
+> not determined — do not assume either a per-model allocation or a preflight
+> quirk without new evidence.
+>
+> Also note omp's list-price estimate ran to $18.71 for a window OpenCode
+> metered as $10, so trust `omp usage` over `omp stats` for how much plan is
+> left, and `omp stats` only for which model caused it.
 
 > [!danger] Comments in `omp/config.yml` do not survive
 > This file was written with a full block of rationale comments on every role

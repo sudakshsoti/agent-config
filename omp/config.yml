@@ -32,6 +32,9 @@ retry:
       - opencode-go/muse-spark-1.2-contributor:high
       - opencode-go/glm-5.3-flash:high
       - opencode-zen/deepseek-v4-flash:high
+    opencode-go/glm-5.3-flash:
+      - opencode-zen/deepseek-v4-flash:max
+      - opencode-go/muse-spark-1.2-contributor:xhigh
     opencode-go/*:
       - anthropic/claude-sonnet-5:low
       - opencode-zen/deepseek-v4-flash:high
