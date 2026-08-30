@@ -84,6 +84,11 @@ not a single path.
 
 ## Code you write for me
 
+These rules govern changes to existing behaviour. **They do not apply to design
+work.** A redesign is generated whole from a brief and replaces what was there:
+renaming, deleting and restructuring are expected. Patching a screen defect by
+defect preserves every wrong decision underneath it.
+
 - Smallest change that does the job. Don't fix things I didn't ask about.
 - Never rename my existing files, variables, or functions unless I ask.
 - Comments only where the code is surprising. Never write a comment that
@@ -120,6 +125,9 @@ source (the web, the actual file, a script) and say which one you checked.
 
 Before building a workaround for unexpected behaviour, search first. Only build
 something custom if research confirms nothing already exists.
+
+Before claiming a visual result is good, look at it. Render it and read the image.
+Source review cannot see a layout.
 
 ## Context economy
 

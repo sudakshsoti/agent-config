@@ -1,8 +1,13 @@
-# Anti-slop list for visual work
+# Anti-slop list for marketing and brand surfaces
 
-The list of record. `frontend-craft`, `nightjar` and `brand-studio` each carried a
-partial copy; this is the one that binds. Prose slop is `humanizer`'s territory and
-is not duplicated here.
+**Scope: marketing pages, landing pages, brand surfaces.** On a product screen,
+looking conventional is the goal and `app-ui` overrides this file. What still
+binds anywhere is the palette discipline, the contrast minimums, and the type
+defaults worth avoiding; the layout and ornament entries are for pages whose job
+is to be memorable.
+
+The list of record. `brand-studio` carries a partial copy; this is the one that
+binds. Prose slop is `humanizer`'s territory and is not duplicated here.
 
 A negation list moves the model off one default and onto the next. So each entry
 names the replacement move, not just the ban. Swapping `bg-purple-600` for

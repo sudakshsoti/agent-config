@@ -3,11 +3,11 @@ name: interface-composition
 description: >
   Arrangement rules for product UI: choosing between table, list, card grid and
   detail view; column and container arithmetic; density and row height; action
-  hierarchy; alignment across repeated units; progressive disclosure. Use before
-  `frontend-craft` whenever building or reshaping a screen that repeats a unit,
-  compares records, or carries per-item controls. This skill decides the
-  arrangement; `frontend-craft` decides how it looks; `typography-craft` decides
-  how it is set. Do not invoke for component behaviour, state, data flow or tests.
+  hierarchy; alignment across repeated units; progressive disclosure. The
+  arithmetic pass that runs **after** `app-ui` has decided the design, on any
+  screen that repeats a unit, compares records, or carries per-item controls. It
+  catches defects; it does not design. Do not invoke for component behaviour,
+  state, data flow or tests.
 disable-model-invocation: true
 ---
 
@@ -21,8 +21,13 @@ because every repeated unit carries three equal-weight buttons.
 This skill is arrangement only. Every rule here is checkable against your own
 output. If a rule cannot be checked, it does not belong in this file.
 
+This skill runs **after** `app-ui`, not instead of it. `app-ui` decides what the
+screen is and what it has; this one proves the arrangement holds up. A screen that
+passes everything here can still be a bad screen, so never treat a clean pass as
+a finished design.
+
 Work in order: pick the pattern, prove the container, place the actions, align the
-repeats, then hand over to `frontend-craft`.
+repeats, then hand over to `design-review`.
 
 ## 1. Pick the pattern, and say why
 
