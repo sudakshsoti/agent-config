@@ -32,20 +32,28 @@ retry:
       - opencode-go/muse-spark-1.2-contributor:high
       - opencode-go/glm-5.3-flash:high
       - opencode-go/deepseek-v4-flash:high
+      - openrouter/meta/muse-spark-1.2-contributor:high
     opencode-go/glm-5.3-flash:
       - opencode-go/deepseek-v4-flash:max
       - opencode-go/muse-spark-1.2-contributor:xhigh
+      - openrouter/z-ai/glm-5.3-flash:max
     opencode-go/muse-spark-1.2-contributor:
       - opencode-go/deepseek-v4-flash:high
       - opencode-go/glm-5.3-flash:high
       - anthropic/claude-sonnet-5:low
+      - openrouter/meta/muse-spark-1.2-contributor:high
     opencode-go/*:
       - opencode-go/muse-spark-1.2-contributor:high
       - anthropic/claude-sonnet-5:low
+      - openrouter/meta/muse-spark-1.2-contributor:high
+    openrouter/*:
+      - openrouter/deepseek/deepseek-v4-flash-0731:high
+      - openrouter/z-ai/glm-5.3-flash:high
     default:
       - opencode-go/muse-spark-1.2-contributor:high
       - opencode-go/deepseek-v4-flash:high
       - anthropic/claude-sonnet-5:low
+      - openrouter/meta/muse-spark-1.2-contributor:high
 symbolPreset: nerd
 theme:
   dark: dark-lunar-statusline
