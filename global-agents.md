@@ -117,6 +117,11 @@ Never merge or open a PR until I explicitly ask. Never commit directly to a
 default branch (`main`/`master`). If that's where the work is, branch first, then
 commit.
 
+Before starting a task, check the current branch name. If it's a generic
+auto-generated name (an animal name, a random word pair, anything not
+descriptive of the work), rename it to match the task. Skip this on
+`main`/`master`.
+
 ## Verify instead of recalling
 
 Do not answer from training data about anything that moves: library APIs, model
