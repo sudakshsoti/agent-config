@@ -90,3 +90,14 @@ has no equivalent for any of them.
   omp never sees the per-model rows. It is set `false` here for that reason; the
   cost is one failed attempt when a model really is out, absorbed by
   `fallbackChains`.
+- A `provider/*` value used as a fallback **rung** keeps the failing model's id
+  and only swaps the provider, so it builds ids that do not exist on the target
+  gateway. OpenRouter needs its vendor-prefixed ids
+  (`meta/muse-spark-1.2-contributor`, not `muse-spark-1.2-contributor`). Use
+  `provider/*` only as a chain **key**.
+- omp loads `~/.omp/.env` into its own process environment at startup, and an
+  already-set process variable beats every `.env` file. After
+  `op inject` refreshes a key, a running omp session and every child it spawns
+  still hold the old value. Test with
+  `env -u <VAR> bash -lc 'set -a; . ~/.omp/.env; set +a; ...'`, and restart omp
+  for the session itself to pick the key up.
