@@ -6,9 +6,9 @@ modelRoles:
   vision: anthropic/claude-sonnet-5:medium
   task: anthropic/claude-sonnet-5:medium
   adversary: opencode-go/glm-5.3-flash:max
-  smol: opencode-go/muse-spark-1.2-contributor:low
+  smol: opencode-go/muse-spark-1.2-contributor:high
   tiny: anthropic/claude-haiku-4-5:low
-  commit: opencode-go/muse-spark-1.2-contributor:low
+  commit: opencode-go/muse-spark-1.2-contributor:high
   advisor: opencode-go/muse-spark-1.2-contributor:high
 task:
   batch: true
@@ -16,9 +16,9 @@ task:
   eager: preferred
   enableLsp: true
   agentModelOverrides:
-    scout: opencode-go/muse-spark-1.2-contributor:low
+    scout: opencode-go/muse-spark-1.2-contributor:high
     librarian: opencode-go/muse-spark-1.2-contributor:high
-    sonic: opencode-go/muse-spark-1.2-contributor:low
+    sonic: opencode-go/muse-spark-1.2-contributor:high
     reviewer: opencode-go/muse-spark-1.2-contributor:xhigh
     security-reviewer: opencode-go/muse-spark-1.2-contributor:xhigh
 retry:
