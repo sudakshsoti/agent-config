@@ -189,3 +189,5 @@ added, in one sentence, so it isn't silently added.
   ignores import directives outright. Only text written inline in a file a tool
   actually loads will be read. Never solve a memory problem by pointing one file
   at another.
+- In Supacode, a worktree is locked, so `wtdone` refuses it after a merged PR.
+  Use `wtarchive` instead to remove the worktree and branch.
