@@ -62,9 +62,12 @@ has no equivalent for any of them.
 - A bare `omp -p --model <id>` probe cannot prove a model works. When the model
   fails, the fallback chain answers and the reply looks like a success. Three
   `opencode-zen` `-free` ids returned a clean `ok` this way while actually
-  returning `401 Model is disabled`. Verify a route either by reading
-  `error_message` in `~/.omp/stats.db` after a real subagent run, or with a
-  direct `curl` to the provider endpoint.
+  returning `401 Model is disabled`. Probe with retry off instead —
+  `printf 'retry:\n  enabled: false\n' > /tmp/nofallback.yml` then
+  `omp -p --model <id> --config /tmp/nofallback.yml "Reply with exactly: ok"` —
+  where a clean reply is proof and a failure prints the provider's own error.
+  `omp -p` runs write no row to `~/.omp/stats.db`, so reading `error_message`
+  there only works after a real interactive or subagent turn.
 - `opencode-zen`'s `-free` model ids are dead: `muse-spark-1.2-contributor-free`
   and `deepseek-v4-flash-free` return `401 Model is disabled`,
   `minimax-m3-free` returns `401 ... is not supported`. Never put them in a
@@ -101,6 +104,12 @@ has no equivalent for any of them.
   still hold the old value. Test with
   `env -u <VAR> bash -lc 'set -a; . ~/.omp/.env; set +a; ...'`, and restart omp
   for the session itself to pick the key up.
+  A hardcoded export shadows it permanently, not just for one session:
+  `~/.zshrc.local` carried a dead `OPENROUTER_API_KEY` that beat the 1Password
+  value in `~/.omp/.env` in every new shell, so every `openrouter/*` route
+  returned `401 User not found` while `curl` with the `.env` key returned 200.
+  `omp token <provider>` prints the key omp will actually use — check it before
+  blaming the provider.
 - `install.sh` refuses to run from a Supacode or temp git worktree (any path
   under `.supacode/repos/`, `.git/worktrees/` or `worktrees/`). The symlinks
   bake in the checkout's absolute path, so an install from a worktree points
@@ -111,3 +120,18 @@ has no equivalent for any of them.
   never re-ran `install.sh` (or, on claude.ai, never got the new `dist/*.zip`
   uploaded: it does no dependency resolution, so every skill `design-brief`
   routes to needs its own upload).
+- `opencode-go/muse-spark-1.3-contributor` is a catalog stub, not a live route.
+  Its row in `~/.omp/agent/models.db` has `api: openai-completions` where 1.2 has
+  `openai-responses`, no display name, and zero cost on all four fields. Bare
+  probes return `500 Internal server error` (4/4), and any `:effort` suffix fails
+  locally with `Model not found` at every level, prefixed or not, because the
+  effort path needs metadata the stub lacks. `omp models list` still lists it, and
+  the catalog is not stale — the opencode-go rows in `models.db` refreshed
+  2026-09-03 01:07. Stay on `muse-spark-1.2-contributor`; re-check 1.3 with
+  `omp models refresh` plus a retry-off probe before routing anything at it again.
+- `opencode-go/grok-4.5` rejects omp's web search tool: `400 … invalid tools in
+  request: custom function name "web_search" is reserved`. It answers normally
+  with a `web_search: enabled: false` overlay. `opencode-go/grok-4.6` answers with
+  web search left on, so use 4.6 rather than disabling a global tool for one
+  model. Both ids are live on the Go plan despite the reserved-name failure
+  looking like an unavailable model.
