@@ -97,15 +97,21 @@ Behind it: `app-ui` (product screens, the primary one), `interface-composition`
 `ux-writing` (interface copy), and `design-review`, the gate every visual
 deliverable finishes in.
 
+None of the four pipeline skills (`design-brief`, `app-ui`,
+`interface-composition`, `design-review`) carries `disable-model-invocation`.
+That flag hides a skill from the model entirely, so a router cannot load a leaf
+that has it; the pipeline only works if the model can see all four.
+
 **Product screens and marketing pages want opposite things.** A landing page
 should be memorable; a product screen should be unsurprising. `app-ui` wins for
 application screens; Anthropic's `frontend-design` plugin covers marketing and
-brand pages; `artifact-design` covers decks and reports.
+brand pages. Nothing covers decks and reports yet; `design-brief` says so rather
+than routing to a name that does not exist.
 
 `nightjar` and `frontend-craft` are archived under `archive/skills/`. Their
 editorial doctrine — a signature element, two families strictly divided, edges
 earned by hairline rules — measurably damaged product screens. Sudaksh is
-remaking both. Until then, decks and reports rely on `artifact-design` alone.
+remaking both.
 
 `design-review/references/slop.md` is scoped to marketing and brand surfaces;
 `humanizer` owns prose.
