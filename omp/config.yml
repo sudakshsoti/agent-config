@@ -8,7 +8,7 @@ modelRoles:
   adversary: opencode-go/glm-5.3-flash:max
   smol: opencode-go/muse-spark-1.2-contributor:high
   tiny: anthropic/claude-haiku-4-5:low
-  commit: opencode-go/muse-spark-1.2-contributor:high
+  commit: opencode-go/glm-5.3-flash:high
   advisor: opencode-go/muse-spark-1.2-contributor:high
 task:
   batch: true
@@ -16,11 +16,11 @@ task:
   eager: preferred
   enableLsp: true
   agentModelOverrides:
-    scout: opencode-go/muse-spark-1.2-contributor:high
-    librarian: opencode-go/muse-spark-1.2-contributor:high
-    sonic: opencode-go/muse-spark-1.2-contributor:high
-    reviewer: opencode-go/muse-spark-1.2-contributor:xhigh
-    security-reviewer: opencode-go/muse-spark-1.2-contributor:xhigh
+    scout: opencode-go/deepseek-v4-flash:high
+    librarian: opencode-go/glm-5.3-flash:high
+    sonic: opencode-go/deepseek-v4-flash:low
+    reviewer: opencode-go/glm-5.3-flash:max
+    security-reviewer: opencode-go/glm-5.3-flash:max
 retry:
   enabled: true
   modelFallback: true
@@ -29,31 +29,23 @@ retry:
   usageReservePolicy: auto
   fallbackChains:
     anthropic/*:
-      - opencode-go/muse-spark-1.2-contributor:high
       - opencode-go/glm-5.3-flash:high
       - opencode-go/deepseek-v4-flash:high
-      - openrouter/meta/muse-spark-1.2-contributor:high
+      - opencode-go/muse-spark-1.2-contributor:high
     opencode-go/glm-5.3-flash:
-      - opencode-go/deepseek-v4-flash:max
+      - opencode-go/deepseek-v4-pro:high
       - opencode-go/muse-spark-1.2-contributor:xhigh
-      - openrouter/z-ai/glm-5.3-flash:max
+      - opencode-go/hy4-preview:high
     opencode-go/muse-spark-1.2-contributor:
-      - opencode-go/deepseek-v4-flash:high
       - opencode-go/glm-5.3-flash:high
-      - anthropic/claude-sonnet-5:low
-      - openrouter/meta/muse-spark-1.2-contributor:high
-    opencode-go/*:
-      - opencode-go/muse-spark-1.2-contributor:high
-      - anthropic/claude-sonnet-5:low
-      - openrouter/meta/muse-spark-1.2-contributor:high
-    openrouter/*:
-      - openrouter/deepseek/deepseek-v4-flash-0731:high
-      - openrouter/z-ai/glm-5.3-flash:high
-    default:
-      - opencode-go/muse-spark-1.2-contributor:high
       - opencode-go/deepseek-v4-flash:high
       - anthropic/claude-sonnet-5:low
-      - openrouter/meta/muse-spark-1.2-contributor:high
+    opencode-go/*:
+      - anthropic/claude-sonnet-5:low
+    default:
+      - opencode-go/glm-5.3-flash:high
+      - opencode-go/deepseek-v4-flash:high
+      - anthropic/claude-sonnet-5:low
 symbolPreset: nerd
 theme:
   dark: dark-lunar-statusline
@@ -102,7 +94,7 @@ autolearn:
   autoContinue: true
 dev:
   autoqaConsent: denied
-hideThinkingBlock: true
+hideThinkingBlock: false
 advisor:
   enabled: false
   syncBacklog: "off"
