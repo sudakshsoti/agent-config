@@ -9,7 +9,8 @@
 #   ./scripts/build-zip.sh            # zip every skill into dist/
 #   ./scripts/build-zip.sh ux-writing # zip just one skill
 #
-# Output lands in dist/ (git-ignored). Re-run any time after editing a skill.
+# Output lands in dist/ (tracked; the pre-commit hook fails on a stale zip).
+# Re-run any time after editing a skill and stage the zip with the change.
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

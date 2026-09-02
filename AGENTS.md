@@ -101,3 +101,13 @@ has no equivalent for any of them.
   still hold the old value. Test with
   `env -u <VAR> bash -lc 'set -a; . ~/.omp/.env; set +a; ...'`, and restart omp
   for the session itself to pick the key up.
+- `install.sh` refuses to run from a Supacode or temp git worktree (any path
+  under `.supacode/repos/`, `.git/worktrees/` or `worktrees/`). The symlinks
+  bake in the checkout's absolute path, so an install from a worktree points
+  every `~/.claude/skills` and `~/.agents/skills` link at a directory that
+  vanishes when the worktree is cleaned up. Always run it from
+  `~/dev/agent-config`; `--force` exists but is the wrong answer. A skill
+  reported as "not installed" after a new one lands usually means that machine
+  never re-ran `install.sh` (or, on claude.ai, never got the new `dist/*.zip`
+  uploaded: it does no dependency resolution, so every skill `design-brief`
+  routes to needs its own upload).
