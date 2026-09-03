@@ -120,15 +120,21 @@ has no equivalent for any of them.
   never re-ran `install.sh` (or, on claude.ai, never got the new `dist/*.zip`
   uploaded: it does no dependency resolution, so every skill `design-brief`
   routes to needs its own upload).
-- `opencode-go/muse-spark-1.3-contributor` is a catalog stub, not a live route.
-  Its row in `~/.omp/agent/models.db` has `api: openai-completions` where 1.2 has
-  `openai-responses`, no display name, and zero cost on all four fields. Bare
-  probes return `500 Internal server error` (4/4), and any `:effort` suffix fails
-  locally with `Model not found` at every level, prefixed or not, because the
-  effort path needs metadata the stub lacks. `omp models list` still lists it, and
-  the catalog is not stale — the opencode-go rows in `models.db` refreshed
-  2026-09-03 01:07. Stay on `muse-spark-1.2-contributor`; re-check 1.3 with
-  `omp models refresh` plus a retry-off probe before routing anything at it again.
+- `opencode-go/muse-spark-1.3-contributor` works, but only via `/v1/responses`;
+  `/v1/chat/completions` returns `500 Internal server error` for every Muse
+  Spark id. omp ≤ 18.1.4 has no bundled catalog row for it, so the id arrived
+  only via models.dev (`npm: null`), and the `opencode-go` heuristic
+  mis-resolved it to `openai-completions` — that's also why `:effort` suffixes
+  returned `Model not found`. `modelOverrides` cannot override `api`, so a
+  local `models.yml` can't patch this; the fix is `omp update` to 18.1.6+,
+  which ships the real row (`api: openai-responses`, efforts
+  `minimal,low,medium,high,xhigh`). Verified post-update with a retry-off
+  probe (`omp -p --model opencode-go/muse-spark-1.3-contributor:xhigh --config
+  <(printf 'retry:\n  enabled: false\n') "..."`) including a tool-call probe
+  that exercises `reasoning_content` replay — all clean. 1.3 scores 61 (xhigh)
+  on AA Intelligence Index vs GLM-5.3-Flash's 57 and 1.2's 54, so review roles
+  moved from GLM/1.2 onto 1.3; 1.2 stays a strict downgrade from GLM and is not
+  a substitute for anything.
 - `opencode-go/grok-4.5` rejects omp's web search tool: `400 … invalid tools in
   request: custom function name "web_search" is reserved`. It answers normally
   with a `web_search: enabled: false` overlay. `opencode-go/grok-4.6` answers with
