@@ -1,165 +1,37 @@
 # AGENTS.md
 
-This is a Codex-specific overlay, not a standalone guide. **Read `CLAUDE.md` in
-this directory first** — it is the full, accurate guide to this repo, and it
-holds for Codex too except where this file says otherwise. Codex auto-loads
-`AGENTS.md` and never reads `CLAUDE.md` on its own, which is the only reason
-this file exists.
+Project instructions for this checkout. `CLAUDE.md` is a one-line `@AGENTS.md` pointer, so this file is the whole guide for every tool; Codex reads only this one.
 
 ## What actually reaches Codex
 
-Only skills, and only as symlinks in `~/.agents/skills` (the shared
-cross-agent root). Editing a `SKILL.md` in this repo is live for Codex
-immediately — no `./install.sh` re-run needed. A re-run is only needed for
-adding, renaming, or deleting a skill. For a deletion specifically, plain
-`./install.sh` is not enough — it leaves the now-dangling symlink in place.
-Run `./install.sh --prune` to actually clear it; otherwise the retired skill
-stays listed (and counts against Codex's 2% skill budget) even though its
-directory is gone.
+Only skills, as symlinks in `~/.agents/skills` (the shared cross-agent root). Editing a `SKILL.md` is live immediately; re-run `./install.sh` only to add, rename or delete one. **Deletion needs `./install.sh --prune`** — a plain run leaves the dangling symlink, and the retired skill stays listed, still counting against Codex's 2% skill budget.
 
-**Never install skills into `~/.codex/skills`.** Codex scans both
-`~/.codex/skills` and `~/.agents/skills`, so a skill present in both is listed
-twice. That's not cosmetic: Codex caps skills at 2% of context and truncates
-every skill's description once that budget fills, so the duplication degrades
-discovery across the whole set, not just the doubled skill. `install.sh` step
-1b (lines 136-150) actively deletes leftover `~/.codex/skills` copies that
-carry the `.agent-config-managed` marker.
+**Never install skills into `~/.codex/skills`.** Codex scans it *and* `~/.agents/skills`, so a skill in both is listed twice. Not cosmetic: once the 2% budget fills, Codex truncates *every* skill's description, degrading discovery across the whole set rather than just the doubled skill. `install.sh` step 1b unconditionally deletes leftover `~/.codex/skills` copies carrying the `.agent-config-managed` marker.
 
-Verify with `codex exec "list skill names"` — each name must appear exactly
-once.
+Verify with `codex exec "list skill names"` — each name exactly once.
 
 ## No `skillOverrides` in Codex
 
-`skillOverrides` is a Claude Code `settings.json` key; Codex has nothing
-equivalent. `~/.codex/config.toml` only has `[plugins.<name>] enabled =
-true/false` toggles for plugins, nothing per-skill for filesystem skills.
-Consequence: a skill sitting in `skills/` counts against Codex's 2% budget
-even if it's switched off for Claude via `skillOverrides`.
+`skillOverrides` is a Claude Code `settings.json` key. `~/.codex/config.toml` has only `[plugins.<name>] enabled = true/false`, nothing per-skill for filesystem skills. So a skill in `skills/` costs Codex 2%-budget space even when switched off for Claude.
 
 ## Claude-only — do not edit these as Codex
 
-`agents/`, `settings.json`, `claude-powerline.json`, `hooks/`, `plugins.txt`,
-`dist/`. These configure Claude Code specifically (subagents, its settings
-file, its statusline, its hooks, its plugin list, its skill zips) and Codex
-has no equivalent for any of them.
+`agents/`, `settings.json`, `claude-powerline.json`, `plugins.txt`, `dist/`.
 
 ## Gotchas
 
-- Model thinking levels are per-model. `deepseek-v4-flash`, `glm-5.3-flash` and
-  `kimi-k3` expose only low/high/max. Writing `medium` on those is not rejected:
-  it silently runs, and bills, as `high`.
-- omp rewrites `omp/config.yml` and deletes every comment line while keeping the
-  values byte-identical. Never keep decision rationale in that file; it belongs
-  in `docs/`.
-- In omp only one user-level context file survives, by provider priority: native
-  `~/.omp/agent/AGENTS.md` (100) beats `~/.claude/CLAUDE.md` (80) beats
-  `~/.codex/AGENTS.md` (70). Two different global files means the lower one is
-  never loaded. All four paths are symlinks to `global-agents.md`, so keep them
-  that way rather than editing one destination.
-- `link_into` in `install.sh` refuses to replace a real non-symlink file: it
-  prints a SKIP warning and continues. A missing symlink after an install run
-  usually means a real file is sitting in the destination.
-- A bare `omp -p --model <id>` probe cannot prove a model works. When the model
-  fails, the fallback chain answers and the reply looks like a success. Three
-  `opencode-zen` `-free` ids returned a clean `ok` this way while actually
-  returning `401 Model is disabled`. Probe with retry off instead —
-  `printf 'retry:\n  enabled: false\n' > /tmp/nofallback.yml` then
-  `omp -p --model <id> --config /tmp/nofallback.yml "Reply with exactly: ok"` —
-  where a clean reply is proof and a failure prints the provider's own error.
-  `omp -p` runs write no row to `~/.omp/stats.db`, so reading `error_message`
-  there only works after a real interactive or subagent turn.
-- `opencode-zen`'s `-free` model ids are dead: `muse-spark-1.2-contributor-free`
-  and `deepseek-v4-flash-free` return `401 Model is disabled`,
-  `minimax-m3-free` returns `401 ... is not supported`. Never put them in a
-  fallback chain. Paid `opencode-zen/deepseek-v4-flash` does work, billed
-  against the workspace spending limit at `opencode.ai/workspace/<id>/billing`,
-  which is real money separate from the Go subscription.
-- `retry.fallbackChains` resolves by specificity: exact `provider/model-id`
-  beats `provider/*`, then the role's chain, then `default`
-  (`omp://settings.md`). A role that must avoid a provider needs its own
-  exact-model key — and even then, chain exhaustion falls through to `default`,
-  so a chain cannot guarantee a provider is never reached.
-- OpenCode Go's monthly limit is a **sum of per-model quota fractions**, not a
-  dollar total. Each model has its own $15/$30/$60 monthly quota and the plan
-  caps the sum of used fractions at 100%. So $1 on a $60-quota model costs 1.67
-  points and $1 on a $15-quota model costs 6.67 points. Only the OpenCode
-  dashboard shows the per-model rows; `omp usage` shows the capped aggregate and
-  `omp stats` reports list-price estimates that ran 6x high and 4x low against
-  OpenCode's own meter on the same day. Keep Go usage to
-  `muse-spark-1.2-contributor` ($60), `deepseek-v4-flash` ($30) and
-  `glm-5.3-flash` ($30).
-- `retry.usageAwareFallback: true` skips **every** model of a provider whose
-  aggregate usage reads exhausted, even models at 2% of their own quota, because
-  omp never sees the per-model rows. It is set `false` here for that reason; the
-  cost is one failed attempt when a model really is out, absorbed by
-  `fallbackChains`.
-- A `provider/*` value used as a fallback **rung** keeps the failing model's id
-  and only swaps the provider, so it builds ids that do not exist on the target
-  gateway. OpenRouter needs its vendor-prefixed ids
-  (`meta/muse-spark-1.2-contributor`, not `muse-spark-1.2-contributor`). Use
-  `provider/*` only as a chain **key**.
-- omp loads `~/.omp/.env` into its own process environment at startup, and an
-  already-set process variable beats every `.env` file. After
-  `op inject` refreshes a key, a running omp session and every child it spawns
-  still hold the old value. Test with
-  `env -u <VAR> bash -lc 'set -a; . ~/.omp/.env; set +a; ...'`, and restart omp
-  for the session itself to pick the key up.
-  A hardcoded export shadows it permanently, not just for one session:
-  `~/.zshrc.local` carried a dead `OPENROUTER_API_KEY` that beat the 1Password
-  value in `~/.omp/.env` in every new shell, so every `openrouter/*` route
-  returned `401 User not found` while `curl` with the `.env` key returned 200.
-  `omp token <provider>` prints the key omp will actually use — check it before
-  blaming the provider.
-- `install.sh` refuses to run from a Supacode or temp git worktree (any path
-  under `.supacode/repos/`, `.git/worktrees/` or `worktrees/`). The symlinks
-  bake in the checkout's absolute path, so an install from a worktree points
-  every `~/.claude/skills` and `~/.agents/skills` link at a directory that
-  vanishes when the worktree is cleaned up. Always run it from
-  `~/dev/agent-config`; `--force` exists but is the wrong answer. A skill
-  reported as "not installed" after a new one lands usually means that machine
-  never re-ran `install.sh` (or, on claude.ai, never got the new `dist/*.zip`
-  uploaded: it does no dependency resolution, so every skill `design-brief`
-  routes to needs its own upload).
-- `opencode-go/muse-spark-1.3-contributor` works, but only via `/v1/responses`;
-  `/v1/chat/completions` returns `500 Internal server error` for every Muse
-  Spark id. omp ≤ 18.1.4 has no bundled catalog row for it, so the id arrived
-  only via models.dev (`npm: null`), and the `opencode-go` heuristic
-  mis-resolved it to `openai-completions` — that's also why `:effort` suffixes
-  returned `Model not found`. `modelOverrides` cannot override `api`, so a
-  local `models.yml` can't patch this; the fix is `omp update` to 18.1.6+,
-  which ships the real row (`api: openai-responses`, efforts
-  `minimal,low,medium,high,xhigh`). Verified post-update with a retry-off
-  probe (`omp -p --model opencode-go/muse-spark-1.3-contributor:xhigh --config
-  <(printf 'retry:\n  enabled: false\n') "..."`) including a tool-call probe
-  that exercises `reasoning_content` replay — all clean. 1.3 scores 61 (xhigh)
-  on AA Intelligence Index vs GLM-5.3-Flash's 57 and 1.2's 54, so review roles
-  moved from GLM/1.2 onto 1.3; 1.2 stays a strict downgrade from GLM and is not
-  a substitute for anything.
-- `opencode-go/grok-4.5` rejects omp's web search tool: `400 … invalid tools in
-  request: custom function name "web_search" is reserved`. It answers normally
-  with a `web_search: enabled: false` overlay. `opencode-go/grok-4.6` answers with
-  web search left on, so use 4.6 rather than disabling a global tool for one
-  model. Both ids are live on the Go plan despite the reserved-name failure
-  looking like an unavailable model.
-- A subagent running a Go model is usually its **primary**, not a fallback.
-  `task.agentModelOverrides` beats the role, so `scout` and `sonic` resolve to
-  `opencode-go/deepseek-v4-flash` directly and never touch the `anthropic/*`
-  chain. That chain's third rung happens to be the same model, which makes a
-  screenshot of the chains alone look like a fallback fired. Read
-  `agentModelOverrides` before blaming `retry`.
-- There is **no per-model bucket** on OpenCode Go, so "it has its own quota" is
-  never a reason to keep a role on a dearer model. One ceiling, the sum of used
-  fractions. `deepseek-v4-flash` costs 2.6% of the month per 1,000 requests
-  against `muse-spark-1.3-contributor`'s 0.44% — 5.9x — and is dearer on every
-  rate ($0.22/$0.66/$0.007 per Mtok against $0.10/$0.20/$0.002). `scout` and
-  `sonic` stay on DeepSeek for **latency only** (103.4 tok/s at 2.58s TTFT
-  against 1.3's 80.4 at 3.56s, from `model_perf`), which is the weakest place
-  to spend it since nobody waits on either role.
-- `~/.omp/stats.db` stopped recording at **2026-09-02 19:04:47** and has
-  written nothing since, six minutes before `789c0fd` pinned `scout` to
-  `deepseek-v4-flash`. Every `omp stats` window after that date reads empty, so
-  there is no local per-model cost evidence under the current routing. What
-  still works: `model_perf` in `~/.omp/agent/agent.db` (`model_key`, `samples`,
-  `output_tokens/gen_ms`, `ttft_ms/ttft_samples`) for which model served a
-  turn, `omp usage` for the capped aggregate, and the OpenCode per-model
-  dashboard for dollars.
+- Model thinking levels are per-model. `deepseek-v4-flash`, `glm-5.3-flash` and `kimi-k3` expose only low/high/max. Writing `medium` on those is not rejected: it silently runs, and bills, as `high`.
+- omp rewrites `omp/config.yml` and deletes every comment line while keeping the values byte-identical. Never keep decision rationale in that file; it belongs in `docs/`.
+- In omp only one user-level context file survives, by provider priority: `~/.omp/agent/AGENTS.md` (100) beats `~/.claude/CLAUDE.md` (80) beats `~/.codex/AGENTS.md` (70). Two different global files means the lower one is never loaded. All four paths are symlinks to `global-agents.md`, so keep them that way rather than editing one destination.
+- `link_into` in `install.sh` refuses to replace a real non-symlink file: it prints a SKIP warning and continues. A missing symlink after an install run usually means a real file is sitting in the destination.
+- `install.sh` refuses to run from a Supacode or temp git worktree (`*/.supacode/repos/*`, `*/.git/worktrees/*`, `*/worktrees/*`). The symlinks bake in the checkout's absolute path, so an install from a worktree points every `~/.claude/skills` and `~/.agents/skills` link at a directory that vanishes when the worktree is cleaned up. Always run it from `~/dev/agent-config`; `--force` exists but is the wrong answer. A skill reported as "not installed" after a new one lands usually means that machine never re-ran `install.sh` (or, on claude.ai, never got the new `dist/*.zip` uploaded: it does no dependency resolution, so every skill `design-brief` routes to needs its own upload).
+- A bare `omp -p --model <id>` probe cannot prove a model works. When the model fails, the fallback chain answers and the reply looks like a success. Three `opencode-zen` `-free` ids returned a clean `ok` this way while actually returning `401 Model is disabled`. Probe with retry off instead — `omp -p --model <id> --config <(printf 'retry:\n  enabled: false\n') "Reply with exactly: ok"` — where a clean reply is proof and a failure prints the provider's own error.
+- `opencode-zen`'s `-free` model ids are dead: `muse-spark-1.2-contributor-free` and `deepseek-v4-flash-free` return `401 Model is disabled`, `minimax-m3-free` returns `401 ... is not supported`. Never put them in a fallback chain. Paid `opencode-zen/deepseek-v4-flash` does work, billed against the workspace spending limit at `opencode.ai/workspace/<id>/billing`, which is real money separate from the Go subscription.
+- `retry.fallbackChains` resolves by specificity: exact `provider/model-id` beats `provider/*`, then the role's chain, then `default` (`omp://settings.md`). A role that must avoid a provider needs its own exact-model key — and even then, chain exhaustion falls through to `default`, so a chain cannot guarantee a provider is never reached. A `provider/*` value used as a **rung** keeps the failing model's id and only swaps the provider, so it builds ids that do not exist on the target gateway (OpenRouter needs `meta/muse-spark-1.3-contributor`, not `muse-spark-1.3-contributor`). Use `provider/*` only as a chain **key**.
+- OpenCode Go's monthly limit is a **sum of per-model quota fractions** — not a dollar total, and **not a per-model bucket**. Each model has its own $15/$30/$60 monthly quota and the plan caps the sum of used fractions at 100%, so $1 on a $60-quota model costs 1.67 points and $1 on a $15-quota model costs 6.67. "It has its own quota" is therefore never a reason to keep a role on a dearer model: `deepseek-v4-flash` costs 2.6% of the month per 1,000 requests against `muse-spark-1.3-contributor`'s 0.44% — 5.9x — and is dearer on every rate ($0.22/$0.66/$0.007 per Mtok against $0.10/$0.20/$0.002). `scout` and `sonic` stay on DeepSeek for **latency only** (103.4 tok/s at 2.58s TTFT against 1.3's 80.4 at 3.56s, from `model_perf`), which is the weakest place to spend it since nobody waits on either role. Keep Go usage to `muse-spark-1.3-contributor` ($60), `deepseek-v4-flash` ($30) and `glm-5.3-flash` ($30). Only the OpenCode dashboard shows the per-model rows; `omp usage` shows the capped aggregate and `omp stats` reports list-price estimates that ran 6x high and 4x low against OpenCode's own meter on the same day.
+- `retry.usageAwareFallback: true` skips **every** model of a provider whose aggregate usage reads exhausted, even models at 2% of their own quota, because omp never sees the per-model rows. It is set `false` here for that reason; the cost is one failed attempt when a model really is out, absorbed by `fallbackChains`.
+- A subagent running a Go model is usually its **primary**, not a fallback. `task.agentModelOverrides` beats the role, so `scout` and `sonic` resolve to `opencode-go/deepseek-v4-flash` directly and never touch the `anthropic/*` chain. That chain's third rung happens to be the same model, which makes a screenshot of the chains alone look like a fallback fired. Read `agentModelOverrides` before blaming `retry`.
+- omp loads `~/.omp/.env` into its own process environment at startup, and an already-set process variable beats every `.env` file. After `op inject` refreshes a key, a running omp session and every child it spawns still hold the old value. Test with `env -u <VAR> bash -lc 'set -a; . ~/.omp/.env; set +a; ...'`, and restart omp for the session itself to pick the key up. A hardcoded export shadows it permanently, not just for one session: `~/.zshrc.local` carried a dead `OPENROUTER_API_KEY` that beat the 1Password value in `~/.omp/.env` in every new shell, so every `openrouter/*` route returned `401 User not found` while `curl` with the `.env` key returned 200. `omp token <provider>` prints the key omp will actually use — check it before blaming the provider.
+- Muse Spark ids work only via `/v1/responses`; `/v1/chat/completions` returns `500 Internal server error` for every one. Needs omp 18.1.6+, which ships the real catalog row (`api: openai-responses`, efforts `minimal,low,medium,high,xhigh`). On ≤18.1.4 the id arrived only via models.dev (`npm: null`), the `opencode-go` heuristic mis-resolved it to `openai-completions`, and `:effort` suffixes returned `Model not found`; `modelOverrides` cannot override `api`, so a local `models.yml` cannot patch it. 1.3 scores 61 (xhigh) on AA Intelligence Index vs GLM-5.3-Flash's 57 and 1.2's 54, so review roles moved from GLM/1.2 onto 1.3; 1.2 stays a strict downgrade from GLM and is not a substitute for anything.
+- `opencode-go/grok-4.5` rejects omp's web search tool: `400 … invalid tools in request: custom function name "web_search" is reserved`. It answers normally with a `web_search: enabled: false` overlay, but use `opencode-go/grok-4.6`, which answers with web search left on, rather than disabling a global tool for one model. Both ids are live on the Go plan despite the reserved-name failure looking like an unavailable model.
+- `~/.omp/stats.db` stopped recording at **2026-09-02 19:04:47** and has written nothing since, six minutes before `789c0fd` pinned `scout` to `deepseek-v4-flash`. Every `omp stats` window after that date reads empty, so there is no local per-model cost evidence under the current routing (`omp -p` runs never wrote rows there anyway). What still works: `model_perf` in `~/.omp/agent/agent.db` (`model_key`, `samples`, `output_tokens/gen_ms`, `ttft_ms/ttft_samples`) for which model served a turn, `omp usage` for the capped aggregate, and the OpenCode per-model dashboard for dollars.
