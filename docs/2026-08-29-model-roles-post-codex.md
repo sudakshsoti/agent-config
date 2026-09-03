@@ -22,9 +22,9 @@ The applied `modelRoles` layout for `omp/config.yml`, sized for **Claude Max 5x
 
 > [!abstract] One-line mental model
 > Anthropic drives, plans and looks at pictures, on Max quota. DeepSeek V4
-> Flash does the parallel bulk, GLM-5.3-Flash does everything that needs
-> judgement, and Muse Spark is the reservoir for prewalk and the advisor.
-> Nothing opts out.
+> Flash does the parallel bulk, Muse Spark 1.3 Contributor does everything else
+> on Go — judgement roles, prewalk and the advisor — and GLM-5.3-Flash is a
+> fallback rung only. Nothing opts out.
 
 > [!success] Applied 2026-08-29
 > `omp/config.yml`, `install.sh` step 3e and the
@@ -43,6 +43,36 @@ The applied `modelRoles` layout for `omp/config.yml`, sized for **Claude Max 5x
 > [The request-quota ladder](#the-request-quota-ladder-2026-09-02). Three
 > claims in this file turned out to be wrong: Muse Spark's benchmark case, the
 > "14x" allowance ratio, and the decision to drop DeepSeek V4 Flash.
+
+> [!success] Revised 2026-09-03 — Muse Spark 1.3 took the GLM-5.3-Flash roles
+> `db8939e` moved `adversary`, `smol`, `commit`, `advisor`, `librarian`,
+> `reviewer` and `security-reviewer` onto
+> `opencode-go/muse-spark-1.3-contributor` once omp 18.1.6 shipped its catalog
+> row. 1.3 scores 61 on the AA index at xhigh against GLM-5.3-Flash's 57 and
+> 1.2's 54, at 1.2's rates. GLM-5.3-Flash now holds **no role at all**, only
+> fallback rungs. Any bare "Muse Spark" below means 1.2.
+
+> [!danger] Correction 2026-09-04 — there is no "separate quota bucket"
+> `db8939e` kept `scout` and `sonic` on `deepseek-v4-flash`, justifying it in
+> the commit message as a "separate quota bucket, out of scope". No such bucket
+> exists, as **How the Go monthly limit actually works** further down this page
+> already sets out: one ceiling, the sum of every model's used fraction. By this
+> page's own ladder DeepSeek V4 Flash costs **2.6% of the month per 1,000
+> requests against Muse Spark's 0.44% — 5.9x** — and it is dearer on every
+> rate, $0.22/$0.66/$0.007 per Mtok against $0.10/$0.20/$0.002.
+>
+> The `scout` row below reads "4.8x GLM-5.3-Flash's allowance", which was a
+> two-way comparison against **GLM-5.3-Flash** and was true in that matchup. It
+> was never re-run against Muse Spark when Muse Spark took the judgement roles,
+> so the conclusion inverted and went unchecked. The config did not drift; the
+> reasoning behind it did.
+>
+> **Latency is the only surviving argument**, and `model_perf` supports it:
+> DeepSeek 103.4 tok/s at 2.58s TTFT over 186 samples against 1.3's 80.4 at
+> 3.56s over 41. But `scout` and `sonic` are exactly the roles where nobody
+> waits, so it is weakest where it is being used. Routing was left alone
+> because Go monthly read **3% used with 28 days left** on 2026-09-04; move
+> both to 1.3 if that climbs past 40–50%.
 
 ## What changed and why
 
@@ -94,37 +124,39 @@ and nothing else.
 | `designer` | Sonnet 5 | high | `agmtech` brand and motion work needs the headroom |
 | `vision` | Sonnet 5 | medium | UI critique quality; cheap multimodals stay fallbacks |
 | `task` | Sonnet 5 | medium | fail-safe: unnamed agents get the capable model |
-| `adversary` | GLM-5.3-Flash | max | 51.1 index at 7,900 req/month. Kimi K3 costs 16x for 3.4 index points; Grok 4.6 gets 845 req/month for 47.2 and is dominated outright |
-| `smol` | Muse Spark | low | prewalk + vibe `fast` tier. Was DeepSeek for speed; moved on price, since a spend budget makes 2.2x input / 3.3x output the thing you actually pay |
+| `adversary` | Muse Spark 1.3 | xhigh | 61 index at xhigh against GLM-5.3-Flash's 57, on 1.2's rates and allowance. Was GLM-5.3-Flash at max until 2026-09-03 |
+| `smol` | Muse Spark 1.3 | high | prewalk + vibe `fast` tier. Was DeepSeek for speed; moved on price, since a spend budget makes 2.2x input / 3.3x output the thing you actually pay |
 | `tiny` | Haiku 4.5 | low | fires before every turn under `defaultThinkingLevel: auto`, so its TTFT lands on your wait; free under Max, warm connection |
-| `commit` | GLM-5.3-Flash | high | short and frequent, and you wait on it, so 8.3s latency beats Muse Spark's throughput |
-| `advisor` | Muse Spark | high | reviews every transcript delta: huge input, tiny output, and cached input is $0.002/M. Inert while `advisor.enabled` is false |
+| `commit` | Muse Spark 1.3 | medium | short and frequent, and you wait on it — which now argues *for* Muse Spark, since 1.3 measures 3.56s TTFT against GLM-5.3-Flash's 6.52s |
+| `advisor` | Muse Spark 1.3 | high | reviews every transcript delta: huge input, tiny output, and cached input is $0.002/M. Inert while `advisor.enabled` is false |
 
 Subagents:
 
 | Agent | Model | Effort | Reason |
 | --- | --- | --- | --- |
-| `scout` | DeepSeek V4 Flash | high | the volume role. 45.7 index against Muse Spark's 40.5, and 37,800 req/month is 4.8x GLM-5.3-Flash's allowance |
-| `librarian` | GLM-5.3-Flash | high | long output, low frequency, so the better model is affordable here |
-| `sonic` | DeepSeek V4 Flash | low | mechanical bulk, runs in parallel, nobody waits on any single one |
-| `reviewer` | GLM-5.3-Flash | max | Tools 34.0 against Muse Spark's 20.8. The cache-read argument below was arithmetically right but economically trivial — the whole month on Muse Spark was $1.76 |
-| `security-reviewer` | GLM-5.3-Flash | max | same |
+| `scout` | DeepSeek V4 Flash | high | the volume role, and the one row whose stated reason no longer holds — see the 2026-09-04 correction above. 45.7 index against Muse Spark's 40.5, and 37,800 req/month is 4.8x GLM-5.3-Flash's allowance, but only 0.17x Muse Spark's. Runs on latency alone now |
+| `librarian` | Muse Spark 1.3 | high | long output, low frequency. Was GLM-5.3-Flash until 2026-09-03 |
+| `sonic` | DeepSeek V4 Flash | low | mechanical bulk, runs in parallel, nobody waits on any single one — which is also why the latency case for keeping it off Muse Spark 1.3 is weakest here |
+| `reviewer` | Muse Spark 1.3 | xhigh | 61 index against GLM-5.3-Flash's 57, plus the $0.002/Mtok cache read a role that re-reads the same diff every turn needs. GLM's Tools score of 34.0 was the old reason; 1.3's Tools score is unverified |
+| `security-reviewer` | Muse Spark 1.3 | xhigh | same |
 
 `adversary` is deliberately **absent** from `agentModelOverrides` —
 `omp/agents/adversary.md` pins `model: "@adversary"`, so the role drives it and
 an override would be dead config.
 
-**The rule that decided Muse Spark placement, and how it changed twice.**
+**The rule that decided Muse Spark placement, and how it changed three times.**
 Originally: Muse Spark gets a role only when the output is short (`commit`) or
 nobody is blocked on it (`advisor`, `sonic`, the fallback chains). Price
 overrode that on 2026-08-29 — see [the reversal](#measured-not-guessed). On
-2026-09-02 the request-quota table overrode it again, and Muse Spark is back to
-**`smol` and `advisor` only**: 3.4s latency for prewalk, and a $0.002/Mtok cache
-read for a role that re-reads the whole transcript. `default`, `plan`, `slow`,
-`task`, `vision` and `tiny` stay on Anthropic, where the cost is Max quota
-rather than Go allowance. `reviewer` was Kimi K3 for the verified score, then
-GLM-5.3 at max effort, then Muse Spark from 2026-08-30, and is GLM-5.3-Flash
-from 2026-09-02.
+2026-09-02 the request-quota table cut it back to **`smol` and `advisor`
+only**. On 2026-09-03 version 1.3 landed and took every role GLM-5.3-Flash
+held, so Muse Spark now runs **`adversary`, `smol`, `commit`, `advisor`,
+`librarian`, `reviewer` and `security-reviewer`** — everything on Go except
+`scout` and `sonic`. `default`, `plan`, `slow`, `task`, `vision` and `tiny`
+stay on Anthropic, where the cost is Max quota rather than Go allowance.
+`reviewer` was Kimi K3 for the verified score, then GLM-5.3 at max, then Muse
+Spark 1.2 from 2026-08-30, then GLM-5.3-Flash from 2026-09-02, and is Muse
+Spark 1.3 at xhigh from 2026-09-03.
 
 **How the Go monthly limit actually works.** It is **not a dollar total**. Every
 model carries its own monthly dollar quota — $15, $30 or $60 by tier — and the
@@ -173,10 +205,24 @@ in 30 days**. On one model that whole load would consume 1.9% of the month on
 Muse Spark, 11% on DeepSeek V4 Flash, 54% on GLM-5.3-Flash, 82% on DeepSeek
 V4 Pro, and 866% on Kimi K3. The applied split lands around 35%.
 
-**Why DeepSeek V4 Flash came back.** A token-price reading had it dominated by
-GLM-5.3-Flash — 3x the input price on the same $30 tier. In request terms it
-gets 4.8x the allowance, so it is the correct pick for `scout` and `sonic`,
-where nobody waits and the index gap to GLM-5.3-Flash is 5.4 points.
+> [!warning] That 30-day sample is the last one you can take locally
+> `~/.omp/stats.db` stopped recording at **2026-09-02 19:04:47** and has
+> written nothing since — six minutes before `789c0fd` pinned `scout` to
+> `deepseek-v4-flash`. So no local row exists for any spend under the current
+> routing, and the DeepSeek dashboard figure below (1.2%, $0.49) predates the
+> pin by three days. `model_perf` in `~/.omp/agent/agent.db` is still live and
+> is the only local routing evidence left; for dollars, the OpenCode per-model
+> dashboard is now the sole source.
+
+**Why DeepSeek V4 Flash came back, and what that argument does not cover.** A
+token-price reading had it dominated by GLM-5.3-Flash — 3x the input price on
+the same $30 tier. In request terms it gets 4.8x the allowance, so it beats
+**GLM-5.3-Flash** for `scout` and `sonic`, where nobody waits and the index gap
+to GLM-5.3-Flash is 5.4 points. That is the whole finding: a two-way comparison
+with GLM-5.3-Flash, made while GLM held the judgement roles. It says nothing
+about Muse Spark, which wins on rates *and* allowance and took those roles on
+2026-09-03 — see the [2026-09-04 correction](#model-roles-after-codex) at the
+top of this page.
 
 The dollar side of the same month, from the OpenCode dashboard on 2026-08-30:
 
@@ -275,6 +321,15 @@ Key specificity is `provider/model-id` > `provider/*` > role name > `default`
 - Every `openrouter/*` rung is **decoration**. The OpenRouter key returns
   `401 User not found`, so the `openrouter/*` chain key was deleted on
   2026-09-02 and those selectors now fall through to `default`.
+- **The chains were rebuilt around 1.3 on 2026-09-03** (`db8939e`), and the
+  unreferenced `muse-spark-1.2-contributor` key was dropped. Current shape:
+  `anthropic/*` → 1.3:high, glm-5.3-flash:high, deepseek-v4-flash:high;
+  `muse-spark-1.3-contributor` → glm-5.3-flash:high, deepseek-v4-flash:high,
+  sonnet-5:low; `glm-5.3-flash` → 1.3:xhigh, deepseek-v4-pro:high,
+  hy4-preview:high; `opencode-go/*` → sonnet-5:low; `default` → 1.3:high,
+  glm-5.3-flash:high, sonnet-5:low. Because GLM-5.3-Flash now holds no role,
+  the Kimi K3 note above is history — a GLM-5.3-Flash outage can only affect
+  traffic that already arrived by fallback.
 
 Two invariants worth restating because they are easy to undo:
 

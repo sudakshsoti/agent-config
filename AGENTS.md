@@ -141,3 +141,25 @@ has no equivalent for any of them.
   web search left on, so use 4.6 rather than disabling a global tool for one
   model. Both ids are live on the Go plan despite the reserved-name failure
   looking like an unavailable model.
+- A subagent running a Go model is usually its **primary**, not a fallback.
+  `task.agentModelOverrides` beats the role, so `scout` and `sonic` resolve to
+  `opencode-go/deepseek-v4-flash` directly and never touch the `anthropic/*`
+  chain. That chain's third rung happens to be the same model, which makes a
+  screenshot of the chains alone look like a fallback fired. Read
+  `agentModelOverrides` before blaming `retry`.
+- There is **no per-model bucket** on OpenCode Go, so "it has its own quota" is
+  never a reason to keep a role on a dearer model. One ceiling, the sum of used
+  fractions. `deepseek-v4-flash` costs 2.6% of the month per 1,000 requests
+  against `muse-spark-1.3-contributor`'s 0.44% — 5.9x — and is dearer on every
+  rate ($0.22/$0.66/$0.007 per Mtok against $0.10/$0.20/$0.002). `scout` and
+  `sonic` stay on DeepSeek for **latency only** (103.4 tok/s at 2.58s TTFT
+  against 1.3's 80.4 at 3.56s, from `model_perf`), which is the weakest place
+  to spend it since nobody waits on either role.
+- `~/.omp/stats.db` stopped recording at **2026-09-02 19:04:47** and has
+  written nothing since, six minutes before `789c0fd` pinned `scout` to
+  `deepseek-v4-flash`. Every `omp stats` window after that date reads empty, so
+  there is no local per-model cost evidence under the current routing. What
+  still works: `model_perf` in `~/.omp/agent/agent.db` (`model_key`, `samples`,
+  `output_tokens/gen_ms`, `ttft_ms/ttft_samples`) for which model served a
+  turn, `omp usage` for the capped aggregate, and the OpenCode per-model
+  dashboard for dollars.
