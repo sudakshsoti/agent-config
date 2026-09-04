@@ -98,6 +98,12 @@ Write handoff notes to a tracked `handoff/` directory at the repo root, not giti
 - Never break a command, path, code span or link across lines. Hard wrapping splits a quoted argument and the line stops copy-pasting.
 - Review an unwrapped file with `git diff --word-diff`. Plain `git diff` shows a whole rewritten paragraph and hides the change.
 
+## Interface design
+
+Any interface design work — a new screen, a visual direction, a layout that feels wrong, vague feedback like "too startup-y" — starts by invoking the `design` skill, which routes to the smallest workflow that answers the question. Do not hand-roll design work or reason from taste alone while it is available. It is installed for Claude Code, Codex, opencode, omp and pi from `~/dev/design-studio`, whose `README.md` is the cheat sheet.
+
+Its precedence order, which settles any conflict with the design-token default above: accessibility and the testable `craft-*` rules, then the project's `design/brief.md`, then its `design/direction.md` and `design/decisions.md`, then global heuristics, then personal preference. A project's own direction outranks every global design opinion except the accessibility floor.
+
 ## Web scraping
 
 When a webpage needs scraping or clean Markdown extraction, run `crwl crawl <url> -o markdown`. `crwl` is installed globally and available on `PATH`; no per-agent configuration is required. If it is unavailable or the target is blocked, report that and use the current approved web-reading path.
