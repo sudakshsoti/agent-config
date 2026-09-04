@@ -6,6 +6,7 @@ description: |
   concrete fixes. Use before claiming any UI work is done, and whenever asked to
   audit, critique or review a screen or page. Runs against a render, never against
   source alone. Normally the last step of the `design-brief` pipeline.
+disable-model-invocation: true
 ---
 
 # Design review

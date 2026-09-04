@@ -15,6 +15,7 @@ description: |
   manager, HEDIS, Stars, HCC, TCOC, prior auth, registry, Medicare Advantage.
   Non-healthcare design → design-foil; clinical
   decision support → clinical-reasoning.
+disable-model-invocation: true
 ---
 
 # VBC Design

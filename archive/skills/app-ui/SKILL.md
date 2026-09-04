@@ -10,6 +10,7 @@ description: |
   reference anchor first. Do NOT use for a landing page, homepage, pricing page
   or any marketing or brand surface — that is `frontend-design`. Not a
   component-architecture, state or data-flow skill.
+disable-model-invocation: true
 ---
 
 # App UI

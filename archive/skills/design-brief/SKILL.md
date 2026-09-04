@@ -8,6 +8,7 @@ description: |
   marketing page, a brand, a critique, interface copy. Also use when a UI task
   arrives with no design/reference/ directory in the project. Invoking a specific
   design skill directly is still fine and skips this router.
+disable-model-invocation: true
 ---
 
 # Design brief

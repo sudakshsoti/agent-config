@@ -41,22 +41,19 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
   block scalar in the template above makes colons and quotes literal — keep it.
   Single-line descriptions are also fine.
 
-## Current skills
-
-38 skills, all worth reaching for by name. Trimmed to 36 on 2026-08-19 after a
+30 skills, all worth reaching for by name. Trimmed to 36 on 2026-08-19 after a
 usage audit: any skill unused across 1,203 transcripts (2026-07 through
-2026-08-19, at least 9 days old) was retired. Four design skills added and two
-archived on 2026-08-31. Everything removed is recoverable from git history.
+2026-08-19, at least 9 days old) was retired. On 2026-09-04 the whole
+`design-brief` pipeline — `design-brief`, `app-ui`, `interface-composition`,
+`typography-craft`, `brand-studio`, `design-foil`, `vbc-design`, and
+`design-review` — was archived while a replacement set of design skills is
+trialled; `ux-writing` is a vendored external skill and stays. Everything
+removed is recoverable from git history or `archive/skills/`.
 
-- `app-ui` — Product screen design: the shell, information architecture, type and spacing systems, action hierarchy, and every screen state. The primary skill for application UI; it outranks aesthetic-direction guidance there.
 - `backlog` — Run any project's backlog in Linear like a PM: capture, triage, grooming, acceptance criteria, and milestone/session planning (batch Ready issues into equal-effort, one-sitting Linear Milestones).
-- `brand-studio` — Commercial brand partner: positioning, naming, verbal identity, presence audits, teardowns, and conversion diagnosis.
 - `clinical-reasoning` — Clinical decision support for clinicians in India: diagnostics, differentials, labs, imaging, drug interactions, prescribing, and escalation.
 - `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
 - `dbt` — Dialectical Behaviour Therapy in the Linehan tradition: skills coaching, chain analysis, and DBT materials.
-- `design-brief` — Entry point for design work: establishes the project's reference anchor from real screenshots, routes to the right skills, runs the gate. `/design-brief`.
-- `design-foil` — Industry-agnostic strategy + UX advisor: brainstorm, critique, strategy docs, teardowns.
-- `design-review` — The gate for visual work: renders at 390/900/1440, compares against the project's reference images, reports absences and defects at P0/P1/P2. `/design-review`.
 - `diagnosing-bugs` — Diagnosis loop for hard bugs and performance regressions: build a tight red-capable feedback loop, minimise, rank hypotheses, instrument, fix with a regression test.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
 - `find-skills` — Discover and install agent skills when asked "is there a skill for X".
@@ -67,7 +64,6 @@ archived on 2026-08-31. Everything removed is recoverable from git history.
 - `handoff` — Structured session-handoff docs for continuity across sessions.
 - `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, including the safe rclone-torbox recreate.
 - `humanizer` — Rewrite AI-sounding prose so it reads like a person, using Wikipedia's 35 "Signs of AI writing" patterns. Vendored from [blader/humanizer](https://github.com/blader/humanizer) (MIT). `/humanizer`.
-- `interface-composition` — The arrangement arithmetic that runs after `app-ui`: pattern selection, container maths, action counts, shared axes, density.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
 - `merge` — Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`.
 - `n8n-deploy` — RIGID homelab procedure: deploy/edit n8n workflows via the sqlite3 dance without clobbering the DB.
@@ -80,41 +76,20 @@ archived on 2026-08-31. Everything removed is recoverable from git history.
 - `self-review` — Self-review the plan you just proposed via the plan-critic subagent, then revise it. `/self-review`.
 - `shopping-research` — Purchase advisor for buying in India: product comparisons, pricing, sellers, deals, and when to buy.
 - `strategy-counsel` — Strategic advisor for power, influence, and negotiation inside organisations and in arm's-length dealings.
-- `typography-craft` — Typography-only authority across screen, print/editorial, brand, display, and type-led layout.
 - `update-branch-name` — Rename the current branch to a semantic-prefix + kebab-case convention, preferring GitHub's server-side rename so an open PR isn't orphaned. `/update-branch-name`.
 - `ux-writing` — User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.
-- `vbc-design` — Deep payer/provider healthcare design: value-based-care economics, role workflows, data and attribution gotchas, registry and cohort design, grounded in Value Connect.
 - `vedic-astrology` — Vedic astrology (Jyotish) advisor for charts, dashas, transits, timing, compatibility, and remedies.
 - `writing-editor` — Writing partner for personal essays and blog posts: get words onto the page, then shape them into something publishable.
 
-The design skills are entered through `design-brief`, which establishes the
-project's reference anchor and routes. It is named `design-brief` because Claude
-Code ships a bundled `design` skill that opens a canvas artifact.
-
-Behind it: `app-ui` (product screens, the primary one), `interface-composition`
-(the arrangement arithmetic that runs after it), `typography-craft` (type),
-`brand-studio` (identity), `design-foil` and `vbc-design` (strategy),
-`ux-writing` (interface copy), and `design-review`, the gate every visual
-deliverable finishes in.
-
-None of the four pipeline skills (`design-brief`, `app-ui`,
-`interface-composition`, `design-review`) carries `disable-model-invocation`.
-That flag hides a skill from the model entirely, so a router cannot load a leaf
-that has it; the pipeline only works if the model can see all four.
-
-**Product screens and marketing pages want opposite things.** A landing page
-should be memorable; a product screen should be unsurprising. `app-ui` wins for
-application screens; Anthropic's `frontend-design` plugin covers marketing and
-brand pages. Nothing covers decks and reports yet; `design-brief` says so rather
-than routing to a name that does not exist.
-
-`nightjar` and `frontend-craft` are archived under `archive/skills/`. Their
-editorial doctrine — a signature element, two families strictly divided, edges
-earned by hairline rules — measurably damaged product screens. Sudaksh is
-remaking both.
-
-`design-review/references/slop.md` is scoped to marketing and brand surfaces;
-`humanizer` owns prose.
+`nightjar`, `frontend-craft`, and the whole `design-brief` pipeline
+(`design-brief`, `app-ui`, `interface-composition`, `typography-craft`,
+`brand-studio`, `design-foil`, `vbc-design`, `design-review`) are archived
+under `archive/skills/`. `nightjar` and `frontend-craft`'s editorial
+doctrine — a signature element, two families strictly divided, edges earned
+by hairline rules — measurably damaged product screens. The `design-brief`
+pipeline is archived while a new, less monolithic set of design skills is
+trialled in its place; `ux-writing` is vendored and separate from that
+pipeline, so it stays active.
 
 ## Installing per surface
 

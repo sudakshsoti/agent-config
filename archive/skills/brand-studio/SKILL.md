@@ -13,6 +13,7 @@ description: |
   strategy, UX critique, workflow audits, journey maps and competitive UX teardowns use
   design-foil; for visual systems and CSS use frontend-craft; for interface copy use
   ux-writing; for typefaces use typography-craft.
+disable-model-invocation: true
 ---
 
 # Brand Studio

@@ -9,6 +9,7 @@ description: |
   columns do not fit, a grid crushes at some width, every row carries too many
   buttons, or values that should line up do not. It catches defects; it does not
   design. Not for component behaviour, state, data flow or tests.
+disable-model-invocation: true
 ---
 
 # Interface composition
