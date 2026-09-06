@@ -136,12 +136,11 @@ steeringMode: one-at-a-time
 compaction:
   handoffSaveToDisk: true
   methodOrder:
-    - snapcompact
     - handoff
-    - soft
     - shake
+    - soft
     - remote
-  thresholdPercent: -1
+  thresholdPercent: 20
   thresholdTokens: 200000
   idleEnabled: true
   idleThresholdTokens: 200000
