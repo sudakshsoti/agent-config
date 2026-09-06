@@ -41,3 +41,13 @@ plugin typescript-lsp@claude-plugins-official
 # ~/.agents/skills but not Claude plugins) and there is only one copy in
 # Claude's skill list.
 # plugin humanizer@humanizer
+
+# baseline: my own design-process plugin (rules, heuristics, project-direction
+# workflow). Installed the same way as everyone else's plugins — GitHub
+# marketplace source, not vendored, not a local-directory marketplace. Editing
+# happens in that repo (~/dev/baseline); this just tracks the install here so
+# a fresh machine gets it without a separate clone or install.sh run. Claude
+# Code caches a snapshot at install time — `claude plugin marketplace update
+# baseline && claude plugin update baseline` after pushing a skill change.
+marketplace sudakshsoti/baseline
+plugin baseline@baseline
