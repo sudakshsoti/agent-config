@@ -100,7 +100,7 @@ Write handoff notes to a tracked `handoff/` directory at the repo root, not giti
 
 ## Interface design
 
-Any interface design work — a new screen, a visual direction, a layout that feels wrong, vague feedback like "too startup-y" — starts by invoking the `design` skill, which routes to the smallest workflow that answers the question. Do not hand-roll design work or reason from taste alone while it is available. It is installed for Claude Code, Codex, opencode, omp and pi from `~/dev/design-studio`, whose `README.md` is the cheat sheet.
+Any interface design work — a new screen, a visual direction, a layout that feels wrong, vague feedback like "too startup-y" — starts by invoking the `baseline` skill, which routes to the smallest workflow that answers the question. Do not hand-roll design work or reason from taste alone while it is available. It is installed for Claude Code, Codex, opencode, omp and pi from `~/dev/baseline`, whose `README.md` is the cheat sheet.
 
 Its precedence order, which settles any conflict with the design-token default above: accessibility and the testable `craft-*` rules, then the project's `design/brief.md`, then its `design/direction.md` and `design/decisions.md`, then global heuristics, then personal preference. A project's own direction outranks every global design opinion except the accessibility floor.
 
