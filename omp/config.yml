@@ -1,163 +1,114 @@
-modelRoles:
+modelRoles: 
   default: anthropic/claude-sonnet-5:medium
-  plan: anthropic/claude-opus-5:high
+  plan: anthropic/claude-opus-5:medium
   slow: anthropic/claude-opus-5:high
-  designer: anthropic/claude-sonnet-5:high
+  designer: anthropic/claude-sonnet-5:medium
   vision: anthropic/claude-sonnet-5:medium
-  task: anthropic/claude-sonnet-5:medium
-  adversary: opencode-go/muse-spark-1.3-contributor:xhigh
-  smol: opencode-go/glm-5.3-flash:low
-  tiny: anthropic/claude-haiku-4-5:low
-  commit: anthropic/claude-haiku-4-5:medium
-  advisor: opencode-go/muse-spark-1.3-contributor:xhigh
-task:
+  task: openai-codex/gpt-5.6-luna:xhigh
+  adversary: openai-codex/gpt-5.6-sol:low
+  smol: openai-codex/gpt-5.6-luna:xhigh
+  tiny: ollama-local/qwen3.5:0.8b
+  commit: openai-codex/gpt-5.6-luna:low
+task: 
   batch: true
   enableEffort: false
   eager: preferred
   enableLsp: true
-  agentModelOverrides:
-    scout: opencode-go/deepseek-v4-flash:high
-    librarian: opencode-go/glm-5.3-flash:high
-    sonic: opencode-go/deepseek-v4-flash:low
-    reviewer: opencode-go/glm-5.3-flash:high
-    security-reviewer: openai-codex/gpt-5.6-terra:high
-  maxConcurrency: 4
-  softRequestBudget: 200
-  softRequestBudgetNotice: true
-  maxEffort: high
-  prewalk: false
-retry:
+retry: 
   enabled: true
   modelFallback: true
-  usageAwareFallback: false
+  usageAwareFallback: true
   usageReservePct: 15
   usageReservePolicy: auto
-  fallbackChains:
+  fallbackChains: 
     anthropic/*:
-      - openai-codex/gpt-5.6-luna:high
-      - opencode-go/glm-5.3-flash:high
-      - opencode-go/deepseek-v4-flash:high
+      - opencode-go/muse-spark-1.2-contributor:low
+      - opencode-go/minimax-m3:low
+      - openai-codex/gpt-5.6-sol:low
     openai-codex/*:
-      - opencode-go/glm-5.3-flash:high
-      - anthropic/claude-sonnet-5:low
-    opencode-go/glm-5.3-flash:
-      - openai-codex/gpt-5.6-luna:high
-      - opencode-go/deepseek-v4-pro:high
-      - anthropic/claude-sonnet-5:low
-    opencode-go/*:
-      - anthropic/claude-sonnet-5:low
-    default:
-      - openai-codex/gpt-5.6-luna:high
-      - opencode-go/glm-5.3-flash:high
-      - anthropic/claude-sonnet-5:low
+      - opencode-go/muse-spark-1.2-contributor:low
+      - opencode-go/minimax-m3:low
+    opencode-go/*: 
+      - opencode-go/muse-spark-1.2-contributor:low
+      - opencode-go/minimax-m3:low
+      - opencode-zen/deepseek-v4-flash:low
+    opencode-zen/*: 
+      - opencode-go/muse-spark-1.2-contributor:low
+      - opencode-go/minimax-m3:low
+    default: 
+      - opencode-go/muse-spark-1.2-contributor:low
+      - opencode-go/minimax-m3:low
+      - opencode-zen/deepseek-v4-flash:low
 symbolPreset: nerd
-theme:
+theme: 
   dark: dark-lunar-statusline
   light: light
 setupVersion: 2
-statusLine:
-  preset: custom
+statusLine: 
+  preset: default
   separator: none
-  sessionAccent: false
+  sessionAccent: true
   compactThinkingLevel: false
   transparent: true
-  leftSegments:
-    - model
-    - mode
-    - collab
-    - path
-    - git
-    - pr
-    - context_pct
-    - cost
-  rightSegments:
-    - session_name
+  leftSegments: 
+    []
+  rightSegments: 
+    []
   contextLine: annotated
   showHookStatus: true
-  segmentOptions:
-    model:
-      showThinkingLevel: true
-    path:
-      abbreviate: true
-      maxLength: 40
-      stripWorkPrefix: true
-    git:
-      showBranch: true
-      showStaged: true
-      showUnstaged: true
-      showUntracked: true
-startup:
-  quiet: false
-  checkUpdate: false
+  segmentOptions: 
+    {}
+startup: 
+  quiet: true
 autoResume: false
 modelRoleStorage: global
-memory:
-  backend: "off"
-autolearn:
-  enabled: false
+memory: 
+  backend: local
+autolearn: 
+  enabled: true
   autoContinue: true
-dev:
+dev: 
   autoqaConsent: denied
 hideThinkingBlock: true
-advisor:
+advisor: 
   enabled: false
   syncBacklog: "off"
-terminal:
+terminal: 
   showProgress: false
   showImages: true
-display:
+display: 
   shimmer: classic
   smoothStreaming: true
   showTokenUsage: false
   collapseCompacted: true
   cacheMissMarker: false
-  hideToolActivity: true
+  hideToolActivity: false
 defaultThinkingLevel: auto
-providers:
+providers: 
   autoThinkingModel: online
   autoThinkingMaxEffort: xhigh
-  openrouterVariant: default
-  webSearchOrder:
+  webSearchOrder: 
     - tavily
     - exa
-    - firecrawl
-    - anthropic
-    - codex
-    - gemini
-    - public
   memoryModel: online
-  maxInFlightRequests:
-    anthropic: 3
-  anthropic:
-    serverSideFallback: false
-  openai-codex:
-    codeMode: auto
 textVerbosity: medium
-tier:
+tier: 
   openai: none
   subagent: inherit
-personality: default
+personality: friendly
 steeringMode: one-at-a-time
-compaction:
+compaction: 
   handoffSaveToDisk: true
-  methodOrder:
-    - handoff
-    - shake
-    - soft
+  methodOrder: 
+    - snapcompact
     - remote
-  thresholdPercent: -1
-  thresholdTokens: 200000
-  idleEnabled: true
-  idleThresholdTokens: 200000
-  idleTimeoutSeconds: 300
-  enabled: true
-  midTurnEnabled: true
-snapcompact:
+    - soft
+snapcompact: 
   systemPrompt: none
-bashInterceptor:
-  enabled: false
-skills:
-  ignoredSkills:
+bashInterceptor: 
+  enabled: true
+skills: 
+  ignoredSkills: 
     - artifact-*
     - claude-in-chrome
     - claude-api
@@ -167,34 +118,9 @@ skills:
     - fewer-permission-prompts
     - loop
     - schedule
-    - vercel-*
-    - ai-gateway
-    - ai-sdk
-    - auth
-    - bootstrap
-    - cdn-caching
-    - chat-sdk
-    - deployments-cicd
-    - env-vars
-    - eve
-    - knowledge-update
-    - marketplace
-    - microfrontends
-    - next-cache-components
-    - next-forge
-    - next-upgrade
-    - nextjs
-    - react-best-practices
-    - routing-middleware
-    - runtime-cache
-    - shadcn
-    - turbopack
-    - verification
-    - workflow
-tools:
+tools: 
   approvalMode: yolo
-  xdev: false
-tui:
+tui: 
   textSizing: false
   tight: false
   renderMermaid: true
@@ -206,18 +132,5 @@ tui:
   maxInlineImageColumns: 100
   maxInlineImageRows: 20
   maxInlineImages: 8
-composer:
-  shape: rail
-bash:
-  autoBackground:
-    enabled: true
-github:
-  enabled: true
-vault:
-  enabled: true
-spelling:
-  autocomplete: false
-  typoDetection: false
-extendedContext: false
-web_search:
-  enabled: true
+composer: 
+  shape: claude
