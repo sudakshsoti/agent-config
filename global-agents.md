@@ -104,7 +104,9 @@ Read `design/decisions.md` at the repo root before any interface design work, an
 
 When design work starts from nothing settled — a new screen, a visual direction, a layout that feels wrong, vague feedback like "too startup-y" — say that `grill-design` would settle it first and let me invoke it. Do not start an interview unasked, and do not reason from taste alone in its place.
 
-Precedence when these conflict with the design-token default above: accessibility first, then the project's `design/decisions.md`, then personal preference. A project's own recorded decisions outrank every global design opinion except the accessibility floor.
+The `craft-typography` and `craft-interface` skills carry the testable rules — type scale, measure, line-height, control states, focus, target size, the states nobody demos. Consult them when setting a type scale or building any interactive control, and when diagnosing feedback like "the heading is screaming".
+
+Precedence when these conflict with the design-token default above: accessibility and the `craft-*` rules first, then the project's `design/decisions.md`, then personal preference. A project's own recorded decisions outrank every global design opinion except the accessibility floor.
 
 ## Web scraping
 
