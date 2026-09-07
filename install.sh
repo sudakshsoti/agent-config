@@ -57,8 +57,9 @@
 #   or with --no-plugins.
 #
 # External skill sources (also declared in plugins.txt, as `external` lines):
-#   external <owner/repo> -> git clone/pull into vendor/<owner>-<repo>/ (gitignored),
-#   then symlink each of its skills into ~/.claude/skills AND ~/.agents/skills,
+#   external <owner/repo> [skill ...] -> git clone/pull into
+#   vendor/<owner>-<repo>/ (gitignored), then symlink its skills (all of them,
+#   or only the named ones) into ~/.claude/skills AND ~/.agents/skills,
 #   exactly like a repo-owned skill. This is the ONLY way a third-party skill set
 #   reaches Codex, opencode and omp: a Claude *plugin* is visible to Claude alone,
 #   and many skill repos (emilkowalski/skills among them) ship no
@@ -197,7 +198,7 @@ fi
 #     network step); relinking always runs, so an offline re-run still repairs
 #     the symlinks from what is already cloned.
 if [ -f "$REPO/plugins.txt" ]; then
-  while read -r kind arg _; do
+  while read -r kind arg rest; do
     [ "$kind" = "external" ] || continue
     case "$arg" in
       */*) : ;;
@@ -235,10 +236,19 @@ if [ -f "$REPO/plugins.txt" ]; then
     src_root="$clone/skills"
     [ -d "$src_root" ] || src_root="$clone"
 
+    # An optional space-separated skill list after the repo narrows what gets
+    # linked. Empty means every skill in the source — right for a small,
+    # curated repo, wrong for a 49-skill grab bag where most are dead weight in
+    # Codex's 2% skill budget.
+    want="$rest"
+
     found=0
     for dir in "$src_root"/*/; do
       [ -f "$dir/SKILL.md" ] || continue
       name="$(basename "${dir%/}")"
+      if [ -n "$want" ] && ! printf '%s ' $want | grep -q "^$name \| $name "; then
+        continue
+      fi
       # A repo-owned skill always wins: same name, ours is the live one.
       if [ -d "$REPO/skills/$name" ]; then
         echo "⚠️  SKIP $name (external $arg) — shadowed by this repo's skills/$name"
@@ -251,7 +261,7 @@ if [ -f "$REPO/plugins.txt" ]; then
     done
 
     if [ "$found" = "0" ]; then
-      echo "⚠️  external $arg — no */SKILL.md found under vendor/$slug"
+      echo "⚠️  external $arg — no matching */SKILL.md found under vendor/$slug"
       skipped=$((skipped + 1))
     else
       external=$((external + 1))

@@ -18,6 +18,25 @@ Verify with `codex exec "list skill names"` — each name exactly once.
 
 `agents/`, `settings.json`, `claude-powerline.json`, `plugins.txt`, `dist/`.
 
+## Adding a skill or plugin: pick the lane, don't improvise
+
+Every third-party capability enters this repo through exactly one of three lanes.
+Decide with two questions — *is it only skills?* and *must non-Claude harnesses see it?* — and never install one by hand.
+
+| Lane | Declared in | Reaches | Use when |
+| --- | --- | --- | --- |
+| `external <owner/repo> [skill ...]` | `plugins.txt` | Claude, Codex, opencode, omp | **Default for any third-party skill repo.** Cloned to `vendor/`, symlinked into `~/.claude/skills` and `~/.agents/skills`. |
+| `marketplace` + `plugin` | `plugins.txt` | Claude only | The thing is more than skills — hooks, slash commands, subagents, an MCP server — *and* ships `.claude-plugin/marketplace.json`. |
+| `skills/<name>/` | the repo itself | Claude, Codex, opencode, omp | I wrote it, or I must edit it. Costs a `dist/<name>.zip` and must pass `scripts/lint-skills.py`. |
+
+Rules that follow from the table:
+
+- **Never `npx skills add`.** It is the ecosystem standard (Vercel Labs, 76+ agents, symlinks into `~/.agents/skills`) and it is the right shape, but its lockfile is machine-local (`~/.agents/.skill-lock.json`) and it has **no restore command** — `skills install`/`sync` are still open feature requests (vercel-labs/skills#283, #549). A skill installed that way is invisible to this repo and does not survive a new machine, which is the one job this repo has. Re-check those issues before relaxing this: once `npx skills install` ships, tracking its lockfile here becomes the better lane.
+- **A missing `.claude-plugin/marketplace.json` means it can never be a plugin.** `claude plugin marketplace add` fails outright on a plain skills repo (`emilkowalski/skills` is one). Reach for `external`, not a workaround.
+- **A plugin is Claude-only, always.** Codex, opencode and omp read `~/.agents/skills` and have no plugin concept. If a non-Claude harness must see it, the lane is `external` or `skills/`, never `plugin` — even when the repo *is* plugin-capable.
+- **Name the skills you want** on an `external` line unless the source is small and fully curated. A bare repo name links all of them, and every one spends Codex's 2% skill budget whether it is useful or not.
+- **A real directory in `~/.claude/skills` is a bug.** It means something was hand-installed or `--copy`-installed outside these lanes; `install.sh` will print `SKIP … a real (non-symlink) entry exists` and leave it stale forever. Audit with `for d in ~/.claude/skills/*/; do [ -L "${d%/}" ] || echo "$d"; done` and move each hit into a lane.
+
 ## Gotchas
 
 - Model thinking levels are per-model. `deepseek-v4-flash`, `glm-5.3-flash` and `kimi-k3` expose only low/high/max. Writing `medium` on those is not rejected: it silently runs, and bills, as `high`.
