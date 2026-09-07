@@ -93,7 +93,29 @@
     "social": "user-invocable-only",
     "typography-craft": "user-invocable-only",
     "ux-writing": "user-invocable-only",
-    "video": "user-invocable-only"
+    "video": "user-invocable-only",
+    "animate": "name-only",
+    "animate-expo": "name-only",
+    "animation-vocabulary": "name-only",
+    "apple-design": "name-only",
+    "ask-sonner": "name-only",
+    "axiom-build": "name-only",
+    "axiom-macos": "name-only",
+    "axiom-swiftui": "name-only",
+    "computer-use": "name-only",
+    "emil-design-eng": "name-only",
+    "find-animation-opportunities": "name-only",
+    "firecrawl-web": "name-only",
+    "frontend-design": "name-only",
+    "improve-animations": "name-only",
+    "macos-design-guidelines": "name-only",
+    "orca-cli": "name-only",
+    "orca-linear": "name-only",
+    "orchestration": "name-only",
+    "pick-ui-library": "name-only",
+    "prototype": "name-only",
+    "review-animations": "name-only",
+    "write-swift": "name-only"
   },
   "hooks": {
     "PostToolUse": [
@@ -332,5 +354,8 @@
       "Internal sharing / snippet hosting: none configured. No public paste or gist service is trusted; nothing from this environment should be posted to one.",
       "Data retention / declassification: the paid MonoLisa and Berkeley Mono font binaries in the dotfiles repo, and the employer-internal Artifactory host and corporate CA path gated behind the `work` machine block in dot_zshrc.tmpl, must never leave that private repository."
     ]
-  }
+  },
+  "skillListingBudgetFraction": 0.005,
+  "skillListingMaxDescChars": 512,
+  "disableBundledSkills": true
 }
