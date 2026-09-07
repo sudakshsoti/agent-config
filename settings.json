@@ -39,7 +39,6 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "opus",
   "skillOverrides": {
     "ab-testing": "user-invocable-only",
     "ad-creative": "user-invocable-only",
@@ -263,7 +262,7 @@
     "figma@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "baseline@baseline": true
+    "baseline@baseline": false
   },
   "extraKnownMarketplaces": {
     "claude-code-warp": {
@@ -295,9 +294,10 @@
   "effortLevel": "medium",
   "modelSettings": {
     "claude-opus-5": {
-      "effortLevel": "high"
+      "effortLevel": "medium"
     }
   },
+  "autoCompactWindow": 200000,
   "askUserQuestionTimeout": "never",
   "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
@@ -332,6 +332,5 @@
       "Internal sharing / snippet hosting: none configured. No public paste or gist service is trusted; nothing from this environment should be posted to one.",
       "Data retention / declassification: the paid MonoLisa and Berkeley Mono font binaries in the dotfiles repo, and the employer-internal Artifactory host and corporate CA path gated behind the `work` machine block in dot_zshrc.tmpl, must never leave that private repository."
     ]
-  },
-  "autoCompactWindow": 200000
+  }
 }

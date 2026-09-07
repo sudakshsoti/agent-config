@@ -47,8 +47,12 @@ plugin typescript-lsp@claude-plugins-official
 # a fresh machine gets it without a separate clone or install.sh run. Claude
 # Code caches a snapshot at install time — `claude plugin marketplace update
 # baseline && claude plugin update baseline` after pushing a skill change.
-marketplace sudakshsoti/baseline
-plugin baseline@baseline
+# baseline is disabled (2026-09-07). The design-process workflow wasn't earning
+# its keep; the grilling interview is the part worth keeping and lives in
+# skills/grilling. Re-enable both lines and flip "baseline@baseline" back to
+# true in ~/.claude/settings.json to bring it back.
+# marketplace sudakshsoti/baseline
+# plugin baseline@baseline
 
 # External skill sources — `external <owner/repo>`, applied by install.sh step 1c.
 #
