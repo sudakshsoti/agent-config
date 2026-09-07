@@ -4,3 +4,6 @@
 [tui]
 status_line = ["model-with-reasoning", "model", "reasoning", "context-used", "weekly-limit", "git-branch", "pull-request-number", "branch-changes", "project-name", "current-dir"]
 status_line_use_colors = true
+
+[skills]
+max_context_tokens = 4000
