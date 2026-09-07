@@ -149,6 +149,7 @@
     "customer-research": "user-invocable-only",
     "directory-submissions": "user-invocable-only",
     "emails": "user-invocable-only",
+    "events": "user-invocable-only",
     "free-tools": "user-invocable-only",
     "image": "user-invocable-only",
     "influencer-marketing": "user-invocable-only",

@@ -74,3 +74,16 @@ plugin baseline@baseline
 # `disable-model-invocation: true` — slash-command only, invisible to the
 # model's skill list by design.
 external emilkowalski/skills
+
+# The other five sources, migrated off `npx skills` (2026-09-07). They were
+# installed globally and tracked only in ~/.agents/.skill-lock.json, which is
+# machine-local and has no restore command — so a fresh machine got none of
+# them. Each line is pinned to exactly the skills that were installed at
+# migration time; only marketingskills is bare, because all 49 of its skills
+# were in use. axiom ships the same skill names under four agent-flavoured
+# trees, so its line names the one the lockfile recorded.
+external coreyhaines31/marketingskills
+external stablyai/orca orchestration computer-use orca-cli orca-linear
+external charleswiltgen/axiom:.claude-plugin/plugins/axiom/skills axiom-build axiom-macos axiom-swiftui
+external BexTuychiev/firecrawl-claude-code-skill firecrawl-web
+external ehmo/platform-design-skills macos-design-guidelines

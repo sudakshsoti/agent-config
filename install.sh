@@ -57,9 +57,11 @@
 #   or with --no-plugins.
 #
 # External skill sources (also declared in plugins.txt, as `external` lines):
-#   external <owner/repo> [skill ...] -> git clone/pull into
+#   external <owner/repo>[:<subdir>] [skill ...] -> git clone/pull into
 #   vendor/<owner>-<repo>/ (gitignored), then symlink its skills (all of them,
 #   or only the named ones) into ~/.claude/skills AND ~/.agents/skills,
+#   naming each by its frontmatter `name:`, not its directory. The optional
+#   :<subdir> pins which tree to read when a repo ships several copies.
 #   exactly like a repo-owned skill. This is the ONLY way a third-party skill set
 #   reaches Codex, opencode and omp: a Claude *plugin* is visible to Claude alone,
 #   and many skill repos (emilkowalski/skills among them) ship no
@@ -204,22 +206,28 @@ if [ -f "$REPO/plugins.txt" ]; then
       */*) : ;;
       *) echo "⚠️  plugins.txt: external '$arg' is not owner/repo — skipped"; skipped=$((skipped + 1)); continue ;;
     esac
-    slug="${arg%/*}-${arg#*/}"
+    # `owner/repo[:subdir]` — the optional subdir pins which tree to read when a
+    # repo ships several (charleswiltgen/axiom carries one per agent flavour,
+    # plus the .claude-plugin one, all with the same skill names).
+    repo="${arg%%:*}"
+    subdir=""
+    case "$arg" in *:*) subdir="${arg#*:}" ;; esac
+    slug="${repo%/*}-${repo#*/}"
     clone="$VENDOR/$slug"
 
     if [ "$PLUGINS" = "1" ]; then
       if [ -d "$clone/.git" ]; then
         if git -C "$clone" pull --ff-only --quiet 2>/dev/null; then
-          echo "pulled  $arg (vendor/$slug)"
+          echo "pulled  $repo (vendor/$slug)"
         else
           echo "⚠️  could not fast-forward vendor/$slug — using the checkout as-is"
         fi
       else
         mkdir -p "$VENDOR"
-        if git clone --depth 1 --quiet "https://github.com/$arg.git" "$clone" 2>/dev/null; then
-          echo "cloned  $arg -> vendor/$slug"
+        if git clone --depth 1 --quiet "https://github.com/$repo.git" "$clone" 2>/dev/null; then
+          echo "cloned  $repo -> vendor/$slug"
         else
-          echo "⚠️  FAILED to clone $arg"
+          echo "⚠️  FAILED to clone $repo"
           skipped=$((skipped + 1))
           continue
         fi
@@ -227,41 +235,69 @@ if [ -f "$REPO/plugins.txt" ]; then
     fi
 
     if [ ! -d "$clone" ]; then
-      echo "⚠️  SKIP external $arg — vendor/$slug is absent (re-run without --no-plugins)"
+      echo "⚠️  SKIP external $repo — vendor/$slug is absent (re-run without --no-plugins)"
       skipped=$((skipped + 1))
       continue
     fi
 
-    # Most skill repos nest under skills/; some put the skill dirs at the root.
-    src_root="$clone/skills"
-    [ -d "$src_root" ] || src_root="$clone"
-
-    # An optional space-separated skill list after the repo narrows what gets
-    # linked. Empty means every skill in the source — right for a small,
-    # curated repo, wrong for a 49-skill grab bag where most are dead weight in
-    # Codex's 2% skill budget.
+    # An optional space-separated skill list after the source narrows what gets
+    # linked. Empty means every skill found — right for a small, curated repo,
+    # wrong for a grab bag where the extras are dead weight in Codex's 2% budget.
     want="$rest"
 
-    found=0
-    for dir in "$src_root"/*/; do
-      [ -f "$dir/SKILL.md" ] || continue
-      name="$(basename "${dir%/}")"
+    # Where the skill dirs live. An explicit subdir wins; otherwise skills/ if
+    # present, else the repo root. A repo that is itself one skill puts SKILL.md
+    # at the root, so that is checked separately below.
+    if [ -n "$subdir" ]; then
+      src_root="$clone/$subdir"
+    elif [ -d "$clone/skills" ]; then
+      src_root="$clone/skills"
+    else
+      src_root="$clone"
+    fi
+
+    # The skill's real name is its frontmatter `name:`, NOT its directory —
+    # ehmo/platform-design-skills ships skills/macos/ declaring
+    # `name: macos-design-guidelines`, and linking it as "macos" installs a
+    # skill whose directory and manifest disagree.
+    skill_name() { # skill_name <dir-with-SKILL.md>
+      local n
+      n="$(sed -n '/^---$/,/^---$/{s/^name:[[:space:]]*//p;}' "$1/SKILL.md" 2>/dev/null | head -1)"
+      n="${n%\"}"; n="${n#\"}"; n="${n%\'}"; n="${n#\'}"
+      [ -n "$n" ] || n="$(basename "$1")"
+      printf '%s' "$n"
+    }
+
+    link_skill() { # link_skill <dir>
+      local dir="$1" name
+      name="$(skill_name "$dir")"
       if [ -n "$want" ] && ! printf '%s ' $want | grep -q "^$name \| $name "; then
-        continue
+        return 1
       fi
       # A repo-owned skill always wins: same name, ours is the live one.
       if [ -d "$REPO/skills/$name" ]; then
-        echo "⚠️  SKIP $name (external $arg) — shadowed by this repo's skills/$name"
+        echo "⚠️  SKIP $name (external $repo) — shadowed by this repo's skills/$name"
         skipped=$((skipped + 1))
-        continue
+        return 1
       fi
-      found=$((found + 1))
-      link_into "${dir%/}" "$CLAUDE/skills/$name"
-      [ -n "$AGENTS_SKILLS" ] && mirror_into "${dir%/}" "$AGENTS_SKILLS/$name"
-    done
+      link_into "$dir" "$CLAUDE/skills/$name"
+      [ -n "$AGENTS_SKILLS" ] && mirror_into "$dir" "$AGENTS_SKILLS/$name"
+      return 0
+    }
+
+    found=0
+    if [ -f "$src_root/SKILL.md" ]; then
+      # Single-skill repo: SKILL.md sits at the root.
+      link_skill "$src_root" && found=$((found + 1))
+    else
+      for dir in "$src_root"/*/; do
+        [ -f "$dir/SKILL.md" ] || continue
+        link_skill "${dir%/}" && found=$((found + 1))
+      done
+    fi
 
     if [ "$found" = "0" ]; then
-      echo "⚠️  external $arg — no matching */SKILL.md found under vendor/$slug"
+      echo "⚠️  external $arg — no matching SKILL.md found under vendor/$slug${subdir:+/$subdir}"
       skipped=$((skipped + 1))
     else
       external=$((external + 1))
