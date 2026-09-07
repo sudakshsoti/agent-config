@@ -100,9 +100,11 @@ Write handoff notes to a tracked `handoff/` directory at the repo root, not giti
 
 ## Interface design
 
-Any interface design work — a new screen, a visual direction, a layout that feels wrong, vague feedback like "too startup-y" — starts by invoking the `baseline` skill, which routes to the smallest workflow that answers the question. Do not hand-roll design work or reason from taste alone while it is available. It is installed for Claude Code, Codex, opencode, omp and pi from `~/dev/baseline`, whose `README.md` is the cheat sheet.
+Read `design/decisions.md` at the repo root before any interface design work, and treat every line in it as settled. It is written by the `grill-design` skill, one line per decision, tagged `[stated]` for what I said and `[inferred]` for what was derived. A line tagged `[inferred]` is a guess nobody confirmed — check it with me before building on it rather than treating it as agreed.
 
-Its precedence order, which settles any conflict with the design-token default above: accessibility and the testable `craft-*` rules, then the project's `design/brief.md`, then its `design/direction.md` and `design/decisions.md`, then global heuristics, then personal preference. A project's own direction outranks every global design opinion except the accessibility floor.
+When design work starts from nothing settled — a new screen, a visual direction, a layout that feels wrong, vague feedback like "too startup-y" — say that `grill-design` would settle it first and let me invoke it. Do not start an interview unasked, and do not reason from taste alone in its place.
+
+Precedence when these conflict with the design-token default above: accessibility first, then the project's `design/decisions.md`, then personal preference. A project's own recorded decisions outrank every global design opinion except the accessibility floor.
 
 ## Web scraping
 
