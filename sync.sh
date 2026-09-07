@@ -10,8 +10,11 @@
 # is stripped so secrets never enter git. Keep keys in
 # ~/.claude/settings.local.json or accept that they stay local-only.
 #
-# It also strips hook commands belonging to other tools (supacode, superset,
-# codebase-memory-mcp's cbm-* scripts, herdr's agent-state script). Those show
+# It also strips hook commands belonging to other tools (superset,
+# codebase-memory-mcp's cbm-* scripts, herdr's agent-state script, and the
+# retired supacode). The supacode pattern is kept in the filter on purpose:
+# it is a cheap guard against a stale hook creeping back in from an old
+# machine, not an integration. Those show
 # up in ~/.claude/settings.json because it's a blind copy of whatever's
 # installed on this machine, but they're machine state, not configuration --
 # a fresh machine restoring from this repo would otherwise install hooks for

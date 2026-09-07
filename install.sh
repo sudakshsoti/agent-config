@@ -97,11 +97,11 @@ for arg in "$@"; do
 done
 
 # Guard: the symlinks bake in this checkout's absolute path. Running from an
-# ephemeral worktree (Supacode, or a temp git worktree) pins every ~/.claude
+# ephemeral git worktree pins every ~/.claude
 # skill+agent link to a path that vanishes when the worktree is cleaned up —
 # silently breaking the whole personal skill set. Refuse unless --force.
 case "$REPO" in
-  */.supacode/repos/* | */.git/worktrees/* | */worktrees/*)
+  */.git/worktrees/* | */worktrees/*)
     if [ "$FORCE" != "1" ]; then
       echo "⛔ Refusing to install from what looks like an ephemeral worktree:"
       echo "     $REPO"
