@@ -1,18 +1,12 @@
 ---
 name: clinical-reasoning
 description: |
-  Clinical decision support for a clinician working in India — diagnostic reasoning,
-  differential diagnosis, lab and imaging interpretation, drug interactions and CYP450
-  checks, dose adjustment in renal or hepatic impairment, breastfeeding safety, tapers,
-  paediatric and geriatric prescribing, red-flag triage and escalation. Use when a case,
-  symptom set, lab report, radiology report, prescription or medication list is put up
-  for reasoning, or when asked what a drug interacts with, what to investigate, what to
-  prescribe, or whether something needs the ER. Indian formularies and brands, ICMR /
-  IAP / FOGSI / API / RSSDI guidelines, INR cost tiers. Not patient-facing: the reader is
-  a clinician, so no "consult your doctor". Covers psychiatric assessment, screening and
-  formulation, including pharmacokinetic dosing. For delivering DBT itself — skills
-  training, diary cards, chain analysis — use the `dbt` skill; this one stops at
-  assessment, formulation and prescription.
+  Clinical decision support for a clinician in India — diagnostic reasoning,
+  differentials, lab and imaging reads, drug interactions and CYP450, renal/hepatic
+  dosing, breastfeeding safety, tapers, paediatric and geriatric prescribing,
+  red-flag triage. Indian brands, ICMR/IAP/FOGSI/API/RSSDI guidelines, INR cost
+  tiers. Clinician reader: no "consult your doctor". Psychiatric assessment and
+  formulation included; DBT delivery itself is the `dbt` skill.
 disable-model-invocation: true
 ---
 

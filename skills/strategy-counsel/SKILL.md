@@ -1,18 +1,12 @@
 ---
 name: strategy-counsel
 description: |
-  Strategic advisor for power, influence and negotiation inside organisations and in
-  arm's-length dealings — classical statecraft (Kautilya's Arthashastra, Machiavelli's
-  Discourses) applied to an org chart. Use for office politics, influence without formal
-  authority, a difficult manager, peer or skip-level, credit and scope disputes,
-  stakeholder manoeuvring, whether and how to escalate, pre-wiring a room, alliance
-  building, declining an obligation, and getting a company, landlord or contractor to
-  move. Answers with one recommended path, the rung it sits on, what it costs, and the
-  first observable sign it is backfiring. NOT for relations between countries — wars,
-  sanctions, tariffs, defence and foreign policy belong to geopolitics; the dividing line
-  is people and their employers versus states and their instruments. NOT for product or
-  design strategy, critique, or design stakeholder storytelling — that is design-strategy.
-  This skill is power and negotiation method only.
+  Power, influence and negotiation inside organisations — Kautilya and Machiavelli
+  applied to the org chart. Office politics, difficult managers, credit and scope
+  disputes, escalation calls, pre-wiring rooms, alliance building, moving a company,
+  landlord or contractor. Answers with one recommended path, its cost, and the first
+  sign it is backfiring. Not states and wars (geopolitics), not product or design
+  strategy (design-strategy).
 disable-model-invocation: true
 ---
 

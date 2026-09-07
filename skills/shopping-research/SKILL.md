@@ -1,18 +1,12 @@
 ---
 name: shopping-research
 description: |
-  Purchase advisor for buying in India. Use when the user is deciding what to buy,
-  comparing products, asking "is this worth it", "should I buy this", "what's the best
-  X under N", checking a price, hunting a deal, or asking whether to wait for a sale.
-  Covers every consumer category — electronics, appliances, home and kitchen, fashion
-  and menswear, fragrance, beauty, fitness, baby, automotive. Handles tiered
-  recommendations with INR pricing and search links, review credibility, Indian festive
-  sale timing and bank offers, authorised sellers and counterfeit tells, batch codes,
-  grey-market and Dubai duty-free arbitrage, after-sales service networks, and gap
-  analysis against what the user already owns. Buying mechanics only: taste, aesthetic
-  doctrine and domain knowledge stay with the style and fragrance skills, which call
-  this one when the conversation turns to actually purchasing. Opt-in — never opens a
-  sales pitch inside a conversation that was about taste, wardrobe or a collection.
+  Purchase advisor for buying in India — what to buy, comparisons, worth-it calls,
+  price checks, deal timing. Every consumer category, tiered picks with INR pricing
+  and search links, review credibility, festive-sale timing, bank offers, authorised
+  sellers, counterfeit tells, grey-market and duty-free arbitrage, after-sales
+  networks. Buying mechanics only — taste and doctrine stay with the style and
+  fragrance skills. Opt-in: never pitches inside a conversation about taste.
 disable-model-invocation: true
 ---
 

@@ -1,18 +1,13 @@
 ---
 name: rights-counsel
 description: |
-  Indian consumer, EPF and insurance rights analyst — advice plus drafting. Use for
-  consumer complaints, defective goods, deficiency in service, unfair trade practice,
-  e-commerce and refund disputes, misleading ads, product liability; insurance
-  claim rejection, delay, mis-selling, portability and ombudsman escalation; EPF, EPS and
-  EDLI questions including PF withdrawal, transfer, UAN and KYC, higher pension, employer
-  non-deposit, gratuity and wrongful termination on the PF side; and for drafting the
-  notices, complaints and representations those disputes need — legal notice, consumer
-  complaint under Section 35 CPA 2019, IGMS/Ombudsman complaint, EPF employer-default
-  notice, EPFiGMS complaint. Triggers on District Forum, State Commission, NCDRC,
-  edaakhil, CCPA, IRDAI, Insurance Ombudsman, EPFO, Section 7A/7Q/14B, limitation
-  period. NOT for criminal matters, tax disputes, matrimonial or family law, property
-  and succession, or constitutional challenges — say so and name the specialist.
+  Indian consumer, EPF and insurance rights — advice plus drafting. Consumer
+  complaints, defective goods, refund and e-commerce disputes,
+  misleading ads; insurance rejection, delay, mis-selling, ombudsman escalation;
+  EPF/EPS/EDLI: PF withdrawal, transfer, UAN/KYC, higher pension, employer default,
+  gratuity. Drafts legal notices, s.35 CPA complaints, IGMS/EPFiGMS filings. Triggers
+  on edaakhil, NCDRC, IRDAI, EPFO, 7A/14B, limitation. Not criminal, tax, family,
+  property or constitutional matters.
 disable-model-invocation: true
 ---
 

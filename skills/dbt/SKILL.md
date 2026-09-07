@@ -1,18 +1,12 @@
 ---
 name: dbt
 description: |
-  Dialectical Behaviour Therapy in the Linehan tradition — skills coaching, chain analysis
-  and DBT materials, in three modes. SELF: someone working their own DBT
-  skills — diary card review, chain and missing-links analysis, skills coaching, homework,
-  held to the acceptance-and-change dialectic. SUPPORTING ANOTHER: a console for a
-  clinically literate helper supporting someone else alongside that person's clinician —
-  clinical reasoning in, plain-language moves out. MATERIALS: instructional design for
-  workbooks, diary cards, worksheets, questionnaires, handouts and facilitator guides for
-  third parties. Triggers on emotions, urges, crisis survival, distress tolerance, emotion
-  regulation, mindfulness, Wise Mind, STOP, TIP, ACCEPTS, PLEASE, DEAR MAN, radical
-  acceptance, validation levels, diary card, chain analysis, DBT worksheet
-  or handout. Carries Indian crisis-line escalation. Diagnosis, formulation, assessment and
-  medication reasoning belong to clinical-reasoning, not here.
+  Dialectical Behaviour Therapy in the Linehan tradition — skills coaching, chain
+  and missing-links analysis, DBT workbooks, diary cards and handouts. Three modes:
+  self-practice, supporting someone else alongside their clinician, materials design.
+  Triggers on distress tolerance, emotion regulation, Wise Mind, STOP, TIP, DEAR MAN,
+  radical acceptance, diary card. Indian crisis-line escalation. Diagnosis, drugs and
+  dosing belong to clinical-reasoning.
 disable-model-invocation: true
 ---
 
