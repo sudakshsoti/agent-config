@@ -88,6 +88,7 @@ CLAUDE="$HOME/.claude"
 CODEX="$HOME/.codex"
 OMP="$HOME/.omp/agent"
 OPENCODE="$HOME/.config/opencode"
+PI="$HOME/.pi/agent"
 PRUNE=0
 FORCE=0
 PLUGINS=1
@@ -343,6 +344,7 @@ link_into "$REPO/global-agents.md" "$CLAUDE/CLAUDE.md"
 [ -d "$CODEX" ] && link_into "$REPO/global-agents.md" "$CODEX/AGENTS.md"
 [ -d "$OMP" ] && link_into "$REPO/global-agents.md" "$OMP/AGENTS.md"
 [ -d "$OPENCODE" ] && link_into "$REPO/global-agents.md" "$OPENCODE/AGENTS.md"
+[ -d "$PI" ] && link_into "$REPO/global-agents.md" "$PI/AGENTS.md"
 
 # 3c. Codex config: merge only the non-secret keys tracked in codex/config.toml.
 #     Preserve unrelated user, MCP, desktop, and machine-managed settings.
