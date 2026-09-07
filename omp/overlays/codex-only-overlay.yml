@@ -1,0 +1,32 @@
+# Applied via `omp --config` by the ompcodex() shell function (~/.zshrc).
+# Per-invocation only — nothing here touches ~/.omp/agent/config.yml.
+# Every role and every subagent override below is an openai-codex selector,
+# and the fallback chains that can fire for those roles stay inside
+# openai-codex too, so a long-horizon `ompcodex` run never drifts onto
+# Anthropic, OpenCode, or OpenRouter mid-task.
+modelRoles:
+  default: openai-codex/gpt-5.6-terra:high
+  plan: openai-codex/gpt-5.6-sol:high
+  slow: openai-codex/gpt-5.6-sol:xhigh
+  designer: openai-codex/gpt-5.6-terra:high
+  vision: openai-codex/gpt-5.6-terra:medium
+  task: openai-codex/gpt-5.6-luna:xhigh
+  adversary: openai-codex/gpt-5.6-sol:high
+  smol: openai-codex/gpt-5.6-luna:low
+  tiny: openai-codex/gpt-5.6-luna:low
+  commit: openai-codex/gpt-5.6-luna:low
+  advisor: openai-codex/gpt-5.6-terra:high
+task:
+  agentModelOverrides:
+    scout: openai-codex/gpt-5.6-luna:low
+    librarian: openai-codex/gpt-5.6-terra:high
+    sonic: openai-codex/gpt-5.6-luna:low
+    reviewer: openai-codex/gpt-5.6-sol:high
+    security-reviewer: openai-codex/gpt-5.6-sol:high
+retry:
+  fallbackChains:
+    openai-codex/*:
+      - openai-codex/gpt-5.3-codex-spark:high
+      - openai-codex/gpt-5.6-terra:medium
+    default:
+      - openai-codex/gpt-5.3-codex-spark:high

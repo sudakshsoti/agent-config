@@ -18,6 +18,30 @@ Verify with `codex exec "list skill names"` — each name exactly once.
 
 `agents/`, `settings.json`, `claude-powerline.json`, `plugins.txt`, `dist/`.
 
+## Which repo owns what
+
+One rule settles almost every case: **`~/dev/agent-config` owns what the agent knows and how it behaves; `~/dev/dotfiles` owns the machine it runs on.** Secrets are always dotfiles (1Password + age), never agent-config. This table is duplicated verbatim in both repos' `AGENTS.md` — change it in both or it stops being trustworthy.
+
+| Path | Owner | How it gets there |
+| --- | --- | --- |
+| `~/.claude/CLAUDE.md`, `skills/`, `agents/`, `commands/`, `hooks/` | agent-config | `install.sh` symlinks; edits are live with no apply step |
+| `~/.claude/settings.json` | agent-config | copied only if absent; live file is the source, `./sync.sh` pulls it back |
+| `~/.claude/plugins/claude-hud/config.json` | **dotfiles** | chezmoi — the one exception under `~/.claude/` |
+| `~/.agents/skills/` | agent-config | `install.sh` symlinks — the cross-agent root Codex, opencode and omp all read |
+| `~/.codex/AGENTS.md`, `~/.omp/agent/AGENTS.md`, `~/.config/opencode/AGENTS.md` | agent-config | symlinks to `global-agents.md`; all four paths point at one file on purpose |
+| `~/.codex/config.toml` | **shared** | dotfiles writes the file (`dot_codex/modify_private_config.toml`); agent-config merges its non-secret keys in. Check both before editing |
+| `~/.omp/agent/config.yml`, `lsp.yml`, `themes/`, `agents/` | agent-config | `install.sh` symlinks; omp writes through the link into the repo |
+| `~/.config/omp/*.yml`, `*.tpl` | agent-config (`omp/overlays/`) | `install.sh` symlinks. `.active-overlay` is runtime state — untracked |
+| `~/.local/bin/omp-*-overlay`, `~/.zshrc` | dotfiles | chezmoi. They read a fixed `~/.config/omp` path, so neither side needs the other |
+| `~/.config/opencode/opencode.jsonc` | dotfiles | chezmoi |
+| `~/.zshrc`, `.gitconfig`, Brewfile, fonts, terminal and editor config | dotfiles | chezmoi |
+| `~/.omp/agent/mcp.json`, `~/.omp/.env`, `~/.claude/settings.local.json` | **neither** | machine-local, hold credentials, deliberately untracked |
+
+Two traps this table exists to prevent:
+
+- **Never let chezmoi claim a path agent-config symlinks.** One blind `chezmoi apply` replaces a live symlink with a stale regular file and the edits silently stop reaching the agent. `.chezmoiignore` gates `.claude/CLAUDE.md`, `.claude/settings.json` and `.config/omp` for exactly this reason, each with a comment saying why.
+- **Never edit agent-config's `settings.json` directly.** It is a snapshot that `./sync.sh` overwrites wholesale from `~/.claude/settings.json`. Change the live file, then sync.
+
 ## Adding a skill or plugin: pick the lane, don't improvise
 
 Every third-party capability enters this repo through exactly one of three lanes.

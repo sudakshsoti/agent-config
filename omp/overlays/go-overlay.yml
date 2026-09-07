@@ -1,0 +1,17 @@
+# Opencode Go — limits overlay (apply with omp-go-overlay)
+# Rates at capture: Spark 45300 (AAII 57, $0.10/$0.20), MiMo 30100, Hy3 34400@8x (~4300 eff, $0.0175/$0.0725), Flash 7600 (AAII 47, $0.22/$0.66), Qwen3.7+ 4300 (AAII 39, $0.40/$1.60), M3 3200, Luna 2050, DeepSeekPro 1050 (AAII 52, $0.66/$1.98), GLM 880 (AAII 53, $1.40/$4.40), Qwen3.8Max 160 (AAII 58, $2/$6), Grok 120, Kimi 110 (AAII 60, $3/$15)
+# AAII v4.1.1 sources: artificialanalysis.ai/models/muse-spark-1-2 (57), /models/qwen3-7-plus (39), /models/qwen3-7-max (47), /models/kimi-k3 (60), /articles/* for Flash/Pro/GLM
+modelRoles:
+  smol: opencode-go/muse-spark-1.2-contributor:low # limited regions
+  default: opencode-go/muse-spark-1.2-contributor:medium # limited regions
+  plan: opencode-go/muse-spark-1.2-contributor:high # limited regions
+  slow: opencode-go/qwen3.8-max:high
+alternates:
+  smol: ["opencode-go/mimo-v2.5:low", "opencode-go/hy3:low"]
+  default: ["opencode-go/muse-spark-1.2-contributor:medium"] # same model, no dominated alternate — keep for region fallback only; limited regions
+  plan: ["opencode-go/muse-spark-1.2-contributor:high"] # limited regions
+  slow: ["opencode-go/kimi-k3:max", "opencode-go/muse-spark-1.2-contributor:xhigh", "opencode-go/grok-4.5:xhigh"] # limited regions
+region_fallback:
+  smol: opencode-go/mimo-v2.5:low  # if Spark limited regions
+  default: opencode-go/mimo-v2.5:medium
+  plan: opencode-go/mimo-v2.5:high

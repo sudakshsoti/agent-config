@@ -32,6 +32,10 @@
 #     `git diff` before committing.
 #   omp/lsp.yml -> ~/.omp/agent/lsp.yml
 #   omp/themes/*.json -> ~/.omp/agent/themes/*.json
+#   omp/overlays/* -> ~/.config/omp/*
+#     Model-role overlays read by ~/.local/bin/omp-{go,codex}-overlay and the
+#     ompgo/ompcodex zsh wrappers. Linked file by file so .active-overlay —
+#     runtime state owned by those scripts — is left alone.
 #     Tracked themes are linked individually; other live theme files remain
 #     machine-local. Only linked if ~/.omp/agent exists.
 
@@ -384,6 +388,26 @@ if [ -d "$OMP" ] && [ -d "$REPO/omp/themes" ]; then
   for theme_file in "$REPO"/omp/themes/*.json; do
     [ -f "$theme_file" ] || continue
     link_into "$theme_file" "$OMP/themes/$(basename "$theme_file")"
+  done
+fi
+
+# 3i. OMP overlays: the per-invocation and sticky model-role overlays that
+#     ~/.local/bin/omp-{go,codex}-overlay and the zsh wrappers read from
+#     ~/.config/omp/. They live here rather than in dotfiles because they are
+#     model routing — the same subject as omp/config.yml — and splitting one
+#     decision across two repos is what made "which repo owns this?" unanswerable.
+#     Linked individually so ~/.config/omp/.active-overlay, which is runtime
+#     state written by the overlay scripts, is never touched.
+#
+#     Note: the scripts that CONSUME these (~/.local/bin/omp-*-overlay) are
+#     machine tooling and stay in dotfiles, as does the ~/.zshrc that defines
+#     ompgo/ompcodex. They read a fixed ~/.config/omp path, so the split works
+#     without either side knowing about the other.
+if [ -d "$REPO/omp/overlays" ]; then
+  mkdir -p "$HOME/.config/omp"
+  for overlay in "$REPO"/omp/overlays/*; do
+    [ -f "$overlay" ] || continue
+    link_into "$overlay" "$HOME/.config/omp/$(basename "$overlay")"
   done
 fi
 
