@@ -1,6 +1,6 @@
 ---
 name: design-interface
-description: Testable rules for controls and structure — field states, focus, target size, disabled and error states, labels, hit areas, the states nobody demos, heading order. Does not cover type scale; see craft-typography. Consult when building or reviewing any interactive control or screen state.
+description: Testable rules for controls and structure — field states, focus, target size, disabled and error states, labels, hit areas, the states nobody demos, heading order. Does not cover type scale; see design-typography. Consult when building or reviewing any interactive control or screen state.
 ---
 
 # craft: interface

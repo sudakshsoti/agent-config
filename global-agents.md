@@ -104,9 +104,9 @@ Read `design/decisions.md` at the repo root before any interface design work, an
 
 When design work starts from nothing settled — a new screen, a visual direction, a layout that feels wrong, vague feedback like "too startup-y" — say that `design-grill` would settle it first and let me invoke it. Do not start an interview unasked, and do not reason from taste alone in its place.
 
-Three skills carry the rules. `design-typography` owns type as a whole: faces, pairing, role systems, scales, OpenType and variable axes, scripts, licensing, webfont loading. `design-visual-system` owns a product UI's own visual system: direction, colour, hierarchy, layout, tokens and CSS. `design-interface` owns controls and structure: field states, focus, tab order, target size, the states nobody demos. Consult the relevant one when building, and when diagnosing feedback like "the heading is screaming". `design-strategy` sits above all three: business model, positioning, IA and interaction cost, as a sparring partner rather than an assistant.
+Four skills carry the rules. `design-typography` owns type as a whole: faces, pairing, role systems, scales, OpenType and variable axes, scripts, licensing, webfont loading. `design-visual-system` owns a product UI's own visual system: direction, colour, hierarchy, layout, tokens and CSS. `design-interface` owns controls and structure: field states, focus, tab order, target size, the states nobody demos. Consult the relevant one when building, and when diagnosing feedback like "the heading is screaming". `design-strategy` sits above all three: business model, positioning, IA and interaction cost, as a sparring partner rather than an assistant.
 
-Precedence when these conflict with the design-token default above: accessibility and the `craft-*` rules first, then the project's `design/decisions.md`, then personal preference. A project's own recorded decisions outrank every global design opinion except the accessibility floor.
+Precedence when these conflict with the design-token default above: accessibility and the testable `design-interface` and `design-typography` rules first, then the project's `design/decisions.md`, then personal preference. A project's own recorded decisions outrank every global design opinion except the accessibility floor.
 
 ## Web scraping
 
