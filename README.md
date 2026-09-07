@@ -14,6 +14,17 @@ cd ~/dev/agent-config && ./install.sh
 ## What's included
 
 - `skills/` — Skills for Claude Code and Claude.ai (see `skills/README.md`). Symlinked per skill.
+- `plugins.txt` — Declarative manifest of things this repo does *not* vendor.
+  `marketplace`/`plugin` lines drive `claude plugin ...` and reach Claude only.
+  `external <owner/repo>` lines are third-party **skill** repos: install.sh
+  clones each into `vendor/<owner>-<repo>/` (gitignored) and symlinks its
+  skills into `~/.claude/skills` **and** `~/.agents/skills`, so Codex, opencode
+  and omp see them too. Use `external` — not `plugin` — whenever a skill set
+  must reach every harness, or when the repo ships no
+  `.claude-plugin/marketplace.json` and so cannot be a plugin at all.
+  Externals are vendored by reference: their files never enter this repo's
+  history, so `scripts/lint-skills.py` and `dist/*.zip` do not apply to them,
+  and re-running `./install.sh` fast-forwards each clone to latest.
 - `agents/` — Subagent definitions (e.g. `plan-critic`). Symlinked per file.
 - `settings.json` — Global settings, sanitized, no API keys. Copied if missing.
 - `codex/config.toml` — Non-secret Codex settings, including the native TUI

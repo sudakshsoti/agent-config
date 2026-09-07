@@ -8,3 +8,9 @@ __pycache__/
 # ~/.omp/agent/config.yml is symlinked here (install.sh step 3e) every write
 # drops an empty omp/config.yml.lock into the checkout.
 omp/config.yml.lock
+
+# vendor/ holds third-party skill repos declared as `external` lines in
+# plugins.txt. install.sh clones and fast-forwards them; the symlinks in
+# ~/.claude/skills and ~/.agents/skills point in here. Tracked by reference
+# (the plugins.txt line), never by content — upstream files stay upstream.
+vendor/

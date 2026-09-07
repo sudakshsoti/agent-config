@@ -56,15 +56,27 @@
 #   Idempotent no-ops if already present. Skipped if `claude` isn't on PATH,
 #   or with --no-plugins.
 #
+# External skill sources (also declared in plugins.txt, as `external` lines):
+#   external <owner/repo> -> git clone/pull into vendor/<owner>-<repo>/ (gitignored),
+#   then symlink each of its skills into ~/.claude/skills AND ~/.agents/skills,
+#   exactly like a repo-owned skill. This is the ONLY way a third-party skill set
+#   reaches Codex, opencode and omp: a Claude *plugin* is visible to Claude alone,
+#   and many skill repos (emilkowalski/skills among them) ship no
+#   .claude-plugin/marketplace.json, so they cannot be installed as plugins at all.
+#   Vendored-by-reference, not copied: upstream files never enter this repo's
+#   history, skip scripts/lint-skills.py and need no dist/<name>.zip.
+#   A repo-owned skills/<name> always wins a name collision.
+#
 # Idempotent; safe to re-run. Run once after cloning on a new machine.
 #
 #   ./install.sh                  # link skills+agents (Claude + shared ~/.agents), copy settings if absent, sync plugins
 #   ./install.sh --prune          # also remove dangling symlinks for deleted skills/agents
-#   ./install.sh --no-plugins     # skip the `claude plugin` sync step
+#   ./install.sh --no-plugins     # skip the `claude plugin` sync + external git fetches
 #
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VENDOR="$REPO/vendor"
 CLAUDE="$HOME/.claude"
 CODEX="$HOME/.codex"
 OMP="$HOME/.omp/agent"
@@ -110,7 +122,7 @@ AGENTS_SKILLS=""
 [ -d "$CODEX" ] && AGENTS_SKILLS="$HOME/.agents/skills"
 [ -n "$AGENTS_SKILLS" ] && mkdir -p "$AGENTS_SKILLS"
 MARKER=".agent-config-managed"
-linked=0 skipped=0 copied=0 mirrored=0 pruned=0 plugins=0
+linked=0 skipped=0 copied=0 mirrored=0 pruned=0 plugins=0 external=0
 
 link_into() { # link_into <source> <dest-link>
   local src="$1" link="$2" name
@@ -174,6 +186,77 @@ if [ -d "$CODEX/skills" ]; then
     echo "removed $(basename "$d") (codex copy, now served from ~/.agents)"
     pruned=$((pruned + 1))
   done
+fi
+
+# 1c. External skill sources: `external <owner/repo>` lines in plugins.txt.
+#     Cloned into vendor/<owner>-<repo>/ (gitignored) and symlinked into the
+#     SAME two roots as repo-owned skills, so Codex, opencode and omp see them
+#     too. A Claude plugin cannot do this — plugins are visible to Claude alone,
+#     and a repo without .claude-plugin/marketplace.json is not installable as a
+#     plugin in the first place. Fetching honours --no-plugins (it is the same
+#     network step); relinking always runs, so an offline re-run still repairs
+#     the symlinks from what is already cloned.
+if [ -f "$REPO/plugins.txt" ]; then
+  while read -r kind arg _; do
+    [ "$kind" = "external" ] || continue
+    case "$arg" in
+      */*) : ;;
+      *) echo "⚠️  plugins.txt: external '$arg' is not owner/repo — skipped"; skipped=$((skipped + 1)); continue ;;
+    esac
+    slug="${arg%/*}-${arg#*/}"
+    clone="$VENDOR/$slug"
+
+    if [ "$PLUGINS" = "1" ]; then
+      if [ -d "$clone/.git" ]; then
+        if git -C "$clone" pull --ff-only --quiet 2>/dev/null; then
+          echo "pulled  $arg (vendor/$slug)"
+        else
+          echo "⚠️  could not fast-forward vendor/$slug — using the checkout as-is"
+        fi
+      else
+        mkdir -p "$VENDOR"
+        if git clone --depth 1 --quiet "https://github.com/$arg.git" "$clone" 2>/dev/null; then
+          echo "cloned  $arg -> vendor/$slug"
+        else
+          echo "⚠️  FAILED to clone $arg"
+          skipped=$((skipped + 1))
+          continue
+        fi
+      fi
+    fi
+
+    if [ ! -d "$clone" ]; then
+      echo "⚠️  SKIP external $arg — vendor/$slug is absent (re-run without --no-plugins)"
+      skipped=$((skipped + 1))
+      continue
+    fi
+
+    # Most skill repos nest under skills/; some put the skill dirs at the root.
+    src_root="$clone/skills"
+    [ -d "$src_root" ] || src_root="$clone"
+
+    found=0
+    for dir in "$src_root"/*/; do
+      [ -f "$dir/SKILL.md" ] || continue
+      name="$(basename "${dir%/}")"
+      # A repo-owned skill always wins: same name, ours is the live one.
+      if [ -d "$REPO/skills/$name" ]; then
+        echo "⚠️  SKIP $name (external $arg) — shadowed by this repo's skills/$name"
+        skipped=$((skipped + 1))
+        continue
+      fi
+      found=$((found + 1))
+      link_into "${dir%/}" "$CLAUDE/skills/$name"
+      [ -n "$AGENTS_SKILLS" ] && mirror_into "${dir%/}" "$AGENTS_SKILLS/$name"
+    done
+
+    if [ "$found" = "0" ]; then
+      echo "⚠️  external $arg — no */SKILL.md found under vendor/$slug"
+      skipped=$((skipped + 1))
+    else
+      external=$((external + 1))
+    fi
+  done < "$REPO/plugins.txt"
 fi
 
 # 2. Agents: every markdown file in agents/
@@ -299,6 +382,7 @@ if [ "$PLUGINS" = "1" ] && [ -f "$REPO/plugins.txt" ]; then
     while read -r kind arg _; do
       case "$kind" in
         ''|\#*) continue ;;  # skip blanks and comments
+        external) continue ;;    # handled in step 1c, alongside the skills
         marketplace)
           if claude plugin marketplace add "$arg" >/dev/null 2>&1; then
             echo "plugin  marketplace $arg"
@@ -315,7 +399,7 @@ if [ "$PLUGINS" = "1" ] && [ -f "$REPO/plugins.txt" ]; then
             echo "⚠️  FAILED to install plugin $arg"
             skipped=$((skipped + 1))
           fi ;;
-        *) echo "⚠️  plugins.txt: unknown directive '$kind' (expected marketplace|plugin)" ;;
+        *) echo "⚠️  plugins.txt: unknown directive '$kind' (expected marketplace|plugin|external)" ;;
       esac
     done < "$REPO/plugins.txt"
   else
@@ -380,4 +464,4 @@ if [ -e "$CLAUDE/settings.json" ]; then
 fi
 
 echo "---"
-echo "linked=$linked mirrored=$mirrored skipped=$skipped copied=$copied plugins=$plugins pruned=$pruned"
+echo "linked=$linked mirrored=$mirrored skipped=$skipped copied=$copied plugins=$plugins external=$external pruned=$pruned"

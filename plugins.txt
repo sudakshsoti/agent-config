@@ -51,3 +51,26 @@ plugin typescript-lsp@claude-plugins-official
 # baseline && claude plugin update baseline` after pushing a skill change.
 marketplace sudakshsoti/baseline
 plugin baseline@baseline
+
+# External skill sources — `external <owner/repo>`, applied by install.sh step 1c.
+#
+# NOT a plugin, and cannot be one: emilkowalski/skills ships no
+# .claude-plugin/marketplace.json, so `claude plugin marketplace add` fails
+# outright. Even if it did, a Claude plugin is visible to Claude alone —
+# Codex, opencode and omp read ~/.agents/skills and know nothing about
+# plugins. `external` covers both gaps: install.sh clones the repo to
+# vendor/<owner>-<repo>/ (gitignored) and symlinks each of its skills into
+# ~/.claude/skills AND ~/.agents/skills, exactly like a repo-owned skill.
+#
+# Vendored by reference, not copied — upstream files never enter this repo's
+# history, so they skip scripts/lint-skills.py and need no dist/<name>.zip.
+# Re-running install.sh fast-forwards each clone, so these track latest.
+# A repo-owned skills/<name> always shadows an external skill of the same name.
+#
+# emil's 12 design-engineering skills: animate, animate-expo,
+# animation-vocabulary, apple-design, ask-sonner, emil-design-eng,
+# find-animation-opportunities, improve-animations, pick-ui-library,
+# prototype, review-animations, write-swift. The last four carry
+# `disable-model-invocation: true` — slash-command only, invisible to the
+# model's skill list by design.
+external emilkowalski/skills
