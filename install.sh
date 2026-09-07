@@ -38,10 +38,23 @@
 #     runtime state owned by those scripts — is left alone.
 #     Tracked themes are linked individually; other live theme files remain
 #     machine-local. Only linked if ~/.omp/agent exists.
+#   pi/settings.json -> ~/.pi/agent/settings.json
+#     pi's default model, Ctrl+P model list, thinking level, theme and package
+#     list. pi rewrites this file itself (`pi install`, `/settings`), and the
+#     write follows the symlink into the repo — review with `git diff` before
+#     committing, same as omp/config.yml.
+#   pi/subagents.json -> ~/.pi/agent/subagents.json
+#   pi/themes/*.json -> ~/.pi/agent/themes/*.json
+#   pi/agents/*.md -> ~/.pi/agent/agents/*.md
+#     Custom pi-subagents definitions. Only linked if ~/.pi/agent exists.
 
 #
 # Deliberately NOT tracked or linked (machine-local by design):
 #   ~/.omp/agent/mcp.json — see the "Secrets policy" section of README.md.
+#   ~/.pi/agent/auth.json — OAuth tokens and provider API keys.
+#   ~/.pi/agent/models-store.json — a refetchable provider catalog cache.
+#   ~/.pi/agent/skills/ — pi already discovers ~/.agents/skills, which step 2
+#     fills. Linking here too means every skill is discovered twice.
 #   ~/.omp/agent/extensions/ — written and overwritten by the tool that owns it.
 #   ~/.omp/agent/models.yml — nothing to link. Step 3i used to install an
 #     `ollama-local` provider here for session titles; removed 2026-08-29 when
@@ -428,6 +441,54 @@ if [ -d "$OMP" ] && [ -d "$REPO/omp/agents" ]; then
   mkdir -p "$OMP/agents"
   for a in "$REPO"/omp/agents/*.md; do
     link_into "$a" "$OMP/agents/$(basename "$a")"
+  done
+fi
+
+# 3k. pi config: symlinked, same reasoning as 3e for omp. pi rewrites
+#     settings.json itself (`pi install`, `/settings`, the theme picker), and a
+#     write follows the symlink into the repo, so the repo stays the live source
+#     and TUI changes show up as a plain `git diff` with no sync step. pi keeps
+#     credentials in ~/.pi/agent/auth.json, never in settings.json.
+#
+#     NOT linked, deliberately: auth.json (OAuth tokens and API keys),
+#     models-store.json (a refetchable catalog cache), sessions/ and npm/
+#     (runtime state and installed package trees).
+#
+#     NOT linked either: ~/.pi/agent/skills/. pi's own discovery list already
+#     names ~/.agents/skills, which step 2 fills. A per-skill link here would be
+#     discovered twice — the exact mistake baseline made and that AGENTS.md
+#     warns about.
+if [ ! -d "$PI" ]; then
+  echo "⚠️  SKIP pi — no $PI (pi not installed). settings.json, subagents.json, themes/ and agents/ not linked."
+fi
+if [ -d "$PI" ] && [ -f "$REPO/pi/settings.json" ]; then
+  link_into "$REPO/pi/settings.json" "$PI/settings.json"
+fi
+# 3l. pi-subagents settings: widget and FleetView off. Global scope only — the
+#     /agents menu writes to <cwd>/.pi/subagents.json, never to this file, so a
+#     project override never lands in the repo by accident.
+if [ -d "$PI" ] && [ -f "$REPO/pi/subagents.json" ]; then
+  link_into "$REPO/pi/subagents.json" "$PI/subagents.json"
+fi
+# 3m. pi themes: linked individually so machine-local themes already in
+#     ~/.pi/agent/themes survive, and so theme packages that generate a theme
+#     into that directory are never clobbered.
+if [ -d "$PI" ] && [ -d "$REPO/pi/themes" ]; then
+  mkdir -p "$PI/themes"
+  for theme_file in "$REPO"/pi/themes/*.json; do
+    [ -f "$theme_file" ] || continue
+    link_into "$theme_file" "$PI/themes/$(basename "$theme_file")"
+  done
+fi
+# 3n. pi subagents: custom agent definitions read by @tintinweb/pi-subagents.
+#     `scout` exists to stop delegated lookups inheriting the session model —
+#     it pins its own, per the "always pass an explicit model tier" rule in
+#     global-agents.md.
+if [ -d "$PI" ] && [ -d "$REPO/pi/agents" ]; then
+  mkdir -p "$PI/agents"
+  for a in "$REPO"/pi/agents/*.md; do
+    [ -f "$a" ] || continue
+    link_into "$a" "$PI/agents/$(basename "$a")"
   done
 fi
 
