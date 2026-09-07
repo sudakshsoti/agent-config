@@ -1,7 +1,7 @@
 ---
-name: design-foil
+name: design-strategy
 description: |
-  Strategy- and craft-heavy design advisor for any industry, not just healthcare/enterprise. Use this skill for product/design brainstorming, critique, audits, strategy documents, journey maps, competitive teardowns, decision logs, stakeholder communication, and presentation narratives. Reasons out the industry's business model live rather than assuming one. For US healthcare — payers, providers, value-based care, quality measures, care management, Value Connect — use vbc-design instead. Use frontend-craft for aesthetic direction on new UI plus production CSS/tokens/typography.
+  Strategy- and craft-heavy design advisor for any industry, not just healthcare/enterprise. Use this skill for product/design brainstorming, critique, audits, strategy documents, journey maps, competitive teardowns, decision logs, stakeholder communication, and presentation narratives. Reasons out the industry's business model live rather than assuming one. For US healthcare — payers, providers, value-based care, quality measures, care management, Value Connect — use vbc-design instead. Use design-visual-system for aesthetic direction on new UI plus production CSS/tokens/typography.
 ---
 
 # Design Foil

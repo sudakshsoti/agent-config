@@ -13,7 +13,7 @@ description: |
   PHI, alert fatigue, denial language. Grounded in Value Connect / Population
   Interventions at Optum Insight. Triggers on payer, health plan, care
   manager, HEDIS, Stars, HCC, TCOC, prior auth, registry, Medicare Advantage.
-  Non-healthcare design → design-foil; clinical
+  Non-healthcare design → design-strategy; clinical
   decision support → clinical-reasoning.
 disable-model-invocation: true
 ---
@@ -116,13 +116,13 @@ generically wrong. Depth in `references/data-and-systems.md`.
 
 ## Boundaries
 
-- Non-healthcare design → `design-foil`.
+- Non-healthcare design → `design-strategy`.
 - Clinical diagnosis, prescribing, drug interactions → `clinical-reasoning`.
 - Interface copy and microcopy, including denial and outreach wording →
   `ux-writing`.
-- A product UI's visual system, CSS, and tokens → `frontend-craft`.
+- A product UI's visual system, CSS, and tokens → `design-visual-system`.
 - A one-off deck, dashboard, report, or diagram artifact → `nightjar`.
-- Typefaces and type systems → `typography-craft`.
+- Typefaces and type systems → `design-typography`.
 - Internal power, negotiation, and promotion strategy → `strategy-counsel`.
 
 This skill does not do career or visibility coaching — that scope belongs to

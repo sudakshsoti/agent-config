@@ -45,7 +45,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 usage audit: any skill unused across 1,203 transcripts (2026-07 through
 2026-08-19, at least 9 days old) was retired. On 2026-09-04 most of the
 `design-brief` pipeline — `design-brief`, `app-ui`, `interface-composition`,
-`typography-craft`, `brand-studio`, `design-foil`, and `design-review` — was
+`design-typography`, `brand-studio`, `design-strategy`, and `design-review` — was
 archived while a replacement set of design skills is trialled; `vbc-design`
 is kept active for later rewiring, and `ux-writing` is a vendored external
 skill and stays. Everything removed is recoverable from git history or
@@ -83,10 +83,10 @@ skill and stays. Everything removed is recoverable from git history or
 - `vedic-astrology` — Vedic astrology (Jyotish) advisor for charts, dashas, transits, timing, compatibility, and remedies.
 - `writing-editor` — Writing partner for personal essays and blog posts: get words onto the page, then shape them into something publishable.
 
-`nightjar`, `frontend-craft`, and most of the `design-brief` pipeline
-(`design-brief`, `app-ui`, `interface-composition`, `typography-craft`,
-`brand-studio`, `design-foil`, `design-review`) are archived under
-`archive/skills/`. `nightjar` and `frontend-craft`'s editorial doctrine — a
+`nightjar`, `design-visual-system`, and most of the `design-brief` pipeline
+(`design-brief`, `app-ui`, `interface-composition`, `design-typography`,
+`brand-studio`, `design-strategy`, `design-review`) are archived under
+`archive/skills/`. `nightjar` and `design-visual-system`'s editorial doctrine — a
 signature element, two families strictly divided, edges earned by hairline
 rules — measurably damaged product screens. The `design-brief` pipeline is
 archived while a new, less monolithic set of design skills is trialled in

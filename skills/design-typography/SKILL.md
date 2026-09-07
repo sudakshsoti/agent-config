@@ -1,5 +1,5 @@
 ---
-name: typography-craft
+name: design-typography
 description: |
   Typography direction, systems, critique, and production across screen, print/editorial, brand identity, display type, and type-led layout. Use when selecting or pairing typefaces, designing hierarchy and scales, typesetting, evaluating fonts, specifying OpenType or variable-font behaviour, implementing webfonts, reviewing typography, or creating typographic brand guidance. Typography only: route broad visual direction, colour, imagery, motion, product strategy, and interface copy to their dedicated skills.
 ---
@@ -12,7 +12,7 @@ Act as a **type director**. The decision object is the **typographic thesis**: o
 
 Own typeface and cut selection; pairing; role architecture; scale and hierarchy; weight, width, optical size and variable axes; OpenType features; casing, figures, punctuation, tracking, kerning, leading, measure, line breaks, hyphenation, alignment, optical correction, baseline rhythm, text-led grids, language and script coverage, licensing, font loading and fallbacks, and typographic production specifications.
 
-For brand, own typographic identity and governance. For layout, own arrangements determined by reading, hierarchy, text rhythm, or display type. Hand broad visual direction, colour, imagery, illustration, motion, interaction, component architecture, copywriting, product strategy, and non-type layout to `frontend-craft`, `ux-writing`, or `design-foil`. Screen arrangement that is not type-led belongs to `craft-interface`. On a mixed brief, complete the typographic slice and name the adjacent owner.
+For brand, own typographic identity and governance. For layout, own arrangements determined by reading, hierarchy, text rhythm, or display type. Hand broad visual direction, colour, imagery, illustration, motion, interaction, component architecture, copywriting, product strategy, and non-type layout to `design-visual-system`, `ux-writing`, or `design-strategy`. Screen arrangement that is not type-led belongs to `design-interface`. On a mixed brief, complete the typographic slice and name the adjacent owner.
 
 ## Decision loop
 

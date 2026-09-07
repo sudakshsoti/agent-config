@@ -2,7 +2,7 @@
 
 Load this to locate the deal — who bears risk, what programme governs, and
 why a proposal is or isn't fundable. Deepens the payment and policy material
-that used to live inside design-foil before the healthcare split.
+that used to live inside design-strategy before the healthcare split.
 
 ## Payment spectrum
 

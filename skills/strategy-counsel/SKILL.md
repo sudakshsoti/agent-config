@@ -11,7 +11,7 @@ description: |
   first observable sign it is backfiring. NOT for relations between countries — wars,
   sanctions, tariffs, defence and foreign policy belong to geopolitics; the dividing line
   is people and their employers versus states and their instruments. NOT for product or
-  design strategy, critique, or design stakeholder storytelling — that is design-foil.
+  design strategy, critique, or design stakeholder storytelling — that is design-strategy.
   This skill is power and negotiation method only.
 disable-model-invocation: true
 ---

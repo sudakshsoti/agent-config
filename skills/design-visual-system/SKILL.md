@@ -1,11 +1,11 @@
 ---
-name: frontend-craft
+name: design-visual-system
 description: >
   Integrated visual direction, subject-specific art direction, colour, hierarchy,
   layout systems, responsive visual behaviour, CSS and design tokens, @theme,
   @font-face, OKLCH and design-system styling. Use for building or reshaping a
   product UI's own visual system in its codebase. For typography-primary work,
-  use `typography-craft`; for a standalone generated artifact — a deck,
+  use `design-typography`; for a standalone generated artifact — a deck,
   dashboard, report, mockup or diagram — use `design`. Do not invoke this
   skill solely because a task touches React, Vue, Svelte, component behaviour,
   state, data flow, API wiring or tests.
@@ -17,7 +17,7 @@ Two jobs, in order: make a direction specific to the subject, then execute it
 with real type, colour and token systems rather than defaults.
 
 **Arrangement comes first and is not this skill's job.** Run
-`craft-interface` before this one on any screen that repeats a unit,
+`design-interface` before this one on any screen that repeats a unit,
 compares records, or carries per-item controls. A composition failure is invisible
 in a palette and survives any amount of colour and type work.
 
@@ -108,7 +108,7 @@ axes by tag (`wght`, `wdth`, `ital`, `opsz`, `GRAD`, `slnt`, plus foundry custom
 axes). Use `@font-face` with appropriate `unicode-range`, `size-adjust` and
 metric overrides.
 
-For specialist type selection, typesetting, font engineering, or cross-medium typography, invoke `typography-craft`. Keep these baseline checks here when type serves an integrated UI direction.
+For specialist type selection, typesetting, font engineering, or cross-medium typography, invoke `design-typography`. Keep these baseline checks here when type serves an integrated UI direction.
 
 **Colour:** build OKLCH ramps with perceptual uniformity across the L axis, use
 dark/light token architecture, and prefer `color-mix()` for state variants over
@@ -146,7 +146,7 @@ Semi-Mono as a webfont without naming the separate web licence it needs and its
 cost. Serving a font from a site behind basic authentication is still web serving.
 Where a web licence is not in place, self-host a free OFL variable face; do not
 fall back to a system stack, which is a decision not taken. See
-`typography-craft`, "When the licence is the constraint".
+`design-typography`, "When the licence is the constraint".
 
 Indian English: organisation, prioritise, colour. INR (₹) and Indian numbering
 (lakh/crore) when money comes up. Metric units. No em dashes.

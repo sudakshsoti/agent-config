@@ -1,5 +1,5 @@
 ---
-name: grill-design
+name: design-grill
 description: >-
   A relentless interview about how something should look, feel and behave, run
   round by round until nothing is left assumed. Use when the user says "grill me

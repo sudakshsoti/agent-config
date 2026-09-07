@@ -145,7 +145,7 @@ calling it done:
 - "Does this survive a security review given the PHI it touches?"
 
 The seven prompts above replace the "Product and workflow" list that used
-to live in `design-foil`. Career-influence prompts are explicitly out of
+to live in `design-strategy`. Career-influence prompts are explicitly out of
 scope for this skill — see `strategy-counsel` and the user's own Work &
 Strategy project.
 
