@@ -1,17 +1,10 @@
 ---
 name: backlog
 description: |
-  Run a project's backlog like a sharp product manager — entirely in Linear. Works for
-  any team/project, not just one repo. Five jobs. CAPTURE + TRIAGE: "track this", "open
-  an issue for…", "add to the backlog", "make a ticket", "we should do X later". WHAT
-  NEXT: "what should I work on", "what's next", "I have 30 min". WEEKLY GROOMING: "groom
-  the backlog", "weekly review", "what's stale", "what's blocked". ACCEPTANCE + PLANS:
-  definition-of-ready, acceptance criteria, linking a plan doc. SESSION / MILESTONE
-  PLANNING: "plan my next session", "make me a milestone", "what's my next vibecoding
-  session", "batch the backlog into sessions" — groups ready issues into Linear
-  **Milestones** sized to finish in one sitting, balanced by T-shirt effort. Triggers on
-  backlog, issue, ticket, Linear, milestone, session, Priority/Estimate, triage,
-  prioritize. RIGID taxonomy — Linear is the single source of truth.
+  Run a project's backlog like a sharp product manager — entirely in Linear.
+  Capture and triage, what-next, weekly grooming, acceptance criteria and plan
+  links, session and milestone planning sized to one sitting. Triggers on
+  backlog, Linear, milestone, triage. Linear is the single source of truth.
 disable-model-invocation: true
 ---
 

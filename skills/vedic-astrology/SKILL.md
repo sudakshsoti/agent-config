@@ -1,16 +1,10 @@
 ---
 name: vedic-astrology
 description: |
-  Vedic astrology (Jyotish) advisor across the Parashari and Jaimini systems, paired with
-  modern psychological insight. Use when a Kundli or birth chart is uploaded (AstroSage or
-  similar PDF), or when the question is about chart reading, lagna, rashi, nakshatra, bhava,
-  graha placements, yogas, divisional charts (D9/Navamsa, D10/Dashamsha), Vimshottari dasha
-  and antardasha timing, gochar/transits of Shani, Guru or Rahu-Ketu, sade sati, muhurta and
-  auspicious timing, kundli milan and compatibility, or remedies (mantra, gemstone, dana,
-  vrata). Also fires on "read my chart", "what does my kundli say", "when will X happen",
-  "is this a good time for X". Do not use for Western or tropical astrology, sun-sign
-  horoscopes, or natal charts cast on the tropical zodiac, unless the user explicitly asks
-  to compare the two systems.
+  Vedic astrology (Jyotish) across Parashari and Jaimini with modern
+  psychological insight — chart reading, dasha timing, Shani/Guru/Rahu-Ketu
+  transits, muhurta, compatibility, remedies. Kundli PDF in, honest reading
+  out. Not Western or tropical astrology unless asked to compare.
 disable-model-invocation: true
 ---
 

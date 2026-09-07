@@ -1,6 +1,10 @@
 ---
 name: peer-review
-description: Adversarially review an engineering plan (or design, approach, RFC) written by another agent — the cross-lineage hostile pass. Use when the user types /peer-review, says "rev this", "peer review this plan", "red-team this", "poke holes in this", "review this plan from another model", or pastes a plan and asks what it missed. Returns assumptions, blind spots, over-engineering, a steelmanned alternative, and a ship/fix/rethink verdict. Surface-agnostic — runs in Codex, Gemini, or Claude. Stage 2 of the two-stage plan-review pipeline — the cross-lineage counterpart to the in-house self-review.
+description: |
+  Adversarial review of an engineering plan from another agent — the
+  cross-lineage hostile pass. Assumptions, blind spots, over-engineering, a
+  steelmanned alternative, ship/fix/rethink verdict. Runs in Codex, Gemini or
+  Claude; counterpart to in-house self-review.
 user-invocable: true
 ---
 

@@ -1,14 +1,10 @@
 ---
 name: design-visual-system
 description: >
-  Integrated visual direction, subject-specific art direction, colour, hierarchy,
-  layout systems, responsive visual behaviour, CSS and design tokens, @theme,
-  @font-face, OKLCH and design-system styling. Use for building or reshaping a
-  product UI's own visual system in its codebase. For typography-primary work,
-  use `design-typography`; for a standalone generated artifact — a deck,
-  dashboard, report, mockup or diagram — use `design`. Do not invoke this
-  skill solely because a task touches React, Vue, Svelte, component behaviour,
-  state, data flow, API wiring or tests.
+  Visual direction for a product UI in its codebase — art direction, colour,
+  hierarchy, layout, responsive behaviour, CSS and tokens, @theme, OKLCH.
+  Typography-primary is design-typography; standalone decks and diagrams are
+  design. Not for component behaviour, state or data flow.
 ---
 
 # Frontend craft

@@ -1,13 +1,9 @@
 ---
 name: design-grill
 description: >-
-  A relentless interview about how something should look, feel and behave, run
-  round by round until nothing is left assumed. Use when the user says "grill me
-  on this design", "grill the design", "I'm starting a new screen", or wants an
-  interface decision pressure-tested — whether starting something new or fixing
-  something that already exists. Looks at the thing first when there is
-  something to look at, and records every settled decision in
-  design/decisions.md. For a technical or architectural grilling, use `grilling`.
+  Relentless interview on how something should look, feel and behave, round by
+  round until nothing is assumed. New screens or pressure-testing decisions;
+  records settlements in design/decisions.md. Technical grilling is grilling.
 disable-model-invocation: true
 ---
 

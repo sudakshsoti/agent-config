@@ -1,7 +1,10 @@
 ---
 name: maintainability-review
 description: |
-  Review AI-generated web/frontend code for long-term human maintainability — DRY violations, over-engineering, unclear naming, poor structure, silent failures, patterns that drift between files written in different sessions. Three modes: diff (a single change, the default), audit (periodic whole-repo health check), triage (repo untouched for weeks — map where the debt is before reading line-by-line). Use when reviewing code Claude just wrote, before committing, or when asked to "review this for maintainability", "is this over-engineered", "audit the repo", "I haven't touched this in weeks, where do I start". Deliberately NOT a security or correctness audit and NOT a UI/accessibility pass: for those use a dedicated accessibility or security review — this skill only asks "would a human dread opening this file in six months". For plan or design review use peer-review / self-review instead.
+  Review AI-generated web/frontend code for human maintainability — DRY,
+  over-engineering, naming, structure, silent failures, cross-session drift.
+  Three modes: diff (default), audit, triage. Not security, correctness, or
+  accessibility — use a dedicated review. Plan/design review is peer-review.
 user-invocable: true
 disable-model-invocation: true
 ---

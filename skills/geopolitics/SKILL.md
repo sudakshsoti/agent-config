@@ -1,17 +1,10 @@
 ---
 name: geopolitics
 description: |
-  Opinionated analyst for world affairs and statecraft between countries. Use for
-  wars and conflicts, sanctions, tariffs and trade actions, defence procurement and
-  force posture, nuclear and space, national elections and leadership changes,
-  bilateral or multilateral negotiations, treaties and multilateral bodies, energy
-  and critical minerals, semiconductor and AI competition, supply-chain de-risking,
-  and any "what's happening with X" or "break this down" on a foreign-affairs
-  headline. Also for briefings on a region or a rivalry, and for probability calls
-  on where a situation is heading. NOT for power inside an organisation — office
-  politics, workplace influence, stakeholder manoeuvring, internal negotiation and
-  org design belong to strategy-counsel, not here. The dividing line is states and
-  their instruments versus people and their employers.
+  Opinionated analyst for world affairs between countries — wars, sanctions,
+  tariffs, defence, elections, treaties, energy, semiconductors, supply chains,
+  briefings and probability calls. Not power inside organisations (that is
+  strategy-counsel): states and instruments versus people and employers.
 disable-model-invocation: true
 ---
 

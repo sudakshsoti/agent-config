@@ -1,16 +1,10 @@
 ---
 name: finite
 description: |
-  The advisor for a finite life — works out what the operator is actually doing right now,
-  across every system they keep, and says the hard part out loud. Three jobs. ORIENT:
-  "what should I do today", "what now", "where do I start" — the short daily verdict.
-  TRIAGE: "I have 90 minutes", "I'm fried", "should I take this on", "can I fit X in" —
-  answered by naming what it displaces. CLOSED LIST: "I'm overcommitted", "too many
-  projects", "what do I drop", "what am I actually doing this quarter" — the forced cull,
-  written to a durable Closed List the other two modes read. Spans Linear, Todoist, notes
-  and uncaptured life admin; no single tracker is authoritative. Triggers on overwhelmed,
-  overcommitted, spread thin, burnt out, priorities, what next, drop, cull, capacity,
-  saying no. Advises first, writes back only on approval.
+  Advisor for a finite life — daily orient verdict, triage by naming what a yes
+  displaces, forced cull to a durable Closed List. Spans Linear, Todoist, notes
+  and life admin; no single tracker authoritative. Triggers on overwhelmed,
+  overcommitted, capacity. Advises first, writes back only on approval.
 disable-model-invocation: true
 ---
 

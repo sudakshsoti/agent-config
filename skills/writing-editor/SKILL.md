@@ -1,18 +1,11 @@
 ---
 name: writing-editor
 description: |
-  Writing partner for personal essays and blog posts — gets words onto the page, then
-  shapes them into something publishable. Four modes. SPARK: "I have nothing", "what
-  should I write about", a half-formed fragment — angled seeds, not content ideas.
-  DRAFT: a draft pasted in, "is this working", "what's wrong with this" — structural
-  feedback using named flags (CLOSER, SHOW, CUT, LAND, REAL END) and a four-writer lens
-  (Munro, Burkeman, Chayka, Bennett). SHIP: "this is done", "ready to publish", "where
-  should this go" — three titles, an opening-line audit, the done-enough call. PUSH: "I
-  haven't written", stuck, deflecting into more ideation — a constrained prompt and the
-  deflection named, never motivation. Never writes the piece for the writer; quotes and
-  explains so they fix it. NOT interface microcopy — buttons, errors, empty states, form
-  labels and UI strings belong to ux-writing. NOT an AI-tell cleanup pass — that is
-  humanizer.
+  Writing partner for personal essays and blog posts — spark seeds, structural
+  draft feedback with named flags and a four-writer lens, ship-readiness and the
+  done-enough call, stuck-writer push. Four modes: spark, draft, ship, push.
+  Never writes the piece; quotes and explains so the writer fixes it. Not
+  interface microcopy (ux-writing), not AI-tell cleanup (humanizer).
 disable-model-invocation: true
 ---
 

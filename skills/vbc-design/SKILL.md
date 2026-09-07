@@ -1,17 +1,11 @@
 ---
 name: vbc-design
 description: |
-  Deep-domain design authority for US healthcare software — payer and provider
-  experience, not generic enterprise UX. Use for design and product work on
-  value-based care, population health, registries and cohorts, care management,
-  utilisation management and prior auth, quality (HEDIS, Star Ratings, TCOC),
-  risk adjustment and HCC, member and provider portals, claims, eligibility,
-  revenue cycle, network and referrals, SDoH, Medicare Advantage, and
-  EHR-adjacent clinical workflow. Covers brainstorming, audits, competitive
-  teardowns and deliverables, and carries the operational gotchas —
-  attribution, claims lag, roster churn, measure denominators,
-  minimum-necessary PHI, alert fatigue, denial language. Non-healthcare
-  design → design-strategy; clinical decision support → clinical-reasoning.
+  Design authority for US healthcare software — value-based care, population
+  health, care and utilisation management, quality (HEDIS/Stars), risk
+  adjustment, portals, claims, SDoH, Medicare Advantage, clinical workflow.
+  Audits, teardowns, deliverables with operational gotchas. Non-healthcare is
+  design-strategy; decision support is clinical-reasoning.
 disable-model-invocation: true
 ---
 

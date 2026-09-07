@@ -1,15 +1,10 @@
 ---
 name: homelab-deploy
 description: |
-  Deploy a change to the homelab box (Hetzner / Docker / /opt/stacks) correctly and
-  safely. Use this skill whenever shipping a change to the server — editing
-  docker-compose, the Caddyfile, a watchdog script, decypharr config, or any
-  /opt/stacks file, restarting the stack, adding a subdomain, or "pushing this to the
-  box / server / homelab". Triggers on "deploy to the box", "ship this to the server",
-  "apply on /opt/stacks", "restart the stack", "sync-stacks", "make deploy",
-  "add a subdomain", or editing any file under stacks/ in the repo. RIGID — the order
-  matters and two mechanisms (bare `up -d rclone-torbox`, n8n import) silently break
-  things; follow the steps exactly.
+  Deploy to the homelab box (Hetzner/Docker//opt/stacks) — compose, Caddyfile,
+  watchdog, decypharr, subdomains, restarts. RIGID order: bare up -d
+  rclone-torbox and n8n import silently break things. n8n work goes via
+  n8n-deploy.
 disable-model-invocation: true
 ---
 

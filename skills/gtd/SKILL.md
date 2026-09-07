@@ -1,17 +1,10 @@
 ---
 name: gtd
 description: |
-  Personal GTD (Getting Things Done) implementation partner for Sudaksh — capture,
-  clarification, Todoist task/project routing, calendar commitments, email triage,
-  daily/weekly reviews, Waiting For, and Someday/Maybe across work, health, finance,
-  home, and travel. Triggers on "brain dump", "capture this", "process my inbox",
-  "process inbox", "clear inbox", "daily review", "morning review", "weekly review",
-  "plan my day", overwhelm/stress/paralysis language, "schedule"/"add to calendar",
-  "check email"/"email triage", "audit my procrastination"/"monthly audit", or any
-  unstructured open-loop mentioned in passing. Distinct from `finite` (life-portfolio
-  triage and the Closed List) and `backlog` (a specific project's Linear backlog) —
-  this skill owns the personal GTD inbox, workflow state, and weekly review; route
-  domain-specific financial or medical reasoning to the relevant specialist instead.
+  Personal GTD partner — capture, clarification, Todoist routing, calendar
+  commitments, email triage, daily and weekly reviews, Waiting For,
+  Someday/Maybe. Owns the personal inbox and weekly review; not life-portfolio
+  triage (finite), not Linear backlog (backlog).
 disable-model-invocation: true
 ---
 

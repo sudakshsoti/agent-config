@@ -1,15 +1,9 @@
 ---
 name: n8n-deploy
 description: |
-  Deploy or edit a self-hosted n8n workflow on the homelab WITHOUT clobbering the
-  database. Use this skill whenever changing an n8n workflow — editing nodes,
-  deploying a new workflow JSON from n8n-workflows/, changing a schedule/cron,
-  toggling active state, or adding a Code-node built-in. Triggers on "deploy the
-  n8n workflow", "update the digest/pruner/weather workflow", "add a node to",
-  "change the cron", "import this workflow", or any mention of workflow_entity /
-  workflow_history / the sqlite3 deploy dance. RIGID — follow the steps exactly;
-  the obvious tools (import:workflow, update:workflow, the API) silently corrupt
-  state and MUST NOT be used.
+  Edit or deploy self-hosted n8n workflows without clobbering the DB — nodes,
+  schedules, active state, Code nodes. RIGID: never import:workflow,
+  update:workflow, or API node writes; all three silently corrupt state.
 disable-model-invocation: true
 ---
 
