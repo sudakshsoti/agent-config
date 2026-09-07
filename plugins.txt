@@ -23,12 +23,10 @@ marketplace anthropics/claude-plugins-community
 # disable one hook from a plugin. See docs/vendored-mattpocock-skills.md for
 # what replaced it.
 # plugin superpowers@claude-plugins-official
-# frontend-design was disabled as prose-only guidance with no style catalog, no
-# tokens and no gate (StyleSeed measured the category at -3.7). Re-enabled
-# 2026-08-31 in a narrower role: it now covers marketing and brand pages only,
-# where its aesthetic-direction framing is correct, and `design-review` supplies
-# the gate it lacks. Product screens go to `app-ui` instead.
-plugin frontend-design@claude-plugins-official
+# frontend-design moved off the plugin lane to `external` (2026-09-07) so Codex,
+# opencode and omp see it too — it ships one SKILL.md and nothing else, so the
+# plugin lane bought nothing. See the `external` line at the bottom of this file.
+# plugin frontend-design@claude-plugins-official
 # vercel is uninstalled for now — removed 2026-08-25 to trim the MCP list.
 # Re-enable this line and re-run install.sh to bring it back.
 # plugin vercel@claude-plugins-official
@@ -87,3 +85,14 @@ external stablyai/orca orchestration computer-use orca-cli orca-linear
 external charleswiltgen/axiom:.claude-plugin/plugins/axiom/skills axiom-build axiom-macos axiom-swiftui
 external BexTuychiev/firecrawl-claude-code-skill firecrawl-web
 external ehmo/platform-design-skills macos-design-guidelines
+
+# frontend-design, from its canonical home in the claude-code repo (identical
+# byte-for-byte to the copy in claude-plugins-official). It was `plugin
+# frontend-design@claude-plugins-official` until 2026-09-07; a plugin is
+# Claude-only, and this one is a single SKILL.md with no hooks, commands or
+# agents, so `external` gives the same skill to all four harnesses at no cost.
+# Uninstall the old plugin once per machine, or Claude lists the skill twice:
+#   claude plugin uninstall frontend-design@claude-plugins-official
+# Role is unchanged: marketing and brand pages only, with `design-review` as the
+# gate it lacks. Product screens go to `app-ui`.
+external anthropics/claude-code:plugins/frontend-design/skills frontend-design
