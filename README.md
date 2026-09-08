@@ -33,21 +33,16 @@ cd ~/dev/agent-config && ./install.sh
 - `omp/config.yml` — OMP's baseline settings: model roles (`default`, plus the
   per-task worker roles), thinking level, statusline and task options. This is
   the config OMP actually loads; the overlays below are layered on top of it
-  per invocation. It carries one invariant: no `anthropic/` selector may appear in `retry.fallbackChains`,
-  or a failed Claude call retries on Claude and the cross-lineage check is lost.
+  per invocation. Plain OMP uses only Codex and OpenCode Go models.
   Symlinked to `~/.omp/agent/config.yml`, so `omp config set` and TUI toggles
   edit the repo copy directly — check `git diff` before committing. Only linked
   if `~/.omp/agent` exists.
 - `omp/overlays/*` — Model-role overlays symlinked into `~/.config/omp/`.
-  `go-overlay.yml` and `codex-overlay.yml` are applied and reverted by
-  `~/.local/bin/omp-{go,codex}-overlay` (the `ompgo`/`ompcodex` wrappers and the
-  `go-limits`/`codex-limits` aliases). `search-keys.tpl` is the 1Password
-  template behind `op inject -o ~/.omp/.env` — `op://` references only, never a
-  literal key. `codex-only-overlay.yml` is currently unreferenced: `ompcodex`
-  was rewritten to call `omp-codex-overlay apply` instead. Kept because it is
-  the only record of a fully openai-codex-pinned role map; delete it if that
-  stops being worth having. `.active-overlay` in the same directory is runtime
-  state owned by those scripts and is deliberately not tracked.
+  `ompgo` loads `go-overlay.yml`; `ompcodex` loads `codex-only-overlay.yml`.
+  Both shell functions use `omp --config` for one session, without changing
+  the base config. Persistent overlay scripts and restore aliases are retired.
+  `search-keys.tpl` is the 1Password template behind `op inject -o ~/.omp/.env`
+  — `op://` references only, never a literal key.
 - `omp/themes/*.json` — Tracked OMP themes, symlinked individually into
   `~/.omp/agent/themes/`. Other live theme files remain machine-local.
 - `omp/agents/` — OMP subagents, symlinked into `~/.omp/agent/agents/`. Just

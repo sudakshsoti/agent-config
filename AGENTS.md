@@ -32,8 +32,8 @@ One rule settles almost every case: **`~/dev/agent-config` owns what the agent k
 | `~/.codex/config.toml` | **shared** | dotfiles writes the file (`dot_codex/modify_private_config.toml`); agent-config merges its non-secret keys in. Check both before editing |
 | `~/.omp/agent/config.yml`, `lsp.yml`, `themes/`, `agents/` | agent-config | `install.sh` symlinks; omp writes through the link into the repo |
 | `~/.pi/agent/settings.json`, `subagents.json`, `themes/`, `agents/` | agent-config | `install.sh` symlinks; pi writes through the link into the repo |
-| `~/.config/omp/*.yml`, `*.tpl` | agent-config (`omp/overlays/`) | `install.sh` symlinks. `.active-overlay` is runtime state — untracked |
-| `~/.local/bin/omp-*-overlay`, `~/.zshrc` | dotfiles | chezmoi. They read a fixed `~/.config/omp` path, so neither side needs the other |
+| `~/.config/omp/*.yml`, `*.tpl` | agent-config (`omp/overlays/`) | `install.sh` symlinks; overlays are session-only via `--config`, with no restore state |
+| `ompgo` / `ompcodex` in `~/.zshrc` | dotfiles | chezmoi; shell functions read `~/.config/omp` without modifying the base config |
 | `~/.config/opencode/opencode.jsonc` | dotfiles | chezmoi |
 | `~/.zshrc`, `.gitconfig`, Brewfile, fonts, terminal and editor config | dotfiles | chezmoi |
 | `~/.omp/agent/mcp.json`, `~/.omp/.env`, `~/.claude/settings.local.json` | **neither** | machine-local, hold credentials, deliberately untracked |
@@ -69,7 +69,7 @@ Rules that follow from the table:
 
 - Plain OMP now uses Codex Luna xhigh for default/task and Astra low for planning, high for slow, medium for design. Go supplies GLM-5.3-Flash high reviews, Grok 4.6 high adversary, GLM-5.3 high security review, and DeepSeek V4 Flash low scouting. `omp/config.yml` is authoritative; historical routing examples below and optional overlays are not the plain-OMP defaults.
 - Non-interactive `omp -p` probes spawned from a persistent kernel need stdin closed (`stdin=DEVNULL` or `</dev/null`). Otherwise startup waits at `readPipedInput` before making any model request, even with a prompt argument and `--max-time`.
-- Verify plain OMP through `zsh -lic 'omp config get modelRoles'`, not just the binary: the shell function restores an active overlay before launch. Overlay restore defaults live in dotfiles' `omp-go-overlay` and `omp-codex-overlay`; update those when changing the base ladder or a missing snapshot can bring back retired models.
+- Plain `omp` is the binary, not a restoring shell wrapper. `ompgo` and `ompcodex` pass session-only `--config` overlays; never reintroduce persistent apply/restore scripts or `.active-overlay` state. Verify a real shell launch and confirm overlay sessions leave the base config unchanged.
 
 - Model thinking levels are per-model. `deepseek-v4-flash`, `glm-5.3-flash` and `kimi-k3` expose only low/high/max. Writing `medium` on those is not rejected: it silently runs, and bills, as `high`.
 - omp rewrites `omp/config.yml` and deletes every comment line while keeping the values byte-identical. Never keep decision rationale in that file; it belongs in `docs/`.

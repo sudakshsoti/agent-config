@@ -4,6 +4,19 @@
 # and the fallback chains that can fire for those roles stay inside
 # openai-codex too, so a long-horizon `ompcodex` run never drifts onto
 # Anthropic, OpenCode, or OpenRouter mid-task.
+modelRoleStorage: session
+enabledModels:
+  - openai-codex/gpt-5.6-luna
+  - openai-codex/gpt-5.6-terra
+  - openai-codex/gpt-5.6-sol
+  - openai-codex/gpt-5.3-codex-spark
+disabledProviders:
+  - anthropic
+  - opencode-zen
+  - opencode-go
+  - openrouter
+  - ollama
+  - ollama-local
 modelRoles:
   default: openai-codex/gpt-5.6-terra:high
   plan: openai-codex/gpt-5.6-sol:high
@@ -16,8 +29,12 @@ modelRoles:
   tiny: openai-codex/gpt-5.6-luna:low
   commit: openai-codex/gpt-5.6-luna:low
   advisor: openai-codex/gpt-5.6-terra:high
+  reviewer: openai-codex/gpt-5.6-sol:high
+  security-reviewer: openai-codex/gpt-5.6-sol:high
 task:
   agentModelOverrides:
+    task: openai-codex/gpt-5.6-luna:xhigh
+    adversary: openai-codex/gpt-5.6-sol:high
     scout: openai-codex/gpt-5.6-luna:low
     librarian: openai-codex/gpt-5.6-terra:high
     sonic: openai-codex/gpt-5.6-luna:low
