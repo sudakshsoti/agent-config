@@ -17,7 +17,7 @@ pass=0
 fail=0
 declare -a results=()
 
-run() {  # run <label> <command...>
+run() { # run <label> <command...>
   local label="$1"
   shift
   "$@"
@@ -32,10 +32,10 @@ run() {  # run <label> <command...>
   echo
 }
 
-run "lint-skills.py"                 python3 "$repo_root/scripts/lint-skills.py" "$repo_root"
-run "check-zips.py"                  python3 "$repo_root/scripts/check-zips.py" "$repo_root"
-run "test-apply-codex-config.py"    python3 "$repo_root/scripts/test-apply-codex-config.py"
-run "test-design-instructions.py"   python3 "$repo_root/scripts/test-design-instructions.py"
+run "lint-skills.py" python3 "$repo_root/scripts/lint-skills.py" "$repo_root"
+run "check-zips.py" python3 "$repo_root/scripts/check-zips.py" "$repo_root"
+run "test-apply-codex-config.py" python3 "$repo_root/scripts/test-apply-codex-config.py"
+run "test-design-instructions.py" python3 "$repo_root/scripts/test-design-instructions.py"
 
 echo "check.sh"
 printf '%s\n' "${results[@]}"
