@@ -69,6 +69,7 @@ Rules that follow from the table:
 
 - Plain OMP now uses Codex Luna xhigh for default/task and Astra low for planning, high for slow, medium for design. Go supplies GLM-5.3-Flash high reviews, Grok 4.6 high adversary, GLM-5.3 high security review, and DeepSeek V4 Flash low scouting. `omp/config.yml` is authoritative; historical routing examples below and optional overlays are not the plain-OMP defaults.
 - Non-interactive `omp -p` probes spawned from a persistent kernel need stdin closed (`stdin=DEVNULL` or `</dev/null`). Otherwise startup waits at `readPipedInput` before making any model request, even with a prompt argument and `--max-time`.
+- Verify plain OMP through `zsh -lic 'omp config get modelRoles'`, not just the binary: the shell function restores an active overlay before launch. Overlay restore defaults live in dotfiles' `omp-go-overlay` and `omp-codex-overlay`; update those when changing the base ladder or a missing snapshot can bring back retired models.
 
 - Model thinking levels are per-model. `deepseek-v4-flash`, `glm-5.3-flash` and `kimi-k3` expose only low/high/max. Writing `medium` on those is not rejected: it silently runs, and bills, as `high`.
 - omp rewrites `omp/config.yml` and deletes every comment line while keeping the values byte-identical. Never keep decision rationale in that file; it belongs in `docs/`.
