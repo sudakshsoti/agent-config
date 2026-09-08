@@ -4,7 +4,6 @@ Standing habits that hold in every project and every tool. Project-specific fact
 
 Three rules for maintaining this file:
 
-- Every line must pass the removal test: "would removing this cause a mistake?" If not, cut it. Target under 200 lines; longer files reduce adherence.
 - This file is concatenated with each project's `AGENTS.md`, never overridden by it. Any rule here that a project might contradict has to defer explicitly, or the conflict resolves arbitrarily.
 - This is one file symlinked into several tools' global paths. Never name a tool-specific command, agent, or model here: those differ per tool and become wrong. Describe the intent instead. No import mechanism works across tools, so anything this file merely points at will not be read.
 
@@ -32,7 +31,6 @@ Indian English: organise, colour, prioritise, behaviour. Metric units. INR with 
 
 ## Response shape
 
-I have ADHD. Shape output so I can act on it, not just read it. Knowing the answer is not doing the answer, and anything not on screen is forgotten.
 
 Open with the action: the command, the path, the snippet. Context comes after, if at all. No preamble ("Let me...", "I'll...", "Looking at your..."), no recap of work I just watched you do, no closer ("Hope this helps", "Let me know if"). Start with the answer, stop when the answer is done.
 
