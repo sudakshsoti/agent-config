@@ -16,6 +16,12 @@
   "compaction": {
     "enabled": true
   },
+  "tokenSpeed": {
+    "colorSlow": "#E19796",
+    "colorMedium": "#D2A56D",
+    "colorFast": "#A4B776",
+    "colorBlazing": "#70B4A2"
+  },
   "powerline": {
     "preset": "default",
     "separator": "dot",
@@ -24,10 +30,11 @@
         "model",
         "custom:kohra-thinking",
         "path",
+        "git",
         "context_pct",
         "custom:subagents"
       ],
-      "right": [],
+      "right": ["custom:token-speed"],
       "secondary": []
     },
     "customItems": [
@@ -42,6 +49,12 @@
         "statusKey": "subagents",
         "position": "left",
         "color": "thinkingHigh"
+      },
+      {
+        "id": "token-speed",
+        "statusKey": "tokenSpeed",
+        "position": "right",
+        "selfColorize": true
       }
     ]
   },
