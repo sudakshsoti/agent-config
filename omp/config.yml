@@ -59,12 +59,12 @@ retry:
 symbolPreset: nerd
 theme:
   dark: dark-lunar-statusline
-  light: light
+  light: lunar-light-statusline
 setupVersion: 2
 statusLine:
   preset: default
   separator: none
-  sessionAccent: true
+  sessionAccent: false
   compactThinkingLevel: false
   transparent: true
   leftSegments:
