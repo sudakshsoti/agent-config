@@ -110,7 +110,7 @@ display:
   showTokenUsage: false
   collapseCompacted: true
   cacheMissMarker: false
-  hideToolActivity: false
+  hideToolActivity: true
 defaultThinkingLevel: auto
 providers:
   openai-codex:
