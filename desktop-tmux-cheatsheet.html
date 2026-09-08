@@ -40,7 +40,7 @@
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behaviour: smooth; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       min-width: 18rem;
@@ -342,6 +342,7 @@
     .status-demo .active { color: var(--mist); }
     .status-demo .activity { color: var(--amber); }
     .status-demo .time { color: var(--mist); }
+    .status-demo .amber { color: var(--amber); }
     .status-right { white-space: nowrap; }
 
     .config-note {
@@ -402,8 +403,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      html { scroll-behaviour: auto; }
-      *, *::before, *::after { scroll-behaviour: auto !important; transition-duration: 0.01ms !important; }
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
     }
 
     @media print {
@@ -505,7 +506,7 @@
               <div class="action">Open a window here</div><div class="keys"><kbd>Ctrl-a</kbd><kbd>c</kbd></div><div class="note">Create a new window in the current pane's working directory.</div><span class="source custom">Your config</span>
             </div>
             <div class="shortcut-row" data-search="vertical split top bottom current directory custom">
-              <div class="action">Split top and bottom</div><div class="keys"><kbd>Ctrl-a</kbd><kbd>“</kbd></div><div class="note">Create a vertical split in the current working directory.</div><span class="source custom">Your config</span>
+              <div class="action">Split top and bottom</div><div class="keys"><kbd>Ctrl-a</kbd><kbd>&quot;</kbd></div><div class="note">Create a vertical split in the current working directory.</div><span class="source custom">Your config</span>
             </div>
             <div class="shortcut-row" data-search="horizontal split left right current directory custom">
               <div class="action">Split left and right</div><div class="keys"><kbd>Ctrl-a</kbd><kbd>%</kbd></div><div class="note">Create a horizontal split in the current working directory.</div><span class="source custom">Your config</span>
@@ -645,7 +646,7 @@
         var visible = 0;
 
         rows.forEach(function (row) {
-          var match = !query || row.dataset.search.indexOf(query) !== -1;
+          var match = !query || row.dataset.search.includes(query);
           row.hidden = !match;
           if (match) visible += 1;
         });

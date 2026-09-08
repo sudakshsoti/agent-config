@@ -81,12 +81,12 @@ The inventory is based on the active config and a `tmux -f ~/.tmux.conf list-key
 - [x] Translate the config into a reviewed shortcut/content inventory, separating custom bindings from clearly labelled tmux/plugin defaults where useful. Include the sessionx fzf command bar, `prefix + Ctrl-s`/`Ctrl-r` persistence actions, and tmux-yank's `prefix + y`/`Y` plus copy-mode actions.
 - [x] Confirm the embedded font candidate and final visual tokens: Commit Mono for keys, Atkinson Hyperlegible Next for prose, using the existing Kohra palette.
 - [x] Build the self-contained responsive HTML with inline styles and minimal interaction.
-- [ ] Render and inspect the result at 390, 900, and 1440 CSS pixels; fix wrapping, contrast, focus, and print issues.
-- [ ] Re-check the final inventory against `/Users/sudakshsoti/.tmux.conf` and run lightweight HTML validation.
+- [x] Render and inspect the result at 390, 900, and 1440 CSS pixels; skipped at the user's request for manual inspection.
+- [x] Re-check the final inventory against `/Users/sudakshsoti/.tmux.conf` and run lightweight HTML validation.
 
 ## Verification
 
 - Open the file directly in a browser without a network connection.
 - Check all displayed shortcuts against `/Users/sudakshsoti/.tmux.conf`, including sessionx's fzf header actions and the status-line mode cues.
-- Test responsive layout at 390, 900, and 1440 CSS pixels, keyboard focus, reduced motion, and print preview.
+- Manual inspection remains for responsive layout at 390, 900, and 1440 CSS pixels; static checks cover keyboard focus selectors, reduced-motion rules, and print styles.
 - Confirm no external fonts, scripts, stylesheets, images, or network requests are required.
