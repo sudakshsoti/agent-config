@@ -1,9 +1,9 @@
 {
-  "defaultProvider": "opencode-go",
+  "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-luna",
-  "defaultThinkingLevel": "medium",
+  "defaultThinkingLevel": "high",
   "enabledModels": [
-    "opencode-go/gpt-5.6-luna:medium",
+    "openai-codex/gpt-5.6-luna:high",
     "openai-codex/gpt-6-astra:low",
     "openai-codex/gpt-5.6-terra:medium",
     "openai-codex/gpt-5.6-sol:high",

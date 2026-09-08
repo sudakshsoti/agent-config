@@ -3,8 +3,8 @@ description: Implements an approved UX plan in React, shadcn/ui, Tailwind CSS or
 display_name: Builder
 color: green
 tools: all
-model: opencode-go/gpt-5.6-luna
-thinking: medium
+model: openai-codex/gpt-5.6-luna
+thinking: high
 max_turns: 30
 prompt_mode: append
 ---
