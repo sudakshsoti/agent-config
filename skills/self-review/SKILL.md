@@ -1,6 +1,6 @@
 ---
 name: self-review
-description: Self-review the engineering plan you just proposed via the plan-critic subagent, then revise it to address every point. Use right after proposing a plan in plan mode, or when the user types /self-review. Stage 1 of the two-stage plan-review pipeline — the cheap in-house filter before the cross-lineage `peer-review` pass.
+description: "Use immediately after proposing an engineering plan or when `/self-review` is requested; have the plan-critic identify omissions and revise the plan to address every point. It is the in-lineage review stage; use peer-review for an adversarial review by another model lineage."
 user-invocable: true
 ---
 

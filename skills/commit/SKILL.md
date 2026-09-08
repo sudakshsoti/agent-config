@@ -1,12 +1,6 @@
 ---
 name: commit
-description: |
-  Stage and commit the working changes with a message in the user's house style:
-  "scope: imperative summary" + a why-first body, no emojis, no AI-attribution
-  trailers. Use when the user types /commit or says "commit this", "commit my
-  changes", "make a commit", "save this", "write a commit message". Reads the
-  diff, splits unrelated changes into separate commits, and matches the repo's
-  own convention when it differs from the default.
+description: "Use when the user asks to commit or save changes, including `/commit`; inspect the diff, split unrelated work, and follow repository commit conventions. It performs Git commits; use push only when the user separately requests sending commits to a remote."
 user-invocable: true
 ---
 

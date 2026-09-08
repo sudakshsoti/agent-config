@@ -1,9 +1,6 @@
 ---
 name: design-grill
-description: >-
-  Relentless interview on how something should look, feel and behave, round by
-  round until nothing is assumed. New screens or pressure-testing decisions;
-  records settlements in design/decisions.md. Technical grilling is grilling.
+description: "Run a round-based interview to settle visual and behavioural interface decisions, recording agreed design decisions while excluding implementation architecture."
 disable-model-invocation: true
 ---
 

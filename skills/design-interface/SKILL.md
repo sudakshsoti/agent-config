@@ -1,6 +1,6 @@
 ---
 name: design-interface
-description: Testable rules for controls and structure — classify reference, utility, dashboard, settings, documentation, list, form, or interactive screen intent before choosing hierarchy; then cover field states, focus, target size, labels, hit areas, and the states nobody demos. Does not cover type scale; see design-typography.
+description: "Use when designing or reviewing interactive controls, forms, lists, dashboards, settings, documentation, or non-happy-path screen states. It specifies structure, labels, focus, hit areas, and field states; hand type scale or visual styling to design-typography or design-visual-system."
 ---
 
 # craft: interface

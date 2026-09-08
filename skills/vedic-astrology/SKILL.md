@@ -1,10 +1,6 @@
 ---
 name: vedic-astrology
-description: |
-  Vedic astrology (Jyotish) across Parashari and Jaimini with modern
-  psychological insight — chart reading, dasha timing, Shani/Guru/Rahu-Ketu
-  transits, muhurta, compatibility, remedies. Kundli PDF in, honest reading
-  out. Not Western or tropical astrology unless asked to compare.
+description: "Read Vedic charts using Parashari and Jaimini methods for planetary periods, transits, muhurta, compatibility, remedies, and grounded self-reflection."
 disable-model-invocation: true
 ---
 

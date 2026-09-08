@@ -1,6 +1,6 @@
 ---
 name: research
-description: Investigate a question against high-trust primary sources and capture the findings as a Markdown file in the repo. Use when the user wants a topic researched, docs or API facts gathered, or reading legwork delegated to a background agent.
+description: "Use when a question needs investigation against high-trust primary sources, official documentation, specifications, or first-party APIs, with findings captured in a cited Markdown file. It delegates research and records evidence; use firecrawl-web for Firecrawl retrieval without the repository write-up."
 ---
 
 Spin up a **background agent** to do the research, so you keep working while it reads.

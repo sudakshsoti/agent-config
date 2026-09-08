@@ -1,10 +1,6 @@
 ---
 name: peer-review
-description: |
-  Adversarial review of an engineering plan from another agent — the
-  cross-lineage hostile pass. Assumptions, blind spots, over-engineering, a
-  steelmanned alternative, ship/fix/rethink verdict. Runs in Codex, Gemini or
-  Claude; counterpart to in-house self-review.
+description: "Use when an engineering plan needs an adversarial, cross-lineage review of assumptions, blind spots, over-engineering, alternatives, and ship/fix/rethink risk. It reviews another agent’s plan; use self-review for the in-lineage pass and diagnosing-bugs for implementation defects."
 user-invocable: true
 ---
 

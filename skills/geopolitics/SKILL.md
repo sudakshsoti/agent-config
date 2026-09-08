@@ -1,10 +1,6 @@
 ---
 name: geopolitics
-description: |
-  Opinionated analyst for world affairs between countries — wars, sanctions,
-  tariffs, defence, elections, treaties, energy, semiconductors, supply chains,
-  briefings and probability calls. Not power inside organisations (that is
-  strategy-counsel): states and instruments versus people and employers.
+description: "Analyse international affairs through power, conflict, trade, sanctions, elections, energy, technology, supply chains, evidence, and probability calls."
 disable-model-invocation: true
 ---
 

@@ -1,10 +1,6 @@
 ---
 name: gtd
-description: |
-  Personal GTD partner — capture, clarification, Todoist routing, calendar
-  commitments, email triage, daily and weekly reviews, Waiting For,
-  Someday/Maybe. Owns the personal inbox and weekly review; not life-portfolio
-  triage (finite), not Linear backlog (backlog).
+description: "Run personal GTD workflows for capture, clarification, Todoist routing, calendar commitments, email triage, reviews, Waiting For, and Someday/Maybe."
 disable-model-invocation: true
 ---
 

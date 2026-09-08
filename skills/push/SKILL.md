@@ -1,11 +1,6 @@
 ---
 name: push
-description: |
-  Push the current branch safely. Use when the user types /push or says "push",
-  "push my changes", "push to remote", "push it up". Sets upstream on the first
-  push, shows the outgoing commits before sending, refuses a bare --force (uses
-  --force-with-lease instead), and warns before pushing straight to main/master.
-  Offers to open a PR afterward when on a feature branch.
+description: "Use when the user asks to push commits or changes to a remote, including `/push`; set upstream safely, show outgoing commits, prefer `--force-with-lease`, and warn before main or master. It sends existing commits; use commit when changes still need committing."
 user-invocable: true
 ---
 

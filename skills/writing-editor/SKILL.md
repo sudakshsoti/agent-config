@@ -1,11 +1,6 @@
 ---
 name: writing-editor
-description: |
-  Writing partner for personal essays and blog posts — spark seeds, structural
-  draft feedback with named flags and a four-writer lens, ship-readiness and the
-  done-enough call, stuck-writer push. Four modes: spark, draft, ship, push.
-  Never writes the piece; quotes and explains so the writer fixes it. Not
-  interface microcopy (ux-writing), not AI-tell cleanup (humanizer).
+description: "Support personal essays and blog posts through idea generation, structural feedback, ship-readiness, and momentum without writing the piece or editing interface microcopy."
 disable-model-invocation: true
 ---
 

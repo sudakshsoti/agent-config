@@ -1,14 +1,6 @@
 ---
 name: update-branch-name
-description: |
-  Rename the current git branch to fit a naming convention — a semantic
-  prefix (feat/fix/chore/docs/...) plus a kebab-case slug — and keep the
-  remote, any open PR, local tracking, and the worktree directory name in
-  sync. Use when the user types /update-branch-name or says "rename this
-  branch", "fix the branch name", "this branch needs a prefix", "rename the
-  worktree too", or gives a specific new branch name. Refuses to touch
-  main/master, and prefers GitHub's server-side rename so an open PR isn't
-  orphaned.
+description: "Rename a feature branch to a valid convention while preserving remote tracking, pull-request continuity, worktree alignment, and protection for default branches."
 user-invocable: true
 disable-model-invocation: true
 ---

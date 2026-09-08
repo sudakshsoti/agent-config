@@ -1,6 +1,6 @@
 ---
 name: diagnosing-bugs
-description: Diagnosis loop for hard bugs and performance regressions. Use when the user says "diagnose"/"debug this", or reports something broken/throwing/failing/slow.
+description: "Use for hard bugs or performance regressions when something is broken, throwing, failing, or slow, and follow a reproduce–diagnose–fix–verify loop. It handles application defects; use axiom-build first for iOS/Xcode environment failures and specialised skills for domain-specific guidance."
 ---
 
 # Diagnosing Bugs

@@ -1,11 +1,6 @@
 ---
 name: merge
-description: |
-  Merge the current branch's GitHub pull request with the gh CLI. Use when the
-  user types /merge or says "merge this", "merge the PR", "land this", "ship it".
-  Checks CI and mergeability first, squash-merges by default (overridable to a
-  merge commit or rebase), deletes the merged branch, and returns to an updated
-  base branch. Stops and points to /pr if no PR exists yet.
+description: "Merge a ready GitHub pull request safely with CI and mergeability checks, a chosen merge strategy, branch cleanup, and updated base."
 user-invocable: true
 disable-model-invocation: true
 ---

@@ -1,11 +1,6 @@
 ---
 name: find-skills
-description: >-
-  Discover and install agent skills. Use when the user asks to "find a skill for
-  X", "is there a skill that can...", "install a skill", or asks how to extend
-  the agent's own capabilities with a skill. Do not use for general "how do I do
-  X" questions — those belong to the relevant domain skill, not to skill
-  shopping.
+description: "Discover and install agent skills when users seek a capability extension, while routing ordinary domain questions to the appropriate specialist."
 disable-model-invocation: true
 ---
 

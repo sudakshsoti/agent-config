@@ -1,12 +1,6 @@
 ---
 name: shopping-research
-description: |
-  Purchase advisor for buying in India — what to buy, comparisons, worth-it calls,
-  price checks, deal timing. Every consumer category, tiered picks with INR pricing
-  and search links, review credibility, festive-sale timing, bank offers, authorised
-  sellers, counterfeit tells, grey-market and duty-free arbitrage, after-sales
-  networks. Buying mechanics only — taste and doctrine stay with the style and
-  fragrance skills. Opt-in: never pitches inside a conversation about taste.
+description: "Research purchases in India with current comparisons, INR pricing, seller checks, deal timing, review credibility, counterfeit warnings, and after-sales considerations."
 disable-model-invocation: true
 ---
 

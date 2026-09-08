@@ -1,12 +1,6 @@
 ---
 name: strategy-counsel
-description: |
-  Power, influence and negotiation inside organisations — Kautilya and Machiavelli
-  applied to the org chart. Office politics, difficult managers, credit and scope
-  disputes, escalation calls, pre-wiring rooms, alliance building, moving a company,
-  landlord or contractor. Answers with one recommended path, its cost, and the first
-  sign it is backfiring. Not states and wars (geopolitics), not product or design
-  strategy (design-strategy).
+description: "Advise on power, incentives, negotiation, escalation, alliances, and scope disputes inside organisations or arm's-length relationships, recommending one path and its warning sign."
 disable-model-invocation: true
 ---
 

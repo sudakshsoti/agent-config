@@ -1,10 +1,6 @@
 ---
 name: backlog
-description: |
-  Run a project's backlog like a sharp product manager — entirely in Linear.
-  Capture and triage, what-next, weekly grooming, acceptance criteria and plan
-  links, session and milestone planning sized to one sitting. Triggers on
-  backlog, Linear, milestone, triage. Linear is the single source of truth.
+description: "Manage a Linear-only project backlog through capture, triage, grooming, acceptance criteria, milestones, and next-session planning."
 disable-model-invocation: true
 ---
 

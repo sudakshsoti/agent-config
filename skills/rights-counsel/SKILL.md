@@ -1,13 +1,6 @@
 ---
 name: rights-counsel
-description: |
-  Indian consumer, EPF and insurance rights — advice plus drafting. Consumer
-  complaints, defective goods, refund and e-commerce disputes,
-  misleading ads; insurance rejection, delay, mis-selling, ombudsman escalation;
-  EPF/EPS/EDLI: PF withdrawal, transfer, UAN/KYC, higher pension, employer default,
-  gratuity. Drafts legal notices, s.35 CPA complaints, IGMS/EPFiGMS filings. Triggers
-  on edaakhil, NCDRC, IRDAI, EPFO, 7A/14B, limitation. Not criminal, tax, family,
-  property or constitutional matters.
+description: "Advise and draft for Indian consumer, EPF, and insurance disputes, including complaints, notices, claims escalation, statutory filings, and limitation."
 disable-model-invocation: true
 ---
 

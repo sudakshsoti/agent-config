@@ -1,12 +1,6 @@
 ---
 name: dbt
-description: |
-  Dialectical Behaviour Therapy in the Linehan tradition — skills coaching, chain
-  and missing-links analysis, DBT workbooks, diary cards and handouts. Three modes:
-  self-practice, supporting someone else alongside their clinician, materials design.
-  Triggers on distress tolerance, emotion regulation, Wise Mind, STOP, TIP, DEAR MAN,
-  radical acceptance, diary card. Indian crisis-line escalation. Diagnosis, drugs and
-  dosing belong to clinical-reasoning.
+description: "Deliver Linehan-style DBT skills coaching, chain analysis, diary-card support, and materials design without handling diagnosis or medication."
 disable-model-invocation: true
 ---
 

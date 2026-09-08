@@ -1,7 +1,6 @@
 ---
 name: design-typography
-description: |
-  Typography direction, systems, critique, and production across screen, print/editorial, brand identity, display type, and type-led layout. Use when selecting or pairing typefaces, designing compact UI hierarchy, deciding whether a visible heading is needed, setting scales, typesetting, evaluating fonts, specifying OpenType or variable-font behaviour, implementing webfonts, reviewing typography, or creating typographic brand guidance. Typography only: route broad visual direction, colour, imagery, motion, product strategy, and interface copy to their dedicated skills.
+description: "Use for typeface selection, pairing, hierarchy, scales, OpenType features, font loading, language coverage, and type-led layout across screen, print, or brand work. It owns typography; use design-interface for non-type interaction structure and design-visual-system for broader colour, imagery, and layout."
 ---
 
 # Typography craft

@@ -1,10 +1,6 @@
 ---
 name: orient
-description: |
-  Write one self-contained HTML guide to a repo — what it is, decisions and
-  why, where the sprawl is — plain English, every claim cited to file:line.
-  For returning to your own vibe-coded repo. Describes, never prescribes
-  (debt is maintainability-review); session handoff is `handoff`.
+description: "Explain a repository in one cited HTML guide, covering its purpose, decisions, rationale, and sprawl without prescribing code changes."
 user-invocable: true
 disable-model-invocation: true
 ---

@@ -1,9 +1,6 @@
 ---
 name: n8n-deploy
-description: |
-  Edit or deploy self-hosted n8n workflows without clobbering the DB — nodes,
-  schedules, active state, Code nodes. RIGID: never import:workflow,
-  update:workflow, or API node writes; all three silently corrupt state.
+description: "Edit or deploy self-hosted n8n workflows through the safe stopped-database path, preserving nodes, schedules, active state, and workflow integrity."
 disable-model-invocation: true
 ---
 

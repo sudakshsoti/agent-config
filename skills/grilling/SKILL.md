@@ -1,12 +1,6 @@
 ---
 name: grilling
-description: >-
-  Interrogate the user about a plan, decision, or idea over successive rounds of
-  questions until nothing is left unsettled. Use when the user says "grill me",
-  "grill this", "stress-test this", "interrogate me", "push back on this", or
-  asks to have their own thinking pressure-tested in conversation. This is an
-  interactive interview of the user, round by round; for a one-shot written
-  verdict on a plan document someone already wrote, use `peer-review`.
+description: "Conduct successive question rounds that pressure-test a user's plan, decision, or idea until the relevant assumptions and choices are settled."
 disable-model-invocation: true
 ---
 

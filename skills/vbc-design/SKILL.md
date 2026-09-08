@@ -1,11 +1,6 @@
 ---
 name: vbc-design
-description: |
-  Design authority for US healthcare software — value-based care, population
-  health, care and utilisation management, quality (HEDIS/Stars), risk
-  adjustment, portals, claims, SDoH, Medicare Advantage, clinical workflow.
-  Audits, teardowns, deliverables with operational gotchas. Non-healthcare is
-  design-strategy; decision support is clinical-reasoning.
+description: "Design and assess US value-based-care software across population health, care management, quality, risk adjustment, claims, SDoH, portals, and clinical workflows."
 disable-model-invocation: true
 ---
 

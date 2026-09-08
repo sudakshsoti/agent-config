@@ -1,10 +1,6 @@
 ---
 name: finite
-description: |
-  Advisor for a finite life — daily orient verdict, triage by naming what a yes
-  displaces, forced cull to a durable Closed List. Spans Linear, Todoist, notes
-  and life admin; no single tracker authoritative. Triggers on overwhelmed,
-  overcommitted, capacity. Advises first, writes back only on approval.
+description: "Advise on commitments using capacity-aware daily orientation, triage, and closed-list culling across work, personal administration, and multiple trackers."
 disable-model-invocation: true
 ---
 

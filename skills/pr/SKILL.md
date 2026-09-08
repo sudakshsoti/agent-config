@@ -1,11 +1,6 @@
 ---
 name: pr
-description: |
-  Open a GitHub pull request with the gh CLI. Use when the user types /pr or says
-  "open a PR", "raise a pull request", "create a PR", "PR this". Makes sure the
-  work is committed and the branch is pushed, derives the title from the branch's
-  commits, and writes a why-first body (Summary / Changes / Test plan, plus linked
-  issues) in the user's voice — no AI-attribution footer. Supports draft PRs.
+description: "Open a GitHub pull request after commit and push checks, deriving its title and why-first body in the repository's house style."
 user-invocable: true
 disable-model-invocation: true
 ---

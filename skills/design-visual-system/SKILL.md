@@ -1,12 +1,6 @@
 ---
 name: design-visual-system
-description: >
-  Visual direction for a product UI in its codebase — classify the surface
-  intent before choosing hierarchy, and do not apply marketing hierarchy to
-  reference or utility interfaces. Covers art direction, colour, hierarchy,
-  layout, responsive behaviour, CSS and tokens, @theme, and OKLCH.
-  Typography-primary is design-typography; standalone decks and diagrams are
-  design. Not for component behaviour, state or data flow.
+description: "Use for visual direction in a product UI: art direction, colour, hierarchy, responsive layout, CSS tokens, `@theme`, and OKLCH, while first classifying the surface intent. It owns visual system decisions; use design-typography for typography-primary work and design-interface for behaviour and states."
 ---
 
 # Frontend craft

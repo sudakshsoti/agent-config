@@ -1,10 +1,6 @@
 ---
 name: maintainability-review
-description: |
-  Review AI-generated web/frontend code for human maintainability — DRY,
-  over-engineering, naming, structure, silent failures, cross-session drift.
-  Three modes: diff (default), audit, triage. Not security, correctness, or
-  accessibility — use a dedicated review. Plan/design review is peer-review.
+description: "Review AI-generated frontend code for human maintainability across duplication, abstractions, naming, structure, silent failures, and cross-session drift."
 user-invocable: true
 disable-model-invocation: true
 ---

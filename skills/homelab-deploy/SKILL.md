@@ -1,10 +1,6 @@
 ---
 name: homelab-deploy
-description: |
-  Deploy to the homelab box (Hetzner/Docker//opt/stacks) — compose, Caddyfile,
-  watchdog, decypharr, subdomains, restarts. RIGID order: bare up -d
-  rclone-torbox and n8n import silently break things. n8n work goes via
-  n8n-deploy.
+description: "Deploy and update the homelab's Docker and Caddy stack using guarded procedures for remote access, synchronisation, restarts, rclone, and n8n."
 disable-model-invocation: true
 ---
 

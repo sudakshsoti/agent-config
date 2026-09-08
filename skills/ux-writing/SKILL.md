@@ -1,10 +1,6 @@
 ---
 name: ux-writing
-description: |
-  Interface microcopy for digital products — buttons, errors, forms, onboarding,
-  empty states, notifications. Voice and tone, content audits, UI-string
-  reviews. Purposeful, concise, conversational, clear, with accessibility and
-  benchmarks. Not essays or blog posts (writing-editor).
+description: "Write and audit concise accessible interface microcopy for controls, forms, errors, onboarding, empty states, notifications, voice, tone, and consistency."
 disable-model-invocation: true
 ---
 

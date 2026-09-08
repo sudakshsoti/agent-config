@@ -1,10 +1,6 @@
 ---
 name: design-strategy
-description: |
-  Strategy- and craft-heavy design advisor for any industry — brainstorming,
-  critique, audits, strategy docs, journey maps, teardowns, decision logs,
-  stakeholder narratives. Reasons out the business model live. US healthcare
-  is vbc-design; visual direction is design-visual-system.
+description: "Use for industry-agnostic product and UX strategy: business-model reasoning, positioning, workflow critique, journey maps, decision logs, teardowns, or stakeholder narratives. It is not for US healthcare, which belongs to vbc-design; visual direction belongs to design-visual-system."
 ---
 
 # Design Foil
