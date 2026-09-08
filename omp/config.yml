@@ -56,27 +56,27 @@ retry:
     default:
       - opencode-go/glm-5.3-flash:high
       - opencode-go/deepseek-v4-flash:high
-symbolPreset: nerd
+symbolPreset: unicode
 theme:
-  dark: dark-lunar-statusline
-  light: lunar-light-statusline
+  dark: titanium
+  light: light
 setupVersion: 2
 statusLine:
   preset: default
-  separator: none
-  sessionAccent: false
-  compactThinkingLevel: false
-  transparent: true
+  separator: powerline-thin
+  sessionAccent: true
+  compactThinkingLevel: true
+  transparent: false
   leftSegments:
     []
   rightSegments:
     []
-  contextLine: annotated
+  contextLine: embedded
   showHookStatus: true
   segmentOptions:
     {}
 startup:
-  quiet: true
+  quiet: false
 autoResume: false
 modelRoleStorage: global
 memory:
@@ -86,7 +86,7 @@ autolearn:
   autoContinue: true
 dev:
   autoqaConsent: denied
-hideThinkingBlock: true
+hideThinkingBlock: false
 advisor:
   enabled: false
   syncBacklog: "off"
@@ -99,7 +99,7 @@ display:
   showTokenUsage: false
   collapseCompacted: true
   cacheMissMarker: false
-  hideToolActivity: true
+  hideToolActivity: false
 defaultThinkingLevel: auto
 providers:
   openai-codex:
@@ -152,4 +152,4 @@ tui:
   maxInlineImageRows: 20
   maxInlineImages: 8
 composer:
-  shape: claude
+  shape: band
