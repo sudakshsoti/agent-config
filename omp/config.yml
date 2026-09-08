@@ -60,20 +60,20 @@ retry:
       - opencode-go/deepseek-v4-flash:high
 symbolPreset: unicode
 theme:
-  dark: titanium
-  light: light
+  dark: dark-lunar-statusline
+  light: lunar-light-statusline
 setupVersion: 2
 statusLine:
   preset: default
-  separator: powerline-thin
-  sessionAccent: true
-  compactThinkingLevel: true
-  transparent: false
+  separator: none
+  sessionAccent: false
+  compactThinkingLevel: false
+  transparent: true
   leftSegments:
     []
   rightSegments:
     []
-  contextLine: embedded
+  contextLine: annotated
   showHookStatus: true
   segmentOptions:
     {}
@@ -88,7 +88,7 @@ autolearn:
   autoContinue: true
 dev:
   autoqaConsent: denied
-hideThinkingBlock: false
+hideThinkingBlock: true
 advisor:
   enabled: false
   syncBacklog: "off"
@@ -155,3 +155,7 @@ tui:
   maxInlineImages: 8
 composer:
   shape: band
+spelling:
+  autocomplete: false
+  autocorrect: false
+  typoDetection: false
