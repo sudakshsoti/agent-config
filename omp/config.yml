@@ -1,42 +1,19 @@
 modelRoles:
-  default: openai-codex/gpt-5.6-luna:xhigh
-  plan: openai-codex/gpt-6-astra:low
-  slow: openai-codex/gpt-6-astra:high
-  designer: openai-codex/gpt-6-astra:medium
-  vision: openai-codex/gpt-5.6-luna:high
+  default: anthropic/claude-sonnet-5:medium
+  plan: anthropic/claude-opus-5:medium
+  slow: anthropic/claude-opus-5:high
+  designer: anthropic/claude-sonnet-5:medium
+  vision: anthropic/claude-sonnet-5:medium
   task: openai-codex/gpt-5.6-luna:xhigh
-  adversary: opencode-go/grok-4.6:high
-  reviewer: opencode-go/glm-5.3-flash:high
-  security-reviewer: opencode-go/glm-5.3:high
-  advisor: opencode-go/grok-4.6:high
-  smol: openai-codex/gpt-5.6-luna:low
-  tiny: openai-codex/gpt-5.6-luna:low
+  adversary: openai-codex/gpt-5.6-sol:low
+  smol: openai-codex/gpt-5.6-luna:xhigh
+  tiny: ollama-local/qwen3.5:0.8b
   commit: openai-codex/gpt-5.6-luna:low
-enabledModels:
-  - openai-codex/gpt-5.6-luna
-  - openai-codex/gpt-6-astra
-  - opencode-go/deepseek-v4-flash
-  - opencode-go/glm-5.3-flash
-  - opencode-go/glm-5.3
-  - opencode-go/grok-4.6
-disabledProviders:
-  - anthropic
-  - opencode-zen
-  - openrouter
-  - ollama
-  - ollama-local
 task:
   batch: true
   enableEffort: false
   eager: preferred
   enableLsp: true
-  agentModelOverrides:
-    task: openai-codex/gpt-5.6-luna:xhigh
-    scout: opencode-go/deepseek-v4-flash:low
-    sonic: openai-codex/gpt-5.6-luna:low
-    adversary: opencode-go/grok-4.6:high
-    reviewer: opencode-go/glm-5.3-flash:high
-    security-reviewer: opencode-go/glm-5.3:high
 retry:
   enabled: true
   modelFallback: true
@@ -44,67 +21,62 @@ retry:
   usageReservePct: 15
   usageReservePolicy: auto
   fallbackChains:
-    openai-codex/gpt-6-astra:
-      - opencode-go/glm-5.3:high
-      - opencode-go/grok-4.6:high
-    opencode-go/glm-5.3-flash:
-      - opencode-go/grok-4.6:high
-      - opencode-go/deepseek-v4-flash:max
-    opencode-go/glm-5.3:
-      - opencode-go/grok-4.6:high
-      - opencode-go/deepseek-v4-flash:max
-    opencode-go/grok-4.6:
-      - opencode-go/glm-5.3:high
-      - opencode-go/deepseek-v4-flash:max
-    opencode-go/deepseek-v4-flash:
-      - openai-codex/gpt-5.6-luna:low
-    smol:
-      - opencode-go/deepseek-v4-flash:low
-    tiny:
-      - opencode-go/deepseek-v4-flash:low
-    commit:
-      - opencode-go/deepseek-v4-flash:low
+    anthropic/*:
+      - opencode-go/muse-spark-1.2-contributor:low
+      - opencode-go/minimax-m3:low
+      - openai-codex/gpt-5.6-sol:low
+    openai-codex/*:
+      - opencode-go/muse-spark-1.2-contributor:low
+      - opencode-go/minimax-m3:low
+    opencode-go/*:
+      - opencode-go/muse-spark-1.2-contributor:low
+      - opencode-go/minimax-m3:low
+      - opencode-zen/deepseek-v4-flash:low
+    opencode-zen/*:
+      - opencode-go/muse-spark-1.2-contributor:low
+      - opencode-go/minimax-m3:low
     default:
-      - opencode-go/glm-5.3-flash:high
-      - opencode-go/deepseek-v4-flash:high
+      - opencode-go/muse-spark-1.2-contributor:low
+      - opencode-go/minimax-m3:low
+      - opencode-zen/deepseek-v4-flash:low
 symbolPreset: nerd
-theme: 
+theme:
   dark: dark-lunar-statusline
   light: light
 setupVersion: 2
-statusLine: 
+statusLine:
   preset: default
   separator: none
   sessionAccent: true
   compactThinkingLevel: false
   transparent: true
-  leftSegments: 
+  leftSegments:
     []
-  rightSegments: 
+  rightSegments:
     []
   contextLine: annotated
   showHookStatus: true
-  segmentOptions: 
+  segmentOptions:
     {}
-startup: 
+startup:
   quiet: true
 autoResume: false
 modelRoleStorage: global
-memory: 
+memory:
   backend: local
-autolearn: 
+autolearn:
   enabled: true
   autoContinue: true
-dev: 
+dev:
   autoqaConsent: denied
 hideThinkingBlock: true
-advisor: 
+advisor:
   enabled: false
   syncBacklog: "off"
-terminal: 
+terminal:
   showProgress: false
   showImages: true
-display: 
+display:
   shimmer: classic
   smoothStreaming: true
   showTokenUsage: false
@@ -112,33 +84,31 @@ display:
   cacheMissMarker: false
   hideToolActivity: false
 defaultThinkingLevel: auto
-providers: 
-  openai-codex:
-    codeMode: auto
+providers:
   autoThinkingModel: online
   autoThinkingMaxEffort: xhigh
-  webSearchOrder: 
+  webSearchOrder:
     - tavily
     - exa
   memoryModel: online
 textVerbosity: medium
-tier: 
+tier:
   openai: none
   subagent: inherit
 personality: friendly
 steeringMode: one-at-a-time
-compaction: 
+compaction:
   handoffSaveToDisk: true
-  methodOrder: 
+  methodOrder:
     - snapcompact
     - remote
     - soft
-snapcompact: 
+snapcompact:
   systemPrompt: none
-bashInterceptor: 
+bashInterceptor:
   enabled: true
-skills: 
-  ignoredSkills: 
+skills:
+  ignoredSkills:
     - artifact-*
     - claude-in-chrome
     - claude-api
@@ -148,9 +118,9 @@ skills:
     - fewer-permission-prompts
     - loop
     - schedule
-tools: 
+tools:
   approvalMode: yolo
-tui: 
+tui:
   textSizing: false
   tight: false
   renderMermaid: true
@@ -162,5 +132,5 @@ tui:
   maxInlineImageColumns: 100
   maxInlineImageRows: 20
   maxInlineImages: 8
-composer: 
+composer:
   shape: claude
