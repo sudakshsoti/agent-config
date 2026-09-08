@@ -10,7 +10,7 @@
     "opencode-go/deepseek-v4-flash:low",
     "opencode-go/muse-spark-1.3-contributor:minimal"
   ],
-  "theme": "flexoki-dark",
+  "theme": "kohra",
   "quietStartup": true,
   "hideThinkingBlock": true,
   "compaction": {
