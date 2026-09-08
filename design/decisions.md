@@ -25,3 +25,5 @@
 - [stated] The tmux cheatsheet should use balanced density.
 - [stated] Wide screens should use a slim index rail beside the main content.
 - [stated] The shortcut filter should be live and unobtrusive.
+- [stated] The tmux cheatsheet uses a compact sans-serif hierarchy for headings; monospaced type is reserved for key sequences, command-like labels, and terminal status.
+- [stated] On mobile, the cheatsheet header collapses to a compact wordmark, filter, and single-line scrolling section navigation before the content.

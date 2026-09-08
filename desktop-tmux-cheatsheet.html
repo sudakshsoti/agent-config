@@ -170,11 +170,11 @@
 
     h1, h2, h3, p { margin-top: 0; }
     h1 {
-      max-width: 13ch;
-      margin-bottom: 0.7rem;
+      max-width: 26ch;
+      margin-bottom: 0.45rem;
       color: var(--fog);
-      font: 600 clamp(2rem, 5vw, 3.8rem)/0.98 var(--mono);
-      letter-spacing: -0.08em;
+      font: 650 clamp(1.55rem, 2.5vw, 2.1rem)/1.08 var(--sans);
+      letter-spacing: -0.025em;
     }
 
     .lede {
@@ -260,8 +260,8 @@
     h2 {
       margin-bottom: 0;
       color: var(--fog);
-      font: 600 1.4rem/1.2 var(--mono);
-      letter-spacing: -0.04em;
+      font: 650 1.12rem/1.25 var(--sans);
+      letter-spacing: -0.012em;
     }
 
     .section-kicker {
@@ -385,14 +385,45 @@
     }
 
     @media (max-width: 36rem) {
-      .shell { padding-inline: 1rem; padding-bottom: 2rem; }
-      .rail { display: block; }
-      .filter { margin-top: 1.25rem; }
-      .toc { display: flex; flex-wrap: wrap; gap: 0.15rem 1rem; margin-top: 1rem; border-left: 0; border-top: 1px solid var(--rule); padding: 0.65rem 0 0; }
-      .toc a { font-size: 0.8rem; }
-      h1 { font-size: clamp(2rem, 13vw, 3rem); }
-      .quickstart { display: block; margin: 1.5rem 0 2.5rem; }
-      .quickstart .key-line { margin-top: 0.8rem; }
+      .shell { padding: 1rem 1rem 2rem; }
+      .rail {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        gap: 0.65rem 1rem;
+        margin-bottom: 1.25rem;
+      }
+      .rail-intro, .filter-label, .filter-status, .rail-note { display: none; }
+      .wordmark { font-size: 0.9rem; white-space: nowrap; }
+      .filter { grid-column: 2; grid-row: 1; margin: 0; }
+      #filter { min-height: 2.5rem; padding-block: 0.45rem; font-size: 0.76rem; }
+      .toc {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 0.25rem 0.85rem;
+        overflow-x: auto;
+        margin: 0;
+        border: 0;
+        padding: 0;
+        scrollbar-width: none;
+      }
+      .toc::-webkit-scrollbar { display: none; }
+      .toc a { flex: 0 0 auto; padding: 0.15rem 0; font-size: 0.75rem; }
+      .hero { gap: 0; padding-bottom: 1.2rem; }
+      .hero .eyebrow, .prefix-mark { display: none; }
+      h1 { font-size: 1.55rem; }
+      .lede { font-size: 0.94rem; line-height: 1.4; }
+      .quickstart {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0.4rem 0.75rem;
+        margin: 1rem 0 1.75rem;
+        padding: 0.75rem 0.85rem;
+      }
+      .quickstart h2 { font-size: 1rem; }
+      .quickstart p { font-size: 0.82rem; line-height: 1.4; }
+      .quickstart .key-line { grid-column: 1 / -1; margin: 0.1rem 0 0; font-size: 0.8rem; }
       .shortcut-row { display: grid; grid-template-columns: 1fr auto; gap: 0.45rem 0.75rem; padding: 0.9rem 0; }
       .action { grid-column: 1; }
       .source { grid-column: 2; grid-row: 1; justify-self: end; }
