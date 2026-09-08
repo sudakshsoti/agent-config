@@ -69,26 +69,13 @@ plugin typescript-lsp@claude-plugins-official
 # Re-running install.sh fast-forwards each clone, so these track latest.
 # A repo-owned skills/<name> always shadows an external skill of the same name.
 #
-# emil's 12 design-engineering skills: animate, animate-expo,
-# animation-vocabulary, apple-design, ask-sonner, emil-design-eng,
-# find-animation-opportunities, improve-animations, pick-ui-library,
-# prototype, review-animations, write-swift. The last four carry
-# `disable-model-invocation: true` — slash-command only, invisible to the
-# model's skill list by design.
-external emilkowalski/skills
-
-# The other five sources, migrated off `npx skills` (2026-09-07). They were
+# The other sources, migrated off `npx skills` (2026-09-07). They were
 # installed globally and tracked only in ~/.agents/.skill-lock.json, which is
 # machine-local and has no restore command — so a fresh machine got none of
-# them. Each line is pinned to exactly the skills that were installed at
-# migration time; only marketingskills names its exact 50-skill allowlist,
-# were in use. axiom ships the same skill names under four agent-flavoured
-# trees, so its line names the one the lockfile recorded.
-external coreyhaines31/marketingskills ab-testing ad-creative ads ai-seo analytics aso attribution churn-prevention co-marketing cold-email community-marketing competitor-profiling competitors content-strategy copy-editing copywriting cro customer-research directory-submissions emails events free-tools image influencer-marketing launch lead-magnets marketing-council marketing-ideas marketing-loops marketing-plan marketing-psychology offers onboarding paywalls popups pricing product-marketing programmatic-seo prospecting public-relations referrals revops sales-enablement schema seo-audit signup site-architecture sms social video
-external stablyai/orca orchestration computer-use orca-cli orca-linear
-external charleswiltgen/axiom:.claude-plugin/plugins/axiom/skills axiom-build axiom-macos axiom-swiftui
+# them. Each line is pinned to exactly the skills that were in use at
+# migration time.
+external stablyai/orca orchestration computer-use
 external BexTuychiev/firecrawl-claude-code-skill firecrawl-web
-external ehmo/platform-design-skills macos-design-guidelines
 
 # frontend-design, from its canonical home in the claude-code repo (identical
 # byte-for-byte to the copy in claude-plugins-official). It was `plugin
