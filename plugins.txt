@@ -81,10 +81,10 @@ external emilkowalski/skills
 # installed globally and tracked only in ~/.agents/.skill-lock.json, which is
 # machine-local and has no restore command — so a fresh machine got none of
 # them. Each line is pinned to exactly the skills that were installed at
-# migration time; only marketingskills is bare, because all 49 of its skills
+# migration time; only marketingskills names its exact 50-skill allowlist,
 # were in use. axiom ships the same skill names under four agent-flavoured
 # trees, so its line names the one the lockfile recorded.
-external coreyhaines31/marketingskills
+external coreyhaines31/marketingskills ab-testing ad-creative ads ai-seo analytics aso attribution churn-prevention co-marketing cold-email community-marketing competitor-profiling competitors content-strategy copy-editing copywriting cro customer-research directory-submissions emails events free-tools image influencer-marketing launch lead-magnets marketing-council marketing-ideas marketing-loops marketing-plan marketing-psychology offers onboarding paywalls popups pricing product-marketing programmatic-seo prospecting public-relations referrals revops sales-enablement schema seo-audit signup site-architecture sms social video
 external stablyai/orca orchestration computer-use orca-cli orca-linear
 external charleswiltgen/axiom:.claude-plugin/plugins/axiom/skills axiom-build axiom-macos axiom-swiftui
 external BexTuychiev/firecrawl-claude-code-skill firecrawl-web

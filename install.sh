@@ -138,6 +138,120 @@ case "$REPO" in
   ;;
 esac
 
+POLICY="$REPO/skill-policy.json"
+POLICY_TOOL="$REPO/scripts/apply-skill-policy.py"
+GENERATED="$REPO/.generated"
+
+# Fetch external checkouts before policy validation, but do not touch any
+# installed link or generated overlay until validate-all has passed.
+fetch_external_sources() {
+  [ -f "$REPO/plugins.txt" ] || return
+  while read -r kind arg rest; do
+    [ "$kind" = "external" ] || continue
+    case "$arg" in
+    */*) : ;;
+    *) continue ;;
+    esac
+    local repo slug clone
+    repo="${arg%%:*}"
+    slug="${repo%/*}-${repo#*/}"
+    clone="$VENDOR/$slug"
+    if [ -d "$clone/.git" ]; then
+      if git -C "$clone" pull --ff-only --quiet 2>/dev/null; then
+        echo "pulled  $repo (vendor/$slug)"
+      else
+        echo "⚠️  could not fast-forward vendor/$slug — using the checkout as-is"
+      fi
+    else
+      mkdir -p "$VENDOR"
+      if git clone --depth 1 --quiet "https://github.com/$repo.git" "$clone" 2>/dev/null; then
+        echo "cloned  $repo -> vendor/$slug"
+      else
+        echo "⚠️  FAILED to clone $repo"
+      fi
+    fi
+  done <"$REPO/plugins.txt"
+}
+
+[ "$PLUGINS" = "1" ] && fetch_external_sources
+
+# validate-all is deliberately before the first installed link or generated
+# overlay write. With --no-plugins, an existing generated overlay is a valid
+# source only when the corresponding vendor checkout is absent.
+validation_vendor="$VENDOR"
+if [ "$PLUGINS" != "1" ]; then
+  have_vendor_checkout=0
+  if [ -d "$VENDOR" ]; then
+    for checkout in "$VENDOR"/*; do
+      [ -d "$checkout" ] || continue
+      have_vendor_checkout=1
+      break
+    done
+  fi
+  [ "$have_vendor_checkout" = "1" ] || validation_vendor="$GENERATED/skills"
+fi
+python3 "$POLICY_TOOL" validate-all \
+  --policy "$POLICY" \
+  --repo-root "$REPO" \
+  --vendor-root "$validation_vendor" \
+  --omp-root "$OMP"
+
+# validate-all validates every policy name. Validate every selected vendor
+# source as well so an external skill without a policy entry cannot fail after
+# repo-owned links have already been written.
+validate_external_sources() {
+  [ -f "$REPO/plugins.txt" ] || return
+  while read -r kind arg rest; do
+    [ "$kind" = "external" ] || continue
+    case "$arg" in */*) : ;; *) continue ;; esac
+    local repo subdir slug clone src_root source name
+    repo="${arg%%:*}"
+    subdir=""
+    case "$arg" in *:*) subdir="${arg#*:}" ;; esac
+    slug="${repo%/*}-${repo#*/}"
+    clone="$VENDOR/$slug"
+    want="$rest"
+    if [ "$repo" = "coreyhaines31/marketingskills" ] && [ -z "$want" ]; then
+      want="ab-testing ad-creative ads ai-seo analytics aso attribution churn-prevention co-marketing cold-email community-marketing competitor-profiling competitors content-strategy copy-editing copywriting cro customer-research directory-submissions emails events free-tools image influencer-marketing launch lead-magnets marketing-council marketing-ideas marketing-loops marketing-plan marketing-psychology offers onboarding paywalls popups pricing product-marketing programmatic-seo prospecting public-relations referrals revops sales-enablement schema seo-audit signup site-architecture sms social video"
+    fi
+    use_generated=0
+    if [ ! -d "$clone" ]; then
+      [ -d "$GENERATED/skills" ] || continue
+      use_generated=1
+    fi
+    if [ "$use_generated" = "1" ]; then
+      src_root="$GENERATED/skills"
+    elif [ -n "$subdir" ]; then
+      src_root="$clone/$subdir"
+    elif [ -d "$clone/skills" ]; then
+      src_root="$clone/skills"
+    else
+      src_root="$clone"
+    fi
+    check_external_source() {
+      source="$1"
+      [ -f "$source/SKILL.md" ] || return
+      name="$(sed -n '/^---$/,/^---$/{s/^name:[[:space:]]*//p;}' "$source/SKILL.md" 2>/dev/null | head -1)"
+      name="${name%\"}"; name="${name#\"}"
+      name="${name%\'}"; name="${name#\'}"
+      [ -n "$name" ] || name="$(basename "$source")"
+      if [ -n "$want" ] && ! printf '%s ' $want | grep -q "^$name \| $name "; then
+        return
+      fi
+      python3 "$POLICY_TOOL" validate-source \
+        --policy "$POLICY" --name "$name" --source "$source"
+    }
+    if [ -f "$src_root/SKILL.md" ]; then
+      check_external_source "$src_root"
+    elif [ -d "$src_root" ]; then
+      for source in "$src_root"/*/; do
+        check_external_source "${source%/}"
+      done
+    fi
+  done <"$REPO/plugins.txt"
+}
+validate_external_sources
+
 mkdir -p "$CLAUDE/skills" "$CLAUDE/agents"
 # Mirror skills into the shared ~/.agents/skills root, but only if Codex is
 # actually installed (its own dir already exists) — never create ~/.agents on a
@@ -187,6 +301,12 @@ mirror_into() { # mirror_into <source-dir> <dest-link> — shared ~/.agents root
   echo "linked  $name (agents)"
   mirrored=$((mirrored + 1))
 }
+
+# Apply OMP-local frontmatter before any installed link or generated overlay
+# write. Missing app-owned files warn; malformed files fail atomically.
+python3 "$POLICY_TOOL" apply-omp-local \
+  --policy "$POLICY" \
+  --omp-root "$OMP"
 
 # 1. Skills: every directory holding a SKILL.md.
 #    Symlinked into ~/.claude and into the shared ~/.agents/skills root that
@@ -242,40 +362,39 @@ if [ -f "$REPO/plugins.txt" ]; then
     slug="${repo%/*}-${repo#*/}"
     clone="$VENDOR/$slug"
 
-    if [ "$PLUGINS" = "1" ]; then
-      if [ -d "$clone/.git" ]; then
-        if git -C "$clone" pull --ff-only --quiet 2>/dev/null; then
-          echo "pulled  $repo (vendor/$slug)"
-        else
-          echo "⚠️  could not fast-forward vendor/$slug — using the checkout as-is"
-        fi
-      else
-        mkdir -p "$VENDOR"
-        if git clone --depth 1 --quiet "https://github.com/$repo.git" "$clone" 2>/dev/null; then
-          echo "cloned  $repo -> vendor/$slug"
-        else
-          echo "⚠️  FAILED to clone $repo"
-          skipped=$((skipped + 1))
-          continue
-        fi
-      fi
-    fi
-
+    # Fetching happened before validate-all; do not pull again after policy
+    # validation, or the checkout could change between validation and linking.
+    use_generated=0
     if [ ! -d "$clone" ]; then
-      echo "⚠️  SKIP external $repo — vendor/$slug is absent (re-run without --no-plugins)"
-      skipped=$((skipped + 1))
-      continue
+      if [ -d "$GENERATED/skills" ]; then
+        use_generated=1
+        echo "reusing generated overlays for external $repo"
+      else
+        echo "⚠️  SKIP external $repo — vendor/$slug and generated overlays are absent (re-run without --no-plugins)"
+        skipped=$((skipped + 1))
+        continue
+      fi
     fi
 
     # An optional space-separated skill list after the source narrows what gets
     # linked. Empty means every skill found — right for a small, curated repo,
     # wrong for a grab bag where the extras are dead weight in Codex's 2% budget.
     want="$rest"
+    # Keep this source on the exact migrated allowlist even while plugins.txt
+    # remains a declarative external manifest: upstream additions must not
+    # silently consume prompt budget.
+    # The equivalent exact manifest directive contains 50 skills:
+    # external coreyhaines31/marketingskills ab-testing ad-creative ads ai-seo analytics aso attribution churn-prevention co-marketing cold-email community-marketing competitor-profiling competitors content-strategy copy-editing copywriting cro customer-research directory-submissions emails events free-tools image influencer-marketing launch lead-magnets marketing-council marketing-ideas marketing-loops marketing-plan marketing-psychology offers onboarding paywalls popups pricing product-marketing programmatic-seo prospecting public-relations referrals revops sales-enablement schema seo-audit signup site-architecture sms social video
+    if [ "$repo" = "coreyhaines31/marketingskills" ] && [ -z "$want" ]; then
+      want="ab-testing ad-creative ads ai-seo analytics aso attribution churn-prevention co-marketing cold-email community-marketing competitor-profiling competitors content-strategy copy-editing copywriting cro customer-research directory-submissions emails events free-tools image influencer-marketing launch lead-magnets marketing-council marketing-ideas marketing-loops marketing-plan marketing-psychology offers onboarding paywalls popups pricing product-marketing programmatic-seo prospecting public-relations referrals revops sales-enablement schema seo-audit signup site-architecture sms social video"
+    fi
 
     # Where the skill dirs live. An explicit subdir wins; otherwise skills/ if
     # present, else the repo root. A repo that is itself one skill puts SKILL.md
     # at the root, so that is checked separately below.
-    if [ -n "$subdir" ]; then
+    if [ "$use_generated" = "1" ]; then
+      src_root="$GENERATED/skills"
+    elif [ -n "$subdir" ]; then
       src_root="$clone/$subdir"
     elif [ -d "$clone/skills" ]; then
       src_root="$clone/skills"
@@ -299,7 +418,7 @@ if [ -f "$REPO/plugins.txt" ]; then
     }
 
     link_skill() { # link_skill <dir>
-      local dir="$1" name
+      local dir="$1" name target
       name="$(skill_name "$dir")"
       if [ -n "$want" ] && ! printf '%s ' $want | grep -q "^$name \| $name "; then
         return 1
@@ -310,8 +429,19 @@ if [ -f "$REPO/plugins.txt" ]; then
         skipped=$((skipped + 1))
         return 1
       fi
-      link_into "$dir" "$CLAUDE/skills/$name"
-      [ -n "$AGENTS_SKILLS" ] && mirror_into "$dir" "$AGENTS_SKILLS/$name"
+      target="$dir"
+      if [ "$use_generated" != "1" ]; then
+        target="$GENERATED/skills/$name"
+        # materialise validates the policy entry and rewrites only owned
+        # frontmatter; all other files remain relative links to the vendor.
+        python3 "$POLICY_TOOL" materialise \
+          --policy "$POLICY" \
+          --name "$name" \
+          --source "$dir" \
+          --output "$target"
+      fi
+      link_into "$target" "$CLAUDE/skills/$name"
+      [ -n "$AGENTS_SKILLS" ] && mirror_into "$target" "$AGENTS_SKILLS/$name"
       return 0
     }
 
