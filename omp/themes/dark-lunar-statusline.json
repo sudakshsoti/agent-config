@@ -75,7 +75,7 @@
 		"statusLineModel": "moonlight",
 		"statusLinePath": "moonlight",
 		"statusLineGitClean": "moonlight",
-		"statusLineGitDirty": "moonlight",
+		"statusLineGitDirty": "warning",
 		"statusLineContext": "moonlight",
 		"statusLineSpend": "moonlight",
 		"statusLineStaged": "moonlight",

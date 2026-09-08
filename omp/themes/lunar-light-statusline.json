@@ -79,7 +79,7 @@
     "statusLineModel": "ink",
     "statusLinePath": "ink",
     "statusLineGitClean": "ink",
-    "statusLineGitDirty": "ink",
+    "statusLineGitDirty": "warning",
     "statusLineContext": "ink",
     "statusLineSpend": "ink",
     "statusLineStaged": "ink",
