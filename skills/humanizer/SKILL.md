@@ -1,6 +1,7 @@
 ---
 name: humanizer
-description: "Use when prose sounds AI-generated through inflated claims, stock wording, vague sourcing, repetition, passive voice, filler, or chatbot artefacts, and rewrite it without changing meaning. It handles AI-tell cleanup; use copy-editing for broader editorial improvement."
+description: "Rewrite AI-sounding prose by removing stock wording, inflated claims, vague sourcing, repetition, passive voice, filler, and chatbot artefacts without changing meaning."
+disable-model-invocation: true
 license: MIT
 metadata:
   version: "2.11.2"

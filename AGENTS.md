@@ -37,7 +37,7 @@
 
 | Lane | Declared in | Reaches | Use |
 | --- | --- | --- | --- |
-| `external <owner/repo> [skill ...]` | `plugins.txt` | Claude, Codex, opencode, omp | Third-party skills; cloned to `vendor/`, materialised, and linked to `~/.claude/skills` and `~/.agents/skills` |
+| `external <owner/repo> [skill ...]` | `plugins.txt` | Claude, Codex, opencode, omp | Third-party skills; cloned to `vendor/` and linked to `~/.claude/skills` and `~/.agents/skills` |
 | `marketplace` + `plugin` | `plugins.txt` | Claude only | More than skills and ships `.claude-plugin/marketplace.json` |
 | `skills/<name>/` | repo | Claude, Codex, opencode, omp | Repo-owned/editable; requires `dist/<name>.zip` and `scripts/lint-skills.py` |
 
