@@ -19,3 +19,9 @@
 - [stated] The tmux cheatsheet covers the complete configured workflow, with daily actions prioritised.
 - [stated] The tmux cheatsheet uses the Kohra terminal visual direction.
 - [stated] The tmux cheatsheet includes a tiny shortcut filter.
+- [stated] The tmux cheatsheet includes a small, clearly labelled section of useful tmux defaults.
+- [stated] The tmux cheatsheet's typography should remain portable across machines.
+- [inferred] Embedding a compact mono from the supplied font library may preserve the terminal-reference character across machines; Commit Mono and Atkinson Hyperlegible Next are the implementation candidates, pending rendered proof.
+- [stated] The tmux cheatsheet should use balanced density.
+- [stated] Wide screens should use a slim index rail beside the main content.
+- [stated] The shortcut filter should be live and unobtrusive.
