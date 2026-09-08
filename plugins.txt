@@ -76,6 +76,8 @@ plugin typescript-lsp@claude-plugins-official
 # migration time.
 external stablyai/orca orchestration computer-use
 external BexTuychiev/firecrawl-claude-code-skill firecrawl-web
+# emilkowalski/skills — all upstream skills, linked for every agent surface.
+external emilkowalski/skills
 
 # frontend-design, from its canonical home in the claude-code repo (identical
 # byte-for-byte to the copy in claude-plugins-official). It was `plugin
