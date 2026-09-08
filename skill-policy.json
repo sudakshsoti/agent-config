@@ -1,0 +1,494 @@
+{
+  "version": 1,
+  "budgets": {
+    "manualAwareDescriptionCharacters": 14000,
+    "alwaysListedDescriptionCharacters": 20800
+  },
+  "skills": {
+    "ab-testing": {
+      "exposure": "manual",
+      "description": "Plan statistically sound experiments that compare variants, define hypotheses, select metrics, size samples, and interpret results."
+    },
+    "ad-creative": {
+      "exposure": "manual",
+      "description": "Create and iterate platform-specific advertising concepts, copy, hooks, static assets, video formats, and performance-informed creative systems."
+    },
+    "ads": {
+      "exposure": "manual",
+      "description": "Plan, launch, target, budget, measure, and optimise paid campaigns across search, social, professional, and emerging advertising platforms."
+    },
+    "ai-seo": {
+      "exposure": "manual",
+      "description": "Optimise content for discovery and citation in AI search systems through structured, authoritative, people-first information."
+    },
+    "analytics": {
+      "exposure": "manual",
+      "description": "Design reliable event tracking and measurement plans that connect user behaviour, conversions, campaigns, and business decisions."
+    },
+    "animate": {
+      "exposure": "automatic",
+      "description": "Use when asked to build motion from scratch, deciding whether it should animate, selecting properties, easing, duration, interruption, and exit. It writes the implementation; use review-animations for critique or improve-animations for a codebase-wide motion audit."
+    },
+    "animate-expo": {
+      "exposure": "automatic",
+      "description": "Use when adding or fixing animation in React Native or Expo, especially Reanimated worklets, gestures, sheets, transitions, press feedback, haptics, or device stutter. It owns mobile implementation; use animate for web animation and review-animations for motion critique."
+    },
+    "animation-vocabulary": {
+      "exposure": "automatic",
+      "description": "Use when someone describes a web motion effect vaguely and needs its precise design term, such as the “bouncy” opening of a popover. It names the effect only; use animate to design and implement motion, or review-animations to assess existing code."
+    },
+    "apple-design": {
+      "exposure": "automatic",
+      "description": "Use when interface work needs Apple-style physical interaction: gesture-driven sheets, momentum, interruptible springs, translucent depth, optical typography, or reduced-motion behaviour. It sets interaction principles; use animate for implementation and design-visual-system for broader visual direction."
+    },
+    "ask-sonner": {
+      "exposure": "automatic",
+      "description": "Use when implementing or troubleshooting Sonner toasts, including `<Toaster />`, promise/loading states, dismissal, persistence, positioning, styling, themes, or duplicate rendering. It is Sonner-specific; use diagnosing-bugs when the problem is a broader application defect rather than toast configuration."
+    },
+    "aso": {
+      "exposure": "manual",
+      "description": "Audit and improve App Store and Google Play listings, metadata, creative assets, ratings, visibility, and download conversion."
+    },
+    "attribution": {
+      "exposure": "manual",
+      "description": "Compare marketing measurement models, reconcile conflicting channel data, and connect customer touches to conversions, revenue, and incrementality."
+    },
+    "axiom-build": {
+      "exposure": "automatic",
+      "description": "Use before debugging any iOS build failure, test crash, Xcode or simulator environment problem; it isolates toolchain, dependency, signing, and runtime conditions first. For application-code diagnosis after the environment is sound, hand off to diagnosing-bugs."
+    },
+    "axiom-macos": {
+      "exposure": "automatic",
+      "description": "Use for any macOS app work involving windows, menus, sandboxing, distribution, AppKit bridging, or macOS-specific SwiftUI behaviour. It owns platform integration; use axiom-swiftui for general SwiftUI view and state implementation that is not Mac-specific."
+    },
+    "axiom-swiftui": {
+      "exposure": "automatic",
+      "description": "Use for any SwiftUI view, navigation, layout, animation, gesture, performance, architecture, or debugging task, including iOS 26 APIs. It covers SwiftUI implementation; use axiom-macos for windowing, menus, sandboxing, or other Mac-platform integration."
+    },
+    "backlog": {
+      "exposure": "manual",
+      "description": "Manage a Linear-only project backlog through capture, triage, grooming, acceptance criteria, milestones, and next-session planning."
+    },
+    "churn-prevention": {
+      "exposure": "manual",
+      "description": "Reduce voluntary and involuntary churn through cancellation experiences, save offers, pausing, downgrades, retention interventions, and payment recovery."
+    },
+    "clinical-reasoning": {
+      "exposure": "manual",
+      "description": "Provide India-focused clinician decision support for diagnosis, differentials, investigations, prescribing, interactions, dosing, and red-flag triage."
+    },
+    "co-marketing": {
+      "exposure": "manual",
+      "description": "Identify complementary partners and design joint campaigns, integrations, promotions, launches, and agreements that create shared audience value."
+    },
+    "codebase-memory": {
+      "exposure": "manual",
+      "description": "Query a codebase knowledge graph for architecture, callers, dependencies, dead code, impact analysis, and structural refactoring evidence."
+    },
+    "cold-email": {
+      "exposure": "manual",
+      "description": "Write concise, personalised B2B prospecting emails and follow-ups using relevant triggers, credible proof, low-friction asks, and human tone."
+    },
+    "commit": {
+      "exposure": "automatic",
+      "description": "Use when the user asks to commit or save changes, including `/commit`; inspect the diff, split unrelated work, and follow repository commit conventions. It performs Git commits; use push only when the user separately requests sending commits to a remote."
+    },
+    "community-marketing": {
+      "exposure": "manual",
+      "description": "Build and grow member-centred communities with clear identity, useful rituals, engagement loops, advocacy, and measurable business outcomes."
+    },
+    "competitor-profiling": {
+      "exposure": "manual",
+      "description": "Research competitor websites and markets to produce sourced, comparable profiles covering positioning, products, pricing, SEO, reviews, and strategy."
+    },
+    "competitors": {
+      "exposure": "manual",
+      "description": "Create honest competitor comparison and alternative pages that help evaluators decide while supporting search visibility, positioning, and conversion."
+    },
+    "computer-use": {
+      "exposure": "automatic",
+      "description": "Use for OS- or window-level inspection and input in visible native apps, external browsers, or app webviews through `orca computer`, including menus, focus, and coordinates. It does not automate pages; use orca-cli for Orca’s embedded browser or Playwright/CDP for web pages."
+    },
+    "content-strategy": {
+      "exposure": "manual",
+      "description": "Plan searchable and shareable content programmes aligned with audience needs, business goals, distribution channels, resources, and editorial priorities."
+    },
+    "copy-editing": {
+      "exposure": "manual",
+      "description": "Improve existing marketing copy through focused passes for clarity, voice, structure, persuasion, accuracy, consistency, and reader action."
+    },
+    "copywriting": {
+      "exposure": "manual",
+      "description": "Write clear, specific, customer-centred marketing copy for pages, offers, headlines, benefits, proof, calls to action, and conversions."
+    },
+    "cro": {
+      "exposure": "manual",
+      "description": "Improve conversion performance across marketing pages and forms by diagnosing value propositions, hierarchy, trust, friction, messaging, and calls to action."
+    },
+    "customer-research": {
+      "exposure": "manual",
+      "description": "Conduct and synthesise customer research from interviews, surveys, reviews, communities, support data, and public conversations into actionable insight."
+    },
+    "dbt": {
+      "exposure": "manual",
+      "description": "Deliver Linehan-style DBT skills coaching, chain analysis, diary-card support, and materials design without handling diagnosis or medication."
+    },
+    "design-grill": {
+      "exposure": "manual",
+      "description": "Run a round-based interview to settle visual and behavioural interface decisions, recording agreed design decisions while excluding implementation architecture."
+    },
+    "design-interface": {
+      "exposure": "automatic",
+      "description": "Use when designing or reviewing interactive controls, forms, lists, dashboards, settings, documentation, or non-happy-path screen states. It specifies structure, labels, focus, hit areas, and field states; hand type scale or visual styling to design-typography or design-visual-system."
+    },
+    "design-strategy": {
+      "exposure": "automatic",
+      "description": "Use for industry-agnostic product and UX strategy: business-model reasoning, positioning, workflow critique, journey maps, decision logs, teardowns, or stakeholder narratives. It is not for US healthcare, which belongs to vbc-design; visual direction belongs to design-visual-system."
+    },
+    "design-typography": {
+      "exposure": "automatic",
+      "description": "Use for typeface selection, pairing, hierarchy, scales, OpenType features, font loading, language coverage, and type-led layout across screen, print, or brand work. It owns typography; use design-interface for non-type interaction structure and design-visual-system for broader colour, imagery, and layout."
+    },
+    "design-visual-system": {
+      "exposure": "automatic",
+      "description": "Use for visual direction in a product UI: art direction, colour, hierarchy, responsive layout, CSS tokens, `@theme`, and OKLCH, while first classifying the surface intent. It owns visual system decisions; use design-typography for typography-primary work and design-interface for behaviour and states."
+    },
+    "diagnosing-bugs": {
+      "exposure": "automatic",
+      "description": "Use for hard bugs or performance regressions when something is broken, throwing, failing, or slow, and follow a reproduce–diagnose–fix–verify loop. It handles application defects; use axiom-build first for iOS/Xcode environment failures and specialised skills for domain-specific guidance."
+    },
+    "directory-submissions": {
+      "exposure": "manual",
+      "description": "Plan and execute software directory submissions that improve discovery, backlinks, listings, reviews, positioning, and downstream acquisition readiness."
+    },
+    "emails": {
+      "exposure": "manual",
+      "description": "Design lifecycle email sequences that nurture relationships, deliver value, prompt action, segment audiences, and support conversion or retention."
+    },
+    "emil-design-eng": {
+      "exposure": "automatic",
+      "description": "Use when polishing interface details, component behaviour, or motion decisions through Emil Kowalski’s design-engineering principles: feedback, easing, timing, affordances, and restraint. It provides craft direction; use animate to implement new motion and review-animations to audit existing animation code."
+    },
+    "events": {
+      "exposure": "manual",
+      "description": "Plan, host, sponsor, speak at, or attend events that generate qualified pipeline, authority, community, content, and measurable follow-through."
+    },
+    "execute-plan": {
+      "exposure": "automatic",
+      "description": "Use when the user points to a markdown checklist plan and wants hands-off execution: delegate independent items, choose suitable agents, verify each slice, and commit it. It orchestrates plan files; use orchestration for general worker coordination without a checklist."
+    },
+    "find-animation-opportunities": {
+      "exposure": "automatic",
+      "description": "Use when asked what could be animated or how to make an interface feel more alive; inspect the code or UI, reject unnecessary motion, and propose precise opportunities without implementing them. Use improve-animations for auditing existing motion and animate for writing implementations."
+    },
+    "find-skills": {
+      "exposure": "manual",
+      "description": "Discover and install agent skills when users seek a capability extension, while routing ordinary domain questions to the appropriate specialist."
+    },
+    "finite": {
+      "exposure": "manual",
+      "description": "Advise on commitments using capacity-aware daily orientation, triage, and closed-list culling across work, personal administration, and multiple trackers."
+    },
+    "firecrawl-web": {
+      "exposure": "automatic",
+      "description": "Use when current web research requires Firecrawl to fetch pages, take screenshots, extract structured data, search, or crawl documentation. It covers the Firecrawl API workflow; use research when findings must be investigated against primary sources and captured as a cited repository document."
+    },
+    "free-tools": {
+      "exposure": "manual",
+      "description": "Evaluate and build genuinely useful free tools that attract qualified leads, organic traffic, links, product education, and brand awareness."
+    },
+    "frontend-design": {
+      "exposure": "automatic",
+      "description": "Use when building or reshaping a frontend UI that needs a distinctive visual direction rather than a templated default, grounding palette, typography, layout, and content in the subject. It guides aesthetic decisions; use design-visual-system for product token implementation and design-interface for behaviour."
+    },
+    "geopolitics": {
+      "exposure": "manual",
+      "description": "Analyse international affairs through power, conflict, trade, sanctions, elections, energy, technology, supply chains, evidence, and probability calls."
+    },
+    "grilling": {
+      "exposure": "manual",
+      "description": "Conduct successive question rounds that pressure-test a user's plan, decision, or idea until the relevant assumptions and choices are settled."
+    },
+    "gtd": {
+      "exposure": "manual",
+      "description": "Run personal GTD workflows for capture, clarification, Todoist routing, calendar commitments, email triage, reviews, Waiting For, and Someday/Maybe."
+    },
+    "handoff": {
+      "exposure": "manual",
+      "description": "Create structured session handoffs capturing decisions, progress, changes, and next steps for continuity across breaks, context switches, and resets."
+    },
+    "homelab-deploy": {
+      "exposure": "manual",
+      "description": "Deploy and update the homelab's Docker and Caddy stack using guarded procedures for remote access, synchronisation, restarts, rclone, and n8n."
+    },
+    "humanizer": {
+      "exposure": "automatic",
+      "description": "Use when prose sounds AI-generated through inflated claims, stock wording, vague sourcing, repetition, passive voice, filler, or chatbot artefacts, and rewrite it without changing meaning. It handles AI-tell cleanup; use copy-editing for broader editorial improvement."
+    },
+    "image": {
+      "exposure": "manual",
+      "description": "Create, edit, art-direct, and optimise marketing images for websites, social channels, product showcases, listings, campaigns, and brand assets."
+    },
+    "improve-animations": {
+      "exposure": "automatic",
+      "description": "Use when asked to improve, audit, or make an app’s animations feel better across a codebase; it surveys motion, prioritises findings, and writes self-contained implementation plans without editing source. It is read-only planning; use review-animations for a single diff and animate for implementation."
+    },
+    "influencer-marketing": {
+      "exposure": "manual",
+      "description": "Plan creator and ambassador partnerships by finding suitable partners, structuring deals, briefing content, managing compliance, and measuring qualified return."
+    },
+    "launch": {
+      "exposure": "manual",
+      "description": "Plan product, feature, and release launches that build momentum through owned, rented, borrowed channels, preparation, activation, and follow-up."
+    },
+    "lead-magnets": {
+      "exposure": "manual",
+      "description": "Design lead magnets that solve specific problems, capture qualified contacts, match buyer stages, and create a natural path toward product adoption."
+    },
+    "macos-design-guidelines": {
+      "exposure": "automatic",
+      "description": "Use when building or reviewing Mac interfaces against Apple Human Interface Guidelines, including menu bars, toolbars, windows, keyboard shortcuts, drag and drop, and AppKit or SwiftUI integration. It governs Mac interaction conventions; use axiom-macos for platform engineering and distribution concerns."
+    },
+    "maintainability-review": {
+      "exposure": "manual",
+      "description": "Review AI-generated frontend code for human maintainability across duplication, abstractions, naming, structure, silent failures, and cross-session drift."
+    },
+    "marketing-council": {
+      "exposure": "manual",
+      "description": "Convene contrasting marketing expert perspectives to examine strategic decisions, expose trade-offs, challenge assumptions, and synthesise a grounded recommendation."
+    },
+    "marketing-ideas": {
+      "exposure": "manual",
+      "description": "Generate and prioritise practical growth ideas for software products across acquisition, activation, retention, referral, revenue, channels, and resources."
+    },
+    "marketing-loops": {
+      "exposure": "manual",
+      "description": "Design recurring, self-checking marketing workflows with clear triggers, cadence, state, human checkpoints, outputs, and stopping conditions."
+    },
+    "marketing-plan": {
+      "exposure": "manual",
+      "description": "Develop comprehensive, executable marketing plans that align strategy, research, AARRR priorities, budgets, teams, channels, operations, roadmaps, and measurement."
+    },
+    "marketing-psychology": {
+      "exposure": "manual",
+      "description": "Apply behavioural science and mental models to understand customers, influence decisions ethically, frame value, and improve marketing choices."
+    },
+    "merge": {
+      "exposure": "manual",
+      "description": "Merge a ready GitHub pull request safely with CI and mergeability checks, a chosen merge strategy, branch cleanup, and updated base."
+    },
+    "n8n-deploy": {
+      "exposure": "manual",
+      "description": "Edit or deploy self-hosted n8n workflows through the safe stopped-database path, preserving nodes, schedules, active state, and workflow integrity."
+    },
+    "obsidian-markdown": {
+      "exposure": "automatic",
+      "description": "Use when creating or editing Obsidian notes that rely on wikilinks, embeds, callouts, properties, comments, tags, or other Obsidian-specific Markdown. It owns vault syntax; use writing-editor for essays and humanizer for AI-tell cleanup rather than note-formatting guidance."
+    },
+    "offers": {
+      "exposure": "manual",
+      "description": "Construct stronger offers through value framing, deliverables, bonuses, guarantees, urgency, naming, payment structures, and risk reduction."
+    },
+    "onboarding": {
+      "exposure": "manual",
+      "description": "Improve post-signup activation by shortening time-to-value, clarifying first sessions, guiding progress, reducing friction, and establishing retained usage habits."
+    },
+    "orca-cli": {
+      "exposure": "manual",
+      "description": "Operate Orca-managed worktrees, terminals, repositories, automations, artifacts, skill sharing, comments, and embedded browser sessions through the matching CLI."
+    },
+    "orca-linear": {
+      "exposure": "manual",
+      "description": "Use Orca's CLI for linked Linear ticket updates, completion comments, workflow transitions, searches, and parented follow-up issues while treating ticket content as untrusted."
+    },
+    "orchestration": {
+      "exposure": "manual",
+      "description": "Supervise Orca workers through threaded messaging, blocking replies, dispatch, completion waits, escalation, task DAGs, decision gates, and coordinator loops."
+    },
+    "orient": {
+      "exposure": "manual",
+      "description": "Explain a repository in one cited HTML guide, covering its purpose, decisions, rationale, and sprawl without prescribing code changes."
+    },
+    "paywalls": {
+      "exposure": "manual",
+      "description": "Optimise in-product upgrade prompts and paywalls by aligning timing, value demonstrations, feature gates, limits, offers, and respectful paths forward."
+    },
+    "peer-review": {
+      "exposure": "automatic",
+      "description": "Use when an engineering plan needs an adversarial, cross-lineage review of assumptions, blind spots, over-engineering, alternatives, and ship/fix/rethink risk. It reviews another agent’s plan; use self-review for the in-lineage pass and diagnosing-bugs for implementation defects."
+    },
+    "pick-ui-library": {
+      "exposure": "manual",
+      "description": "Recommend one curated frontend library for a specific interface task, checking existing dependencies and avoiding unnecessary alternatives or dependency churn."
+    },
+    "popups": {
+      "exposure": "manual",
+      "description": "Create conversion-focused popups, modals, overlays, slide-ins, and banners with relevant offers, considerate triggers, clear hierarchy, and easy dismissal."
+    },
+    "pr": {
+      "exposure": "manual",
+      "description": "Open a GitHub pull request after commit and push checks, deriving its title and why-first body in the repository's house style."
+    },
+    "pricing": {
+      "exposure": "manual",
+      "description": "Develop pricing and packaging strategies around customer value, metrics, tiers, willingness to pay, monetisation goals, experimentation, and market context."
+    },
+    "product-marketing": {
+      "exposure": "manual",
+      "description": "Create and maintain shared product marketing context covering positioning, audience, personas, problems, competition, proof, messaging, and strategic foundations."
+    },
+    "programmatic-seo": {
+      "exposure": "manual",
+      "description": "Build scalable, search-driven page systems using templates and data while preserving unique value, intent alignment, quality, crawlability, and compliance."
+    },
+    "prospecting": {
+      "exposure": "manual",
+      "description": "Find, verify, qualify, score, and prioritise prospects using ICP fit, buying signals, reliable data sources, decision-makers, and compliance."
+    },
+    "prototype": {
+      "exposure": "manual",
+      "description": "Build several genuinely divergent UI variants in an isolated visual picker so users can compare directions and promote a chosen implementation."
+    },
+    "public-relations": {
+      "exposure": "manual",
+      "description": "Develop earned-media strategies, stories, pitches, press assets, journalist relationships, reactive responses, podcast preparation, and coverage follow-through."
+    },
+    "push": {
+      "exposure": "automatic",
+      "description": "Use when the user asks to push commits or changes to a remote, including `/push`; set upstream safely, show outgoing commits, prefer `--force-with-lease`, and warn before main or master. It sends existing commits; use commit when changes still need committing."
+    },
+    "referrals": {
+      "exposure": "manual",
+      "description": "Design referral, affiliate, ambassador, and word-of-mouth programmes that motivate advocacy, fit product behaviour, reward participants, and measure growth."
+    },
+    "research": {
+      "exposure": "automatic",
+      "description": "Use when a question needs investigation against high-trust primary sources, official documentation, specifications, or first-party APIs, with findings captured in a cited Markdown file. It delegates research and records evidence; use firecrawl-web for Firecrawl retrieval without the repository write-up."
+    },
+    "resolving-merge-conflicts": {
+      "exposure": "automatic",
+      "description": "Use when a Git merge or rebase is in progress with conflicts; inspect history and primary intent, resolve every hunk without inventing behaviour, run the project’s checks, and finish the operation. It owns conflict resolution; use diagnosing-bugs for unrelated failures after the merge."
+    },
+    "review-animations": {
+      "exposure": "manual",
+      "description": "Review animation and motion code against craft standards for justification, frequency, easing, timing, physical correctness, performance, and accessibility."
+    },
+    "revops": {
+      "exposure": "manual",
+      "description": "Design revenue operations systems connecting marketing, sales, and customer success through lifecycle stages, scoring, routing, handoffs, CRM, and accountability."
+    },
+    "rights-counsel": {
+      "exposure": "manual",
+      "description": "Advise and draft for Indian consumer, EPF, and insurance disputes, including complaints, notices, claims escalation, statutory filings, and limitation."
+    },
+    "sales-enablement": {
+      "exposure": "manual",
+      "description": "Create practical sales collateral and playbooks, including decks, one-pagers, demos, objection handling, proposals, talk tracks, and ROI materials."
+    },
+    "schema": {
+      "exposure": "manual",
+      "description": "Implement accurate schema.org structured data in JSON-LD for eligible rich results, content understanding, validation, maintenance, and search visibility."
+    },
+    "self-review": {
+      "exposure": "automatic",
+      "description": "Use immediately after proposing an engineering plan or when `/self-review` is requested; have the plan-critic identify omissions and revise the plan to address every point. It is the in-lineage review stage; use peer-review for an adversarial review by another model lineage."
+    },
+    "seo-audit": {
+      "exposure": "manual",
+      "description": "Audit technical, on-page, content, authority, crawlability, indexation, performance, and linking issues to prioritise actionable organic-search improvements."
+    },
+    "shopping-research": {
+      "exposure": "manual",
+      "description": "Research purchases in India with current comparisons, INR pricing, seller checks, deal timing, review credibility, counterfeit warnings, and after-sales considerations."
+    },
+    "signup": {
+      "exposure": "manual",
+      "description": "Optimise registration and trial signup flows by reducing fields, friction, uncertainty, effort, abandonment, and barriers to successful activation."
+    },
+    "site-architecture": {
+      "exposure": "manual",
+      "description": "Plan intuitive website hierarchies, navigation, URL structures, page relationships, breadcrumbs, internal links, content inventories, and scalable information architecture."
+    },
+    "sms": {
+      "exposure": "manual",
+      "description": "Plan compliant SMS and MMS programmes for welcome, recovery, transactional, promotional, activation, and retention messages across relevant customer journeys."
+    },
+    "social": {
+      "exposure": "manual",
+      "description": "Create and optimise platform-specific social content, calendars, hooks, repurposing, short-form video, community engagement, listening, and audience growth."
+    },
+    "strategy-counsel": {
+      "exposure": "manual",
+      "description": "Advise on power, incentives, negotiation, escalation, alliances, and scope disputes inside organisations or arm's-length relationships, recommending one path and its warning sign."
+    },
+    "update-branch-name": {
+      "exposure": "manual",
+      "description": "Rename a feature branch to a valid convention while preserving remote tracking, pull-request continuity, worktree alignment, and protection for default branches."
+    },
+    "ux-writing": {
+      "exposure": "manual",
+      "description": "Write and audit concise accessible interface microcopy for controls, forms, errors, onboarding, empty states, notifications, voice, tone, and consistency."
+    },
+    "vbc-design": {
+      "exposure": "manual",
+      "description": "Design and assess US value-based-care software across population health, care management, quality, risk adjustment, claims, SDoH, portals, and clinical workflows."
+    },
+    "vedic-astrology": {
+      "exposure": "manual",
+      "description": "Read Vedic charts using Parashari and Jaimini methods for planetary periods, transits, muhurta, compatibility, remedies, and grounded self-reflection."
+    },
+    "video": {
+      "exposure": "manual",
+      "description": "Produce marketing videos using AI generation, avatars, editing, screen recordings, programmatic frameworks, product demonstrations, explainers, and social formats."
+    },
+    "wizard": {
+      "exposure": "manual",
+      "description": "Generate an interactive Bash wizard that guides humans through manual setup, credentials, secrets, migrations, or cutovers the agent cannot perform itself."
+    },
+    "write-swift": {
+      "exposure": "automatic",
+      "description": "Use when writing, reviewing, or migrating modern Swift, especially Swift 6 concurrency, actors, value types, generics, API design, ARC, macros, Swift Testing, data races, hangs, or retain cycles. It covers language and architecture; use axiom-swiftui for SwiftUI-specific work."
+    },
+    "writing-editor": {
+      "exposure": "manual",
+      "description": "Support personal essays and blog posts through idea generation, structural feedback, ship-readiness, and momentum without writing the piece or editing interface microcopy."
+    }
+  },
+  "ompLocalSkills": {
+    "figma-generate-design": {
+      "root": "skills",
+      "exposure": "manual",
+      "description": "Build or update composed Figma screens and views by discovering and reusing published design-system components, variables, and styles."
+    },
+    "figma-use": {
+      "root": "skills",
+      "exposure": "manual",
+      "description": "Execute JavaScript in Figma via `use_figma`, with Plugin API rules for reads, writes, nodes, fonts, pages, variables, and design-system safety."
+    },
+    "figma-use-figjam": {
+      "root": "skills",
+      "exposure": "manual",
+      "description": "Apply FigJam-specific `use_figma` guidance for boards, sections, stickies, connectors, inspection, and safe node creation."
+    },
+    "github-star-lists": {
+      "root": "managed-skills",
+      "exposure": "manual",
+      "description": "Organise GitHub starred repositories into native Star Lists through GraphQL, preserving memberships and verifying the resulting categorisation."
+    },
+    "supacode-cli": {
+      "root": "skills",
+      "exposure": "manual",
+      "description": "Control Supacode from terminals by managing worktrees, tabs, surfaces, commands, captured identifiers, and targeted resources."
+    },
+    "supacode-deeplinks": {
+      "root": "skills",
+      "exposure": "manual",
+      "description": "Control Supacode with `supacode://` URLs from scripts or external terminals when the Supacode CLI is unavailable."
+    },
+    "homelab-edge-tier-domain": {
+      "root": "managed-skills",
+      "exposure": "automatic",
+      "description": "Use when onboarding a new Vercel/Cloudflare-served app (no Hetzner box footprint) to a sudaksh.com subdomain in the sudakshsoti/homelab platform repo — e.g. 'deploy X to Y.sudaksh.com', 'add an edge-tier domain', 'point a Vercel app at sudaksh.com'."
+    }
+  }
+}
