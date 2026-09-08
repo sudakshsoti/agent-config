@@ -55,7 +55,8 @@
     "npm:pi-markdown-preview",
     "npm:pi-playwright",
     "npm:@juicesharp/rpiv-todo",
-    "npm:pi-powerline-footer"
+    "npm:pi-powerline-footer",
+    "npm:@plannotator/pi-extension"
   ],
   "lastChangelogVersion": "0.85.1"
 }

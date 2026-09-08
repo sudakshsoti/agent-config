@@ -67,6 +67,7 @@ Rules that follow from the table:
 
 ## Gotchas
 
+- macOS does not ship the GNU `timeout` command; use Python's `subprocess.run(..., timeout=...)` or a background process with `kill` for bounded commands.
 - The pre-commit hook formats source files in the working tree after the index is staged. After every commit, inspect `git status`; restore unrelated formatter changes and commit intended formatting separately rather than leaving hidden drift.
 - Plain OMP now uses Codex Luna xhigh for default/task and Astra low for planning, high for slow, medium for design. Go supplies GLM-5.3-Flash high reviews, Grok 4.6 high adversary, GLM-5.3 high security review, and DeepSeek V4 Flash low scouting. `omp/config.yml` is authoritative; historical routing examples below and optional overlays are not the plain-OMP defaults.
 - Non-interactive `omp -p` probes spawned from a persistent kernel need stdin closed (`stdin=DEVNULL` or `</dev/null`). Otherwise startup waits at `readPipedInput` before making any model request, even with a prompt argument and `--max-time`.
