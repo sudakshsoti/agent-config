@@ -58,7 +58,7 @@ retry:
     default:
       - opencode-go/glm-5.3-flash:high
       - opencode-go/deepseek-v4-flash:high
-symbolPreset: unicode
+symbolPreset: nerd
 theme:
   dark: dark-lunar-statusline
   light: lunar-light-statusline
@@ -154,8 +154,9 @@ tui:
   maxInlineImageRows: 20
   maxInlineImages: 8
 composer:
-  shape: band
+  shape: rail
 spelling:
   autocomplete: false
   autocorrect: false
   typoDetection: false
+extendedContext: false
