@@ -67,6 +67,9 @@ Rules that follow from the table:
 
 ## Gotchas
 
+- Plain OMP now uses Codex Luna xhigh for default/task and Astra low for planning, high for slow, medium for design. Go supplies GLM-5.3-Flash high reviews, Grok 4.6 high adversary, GLM-5.3 high security review, and DeepSeek V4 Flash low scouting. `omp/config.yml` is authoritative; historical routing examples below and optional overlays are not the plain-OMP defaults.
+- Non-interactive `omp -p` probes spawned from a persistent kernel need stdin closed (`stdin=DEVNULL` or `</dev/null`). Otherwise startup waits at `readPipedInput` before making any model request, even with a prompt argument and `--max-time`.
+
 - Model thinking levels are per-model. `deepseek-v4-flash`, `glm-5.3-flash` and `kimi-k3` expose only low/high/max. Writing `medium` on those is not rejected: it silently runs, and bills, as `high`.
 - omp rewrites `omp/config.yml` and deletes every comment line while keeping the values byte-identical. Never keep decision rationale in that file; it belongs in `docs/`.
 - In omp only one user-level context file survives, by provider priority: `~/.omp/agent/AGENTS.md` (100) beats `~/.claude/CLAUDE.md` (80) beats `~/.codex/AGENTS.md` (70). Two different global files means the lower one is never loaded. All five paths are symlinks to `global-agents.md`, so keep them that way rather than editing one destination. pi was the odd one out until 2026-09-07: `~/.pi/agent/AGENTS.md` was a stale hand-written file from 17 Aug, so pi alone read different global instructions from every other harness.
