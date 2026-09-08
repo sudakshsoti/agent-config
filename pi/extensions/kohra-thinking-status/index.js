@@ -14,7 +14,10 @@ function setThinkingStatus(ctx, level) {
   const red = Number.parseInt(hex.slice(0, 2), 16);
   const green = Number.parseInt(hex.slice(2, 4), 16);
   const blue = Number.parseInt(hex.slice(4, 6), 16);
-  ctx.ui.setStatus("kohra-thinking", `\u001b[38;2;${red};${green};${blue}mthink:${item.label}\u001b[0m`);
+  ctx.ui.setStatus(
+    "kohra-thinking",
+    `\u001b[38;2;${red};${green};${blue}mthink:${item.label}\u001b[0m`,
+  );
 }
 
 export default function (pi) {

@@ -14,3 +14,4 @@
 - [stated] Footer hierarchy uses semantic accents: model grey, thinking dynamic, path blue, context fog, and subagent violet.
 - [stated] User and extension messages use nearby neutral surfaces; extension labels use mist blue.
 - [stated] Switch Ghostty from kohra-flexoki to kohra-ghostty so the terminal root and Pi share the cool #141719 foundation. This supersedes the earlier Pi-only scope.
+- [stated] Keep pi-powerline-footer’s neon welcome splash despite its deliberate contrast with the Kohra working interface.
