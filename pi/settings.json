@@ -56,7 +56,10 @@
     "npm:pi-playwright",
     "npm:@juicesharp/rpiv-todo",
     "npm:pi-powerline-footer",
-    "npm:@plannotator/pi-extension"
+    "npm:@plannotator/pi-extension",
+    "npm:@ff-labs/pi-fff",
+    "npm:pi-token-speed",
+    "npm:pi-image-paste"
   ],
   "lastChangelogVersion": "0.85.1"
 }
