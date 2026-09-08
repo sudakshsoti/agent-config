@@ -109,10 +109,13 @@ FORCE=0
 PLUGINS=1
 for arg in "$@"; do
   case "$arg" in
-    --prune) PRUNE=1 ;;
-    --force) FORCE=1 ;;
-    --no-plugins) PLUGINS=0 ;;
-    *) echo "unknown option: $arg (expected --prune, --force, --no-plugins)"; exit 2 ;;
+  --prune) PRUNE=1 ;;
+  --force) FORCE=1 ;;
+  --no-plugins) PLUGINS=0 ;;
+  *)
+    echo "unknown option: $arg (expected --prune, --force, --no-plugins)"
+    exit 2
+    ;;
   esac
 done
 
@@ -121,18 +124,18 @@ done
 # skill+agent link to a path that vanishes when the worktree is cleaned up —
 # silently breaking the whole personal skill set. Refuse unless --force.
 case "$REPO" in
-  */.git/worktrees/* | */worktrees/*)
-    if [ "$FORCE" != "1" ]; then
-      echo "⛔ Refusing to install from what looks like an ephemeral worktree:"
-      echo "     $REPO"
-      echo "   Symlinks bake in this absolute path; when the worktree is removed,"
-      echo "   every ~/.claude skill+agent link dangles. Run from your canonical"
-      echo "   checkout (e.g. ~/dev/agent-config) instead, or pass --force if you"
-      echo "   really mean to point the global install here."
-      exit 1
-    fi
-    echo "⚠️  --force: installing from an ephemeral-looking path ($REPO)."
-    ;;
+*/.git/worktrees/* | */worktrees/*)
+  if [ "$FORCE" != "1" ]; then
+    echo "⛔ Refusing to install from what looks like an ephemeral worktree:"
+    echo "     $REPO"
+    echo "   Symlinks bake in this absolute path; when the worktree is removed,"
+    echo "   every ~/.claude skill+agent link dangles. Run from your canonical"
+    echo "   checkout (e.g. ~/dev/agent-config) instead, or pass --force if you"
+    echo "   really mean to point the global install here."
+    exit 1
+  fi
+  echo "⚠️  --force: installing from an ephemeral-looking path ($REPO)."
+  ;;
 esac
 
 mkdir -p "$CLAUDE/skills" "$CLAUDE/agents"
@@ -223,8 +226,12 @@ if [ -f "$REPO/plugins.txt" ]; then
   while read -r kind arg rest; do
     [ "$kind" = "external" ] || continue
     case "$arg" in
-      */*) : ;;
-      *) echo "⚠️  plugins.txt: external '$arg' is not owner/repo — skipped"; skipped=$((skipped + 1)); continue ;;
+    */*) : ;;
+    *)
+      echo "⚠️  plugins.txt: external '$arg' is not owner/repo — skipped"
+      skipped=$((skipped + 1))
+      continue
+      ;;
     esac
     # `owner/repo[:subdir]` — the optional subdir pins which tree to read when a
     # repo ships several (charleswiltgen/axiom carries one per agent flavour,
@@ -283,7 +290,10 @@ if [ -f "$REPO/plugins.txt" ]; then
     skill_name() { # skill_name <dir-with-SKILL.md>
       local n
       n="$(sed -n '/^---$/,/^---$/{s/^name:[[:space:]]*//p;}' "$1/SKILL.md" 2>/dev/null | head -1)"
-      n="${n%\"}"; n="${n#\"}"; n="${n%\'}"; n="${n#\'}"
+      n="${n%\"}"
+      n="${n#\"}"
+      n="${n%\'}"
+      n="${n#\'}"
       [ -n "$n" ] || n="$(basename "$1")"
       printf '%s' "$n"
     }
@@ -322,7 +332,7 @@ if [ -f "$REPO/plugins.txt" ]; then
     else
       external=$((external + 1))
     fi
-  done < "$REPO/plugins.txt"
+  done <"$REPO/plugins.txt"
 fi
 
 # 2. Agents: every markdown file in agents/
@@ -541,27 +551,29 @@ if [ "$PLUGINS" = "1" ] && [ -f "$REPO/plugins.txt" ]; then
   if command -v claude >/dev/null 2>&1; then
     while read -r kind arg _; do
       case "$kind" in
-        ''|\#*) continue ;;  # skip blanks and comments
-        external) continue ;;    # handled in step 1c, alongside the skills
-        marketplace)
-          if claude plugin marketplace add "$arg" >/dev/null 2>&1; then
-            echo "plugin  marketplace $arg"
-            plugins=$((plugins + 1))
-          else
-            echo "⚠️  FAILED to add marketplace $arg"
-            skipped=$((skipped + 1))
-          fi ;;
-        plugin)
-          if claude plugin install "$arg" >/dev/null 2>&1; then
-            echo "plugin  $arg"
-            plugins=$((plugins + 1))
-          else
-            echo "⚠️  FAILED to install plugin $arg"
-            skipped=$((skipped + 1))
-          fi ;;
-        *) echo "⚠️  plugins.txt: unknown directive '$kind' (expected marketplace|plugin|external)" ;;
+      '' | \#*) continue ;; # skip blanks and comments
+      external) continue ;; # handled in step 1c, alongside the skills
+      marketplace)
+        if claude plugin marketplace add "$arg" >/dev/null 2>&1; then
+          echo "plugin  marketplace $arg"
+          plugins=$((plugins + 1))
+        else
+          echo "⚠️  FAILED to add marketplace $arg"
+          skipped=$((skipped + 1))
+        fi
+        ;;
+      plugin)
+        if claude plugin install "$arg" >/dev/null 2>&1; then
+          echo "plugin  $arg"
+          plugins=$((plugins + 1))
+        else
+          echo "⚠️  FAILED to install plugin $arg"
+          skipped=$((skipped + 1))
+        fi
+        ;;
+      *) echo "⚠️  plugins.txt: unknown directive '$kind' (expected marketplace|plugin|external)" ;;
       esac
-    done < "$REPO/plugins.txt"
+    done <"$REPO/plugins.txt"
   else
     echo "⚠️  SKIP plugins — 'claude' not on PATH. Run ./install.sh again where it is."
   fi
@@ -573,12 +585,13 @@ if [ "$PRUNE" = "1" ]; then
   for link in "$CLAUDE"/skills/* "$CLAUDE"/agents/* "$CLAUDE"/commands/* "$CLAUDE"/hooks/*; do
     [ -L "$link" ] || continue
     case "$(readlink "$link")" in
-      "$REPO"/*)
-        if [ ! -e "$link" ]; then
-          rm -f "$link"
-          echo "pruned  $(basename "$link") (dangling)"
-          pruned=$((pruned + 1))
-        fi ;;
+    "$REPO"/*)
+      if [ ! -e "$link" ]; then
+        rm -f "$link"
+        echo "pruned  $(basename "$link") (dangling)"
+        pruned=$((pruned + 1))
+      fi
+      ;;
     esac
   done
   # Shared root: dangling symlinks pointing into this repo (deleted skill).
@@ -586,12 +599,13 @@ if [ "$PRUNE" = "1" ]; then
     for link in "$AGENTS_SKILLS"/*; do
       [ -L "$link" ] || continue
       case "$(readlink "$link")" in
-        "$REPO"/*)
-          if [ ! -e "$link" ]; then
-            rm -f "$link"
-            echo "pruned  $(basename "$link") (agents, dangling)"
-            pruned=$((pruned + 1))
-          fi ;;
+      "$REPO"/*)
+        if [ ! -e "$link" ]; then
+          rm -f "$link"
+          echo "pruned  $(basename "$link") (agents, dangling)"
+          pruned=$((pruned + 1))
+        fi
+        ;;
       esac
     done
   fi

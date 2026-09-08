@@ -15,3 +15,7 @@
 - [stated] User and extension messages use nearby neutral surfaces; extension labels use mist blue.
 - [stated] Switch Ghostty from kohra-flexoki to kohra-ghostty so the terminal root and Pi share the cool #141719 foundation. This supersedes the earlier Pi-only scope.
 - [stated] Keep pi-powerline-footer’s neon welcome splash despite its deliberate contrast with the Kohra working interface.
+- [stated] The tmux cheatsheet is a personal reference delivered as `desktop-tmux-cheatsheet.html` at the repository root.
+- [stated] The tmux cheatsheet covers the complete configured workflow, with daily actions prioritised.
+- [stated] The tmux cheatsheet uses the Kohra terminal visual direction.
+- [stated] The tmux cheatsheet includes a tiny shortcut filter.

@@ -59,7 +59,8 @@
     "npm:@plannotator/pi-extension",
     "npm:@ff-labs/pi-fff",
     "npm:pi-token-speed",
-    "npm:pi-image-paste"
+    "npm:pi-image-paste",
+    "npm:pi-blackhole"
   ],
   "lastChangelogVersion": "0.85.1"
 }

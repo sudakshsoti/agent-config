@@ -64,27 +64,34 @@ theme:
   light: lunar-light-statusline
 setupVersion: 2
 statusLine:
-  preset: default
+  preset: custom
   separator: none
   sessionAccent: false
   compactThinkingLevel: false
   transparent: true
   leftSegments:
-    []
+    - model
+    - mode
+    - collab
+    - path
+    - git
+    - pr
+    - context_pct
+    - cost
   rightSegments:
-    []
+    - session_name
   contextLine: annotated
   showHookStatus: true
   segmentOptions:
     {}
 startup:
-  quiet: false
+  quiet: true
 autoResume: false
 modelRoleStorage: global
 memory:
-  backend: local
+  backend: "off"
 autolearn:
-  enabled: true
+  enabled: false
   autoContinue: true
 dev:
   autoqaConsent: denied
@@ -105,18 +112,23 @@ display:
 defaultThinkingLevel: auto
 providers:
   openai-codex:
-    codeMode: auto
+    codeMode: "off"
   autoThinkingModel: online
   autoThinkingMaxEffort: xhigh
   webSearchOrder:
+    - firecrawl
     - tavily
     - exa
+    - gemini
+    - codex
+    - brave
   memoryModel: online
+  tinyModel: online
 textVerbosity: medium
 tier:
   openai: none
   subagent: inherit
-personality: friendly
+personality: default
 steeringMode: one-at-a-time
 compaction:
   handoffSaveToDisk: true
@@ -124,10 +136,12 @@ compaction:
     - snapcompact
     - remote
     - soft
+  thresholdPercent: 70
+  idleThresholdTokens: 200000
 snapcompact:
   systemPrompt: none
 bashInterceptor:
-  enabled: true
+  enabled: false
 skills:
   ignoredSkills:
     - artifact-*
@@ -160,3 +174,11 @@ spelling:
   autocorrect: false
   typoDetection: false
 extendedContext: false
+magicKeywords:
+  enabled: true
+computer:
+  enabled: true
+vault:
+  enabled: true
+live:
+  voice: sol
