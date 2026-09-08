@@ -1,14 +1,14 @@
 modelRoles:
-  default: openai-codex/gpt-5.6-luna:xhigh
-  plan: openai-codex/gpt-6-astra:low
-  slow: openai-codex/gpt-6-astra:high
-  designer: openai-codex/gpt-6-astra:medium
-  vision: openai-codex/gpt-5.6-luna:high
-  task: openai-codex/gpt-5.6-luna:xhigh
-  adversary: opencode-go/grok-4.6:high
+  default: openai-codex/gpt-5.6-luna:high
+  plan: openai-codex/gpt-5.6-sol:xhigh
+  slow: openai-codex/gpt-5.6-sol:medium
+  designer: openai-codex/gpt-5.6-sol:xhigh
+  vision: openai-codex/gpt-5.6-sol:xhigh
+  task: openai-codex/gpt-5.6-luna:high
+  adversary: opencode-go/glm-5.3-flash:high
   reviewer: opencode-go/glm-5.3-flash:high
-  security-reviewer: opencode-go/glm-5.3:high
-  advisor: opencode-go/grok-4.6:high
+  security-reviewer: opencode-go/glm-5.3-flash:high
+  advisor: opencode-go/glm-5.3-flash:high
   smol: openai-codex/gpt-5.6-luna:low
   tiny: openai-codex/gpt-5.6-luna:low
   commit: openai-codex/gpt-5.6-luna:low
@@ -22,30 +22,21 @@ task:
   eager: preferred
   enableLsp: true
   agentModelOverrides:
-    task: openai-codex/gpt-5.6-luna:xhigh
+    task: openai-codex/gpt-5.6-luna:high
     scout: opencode-go/deepseek-v4-flash:low
     sonic: openai-codex/gpt-5.6-luna:low
-    adversary: opencode-go/grok-4.6:high
+    adversary: opencode-go/glm-5.3-flash:high
     reviewer: opencode-go/glm-5.3-flash:high
-    security-reviewer: opencode-go/glm-5.3:high
+    security-reviewer: opencode-go/glm-5.3-flash:high
 retry:
   enabled: true
   modelFallback: true
-  usageAwareFallback: true
+  usageAwareFallback: false
   usageReservePct: 15
   usageReservePolicy: auto
   fallbackChains:
-    openai-codex/gpt-6-astra:
-      - opencode-go/glm-5.3:high
-      - opencode-go/grok-4.6:high
     opencode-go/glm-5.3-flash:
-      - opencode-go/grok-4.6:high
-      - opencode-go/deepseek-v4-flash:max
-    opencode-go/glm-5.3:
-      - opencode-go/grok-4.6:high
-      - opencode-go/deepseek-v4-flash:max
-    opencode-go/grok-4.6:
-      - opencode-go/glm-5.3:high
+      - openai-codex/gpt-5.6-sol:medium
       - opencode-go/deepseek-v4-flash:max
     opencode-go/deepseek-v4-flash:
       - openai-codex/gpt-5.6-luna:low
