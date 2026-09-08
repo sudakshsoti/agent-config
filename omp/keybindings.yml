@@ -1,0 +1,4 @@
+# Keep the default chord and a fallback for terminals that lose Ctrl+Shift.
+app.tools.toggleVisibility:
+  - Alt+O
+  - Ctrl+Shift+O

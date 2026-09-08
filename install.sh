@@ -396,6 +396,9 @@ if [ -d "$OMP" ] && [ -f "$REPO/omp/config.yml" ]; then
   mkdir -p "$OMP"
   link_into "$REPO/omp/config.yml" "$OMP/config.yml"
 fi
+if [ -d "$OMP" ] && [ -f "$REPO/omp/keybindings.yml" ]; then
+  link_into "$REPO/omp/keybindings.yml" "$OMP/keybindings.yml"
+fi
 # 3f. OMP themes: tracked files are symlinked individually so machine-local
 #     themes already present in ~/.omp/agent/themes remain untouched.
 if [ -d "$OMP" ] && [ -d "$REPO/omp/themes" ]; then

@@ -12,19 +12,8 @@ modelRoles:
   smol: openai-codex/gpt-5.6-luna:low
   tiny: openai-codex/gpt-5.6-luna:low
   commit: openai-codex/gpt-5.6-luna:low
-enabledModels:
-  - openai-codex/gpt-5.6-luna
-  - openai-codex/gpt-6-astra
-  - opencode-go/deepseek-v4-flash
-  - opencode-go/glm-5.3-flash
-  - opencode-go/glm-5.3
-  - opencode-go/grok-4.6
-disabledProviders:
-  - anthropic
-  - opencode-zen
-  - openrouter
-  - ollama
-  - ollama-local
+enabledModels: []
+disabledProviders: []
 task:
   batch: true
   enableEffort: false
