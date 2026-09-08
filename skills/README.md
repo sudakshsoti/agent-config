@@ -35,21 +35,20 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
   is almost always a sharper `description`, not a longer body.
 - **Multi-line `description`s must use a block scalar (`|` or `>-`), never a
   bare unquoted value.** Claude Code's YAML parser is lenient, but Codex's is
-  strict: an unquoted multi-line scalar containing a `: ` (colon-space, e.g.
+  strict: an unquoted multi-line scalar containing a `:` (colon-space, e.g.
   "engineering side: teaches…") parses as a nested mapping and the whole skill
   fails to load (`mapping values are not allowed in this context`). The `|`
   block scalar in the template above makes colons and quotes literal — keep it.
   Single-line descriptions are also fine.
 
-31 skills, all worth reaching for by name. Trimmed to 36 on 2026-08-19 after a
+The list below covers the repo-owned skills. Trimmed to 36 on 2026-08-19 after a
 usage audit: any skill unused across 1,203 transcripts (2026-07 through
-2026-08-19, at least 9 days old) was retired. On 2026-09-04 most of the
-`design-brief` pipeline — `design-brief`, `app-ui`, `interface-composition`,
-`design-typography`, `brand-studio`, `design-strategy`, and `design-review` — was
-archived while a replacement set of design skills is trialled; `vbc-design`
-is kept active for later rewiring, and `ux-writing` is a vendored external
-skill and stays. Everything removed is recoverable from git history or
-`archive/skills/`.
+2026-08-19, at least 9 days old) was retired. The active design set is
+`design-interface`, `design-visual-system`, and `design-typography`; they classify
+surface intent before applying hierarchy. `frontend-design` remains an external
+marketing/brand skill, not the route for product, reference, utility, dashboard,
+settings, or lookup-documentation work. Retired design-pipeline skills remain
+recoverable under `archive/skills/`.
 
 - `backlog` — Run any project's backlog in Linear like a PM: capture, triage, grooming, acceptance criteria, and milestone/session planning (batch Ready issues into equal-effort, one-sitting Linear Milestones).
 - `clinical-reasoning` — Clinical decision support for clinicians in India: diagnostics, differentials, labs, imaging, drug interactions, prescribing, and escalation.
@@ -83,16 +82,13 @@ skill and stays. Everything removed is recoverable from git history or
 - `vedic-astrology` — Vedic astrology (Jyotish) advisor for charts, dashas, transits, timing, compatibility, and remedies.
 - `writing-editor` — Writing partner for personal essays and blog posts: get words onto the page, then shape them into something publishable.
 
-`nightjar`, `design-visual-system`, and most of the `design-brief` pipeline
-(`design-brief`, `app-ui`, `interface-composition`, `design-typography`,
-`brand-studio`, `design-strategy`, `design-review`) are archived under
-`archive/skills/`. `nightjar` and `design-visual-system`'s editorial doctrine — a
-signature element, two families strictly divided, edges earned by hairline
-rules — measurably damaged product screens. The `design-brief` pipeline is
-archived while a new, less monolithic set of design skills is trialled in
-its place; `vbc-design` was kept out of the archive for later rewiring into
-that new set, and `ux-writing` is vendored and separate from the pipeline,
-so both stay active.
+The retired `design-brief` pipeline (`design-brief`, `app-ui`,
+`interface-composition`, `brand-studio`, `design-strategy`, and `design-review`)
+and `nightjar` remain under `archive/skills/`. `design-interface`,
+`design-visual-system`, and `design-typography` are active repo-owned skills. `frontend-design` is an external marketing and brand skill installed by the
+manifest, and is limited to those surfaces by the global interface-intent
+contract. Everything retired is recoverable from git history or
+`archive/skills/`.
 
 ## Installing per surface
 

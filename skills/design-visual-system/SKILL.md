@@ -1,8 +1,10 @@
 ---
 name: design-visual-system
 description: >
-  Visual direction for a product UI in its codebase — art direction, colour,
-  hierarchy, layout, responsive behaviour, CSS and tokens, @theme, OKLCH.
+  Visual direction for a product UI in its codebase — classify the surface
+  intent before choosing hierarchy, and do not apply marketing hierarchy to
+  reference or utility interfaces. Covers art direction, colour, hierarchy,
+  layout, responsive behaviour, CSS and tokens, @theme, and OKLCH.
   Typography-primary is design-typography; standalone decks and diagrams are
   design. Not for component behaviour, state or data flow.
 ---
@@ -47,8 +49,17 @@ brief:
 8. **Muted archival**: desaturated palette, old-style figures, generous leading
    and restrained colour.
 
-The hero is a thesis: open with the most characteristic thing in the subject's
-world, whether that is a headline, image, live demonstration or interaction.
+Opening hierarchy follows the surface’s job. A marketing or brand surface may
+use a hero when positioning is the first task. On a reference, utility, dashboard,
+settings, or lookup-documentation surface, do not use a positioning-led opening
+block that delays the primary task. Open with task-bearing controls, data, or
+content, and spend distinctiveness inside that working structure rather than
+above it. A compact status or task summary is allowed only when it directly
+changes the user’s next decision and the viewport budget still passes.
+“Display-led” is available only when the classified reading job supports display
+reading; “compact utility” is the default direction for repeated scan-and-act
+use, not merely one style option.
+
 Structure is information. Numbering, eyebrows, dividers and labels must encode
 something true, not merely decorate. Match execution complexity to the direction:
 maximalism needs enough craft to hold together; minimalism needs precision in
@@ -76,8 +87,11 @@ up a composition.
 ## 2. Production visual system
 
 Render it and look at the render at 390, 900 and 1440 CSS pixels wide before
-claiming it is done. Source alone cannot verify visual hierarchy, responsive
-behaviour, or whether a grid fits its container.
+claiming it is done. At `390 × 844`, report the top coordinate of the first useful
+unit and the number of complete useful units in the first viewport for every
+non-marketing surface. A polished header does not count as useful content. Source
+alone cannot verify visual hierarchy, responsive behaviour, or whether a grid fits
+its container.
 
 - **Spacing comes from the existing scale.** Use its steps, not arbitrary values.
 - **Type has an intentional scale.** Set roles, ratios, weight progression,
@@ -129,8 +143,8 @@ The list above is the whole anti-slop list; do not expand it here.
 ## Operator context
 
 Sudaksh: 13 years design (graphic design origin, now Senior UX at Optum healthcare),
-Gurugram. Figma primary, Cursor and Claude Code for code. Stack is React 19 + Vite
-+ TypeScript + Tailwind v4 + shadcn/ui. Writes CSS and Tailwind confidently,
+Gurugram. Figma primary, Cursor and Claude Code for code. Stack is React 19, Vite,
+TypeScript, Tailwind v4, and shadcn/ui. Writes CSS and Tailwind confidently,
 AI-assisted on React. Type library is H&Co and Klim heavy: Mercury, Archer,
 Whitney, Verlag, Knockout, Gotham, Domaine, Harriet, Söhne, plus Adelle, Tisa,
 Sentinel, Berkeley Mono and MonoLisa. Reads foundry discourse. Peer-level

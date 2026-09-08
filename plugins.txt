@@ -97,6 +97,7 @@ external ehmo/platform-design-skills macos-design-guidelines
 # agents, so `external` gives the same skill to all four harnesses at no cost.
 # Uninstall the old plugin once per machine, or Claude lists the skill twice:
 #   claude plugin uninstall frontend-design@claude-plugins-official
-# Role is unchanged: marketing and brand pages only, with `design-review` as the
-# gate it lacks. Product screens go to `app-ui`.
+# Role is unchanged: marketing and brand pages only. Product, reference, utility,
+# dashboard, settings, and lookup-documentation surfaces follow the always-loaded
+# interface-intent contract plus the active design skills as relevant.
 external anthropics/claude-code:plugins/frontend-design/skills frontend-design

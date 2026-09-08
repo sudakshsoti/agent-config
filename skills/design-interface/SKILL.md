@@ -1,6 +1,6 @@
 ---
 name: design-interface
-description: Testable rules for controls and structure — field states, focus, target size, disabled and error states, labels, hit areas, the states nobody demos, heading order. Does not cover type scale; see design-typography. Consult when building or reviewing any interactive control or screen state.
+description: Testable rules for controls and structure — classify reference, utility, dashboard, settings, documentation, list, form, or interactive screen intent before choosing hierarchy; then cover field states, focus, target size, labels, hit areas, and the states nobody demos. Does not cover type scale; see design-typography.
 ---
 
 # craft: interface
@@ -20,7 +20,19 @@ Building or reviewing any interactive control, form, list, or a screen that has 
 - Real content at its extremes: empty list, one item, an overfull list, the longest realistic string.
 - The DOM/accessibility tree, not just the visual render.
 
+## Surface intent gate
+
+Before layout, write one line with: `class | primary job | new or repeat use | scan or read | narrowest viewport`. If the class is unclear, infer it from the task and existing product context; ask only when two classes imply materially different structures.
+
+Marketing/brand may spend the opening viewport on positioning. Reference/lookup-documentation, task utility, dashboard/data, and settings/form surfaces spend it on use. Tutorials, essays, and sequential guides classify as content/editorial rather than lookup documentation. On a repeat-use surface, onboarding and explanation move out of the normal path unless they are needed to prevent an error.
+
 ## Rules (testable)
+
+- For reference/lookup-documentation, utility, dashboard, and settings surfaces at `390 × 844` CSS pixels, the first task-bearing control, data region, setting group, or reference entry starts within the top 40% of the viewport, and at least one complete useful unit is visible without scrolling. Verify from the rendered bounding boxes.
+- Count every block before the first useful unit. Identity/navigation needed for wayfinding may precede it; promotional copy, a restatement of the page purpose, duplicate prefix/key explanations, and generic “Start here” panels may not. Any other pre-content block must name the user error or decision it prevents.
+- A screen needs an accessible name, not automatically a large visible heading. If the shell, title bar, or navigation already names the current view, do not repeat it as a display heading. If a visible heading is needed, size it within the compact UI scale unless the surface is marketing/brand or content/editorial and display treatment serves the reading job.
+- First-run help is a state, not permanent page furniture. Verify the repeat-use state separately and confirm learned guidance no longer pushes the primary task down.
+- For frequently used surfaces, state a viewport utility target: which task-bearing units must be fully visible at the narrowest target width and height. Render and count them before completion.
 
 - Every interactive element must have a visible focus indicator reachable by keyboard alone. Verify by tabbing through the surface and confirming visible focus at each stop.
 - Tab order must follow the visual reading order. Verify by tabbing through and comparing against the visual sequence.

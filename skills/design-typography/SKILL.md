@@ -1,7 +1,7 @@
 ---
 name: design-typography
 description: |
-  Typography direction, systems, critique, and production across screen, print/editorial, brand identity, display type, and type-led layout. Use when selecting or pairing typefaces, designing hierarchy and scales, typesetting, evaluating fonts, specifying OpenType or variable-font behaviour, implementing webfonts, reviewing typography, or creating typographic brand guidance. Typography only: route broad visual direction, colour, imagery, motion, product strategy, and interface copy to their dedicated skills.
+  Typography direction, systems, critique, and production across screen, print/editorial, brand identity, display type, and type-led layout. Use when selecting or pairing typefaces, designing compact UI hierarchy, deciding whether a visible heading is needed, setting scales, typesetting, evaluating fonts, specifying OpenType or variable-font behaviour, implementing webfonts, reviewing typography, or creating typographic brand guidance. Typography only: route broad visual direction, colour, imagery, motion, product strategy, and interface copy to their dedicated skills.
 ---
 
 # Typography craft
@@ -32,11 +32,15 @@ A desktop licence does not permit web serving, and a font behind basic authentic
 
 ## Screen systems
 
+Classify the reading mode before defining roles. Reference, dashboard, settings, and repeated-use utilities use a compact hierarchy: orientation text is subordinate to task content, role contrast comes from weight and spacing before large size, and display faces are not used merely to make the page feel designed. A visible title earns space only when it adds orientation not already supplied by the shell.
+
+In mixed interfaces, reserve monospace for code, key sequences, commands, identifiers, logs, aligned technical data, and terminal output. Do not set headings, navigation, explanatory prose, or ordinary labels in monospace merely because the subject is technical. An all-monospace interface requires an explicit project decision or a content constraint that makes the text itself machine-like.
+
 **Decisions.** Define roles by reading task and density before selecting sizes. Body copy needs a stable measure, legible x-height, and a fallback with compatible metrics; compact controls may need a separate role rather than compressed body text. Prefer `rem` for user-scalable type; use `clamp()` only where its lower, fluid, and upper values are proofed against actual wrapping, and treat a fluid formula as a delivery mechanism, not a scale. Set body measure in characters, then tune width and leading with real copy; do not carry a print measure into a phone or assume one desktop line length survives localisation. Use `font-optical-sizing: auto` only after checking the face has a useful `opsz` axis, declare known variable axes deliberately, and set `font-synthesis: none` when faux bold or italic would damage hierarchy. Subset with `unicode-range` only when the split preserves each required script; preload only fonts needed above the fold and set `font-display` according to the reading and brand cost of fallback. Match fallback metrics with `size-adjust`, `ascent-override`, `descent-override`, and `line-gap-override` when a late webfont would otherwise shift the page.
 
 **Failure patterns.** A headline that only fits in the design-language screenshot, not at a translated or accessibility-scaled length. A body size reduced to preserve a fixed card height. One Latin fallback silently serving a different script. Preloading every family, weight, and subset, delaying more important content. Layout shift hidden by a screenshot taken after fonts finish loading.
 
-**Proof.** Inspect the rendered system at the project's actual breakpoints and, where applicable, 390px and 1440px. Check 200% browser zoom or operating-system text scaling, longest translated strings, fallback rendering, narrow and wide measures, and font-loading transitions. Completion requires no clipped, overlapping, or horizontally overflowing text; intentional line breaks must survive the target widths.
+**Proof.** Inspect the rendered system at the project's actual breakpoints and, where applicable, 390px and 1440px. At the narrowest viewport, compare title height with the first useful unit. Reject a title treatment that causes the task content to miss the surface-intent viewport target. Check 200% browser zoom or operating-system text scaling, longest translated strings, fallback rendering, narrow and wide measures, and font-loading transitions. Completion requires no clipped, overlapping, or horizontally overflowing text; intentional line breaks must survive the target widths.
 
 ## Print and editorial
 

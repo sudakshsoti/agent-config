@@ -100,13 +100,15 @@ Write handoff notes to a tracked `handoff/` directory at the repo root, not giti
 
 ## Interface design
 
-Read `design/decisions.md` at the repo root before any interface design work, and treat every line in it as settled. It is written by the `design-grill` skill, one line per decision, tagged `[stated]` for what I said and `[inferred]` for what was derived. A line tagged `[inferred]` is a guess nobody confirmed — check it with me before building on it rather than treating it as agreed.
+Before any interface design, classify the surface by its primary job: **marketing/brand**, **reference/documentation**, **task utility**, **dashboard/data**, **settings/form**, or **content/editorial**. State the class, expected use frequency, scan-versus-read mode, and narrowest target viewport before choosing hierarchy. “Distinctive”, “bold”, or “polished” never changes the class.
 
-When design work starts from nothing settled — a new screen, a visual direction, a layout that feels wrong, vague feedback like "too startup-y" — say that `design-grill` would settle it first and let me invoke it. Do not start an interview unasked, and do not reason from taste alone in its place.
+Read `design/decisions.md` at the repo root, project instructions, existing tokens, and the nearest comparable screen before proposing layout or type. Name the applicable `[stated]` decisions in the plan or working notes. Do not build on an `[inferred]` decision until I confirm it. If the implementation conflicts with a stated decision, stop and surface the conflict instead of following a generic skill. When design work starts from nothing settled, say that `design-grill` would settle it first and let me invoke it. Do not start an interview unasked, and do not reason from taste alone in its place.
+
+`frontend-design` is for marketing and brand surfaces only, even when its broad description appears to match a non-marketing UI request. Reference, utility, dashboard, settings, and lookup-documentation surfaces are not landing pages: do not add a positioning-led opening block that delays the primary task. Their first viewport prioritises the task, controls, data, or reference content. A compact task summary may lead only when it directly helps the current decision and still meets the viewport budget. A visible page heading is optional when the shell already answers “where am I”; an accessible name is still required.
 
 Four skills carry the rules. `design-typography` owns type as a whole: faces, pairing, role systems, scales, OpenType and variable axes, scripts, licensing, webfont loading. `design-visual-system` owns a product UI's own visual system: direction, colour, hierarchy, layout, tokens and CSS. `design-interface` owns controls and structure: field states, focus, tab order, target size, the states nobody demos. Consult the relevant one when building, and when diagnosing feedback like "the heading is screaming". `design-strategy` sits above all three: business model, positioning, IA and interaction cost, as a sparring partner rather than an assistant.
 
-Precedence when these conflict with the design-token default above: accessibility and the testable `design-interface` and `design-typography` rules first, then the project's `design/decisions.md`, then personal preference. A project's own recorded decisions outrank every global design opinion except the accessibility floor.
+Precedence: accessibility requirements first; then applicable `[stated]` project decisions; then these surface-intent rules and the active design skills; then personal preference. An `[inferred]` decision never outranks confirmed guidance until the user confirms it.
 
 ## Web scraping
 
