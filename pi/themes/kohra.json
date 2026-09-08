@@ -10,7 +10,8 @@
     "borderMuted": "#2B2E31",
     "text": "#BABEC1",
     "muted": "#9A9EA1",
-    "dim": "#828689",
+    "dim": "#93979A",
+    "fogLow": "#828689",
     "red": "#E19796",
     "green": "#A4B776",
     "amber": "#D2A56D",
@@ -72,7 +73,7 @@
     "syntaxOperator": "red",
     "syntaxPunctuation": "muted",
 
-    "thinkingOff": "dim",
+    "thinkingOff": "fogLow",
     "thinkingMinimal": "muted",
     "thinkingLow": "blue",
     "thinkingMedium": "teal",
