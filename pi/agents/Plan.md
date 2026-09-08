@@ -3,8 +3,8 @@ description: UX-focused implementation planner. Produces a concrete, read-only p
 display_name: Plan
 color: purple
 tools: read, grep, find, bash
-model: openai-codex/gpt-6-astra
-thinking: low
+model: openai-codex/gpt-5.6-sol
+thinking: medium
 max_turns: 15
 prompt_mode: append
 ---
