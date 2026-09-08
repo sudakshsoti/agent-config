@@ -45,6 +45,8 @@
 #     committing, same as omp/config.yml.
 #   pi/subagents.json -> ~/.pi/agent/subagents.json
 #   pi/themes/*.json -> ~/.pi/agent/themes/*.json
+#   pi/extensions/*/{index.js,index.ts,theme.json} -> ~/.pi/agent/extensions/*/
+#     Tracked Pi extensions and extension-specific theme overrides.
 #   pi/agents/*.md -> ~/.pi/agent/agents/*.md
 #     Custom pi-subagents definitions. Only linked if ~/.pi/agent exists.
 
@@ -483,7 +485,23 @@ if [ -d "$PI" ] && [ -d "$REPO/pi/themes" ]; then
     link_into "$theme_file" "$PI/themes/$(basename "$theme_file")"
   done
 fi
-# 3n. pi subagents: custom agent definitions read by @tintinweb/pi-subagents.
+# 3n. Pi extensions and their theme overrides: linked file by file so local
+#     runtime data within ~/.pi/agent/extensions survives installation. A
+#     directory may contain an index.js/index.ts extension, a theme.json
+#     consumed by an npm extension, or both.
+if [ -d "$PI" ] && [ -d "$REPO/pi/extensions" ]; then
+  mkdir -p "$PI/extensions"
+  for extension_dir in "$REPO"/pi/extensions/*; do
+    [ -d "$extension_dir" ] || continue
+    target_dir="$PI/extensions/$(basename "$extension_dir")"
+    mkdir -p "$target_dir"
+    for extension_file in "$extension_dir"/index.js "$extension_dir"/index.ts "$extension_dir"/theme.json; do
+      [ -f "$extension_file" ] || continue
+      link_into "$extension_file" "$target_dir/$(basename "$extension_file")"
+    done
+  done
+fi
+# 3o. pi subagents: custom agent definitions read by @tintinweb/pi-subagents.
 #     `scout` exists to stop delegated lookups inheriting the session model —
 #     it pins its own, per the "always pass an explicit model tier" rule in
 #     global-agents.md.

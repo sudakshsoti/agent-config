@@ -16,6 +16,35 @@
   "compaction": {
     "enabled": true
   },
+  "powerline": {
+    "preset": "default",
+    "separator": "dot",
+    "layout": {
+      "left": [
+        "model",
+        "custom:kohra-thinking",
+        "path",
+        "context_pct",
+        "custom:subagents"
+      ],
+      "right": [],
+      "secondary": []
+    },
+    "customItems": [
+      {
+        "id": "kohra-thinking",
+        "statusKey": "kohra-thinking",
+        "position": "left",
+        "selfColorize": true
+      },
+      {
+        "id": "subagents",
+        "statusKey": "subagents",
+        "position": "left",
+        "color": "thinkingHigh"
+      }
+    ]
+  },
   "packages": [
     "npm:@tintinweb/pi-subagents@0.16.1",
     "npm:@juicesharp/rpiv-ask-user-question@2.6.0",

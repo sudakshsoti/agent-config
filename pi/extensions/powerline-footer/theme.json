@@ -1,0 +1,24 @@
+{
+  "colors": {
+    "model": "#9A9EA1",
+    "shellMode": "#70B4A2",
+    "path": "#78ACCF",
+    "gitDirty": "#D2A56D",
+    "gitClean": "#A4B776",
+    "thinking": "#828689",
+    "thinkingMinimal": "#9A9EA1",
+    "thinkingLow": "#78ACCF",
+    "thinkingMedium": "#70B4A2",
+    "context": "#BABEC1",
+    "contextWarn": "#D2A56D",
+    "contextError": "#E19796",
+    "cost": "#9A9EA1",
+    "tokens": "#9A9EA1",
+    "queue": "#78ACCF",
+    "separator": "#6D7274",
+    "border": "#3A3E41"
+  },
+  "icons": {
+    "warning": ""
+  }
+}
