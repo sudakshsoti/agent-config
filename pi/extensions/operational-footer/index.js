@@ -15,7 +15,8 @@ function compactPath(cwd) {
   const home = process.env.HOME;
   if (!home) return cwd;
   const fromHome = relative(resolve(home), resolve(cwd));
-  const insideHome = fromHome === "" || (fromHome !== ".." && !fromHome.startsWith(`..${sep}`));
+  const insideHome =
+    fromHome === "" || (fromHome !== ".." && !fromHome.startsWith(`..${sep}`));
   return insideHome ? (fromHome ? `~${sep}${fromHome}` : "~") : cwd;
 }
 
@@ -59,29 +60,61 @@ export default function operationalFooter(pi) {
             cacheWrite: 0,
             reasoning: 0,
             totalTokens: 0,
-            cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
+            cost: {
+              input: 0,
+              output: 0,
+              cacheRead: 0,
+              cacheWrite: 0,
+              total: 0,
+            },
           };
           let cacheHit;
 
           for (const entry of ctx.sessionManager.getEntries()) {
-            if (entry.type === "message" && entry.message.role === "assistant") {
+            if (
+              entry.type === "message" &&
+              entry.message.role === "assistant"
+            ) {
               const messageUsage = entry.message.usage;
               addUsage(usage, messageUsage);
-              const prompt = messageUsage.input + messageUsage.cacheRead + messageUsage.cacheWrite;
-              cacheHit = prompt > 0 ? (messageUsage.cacheRead / prompt) * 100 : undefined;
-            } else if (entry.type === "message" && entry.message.role === "toolResult") {
+              const prompt =
+                messageUsage.input +
+                messageUsage.cacheRead +
+                messageUsage.cacheWrite;
+              cacheHit =
+                prompt > 0
+                  ? (messageUsage.cacheRead / prompt) * 100
+                  : undefined;
+            } else if (
+              entry.type === "message" &&
+              entry.message.role === "toolResult"
+            ) {
               addUsage(usage, entry.message.usage);
-            } else if (entry.type === "branch_summary" || entry.type === "compaction") {
+            } else if (
+              entry.type === "branch_summary" ||
+              entry.type === "compaction"
+            ) {
               addUsage(usage, entry.usage);
             }
           }
 
           const statuses = footerData.getExtensionStatuses();
           const mode = plain(statuses.get("pi-plan-build-mode")) || "build";
-          const speed = plain(statuses.get("tokenSpeed")).replace(/^⚡\s*TPS:\s*/i, "");
+          const speed = plain(statuses.get("tokenSpeed")).replace(
+            /^⚡\s*TPS:\s*/i,
+            "",
+          );
           const lsp = plain(statuses.get("pi-lens-lsp"));
           const extras = [...statuses.entries()]
-            .filter(([key, value]) => !["pi-plan-build-mode", "tokenSpeed", "pi-lens-lsp", "kohra-thinking"].includes(key) && plain(value))
+            .filter(
+              ([key, value]) =>
+                ![
+                  "pi-plan-build-mode",
+                  "tokenSpeed",
+                  "pi-lens-lsp",
+                  "kohra-thinking",
+                ].includes(key) && plain(value),
+            )
             .map(([, value]) => plain(value));
 
           const branch = footerData.getGitBranch();
@@ -89,27 +122,45 @@ export default function operationalFooter(pi) {
           const model = ctx.model?.id || "no model";
           const thinking = ctx.thinkingLevel || "off";
           const context = ctx.getContextUsage();
-          const contextText = context?.percent == null
-            ? `context ? / ${formatCount(context?.contextWindow || ctx.model?.contextWindow || 0)}`
-            : `context ${context.percent.toFixed(1)}% / ${formatCount(context.contextWindow)}`;
+          const contextText =
+            context?.percent == null
+              ? `context ? / ${formatCount(context?.contextWindow || ctx.model?.contextWindow || 0)}`
+              : `context ${context.percent.toFixed(1)}% / ${formatCount(context.contextWindow)}`;
 
-          const operational = [contextText, speed && speed !== "--" ? speed : undefined, lsp && lsp !== "LSP Inactive" ? lsp : undefined, ...extras]
+          const operational = [
+            contextText,
+            speed && speed !== "--" ? speed : undefined,
+            lsp && lsp !== "LSP Inactive" ? lsp : undefined,
+            ...extras,
+          ]
             .filter(Boolean)
             .join(theme.fg("dim", " · "));
           const accounting = [
-            cacheHit === undefined ? undefined : `cache ${cacheHit.toFixed(1)}%`,
+            cacheHit === undefined
+              ? undefined
+              : `cache ${cacheHit.toFixed(1)}%`,
             usage.input ? `↑${formatCount(usage.input)}` : undefined,
             usage.output ? `↓${formatCount(usage.output)}` : undefined,
             usage.cacheRead ? `R${formatCount(usage.cacheRead)}` : undefined,
             usage.cost.total ? `$${usage.cost.total.toFixed(3)}` : undefined,
-          ].filter(Boolean).join(" ");
+          ]
+            .filter(Boolean)
+            .join(" ");
 
           const state = `${theme.bold(mode.toUpperCase())} ${theme.fg("dim", "·")} ${model} ${theme.fg("dim", "·")} ${thinking}`;
           const rowOne = fit(theme.fg("muted", location), state, width);
-          const rowTwo = fit(theme.fg("text", operational), theme.fg("dim", accounting), width);
+          const rowTwo = fit(
+            theme.fg("text", operational),
+            theme.fg("dim", accounting),
+            width,
+          );
 
           if (width >= 96) return [rowOne, rowTwo];
-          return [truncateToWidth(rowOne, width, ""), truncateToWidth(operational, width, ""), truncateToWidth(theme.fg("dim", accounting), width, "")];
+          return [
+            truncateToWidth(rowOne, width, ""),
+            truncateToWidth(operational, width, ""),
+            truncateToWidth(theme.fg("dim", accounting), width, ""),
+          ];
         },
       };
     });
