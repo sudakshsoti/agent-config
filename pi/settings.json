@@ -70,12 +70,11 @@
     "npm:pi-markdown-preview",
     "npm:pi-playwright",
     "npm:@juicesharp/rpiv-todo",
-    "npm:pi-powerline-footer",
+    "npm:@janvitos/pi-plan-build",
     "npm:@ff-labs/pi-fff",
     "npm:pi-token-speed",
     "npm:pi-image-paste",
-    "npm:pi-blackhole",
-    "npm:@janvitos/pi-plan-build"
+    "npm:pi-blackhole"
   ],
   "lastChangelogVersion": "0.85.1",
   "tuiMode": "fullscreen"
