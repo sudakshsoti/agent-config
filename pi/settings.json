@@ -75,7 +75,8 @@
     "npm:@ff-labs/pi-fff",
     "npm:pi-token-speed",
     "npm:pi-image-paste",
-    "npm:pi-blackhole"
+    "npm:pi-blackhole",
+    "npm:@janvitos/pi-plan-build"
   ],
   "lastChangelogVersion": "0.85.1",
   "tuiMode": "fullscreen"
