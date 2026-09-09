@@ -67,7 +67,6 @@
     "npm:pi-markdown-preview",
     "npm:pi-playwright",
     "npm:@juicesharp/rpiv-todo",
-    "git:github.com/sudakshsoti/pi-plan-build@0545136f96bcba027778f6bd36e198b213d36beb",
     "npm:@ff-labs/pi-fff",
     "npm:pi-token-speed",
     "npm:pi-blackhole"
