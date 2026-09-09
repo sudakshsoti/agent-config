@@ -3,8 +3,8 @@ description: Fast read-only explorer for private codebases. Finds relevant files
 display_name: Explore
 color: cyan
 tools: read, grep, find, bash
-model: opencode-go/deepseek-v4-flash
-thinking: low
+model: openai-codex/gpt-5.6-luna
+thinking: medium
 max_turns: 15
 prompt_mode: append
 ---

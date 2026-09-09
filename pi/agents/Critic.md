@@ -4,7 +4,7 @@ display_name: Critic
 color: orange
 tools: read, grep, find, bash
 model: openai-codex/gpt-5.6-sol
-thinking: xhigh
+thinking: high
 max_turns: 15
 prompt_mode: append
 ---
