@@ -124,3 +124,4 @@ Add one the moment you hit a mistake that would repeat, without waiting to be as
 - A doc in a `docs/` directory is not memory. Nothing loads it automatically. If a rule needs to survive, it goes in an instructions file, not a doc.
 - Instruction files have no working import mechanism across tools, and Codex ignores import directives outright. Only text written inline in a file a tool actually loads will be read. Never solve a memory problem by pointing one file at another.
 - Re-check the current branch immediately before every commit. Another process can switch the working tree after the task starts.
+- `gh repo fork <owner/repo>` rejects `--remote`; use `--remote` only when forking the current repository, or use GitHub's forks API when local remotes must remain unchanged.
