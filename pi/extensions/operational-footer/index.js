@@ -99,7 +99,6 @@ export default function operationalFooter(pi) {
           }
 
           const statuses = footerData.getExtensionStatuses();
-          const mode = plain(statuses.get("pi-plan-build-mode")) || "build";
           const speed = plain(statuses.get("tokenSpeed")).replace(
             /^⚡\s*TPS:\s*/i,
             "",
@@ -109,7 +108,6 @@ export default function operationalFooter(pi) {
             .filter(
               ([key, value]) =>
                 ![
-                  "pi-plan-build-mode",
                   "tokenSpeed",
                   "pi-lens-lsp",
                   "kohra-thinking",
@@ -147,7 +145,7 @@ export default function operationalFooter(pi) {
             .filter(Boolean)
             .join(" ");
 
-          const state = `${theme.bold(mode.toUpperCase())} ${theme.fg("dim", "·")} ${model} ${theme.fg("dim", "·")} ${thinking}`;
+          const state = `${model} ${theme.fg("dim", "·")} ${thinking}`;
           const rowOne = fit(theme.fg("muted", location), state, width);
           const rowTwo = fit(
             theme.fg("text", operational),

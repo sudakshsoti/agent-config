@@ -31,7 +31,7 @@ Terra and authenticated Go models remain selectable through `/model` or explicit
 
 `~/.pi/agent/settings.json` and the files in `~/.pi/agent/agents/` link to this repository's Pi configuration.
 No installation or copy step is needed for edits to existing linked files.
-Restart Pi to load the updated configuration; the separately parked Plan Build crash makes `/reload` unsuitable until repaired.
+Restart Pi to load the updated configuration.
 Resumed sessions may restore their previously selected model and effort.
 
 ## Evidence and limits
