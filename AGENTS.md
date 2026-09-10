@@ -69,3 +69,4 @@
 - Pi's `enabledModels` is the Ctrl+P cycle list, not an access restriction. It deduplicates by provider/model ID, retaining the first effort preset; use `/thinking` or explicit agent thinking overrides rather than duplicate scoped entries.
 - Pi's OpenCode Go/OpenRouter credentials are API keys in untracked `~/.pi/agent/auth.json`; `openai-codex` uses OAuth. Never add an `anthropic/*` subscription model to pi: Anthropic rejects third-party subscription OAuth (`earendil-works/pi#3372`).
 - `~/.omp/stats.db` stopped recording around 2026-09-02 19:04; use live `model_perf` in `~/.omp/agent/agent.db` for served-model evidence.
+- Another process may push to the active feature branch between local commits. Fetch before pushing; if the remote advanced, preserve unrelated dirty files, rebase, then restore them.
