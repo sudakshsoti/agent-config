@@ -107,11 +107,9 @@ export default function operationalFooter(pi) {
           const extras = [...statuses.entries()]
             .filter(
               ([key, value]) =>
-                ![
-                  "tokenSpeed",
-                  "pi-lens-lsp",
-                  "kohra-thinking",
-                ].includes(key) && plain(value),
+                !["tokenSpeed", "pi-lens-lsp", "kohra-thinking"].includes(
+                  key,
+                ) && plain(value),
             )
             .map(([, value]) => plain(value));
 
