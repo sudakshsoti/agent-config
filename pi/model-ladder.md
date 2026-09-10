@@ -7,14 +7,15 @@ These are starting defaults, not measured quota savings on this repository.
 | Task / agent | Provider and model | Effort |
 | --- | --- | --- |
 | Main session; `builder` implementing an approved UI plan | `openai-codex/gpt-5.6-luna` | high |
-| `scout` and `Explore` read-only discovery | `openai-codex/gpt-5.6-luna` | medium |
+| `scout` and `Explore` low-stakes read-only discovery | `opencode-go/muse-spark-1.3-contributor` | minimal |
 | `workflow` coordinating multi-part implementation | `openai-codex/gpt-5.6-sol` | medium |
 | `Plan` and `Critic` planning and visual review | `openai-codex/gpt-5.6-sol` | high |
 | `reviewer` adversarial review of plans and diffs on a second lineage | `opencode-go/glm-5.3-flash` | high |
 | Difficult bugs, architecture or security-sensitive decisions | Explicit `openai-codex/gpt-5.6-sol` override | xhigh |
 | Optional `public-scout`, public/disposable material only | `opencode-go/muse-spark-1.3-contributor` | minimal |
 
-Use Luna medium for straightforward main-session edits via `/thinking`.
+Use Luna medium for discovery that needs stronger judgement or involves sensitive code.
+Use Muse minimal for bounded, low-stakes read-only discovery.
 Use Sol medium when implementation still requires substantial technical decisions.
 Escalate repeated failed approaches instead of allowing an extended retry loop.
 GLM 5.3 Flash exposes only low, high and max thinking; medium silently runs as high.
@@ -22,7 +23,7 @@ Model overrides on agent calls take precedence over agent defaults; these files 
 
 ## Scoped models
 
-`settings.json` sets `enabledModels` to Luna high and Sol high, in that order.
+`settings.json` sets `enabledModels` to Luna high, Sol high and Muse Spark 1.3 minimal, in that order.
 This is the Ctrl+P quick-switch list, not an access restriction or an agent-routing table.
 Pi deduplicates scoped entries by provider/model ID; multiple effort presets for the same model do not create multiple cycle entries.
 Use `/thinking` to change effort, or set it explicitly on an agent call.

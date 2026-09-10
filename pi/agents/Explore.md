@@ -3,8 +3,8 @@ description: Fast read-only explorer for private codebases. Finds relevant files
 display_name: Explore
 color: cyan
 tools: read, grep, find, bash
-model: openai-codex/gpt-5.6-luna
-thinking: medium
+model: opencode-go/muse-spark-1.3-contributor
+thinking: minimal
 max_turns: 15
 prompt_mode: append
 ---
