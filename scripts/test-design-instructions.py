@@ -6,6 +6,7 @@ fixtures; it does not claim to measure whether a model obeys the contract.
 """
 
 from pathlib import Path
+import re
 import sys
 
 
@@ -23,6 +24,7 @@ def main() -> int:
     interface = ROOT / "skills/design-interface/SKILL.md"
     visual = ROOT / "skills/design-visual-system/SKILL.md"
     typography = ROOT / "skills/design-typography/SKILL.md"
+    infographic = ROOT / "ux-first-pi-configuration-plan.html"
     plugins = ROOT / "plugins.txt"
     skills_readme = ROOT / "skills/README.md"
     cases = ROOT / "tests/design-intent-cases.md"
@@ -46,8 +48,24 @@ def main() -> int:
     require(interface, "First-run help is a state, not permanent page furniture")
     require(visual, "Opening hierarchy follows the surface’s job")
     require(visual, "A polished header does not count as useful content")
+    require(visual, "Begin reference, utility and dashboard surfaces with a solid background")
     require(typography, "reserve monospace for code, key sequences")
     require(typography, "A visible title earns space only when it adds orientation")
+    require(typography, "font-kerning: normal")
+    require(typography, "Negative tracking is limited to proofed display typography")
+    require(typography, "inspect the current Google Fonts catalogue")
+
+    visual_text = visual.read_text(encoding="utf-8")
+    for retired_example in (
+        "grotesque at tight tracking",
+        "Söhne Buch at 16px with -1% tracking",
+    ):
+        if retired_example in visual_text:
+            raise AssertionError(f"design-visual-system retains {retired_example!r}")
+
+    infographic_text = infographic.read_text(encoding="utf-8")
+    if re.search(r"letter-spacing\s*:\s*-", infographic_text):
+        raise AssertionError("UX-first Pi infographic contains negative letter-spacing")
 
     plugin_text = plugins.read_text(encoding="utf-8")
     if "Product screens go to `app-ui`" in plugin_text:
