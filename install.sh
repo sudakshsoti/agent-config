@@ -44,6 +44,8 @@
 #     write follows the symlink into the repo — review with `git diff` before
 #     committing, same as omp/config.yml.
 #   pi/subagents.json -> ~/.pi/agent/subagents.json
+#   pi/prompts/*.md -> ~/.pi/agent/prompts/*.md
+#     Reusable Pi prompt templates, linked individually so machine-local prompts survive.
 #   pi/themes/*.json -> ~/.pi/agent/themes/*.json
 #   pi/extensions/*/{index.js,index.ts,theme.json} -> ~/.pi/agent/extensions/*/
 #     Tracked Pi extensions and extension-specific theme overrides.
@@ -494,7 +496,7 @@ fi
 #     discovered twice — the exact mistake baseline made and that AGENTS.md
 #     warns about.
 if [ ! -d "$PI" ]; then
-  echo "⚠️  SKIP pi — no $PI (pi not installed). settings.json, pi-fff.json, subagents.json, themes/ and agents/ not linked."
+  echo "⚠️  SKIP pi — no $PI (pi not installed). settings.json, pi-fff.json, subagents.json, prompts/, themes/ and agents/ not linked."
 fi
 if [ -d "$PI" ] && [ -f "$REPO/pi/settings.json" ]; then
   link_into "$REPO/pi/settings.json" "$PI/settings.json"
@@ -502,13 +504,22 @@ fi
 if [ -d "$PI" ] && [ -f "$REPO/pi/pi-fff.json" ]; then
   link_into "$REPO/pi/pi-fff.json" "$PI/pi-fff.json"
 fi
-# 3l. pi-subagents settings: widget and FleetView off. Global scope only — the
+# 3l. pi-subagents settings: background-only widget and FleetView off. Global scope only — the
 #     /agents menu writes to <cwd>/.pi/subagents.json, never to this file, so a
 #     project override never lands in the repo by accident.
 if [ -d "$PI" ] && [ -f "$REPO/pi/subagents.json" ]; then
   link_into "$REPO/pi/subagents.json" "$PI/subagents.json"
 fi
-# 3m. pi themes: linked individually so machine-local themes already in
+# 3m. Pi prompt templates: linked individually so machine-local prompts already
+#     in ~/.pi/agent/prompts survive installation.
+if [ -d "$PI" ] && [ -d "$REPO/pi/prompts" ]; then
+  mkdir -p "$PI/prompts"
+  for prompt_file in "$REPO"/pi/prompts/*.md; do
+    [ -f "$prompt_file" ] || continue
+    link_into "$prompt_file" "$PI/prompts/$(basename "$prompt_file")"
+  done
+fi
+# 3n. pi themes: linked individually so machine-local themes already in
 #     ~/.pi/agent/themes survive, and so theme packages that generate a theme
 #     into that directory are never clobbered.
 if [ -d "$PI" ] && [ -d "$REPO/pi/themes" ]; then
@@ -518,7 +529,7 @@ if [ -d "$PI" ] && [ -d "$REPO/pi/themes" ]; then
     link_into "$theme_file" "$PI/themes/$(basename "$theme_file")"
   done
 fi
-# 3n. Pi extensions and their theme overrides: linked file by file so local
+# 3o. Pi extensions and their theme overrides: linked file by file so local
 #     runtime data within ~/.pi/agent/extensions survives installation. A
 #     directory may contain an index.js/index.ts extension, a theme.json
 #     consumed by an npm extension, or both.
@@ -534,7 +545,7 @@ if [ -d "$PI" ] && [ -d "$REPO/pi/extensions" ]; then
     done
   done
 fi
-# 3o. pi subagents: custom agent definitions read by @tintinweb/pi-subagents.
+# 3p. pi subagents: custom agent definitions read by @tintinweb/pi-subagents.
 #     `scout` exists to stop delegated lookups inheriting the session model —
 #     it pins its own, per the "always pass an explicit model tier" rule in
 #     global-agents.md.

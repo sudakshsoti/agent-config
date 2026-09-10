@@ -25,7 +25,7 @@
 | `~/.codex/AGENTS.md`, `~/.omp/agent/AGENTS.md`, `~/.config/opencode/AGENTS.md`, `~/.pi/agent/AGENTS.md` | agent-config | symlinks to `global-agents.md` |
 | `~/.codex/config.toml` | **shared** | dotfiles writes it; agent-config merges non-secret keys; check both |
 | `~/.omp/agent/config.yml`, `lsp.yml`, `keybindings.yml`, `themes/`, `agents/` | agent-config | `install.sh` symlinks; omp writes through links |
-| `~/.pi/agent/settings.json`, `subagents.json`, `pi-fff.json`, `themes/`, `extensions/`, `agents/` | agent-config | `install.sh` symlinks; pi writes through links |
+| `~/.pi/agent/settings.json`, `subagents.json`, `pi-fff.json`, `prompts/`, `themes/`, `extensions/`, `agents/` | agent-config | `install.sh` symlinks; pi writes through links |
 | `~/.config/omp/*.yml`, `*.tpl` | agent-config (`omp/overlays/`) | session-only `--config` overlays; no restore state |
 | `~/.config/opencode/opencode.jsonc`, `~/.zshrc`, `.gitconfig`, Brewfile, fonts, terminal/editor config | **dotfiles** | chezmoi |
 | `~/.omp/agent/mcp.json`, `.env`, `~/.claude/settings.local.json`, `~/.pi/agent/auth.json`, `models-store.json`, `sessions/`, `npm/` | **neither** | machine-local, credentials or runtime state; untracked |

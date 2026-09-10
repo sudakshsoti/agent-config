@@ -8,8 +8,8 @@
   "strictAgentFiles": false,
   "disableDefaultAgents": false,
   "toolDescriptionMode": "full",
-  "fleetView": true,
-  "widgetMode": "all",
+  "fleetView": false,
+  "widgetMode": "background",
   "outputTranscript": true,
   "maxSubagentDepth": 2
 }
