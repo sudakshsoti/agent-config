@@ -140,7 +140,6 @@ case "$REPO" in
   ;;
 esac
 
-
 # Fetch external checkouts before linking skills.
 fetch_external_sources() {
   [ -f "$REPO/plugins.txt" ] || return
@@ -620,7 +619,7 @@ if [ "$PRUNE" = "1" ]; then
       *" $(basename "$link") "*) continue ;;
       esac
       case "$(readlink "$link")" in
-      "$REPO"/*|"$VENDOR"/*)
+      "$REPO"/* | "$VENDOR"/*)
         rm -f "$link"
         echo "pruned  $(basename "$link") (not declared)"
         pruned=$((pruned + 1))
