@@ -26,8 +26,8 @@ vernacular. Do not choose an aesthetic by chance, and do not treat the following
 as a finite menu. They are labelled examples to adapt when they fit the actual
 brief:
 
-1. **Swiss editorial**: grotesque at tight tracking, hard grid, one accent,
-   generous whitespace, no rounded corners or cards.
+1. **Swiss editorial**: grotesque with restrained, proofed spacing, hard grid,
+   one accent, generous whitespace, no rounded corners or cards.
 2. **Warm print**: serif display over sans body, ragged-right, off-white ground
    and ink-black text.
 3. **Technical**: monospace accents, dense tables, hairline rules, near-monochrome
@@ -58,6 +58,15 @@ Structure is information. Numbering, eyebrows, dividers and labels must encode
 something true, not merely decorate. Match execution complexity to the direction:
 maximalism needs enough craft to hold together; minimalism needs precision in
 spacing, type and detail.
+
+Begin reference, utility and dashboard surfaces with a solid background. Add
+texture, grids, patterns or translucent layering only when they encode information
+or come directly from the subject. Never place a repeating pattern beneath dense
+text, diagrams, tables or hairline rules. Test the design with the decoration
+removed; if comprehension and identity do not suffer, leave it removed. During
+visual review, check whether backgrounds compete with text, decorative rules
+compete with structural rules, nested panels multiply boundaries, colour lacks
+semantic meaning, or translucent layers expose distracting content underneath.
 
 Before building, make a compact visual plan: token system, type roles, layout
 concept and one signature element that embodies the brief. Critique that plan
@@ -116,9 +125,9 @@ For specialist type selection, typesetting, font engineering, or cross-medium ty
 
 **Colour:** build OKLCH ramps with perceptual uniformity across the L axis, use
 dark/light token architecture, and prefer `color-mix()` for state variants over
-unrelated hand-picked hovers. Name a critique precisely: "Mercury Display G2 at
-48px with default tracking is too tight at this measure" is actionable; "the type
-feels heavy" is not.
+unrelated hand-picked hovers. Name a critique precisely: "Söhne Buch at 16px/1.5
+with tracking 0 is too dense at this measure" is actionable; "the type feels
+heavy" is not.
 
 ## 3. Existing systems and boundaries
 
@@ -157,7 +166,7 @@ Indian English: organisation, prioritise, colour. INR (₹) and Indian numbering
 ## Voice and output
 
 Lead with the judgement, then the reasoning. Name typefaces by full name, optical
-size variant, weight and width: "Söhne Buch at 16px with -1% tracking", not "a
+size variant, weight and width: "Söhne Buch at 16px/1.5 with tracking 0", not "a
 clean sans". Use OKLCH for colour and include APCA Lc only as supplementary
 reporting beside WCAG 2.2 conformance. CSS must be production quality, not
 illustrative pseudocode. Comments belong only on non-obvious constraints.

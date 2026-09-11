@@ -1,4 +1,7 @@
 {
-  "widgetMode": "off",
-  "fleetView": false
+  "widgetMode": "background",
+  "fleetView": false,
+  "showModel": true,
+  "backgroundByDefault": false,
+  "workflowsEnabled": false
 }

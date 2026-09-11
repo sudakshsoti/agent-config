@@ -27,7 +27,7 @@ Exception: Codex may generate required `dist/<skill>.zip` packages with `scripts
 | `~/.codex/AGENTS.md`, `~/.omp/agent/AGENTS.md`, `~/.config/opencode/AGENTS.md`, `~/.pi/agent/AGENTS.md` | agent-config | symlinks to `global-agents.md` |
 | `~/.codex/config.toml` | **shared** | dotfiles writes it; agent-config merges non-secret keys; check both |
 | `~/.omp/agent/config.yml`, `lsp.yml`, `keybindings.yml`, `themes/`, `agents/` | agent-config | `install.sh` symlinks; omp writes through links |
-| `~/.pi/agent/settings.json`, `subagents.json`, `pi-fff.json`, `themes/`, `extensions/`, `agents/` | agent-config | `install.sh` symlinks; pi writes through links |
+| `~/.pi/agent/settings.json`, `subagents.json`, `pi-fff.json`, `prompts/`, `themes/`, `extensions/`, `agents/` | agent-config | `install.sh` symlinks; pi writes through links |
 | `~/.config/omp/*.yml`, `*.tpl` | agent-config (`omp/overlays/`) | session-only `--config` overlays; no restore state |
 | `~/.config/opencode/opencode.jsonc`, `~/.zshrc`, `.gitconfig`, Brewfile, fonts, terminal/editor config | **dotfiles** | chezmoi |
 | `~/.omp/agent/mcp.json`, `.env`, `~/.claude/settings.local.json`, `~/.pi/agent/auth.json`, `models-store.json`, `sessions/`, `npm/` | **neither** | machine-local, credentials or runtime state; untracked |
@@ -71,7 +71,8 @@ Exception: Codex may generate required `dist/<skill>.zip` packages with `scripts
 - `retry.fallbackChains` specificity is exact model → provider key → role → default. `provider/*` is a chain key, not a rung; as a rung it preserves the model id and can build an invalid gateway id.
 - omp loads `~/.omp/.env` at startup; an existing process variable wins. After `op inject`, restart omp. `omp token <provider>` shows the key actually used.
 - Muse Spark requires `/v1/responses` and omp ≥18.1.6; the installed omp is 18.1.14. Pi's catalogue has `api: openai-responses` at `https://opencode.ai/zen/go/v1`. No plain-OMP role currently uses Muse Spark; `omp/overlays/go-overlay.yml` may.
-- pi has no omp-style `modelRoles` or `fallbackChains`; per-job models are in `pi/agents/*.md` frontmatter. Its default is `openai-codex/gpt-5.6-luna`, and it has no Anthropic subscription model. Pi routing: main/builder → Luna high; scout/Explore → Luna medium; workflow → Sol medium; Plan/Critic → Sol high. Sol xhigh is an explicit escalation; Go is optional, not the default implementation budget.
+- pi has no omp-style `modelRoles` or `fallbackChains`; per-job models are in `pi/agents/*.md` frontmatter. Its default is `openai-codex/gpt-5.6-luna`, and it has no Anthropic subscription model. Pi routing: main/builder → Luna high; scout/Explore → Muse Spark 1.3 minimal for low-stakes read-only discovery; workflow → Sol medium; Plan/Critic → Sol high. Use Luna medium when discovery needs stronger judgement or involves sensitive code. Sol xhigh is an explicit escalation; Go is optional, not the default implementation budget.
 - Pi's `enabledModels` is the Ctrl+P cycle list, not an access restriction. It deduplicates by provider/model ID, retaining the first effort preset; use `/thinking` or explicit agent thinking overrides rather than duplicate scoped entries.
 - Pi's OpenCode Go/OpenRouter credentials are API keys in untracked `~/.pi/agent/auth.json`; `openai-codex` uses OAuth. Never add an `anthropic/*` subscription model to pi: Anthropic rejects third-party subscription OAuth (`earendil-works/pi#3372`).
 - `~/.omp/stats.db` stopped recording around 2026-09-02 19:04; use live `model_perf` in `~/.omp/agent/agent.db` for served-model evidence.
+- Another process may push to the active feature branch between local commits. Fetch before pushing; if the remote advanced, preserve unrelated dirty files, rebase, then restore them.

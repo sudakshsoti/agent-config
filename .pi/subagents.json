@@ -1,15 +1,25 @@
 {
   "maxConcurrent": 4,
+  "maxConcurrentForeground": 0,
   "defaultMaxTurns": 0,
   "graceTurns": 5,
   "defaultJoinMode": "smart",
+  "backgroundByDefault": false,
   "schedulingEnabled": true,
   "scopeModels": false,
   "strictAgentFiles": false,
   "disableDefaultAgents": false,
   "toolDescriptionMode": "full",
-  "fleetView": true,
-  "widgetMode": "all",
+  "fleetView": false,
+  "agentMentions": "model",
+  "rememberAgents": true,
+  "widgetMode": "background",
   "outputTranscript": true,
-  "maxSubagentDepth": 2
+  "worktreeIsolation": true,
+  "workflowsEnabled": false,
+  "maxSubagentDepth": 2,
+  "reportUsage": false,
+  "showCost": false,
+  "showModel": true,
+  "viewerMarkdown": "assistant"
 }
