@@ -45,7 +45,8 @@ The list below covers the repo-owned skills. Trimmed to 36 on 2026-08-19 after a
 usage audit: any skill unused across 1,203 transcripts (2026-07 through
 2026-08-19, at least 9 days old) was retired. The active design set is
 `design-interface`, `design-visual-system`, and `design-typography`; they classify
-surface intent before applying hierarchy. `frontend-design` remains an external
+surface intent before applying hierarchy. `frontend-artifact` reuses them for
+standalone browser artifacts with eight selectable visual languages and rendered review. `frontend-design` remains an external
 marketing/brand skill, not the route for product, reference, utility, dashboard,
 settings, or lookup-documentation work. Retired design-pipeline skills remain
 recoverable under `archive/skills/`.
@@ -56,6 +57,7 @@ recoverable under `archive/skills/`.
 - `dbt` — Dialectical Behaviour Therapy in the Linehan tradition: skills coaching, chain analysis, and DBT materials.
 - `diagnosing-bugs` — Diagnosis loop for hard bugs and performance regressions: build a tight red-capable feedback loop, minimise, rank hypotheses, instrument, fix with a regression test.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
+- `frontend-artifact` — Standalone browser explainers, visual documents and small tools, with eight selectable visual languages and inspected references. A named language approves its defaults; otherwise the agent recommends one and waits.
 - `find-skills` — Discover and install agent skills when asked "is there a skill for X".
 - `finite` — The advisor for a finite life: a daily orient across Linear/Todoist/notes, on-demand triage that names what a new commitment displaces, and the forced cull into a durable Season ledger. Burkeman-flavoured — kind, unflinching, subtractive.
 - `geopolitics` — Opinionated analyst for wars, sanctions, trade, defence, elections, negotiations, and other statecraft between countries.

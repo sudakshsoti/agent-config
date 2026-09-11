@@ -105,6 +105,8 @@ Read `design/decisions.md` at the repo root, project instructions, existing toke
 
 Four skills carry the rules. `design-typography` owns type as a whole: faces, pairing, role systems, scales, OpenType and variable axes, scripts, licensing, webfont loading. `design-visual-system` owns a product UI's own visual system: direction, colour, hierarchy, layout, tokens and CSS. `design-interface` owns controls and structure: field states, focus, tab order, target size, the states nobody demos. Consult the relevant one when building, and when diagnosing feedback like "the heading is screaming". `design-strategy` sits above all three: business model, positioning, IA and interaction cost, as a sparring partner rather than an assistant.
 
+For standalone browser explainers, visual documents and small tools, use `frontend-artifact` to select a visual language and run the render-and-review loop using those design skills. If no language is named, recommend one and wait for confirmation. Naming or confirming a language approves its documented visual defaults and routine choices within them; these are not unconfirmed inferences. Approval does not authorise new features, changed content or overriding the surface's job, accessibility requirements or applicable `[stated]` project decisions. Ask about unresolved conflicts, not each default again.
+
 Precedence: accessibility requirements first; then applicable `[stated]` project decisions; then these surface-intent rules and the active design skills; then personal preference. An `[inferred]` decision never outranks confirmed guidance until the user confirms it.
 
 ## Web scraping

@@ -12,6 +12,8 @@
 
 `agents/`, `settings.json`, `claude-powerline.json`, `plugins.txt`, `dist/`.
 
+Exception: Codex may generate required `dist/<skill>.zip` packages with `scripts/build-zip.sh` for repo-owned skills it creates or changes. Do not hand-edit archive contents or change unrelated packages. This exception was approved for the shared frontend-artifact work on 2026-09-12; all other Claude-only restrictions remain.
+
 ## Which repo owns what
 
 `~/dev/agent-config` owns agent behaviour; `~/dev/dotfiles` owns the machine. Secrets belong in dotfiles (1Password + age), never agent-config. This table is duplicated in both repos; change both copies together.
@@ -51,6 +53,9 @@
 
 ## Gotchas
 
+- `scripts/build-zip.sh` requires the system `zip` executable; it now checks for it before replacing any archive. On a machine without package-install privileges, the distribution's zip package can be extracted into a user-owned executable directory.
+- In the current Pi package layout, `pi-playwright`'s `pw.js` expects an uninstalled package-local CLI; the working hoisted executable is `~/.pi/agent/npm/node_modules/.bin/playwright-cli`. Use `--browser=chromium` for the installed browser instead of assuming system Chrome exists.
+
 - macOS has no GNU `timeout`; use Python `subprocess.run(..., timeout=...)` or a background process plus `kill`.
 - The pre-commit hook formats staged source in the working tree. After each commit, inspect `git status` and separate unrelated formatter changes.
 - **Current plain OMP routing is authoritative in `omp/config.yml`:** `default`/`task` → `openai-codex/gpt-5.6-luna:high`; `plan`/`slow` → `gpt-5.6-sol:medium`; `designer`/`vision` → `gpt-5.6-sol:high`; `adversary`/`reviewer`/`security-reviewer`/`advisor` → `opencode-go/glm-5.3-flash:high`; `scout` → `opencode-go/deepseek-v4-flash:low`; `usageAwareFallback: false`; `codeMode: "off"`. Overlays differ.
@@ -61,6 +66,7 @@
 - Only `~/.omp/agent/AGENTS.md` survives omp context priority over `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`; all five harness paths must symlink to `global-agents.md`.
 - Claude `settings.json` flows live → repo only: `~/.claude/settings.json` is authoritative; `./sync.sh` sanitises and pulls it back. `install.sh` copies it only when the destination is absent.
 - `link_into` refuses real non-symlink destinations and prints `SKIP`; `--prune` removes only dangling symlinks. `install.sh` refuses temporary worktrees matching `*/.git/worktrees/*` or `*/worktrees/*` unless `--force`; always install from `~/dev/agent-config`.
+- `install.sh --skills-only=name,other-name` links only the named repo-owned skills into Claude and the shared root (when Codex or Pi is present), without agent/config writes, plugin fetches or pruning. Use it for a focused skill install; `--no-plugins` still performs a full configuration install.
 - A bare `omp -p --model <id>` can hide model failures behind fallback. Probe with retry disabled: `omp -p --model <id> --config <(printf 'retry:\n  enabled: false\n') "Reply with exactly: ok"`.
 - `retry.fallbackChains` specificity is exact model → provider key → role → default. `provider/*` is a chain key, not a rung; as a rung it preserves the model id and can build an invalid gateway id.
 - omp loads `~/.omp/.env` at startup; an existing process variable wins. After `op inject`, restart omp. `omp token <provider>` shows the key actually used.

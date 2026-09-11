@@ -24,6 +24,7 @@ def main() -> int:
     interface = ROOT / "skills/design-interface/SKILL.md"
     visual = ROOT / "skills/design-visual-system/SKILL.md"
     typography = ROOT / "skills/design-typography/SKILL.md"
+    artifact = ROOT / "skills/frontend-artifact/SKILL.md"
     infographic = ROOT / "ux-first-pi-configuration-plan.html"
     plugins = ROOT / "plugins.txt"
     skills_readme = ROOT / "skills/README.md"
@@ -51,6 +52,8 @@ def main() -> int:
     require(visual, "Begin reference, utility and dashboard surfaces with a solid background")
     require(typography, "reserve monospace for code, key sequences")
     require(typography, "A visible title earns space only when it adds orientation")
+    require(artifact, "This is a hard gate")
+    require(artifact, "do not write or edit files")
     require(typography, "font-kerning: normal")
     require(typography, "Negative tracking is limited to proofed display typography")
     require(typography, "inspect the current Google Fonts catalogue")

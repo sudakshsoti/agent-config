@@ -138,8 +138,7 @@ utility-class soup. When extending shadcn/ui, retain and extend its token names
 such as `--background`, `--foreground`, `--primary` and `--ring`.
 
 Use this skill for visual-system choices, not behaviour-only components or data
-flow. For interface language use `ux-writing`. For a self-contained artifact,
-deck, report or mockup rather than application UI, use `design`.
+flow. For interface language use `ux-writing`. For a self-contained browser artifact, explainer, visual document or small tool, use `frontend-artifact` as the entry point; it applies this skill's visual-system checks after selecting a language. Native slide decks and other non-browser deliverables use their format-specific skills.
 
 The list above is the whole anti-slop list; do not expand it here.
 
