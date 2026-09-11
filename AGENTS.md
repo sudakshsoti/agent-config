@@ -12,6 +12,8 @@
 
 `agents/`, `settings.json`, `claude-powerline.json`, `plugins.txt`, `dist/`.
 
+Exception: Codex may generate required `dist/<skill>.zip` packages with `scripts/build-zip.sh` for repo-owned skills it creates or changes. Do not hand-edit archive contents or change unrelated packages. This exception was approved for the shared frontend-artifact work on 2026-09-12; all other Claude-only restrictions remain.
+
 ## Which repo owns what
 
 `~/dev/agent-config` owns agent behaviour; `~/dev/dotfiles` owns the machine. Secrets belong in dotfiles (1Password + age), never agent-config. This table is duplicated in both repos; change both copies together.
@@ -50,6 +52,8 @@
 - `codebase-memory` is repo-owned in `skills/codebase-memory/`; its MCP server is separate and does not supply the skill.
 
 ## Gotchas
+
+- `scripts/build-zip.sh` requires the system `zip` executable; it now checks for it before replacing any archive. On a machine without package-install privileges, the distribution's zip package can be extracted into a user-owned executable directory.
 
 - macOS has no GNU `timeout`; use Python `subprocess.run(..., timeout=...)` or a background process plus `kill`.
 - The pre-commit hook formats staged source in the working tree. After each commit, inspect `git status` and separate unrelated formatter changes.

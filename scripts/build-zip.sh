@@ -13,6 +13,8 @@
 # Re-run any time after editing a skill and stage the zip with the change.
 set -euo pipefail
 
+command -v zip >/dev/null 2>&1 || { echo "zip is required; install it before packaging skills" >&2; exit 1; }
+
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 skills_dir="$repo_root/skills"
 dist_dir="$repo_root/dist"
