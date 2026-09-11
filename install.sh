@@ -94,6 +94,7 @@
 #   ./install.sh                  # link skills+agents (Claude + shared ~/.agents), copy settings if absent, sync plugins
 #   ./install.sh --prune          # also remove dangling symlinks for deleted skills/agents
 #   ./install.sh --no-plugins     # skip the `claude plugin` sync + external git fetches
+#   ./install.sh --skills-only=name,other-name # link only named repo skills; leave settings and agents alone
 #
 set -euo pipefail
 
@@ -107,13 +108,23 @@ PI="$HOME/.pi/agent"
 PRUNE=0
 FORCE=0
 PLUGINS=1
+SKILLS_ONLY=0
+SELECTED_SKILLS=""
 for arg in "$@"; do
   case "$arg" in
   --prune) PRUNE=1 ;;
   --force) FORCE=1 ;;
   --no-plugins) PLUGINS=0 ;;
+  --skills-only=*)
+    if [ "$SKILLS_ONLY" = "1" ]; then
+      echo "--skills-only may be specified only once"
+      exit 2
+    fi
+    SKILLS_ONLY=1
+    SELECTED_SKILLS="${arg#--skills-only=}"
+    ;;
   *)
-    echo "unknown option: $arg (expected --prune, --force, --no-plugins)"
+    echo "unknown option: $arg (expected --prune, --force, --no-plugins, --skills-only=name,other-name)"
     exit 2
     ;;
   esac
@@ -169,17 +180,6 @@ fetch_external_sources() {
   done <"$REPO/plugins.txt"
 }
 
-[ "$PLUGINS" = "1" ] && fetch_external_sources
-
-mkdir -p "$CLAUDE/skills" "$CLAUDE/agents"
-# Mirror skills into the shared ~/.agents/skills root, but only if Codex is
-# actually installed (its own dir already exists) — never create ~/.agents on a
-# Claude-only box. Codex scans BOTH ~/.codex/skills and ~/.agents/skills, so
-# installing into both roots makes every skill appear twice; we use only the
-# shared one. See the mirror note in CLAUDE.md.
-AGENTS_SKILLS=""
-[ -d "$CODEX" ] && AGENTS_SKILLS="$HOME/.agents/skills"
-[ -n "$AGENTS_SKILLS" ] && mkdir -p "$AGENTS_SKILLS"
 MARKER=".agent-config-managed"
 linked=0 skipped=0 copied=0 mirrored=0 pruned=0 plugins=0 external=0
 ACTIVE_SKILLS=" "
@@ -221,6 +221,68 @@ mirror_into() { # mirror_into <source-dir> <dest-link> — shared ~/.agents root
   echo "linked  $name (agents)"
   mirrored=$((mirrored + 1))
 }
+
+if [ "$SKILLS_ONLY" = "1" ]; then
+  if [ "$PRUNE" = "1" ]; then
+    echo "--skills-only cannot be combined with --prune"
+    exit 2
+  fi
+  if [[ ! "$SELECTED_SKILLS" =~ ^[a-zA-Z0-9_-]+(,[a-zA-Z0-9_-]+)*$ ]]; then
+    echo "--skills-only requires a comma-separated list of repo-owned skill names"
+    exit 2
+  fi
+  IFS=',' read -r -a selected_names <<<"$SELECTED_SKILLS"
+  for name in "${selected_names[@]}"; do
+    if [[ ! "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*$ ]] ||
+      [ -L "$REPO/skills/$name" ] || [ ! -f "$REPO/skills/$name/SKILL.md" ]; then
+      echo "invalid or missing repo-owned skill: $name"
+      exit 2
+    fi
+  done
+
+  selected_roots=("$CLAUDE/skills")
+  if [ -d "$CODEX" ] || [ -d "$PI" ]; then
+    selected_roots+=("$HOME/.agents/skills")
+  fi
+  # Check every root and destination before creating directories or replacing
+  # links. In particular, do not reclaim marked copies as mirror_into does.
+  for root in "${selected_roots[@]}"; do
+    parent="$root"
+    while [ "$parent" != "$HOME" ] && [ "$parent" != "/" ]; do
+      if { [ -e "$parent" ] || [ -L "$parent" ]; } && [ ! -d "$parent" ]; then
+        echo "refusing non-directory skill root: $parent"
+        exit 1
+      fi
+      parent="$(dirname "$parent")"
+    done
+    for name in "${selected_names[@]}"; do
+      target="$root/$name"
+      if [ ! -L "$target" ] && [ -e "$target" ]; then
+        echo "refusing real (non-symlink) skill destination: $target"
+        exit 1
+      fi
+    done
+  done
+  for root in "${selected_roots[@]}"; do
+    mkdir -p "$root"
+  done
+  for root in "${selected_roots[@]}"; do
+    for name in "${selected_names[@]}"; do
+      link_into "$REPO/skills/$name" "$root/$name"
+    done
+  done
+  echo "selected skill links=$linked"
+  exit 0
+fi
+
+[ "$PLUGINS" = "1" ] && fetch_external_sources
+
+mkdir -p "$CLAUDE/skills" "$CLAUDE/agents"
+# Preserve the normal install's Codex-only shared-root detection. The selective
+# mode above also supports Pi without changing the full install's behaviour.
+AGENTS_SKILLS=""
+[ -d "$CODEX" ] && AGENTS_SKILLS="$HOME/.agents/skills"
+[ -n "$AGENTS_SKILLS" ] && mkdir -p "$AGENTS_SKILLS"
 
 # 1. Skills: every directory holding a SKILL.md.
 #    Symlinked into ~/.claude and into the shared ~/.agents/skills root that
