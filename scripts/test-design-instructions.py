@@ -23,6 +23,7 @@ def main() -> int:
     interface = ROOT / "skills/design-interface/SKILL.md"
     visual = ROOT / "skills/design-visual-system/SKILL.md"
     typography = ROOT / "skills/design-typography/SKILL.md"
+    artifact = ROOT / "skills/frontend-artifact/SKILL.md"
     plugins = ROOT / "plugins.txt"
     skills_readme = ROOT / "skills/README.md"
     cases = ROOT / "tests/design-intent-cases.md"
@@ -48,6 +49,8 @@ def main() -> int:
     require(visual, "A polished header does not count as useful content")
     require(typography, "reserve monospace for code, key sequences")
     require(typography, "A visible title earns space only when it adds orientation")
+    require(artifact, "This is a hard gate")
+    require(artifact, "do not write or edit files")
 
     plugin_text = plugins.read_text(encoding="utf-8")
     if "Product screens go to `app-ui`" in plugin_text:
