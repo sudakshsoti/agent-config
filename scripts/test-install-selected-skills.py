@@ -12,6 +12,14 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def remove_tree(path):
+    """Remove test state and report cleanup failures as assertion failures."""
+    try:
+        shutil.rmtree(path)
+    except OSError as error:
+        raise AssertionError(f"failed to remove test directory {path}: {error}") from error
+
+
 def snapshot(directory):
     """Record contents and link targets without following installed skill links."""
     entries = {}
@@ -116,7 +124,7 @@ class SelectedSkillsInstallTest(unittest.TestCase):
     def test_shared_root_supports_codex_or_pi_without_creating_agent_config(self):
         for present in ("codex", "pi", "neither"):
             with self.subTest(present=present):
-                shutil.rmtree(self.test_home)
+                remove_tree(self.test_home)
                 self.test_home.mkdir()
                 if present == "codex":
                     (self.test_home / ".codex").mkdir()
@@ -155,7 +163,7 @@ class SelectedSkillsInstallTest(unittest.TestCase):
                         (target / ".agent-config-managed").touch()
                 self.assert_refused_without_changes("--skills-only=alpha,beta")
                 if target.is_dir():
-                    shutil.rmtree(target)
+                    remove_tree(target)
                 else:
                     target.unlink()
 
@@ -165,7 +173,7 @@ class SelectedSkillsInstallTest(unittest.TestCase):
 
     def test_blocked_root_refuses_before_changing_other_root(self):
         shared = self.test_home / ".agents/skills"
-        shutil.rmtree(shared)
+        remove_tree(shared)
         for kind in ("file", "dangling-link"):
             with self.subTest(kind=kind):
                 if kind == "file":
@@ -192,7 +200,7 @@ class SelectedSkillsInstallTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(
             (self.test_home / ".agents/skills/alpha").resolve(),
-            ephemeral / "skills/alpha",
+            (ephemeral / "skills/alpha").resolve(),
         )
 
 
