@@ -7,6 +7,7 @@ These are starting defaults, not measured quota savings on this repository.
 | Task / agent | Provider and model | Effort |
 | --- | --- | --- |
 | Main session; `builder` implementing an approved UI plan | `openai-codex/gpt-5.6-luna` | high |
+| `code-worker` precisely scoped routine fixes, tests and mechanical refactors | `opencode-go/deepseek-v4.1-flash` | high |
 | `scout`, `Explore` and `research` bounded read-only discovery | `opencode-go/muse-spark-1.3-contributor` | minimal |
 | unnamed `general-purpose` fallback | `openai-codex/gpt-5.6-luna` | medium |
 | `workflow` coordinating multi-part implementation | `openai-codex/gpt-5.6-sol` | medium |
@@ -20,11 +21,12 @@ Use Muse minimal for bounded, low-stakes read-only discovery.
 Use Sol medium when implementation still requires substantial technical decisions.
 Escalate repeated failed approaches instead of allowing an extended retry loop.
 GLM 5.3 Flash exposes only low, high and max thinking; medium silently runs as high.
+DeepSeek V4.1 Flash exposes only high and max thinking, so it is not used for minimal-effort scouting.
 Model overrides on agent calls take precedence over agent defaults; these files do not implement automatic escalation or quota-based routing.
 
 ## Scoped models
 
-`settings.json` sets `enabledModels` to Luna high, Sol high and Muse Spark 1.3 minimal, in that order.
+`settings.json` sets `enabledModels` to Luna high, DeepSeek V4.1 Flash high, Sol high and Muse Spark 1.3 minimal, in that order.
 This is the Ctrl+P quick-switch list, not an access restriction or an agent-routing table.
 Pi deduplicates scoped entries by provider/model ID; multiple effort presets for the same model do not create multiple cycle entries.
 Use `/thinking` to change effort, or set it explicitly on an agent call.
