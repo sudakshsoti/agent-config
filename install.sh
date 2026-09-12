@@ -46,6 +46,8 @@
 #   pi/subagents.json -> ~/.pi/agent/subagents.json
 #   pi/prompts/*.md -> ~/.pi/agent/prompts/*.md
 #     Reusable Pi prompt templates, linked individually so machine-local prompts survive.
+#   codex/prompts/*.md -> ~/.codex/prompts/*.md
+#     Codex custom prompts (/prompts:<name>), linked individually for the same reason.
 #   pi/themes/*.json -> ~/.pi/agent/themes/*.json
 #   pi/extensions/*/{index.js,index.ts,theme.json} -> ~/.pi/agent/extensions/*/
 #     Tracked Pi extensions and extension-specific theme overrides.
@@ -457,6 +459,17 @@ if [ -d "$CODEX" ] && [ -f "$REPO/codex/config.toml" ]; then
   python3 "$REPO/scripts/apply-codex-config.py" \
     "$REPO/codex/config.toml" "$CODEX/config.toml"
   echo "merged  codex/config.toml"
+fi
+
+# 3d. Codex custom prompts: linked individually into ~/.codex/prompts so
+#     machine-local prompts survive. Codex exposes each as a slash command
+#     (/prompts:<name>); the Pi copies of the same prompts live in pi/prompts.
+if [ -d "$CODEX" ] && [ -d "$REPO/codex/prompts" ]; then
+  mkdir -p "$CODEX/prompts"
+  for prompt_file in "$REPO"/codex/prompts/*.md; do
+    [ -f "$prompt_file" ] || continue
+    link_into "$prompt_file" "$CODEX/prompts/$(basename "$prompt_file")"
+  done
 fi
 
 # 3e/3f/3g/3h only run when OMP is installed. Say so out loud when it isn't —

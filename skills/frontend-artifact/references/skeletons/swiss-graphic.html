@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REPLACE: subject</title>
+<!-- Fonts: see ../fonts.md. One grotesk with a width axis does display and text; no second family. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap">
+<style>
+/* Starter tokens for swiss-graphic. Change a value only with a stated reason. */
+:root {
+  color-scheme: light;
+  --font: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --size-body: 1rem;            /* 16px; supporting text stays readable */
+  --size-small: 0.8125rem;
+  --size-h2: 1.375rem;
+  --size-display: clamp(2.75rem, 8vw, 5.5rem);
+  --leading-body: 1.45;
+  --space: 0.5rem;
+  --gutter: calc(var(--space) * 3);
+  --ground: oklch(97% 0.004 90);
+  --ink: oklch(15% 0.01 260);
+  --ink-soft: oklch(45% 0.01 260);
+  --rule: oklch(15% 0.01 260);   /* rules are ink, one pixel, structural */
+  /* Colour blocks carry classification. Name each by what it means and keep that meaning everywhere. */
+  --class-a: oklch(62% 0.2 30);
+  --class-b: oklch(60% 0.17 250);
+  --class-c: oklch(78% 0.16 95);
+  --radius: 0;
+}
+* { box-sizing: border-box; }
+html { font-kerning: normal; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--ground); color: var(--ink); font: var(--size-body)/var(--leading-body) var(--font); }
+a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+p { margin: 0 0 calc(var(--space) * 2); }
+
+/* A 12-column grid. Every major element sits on its lines; no centred containers. */
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); row-gap: calc(var(--space) * 4); padding: calc(var(--space) * 3); max-width: 100rem; margin: 0 auto; }
+.rail { grid-column: 1 / 4; }
+.main { grid-column: 4 / 10; }
+.main p { max-width: 68ch; }
+.full { grid-column: 1 / -1; }
+.rule { border-top: 1px solid var(--rule); }
+
+h1 { font-size: var(--size-display); line-height: 0.95; font-weight: 700; font-stretch: 90%; margin: 0; letter-spacing: 0; overflow-wrap: anywhere; }
+h2 { font-size: var(--size-h2); line-height: 1.15; font-weight: 600; margin: 0 0 var(--space); }
+.index { font-size: var(--size-small); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.counter { font-size: var(--size-display); line-height: 1; font-weight: 400; font-stretch: 75%; }
+.meta { display: grid; grid-template-columns: auto 1fr; gap: 0 var(--gutter); font-size: var(--size-small); }
+.meta dt { color: var(--ink-soft); } .meta dd { margin: 0; }
+
+/* Classification blocks. A block is a real category, never decoration. */
+.blocks { display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: var(--gutter); }
+.block { aspect-ratio: 4 / 3; padding: var(--space); display: flex; flex-direction: column; justify-content: space-between; color: var(--ink); }
+.block .n { font-size: var(--size-small); font-variant-numeric: tabular-nums; }
+.block.a { background: var(--class-a); } .block.b { background: var(--class-b); color: #fff; } .block.c { background: var(--class-c); }
+
+@media (max-width: 800px) {
+  .rail, .main { grid-column: 1 / -1; }
+  .grid { row-gap: calc(var(--space) * 3); }
+}
+</style>
+</head>
+<body>
+<main class="grid">
+  <header class="full rule">
+    <p class="index">REPLACE: series · 03/12</p>
+    <h1>REPLACE: the concept, as short as it can be</h1>
+  </header>
+
+  <aside class="rail">
+    <dl class="meta">
+      <dt>Date</dt><dd>REPLACE</dd>
+      <dt>Scope</dt><dd>REPLACE</dd>
+    </dl>
+  </aside>
+  <section class="main">
+    <h2>REPLACE: what the taxonomy or concept is</h2>
+    <p>REPLACE: supporting prose at a readable size. Position and scale carry the hierarchy; the prose explains it.</p>
+  </section>
+
+  <section class="full rule">
+    <h2>REPLACE: classification</h2>
+    <div class="blocks">
+      <div class="block a"><span class="n">01</span><span>REPLACE: class A</span></div>
+      <div class="block b"><span class="n">02</span><span>REPLACE: class B</span></div>
+      <div class="block c"><span class="n">03</span><span>REPLACE: class C</span></div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

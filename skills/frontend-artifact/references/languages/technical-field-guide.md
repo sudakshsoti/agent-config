@@ -32,6 +32,10 @@ The guide may be a continuous document or a browsable reference, according to it
 - Numbered stages that imply an order the system does not have.
 - Decorative diagrams, unlabeled arrows or callout boxes that repeat ordinary prose.
 
+## Starter
+
+Copy [the skeleton](../skeletons/technical-field-guide.html) and fill its `REPLACE` slots. Its `:root` block holds this language's starting tokens; its font link is Source Serif 4 with IBM Plex Mono, the first pairing under this language in [fonts.md](../fonts.md). Change a token only with a reason stated in the report. Run `audit.js` with no flag.
+
 ## Reference notes
 
 Inspect [the selected reference and its annotations](../../screenshots/technical-field-guide/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.

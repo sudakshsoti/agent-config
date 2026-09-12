@@ -32,6 +32,10 @@ The language can be light or dark, restrained or use a stronger functional accen
 - Hiding labels behind icons or omitting units to make a panel look sparse.
 - Decorative warning colours, unreadable dim values or elaborate textures that obscure state.
 
+## Starter
+
+Copy [the skeleton](../skeletons/industrial-instrument.html) and fill its `REPLACE` slots. Its `:root` block holds this language's starting tokens; its font link is Chivo with Chivo Mono, the first pairing under this language in [fonts.md](../fonts.md). Change a token only with a reason stated in the report. Run `audit.js` with `--compact`.
+
 ## Reference notes
 
 Inspect [the selected reference and its annotations](../../screenshots/industrial-instrument/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.

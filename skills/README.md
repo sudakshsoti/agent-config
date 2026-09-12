@@ -57,7 +57,8 @@ recoverable under `archive/skills/`.
 - `dbt` — Dialectical Behaviour Therapy in the Linehan tradition: skills coaching, chain analysis, and DBT materials.
 - `diagnosing-bugs` — Diagnosis loop for hard bugs and performance regressions: build a tight red-capable feedback loop, minimise, rank hypotheses, instrument, fix with a regression test.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
-- `frontend-artifact` — Standalone browser explainers, visual documents and small tools, with eight selectable visual languages and inspected references. A named language approves its defaults; otherwise the agent recommends one and waits.
+- `frontend-artifact` — Standalone browser explainers, visual documents and small tools, with eight selectable visual languages, a starter skeleton and validated font pairing per language, measured references, a numeric audit (`references/audit.js`) and a fresh-context critic prompt. A named language approves its defaults; otherwise the agent recommends one and waits.
+- `vibe` — The interface workflow: quick tweak, shape first or risky change; Plan, Builder and Critic roles that run as subagents on Pi and Claude and sequentially on Codex, omp and opencode. `pi/prompts/vibe.md` and `codex/prompts/vibe.md` are thin wrappers that invoke it.
 - `find-skills` — Discover and install agent skills when asked "is there a skill for X".
 - `finite` — The advisor for a finite life: a daily orient across Linear/Todoist/notes, on-demand triage that names what a new commitment displaces, and the forced cull into a durable Season ledger. Burkeman-flavoured — kind, unflinching, subtractive.
 - `geopolitics` — Opinionated analyst for wars, sanctions, trade, defence, elections, negotiations, and other statecraft between countries.

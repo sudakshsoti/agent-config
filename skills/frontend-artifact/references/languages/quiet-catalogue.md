@@ -32,6 +32,10 @@ Lists, rows or grids may fit different collections; choose from the content and 
 - Low-contrast metadata, hidden controls or oversized imagery that prevents comparison.
 - Invented objects, photographs or descriptions added to imitate a catalogue reference.
 
+## Starter
+
+Copy [the skeleton](../skeletons/quiet-catalogue.html) and fill its `REPLACE` slots. Its `:root` block holds this language's starting tokens; its font link is Spectral with Karla, the first pairing under this language in [fonts.md](../fonts.md). Change a token only with a reason stated in the report. Run `audit.js` with no flag.
+
 ## Reference notes
 
 Inspect [the selected reference and its annotations](../../screenshots/quiet-catalogue/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.

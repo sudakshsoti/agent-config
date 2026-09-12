@@ -32,6 +32,10 @@ The artifact may be a single page or a small set of views according to its requi
 - Mistaking minimal chrome for missing labels, inaccessible controls or absent feedback.
 - Styling a technical subject as a terminal or filling empty space with decorative widgets.
 
+## Starter
+
+Copy [the skeleton](../skeletons/personal-software.html) and fill its `REPLACE` slots. Its `:root` block holds this language's starting tokens; its font link is Geist with Geist Mono, the first pairing under this language in [fonts.md](../fonts.md). Change a token only with a reason stated in the report. Run `audit.js` with `--compact`.
+
 ## Reference notes
 
 Inspect [the selected reference and its annotations](../../screenshots/personal-software/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.

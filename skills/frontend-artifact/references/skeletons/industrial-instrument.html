@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REPLACE: instrument name</title>
+<!-- Fonts: see ../fonts.md. A neutral grotesk for labels and text; its mono for values, units and identifiers. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:wght@400..800&family=Chivo+Mono:wght@400..600&display=swap">
+<style>
+/* Starter tokens for industrial-instrument. Change a value only with a stated reason. */
+:root {
+  color-scheme: light;
+  --font-ui: "Chivo", "Helvetica Neue", Arial, sans-serif;
+  --font-value: "Chivo Mono", ui-monospace, Menlo, monospace;
+  --size-body: 0.9375rem;       /* 15px operational text */
+  --size-small: 0.8125rem;      /* 13px labels and units */
+  --size-title: 1.125rem;       /* module titles */
+  --size-readout: 1.75rem;      /* the value the operator watches */
+  --leading-body: 1.45;
+  --space: 0.5rem;
+  --ground: oklch(95% 0.006 90);   /* warm instrument grey */
+  --panel: oklch(98% 0.003 90);
+  --ink: oklch(18% 0.008 60);
+  --ink-soft: oklch(48% 0.008 60);
+  --line: oklch(30% 0.01 60);      /* module outline: one pixel, ink-dark */
+  --rule: oklch(85% 0.008 90);
+  --signal: oklch(62% 0.2 40);     /* active operation only */
+  --warn: oklch(70% 0.16 80);
+  --radius: 10px;                  /* module corners; the same value everywhere it appears */
+}
+* { box-sizing: border-box; }
+html { font-kerning: normal; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--ground); color: var(--ink); font: var(--size-body)/var(--leading-body) var(--font-ui); }
+a { color: var(--ink); text-decoration: underline; text-underline-offset: 0.15em; }
+:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+p { margin: 0 0 calc(var(--space) * 1.5); }
+
+.bench { max-width: 76rem; margin: 0 auto; padding: calc(var(--space) * 3); display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: calc(var(--space) * 2); }
+.bench > header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: baseline; }
+h1 { font-size: var(--size-title); font-weight: 500; margin: 0; }
+.index { font-size: var(--size-small); color: var(--ink-soft); }
+
+/* A module is one function. Title top-left, description beside the diagram or readout it explains. */
+.module { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); padding: calc(var(--space) * 2); display: grid; grid-template-columns: minmax(10rem, 1fr) minmax(12rem, 1.4fr); gap: calc(var(--space) * 2); }
+.module > h2 { grid-column: 1 / -1; font-size: var(--size-title); font-weight: 400; margin: 0 0 var(--space); }
+.module .text { font-size: 0.875rem; color: var(--ink-soft); line-height: 1.45; }
+.module .out { display: grid; align-content: start; gap: var(--space); }
+.module.wide { grid-column: 1 / -1; }
+
+/* Readouts: value, unit and label, in the value face, with tabular figures. */
+.readout { font-family: var(--font-value); font-variant-numeric: tabular-nums; display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 0 var(--space); border-top: 1px solid var(--rule); padding-top: var(--space); }
+.readout .v { font-size: var(--size-readout); font-weight: 500; line-height: 1; }
+.readout .u { font-size: var(--size-small); color: var(--ink-soft); }
+.readout .l { grid-column: 1 / -1; font-family: var(--font-ui); font-size: var(--size-small); color: var(--ink-soft); }
+.readout.active .v { color: var(--signal); }
+
+/* Controls sit beside the readout they change. Familiar inputs, never a drawn knob. */
+.control { display: grid; grid-template-columns: 1fr auto; gap: 0 var(--space); align-items: center; font-size: var(--size-small); }
+.control label { grid-column: 1 / -1; color: var(--ink-soft); }
+.control input[type="range"] { width: 100%; accent-color: var(--signal); }
+.control output { font-family: var(--font-value); font-variant-numeric: tabular-nums; min-width: 4ch; text-align: right; }
+.diagram { border: 1px solid var(--rule); background: #fff; }
+.diagram text { font-family: var(--font-ui); font-size: 12px; fill: var(--ink-soft); }
+
+@media (max-width: 480px) { .module { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main class="bench">
+  <header><h1>REPLACE: instrument or system</h1><a class="index" href="#index">back to index</a></header>
+
+  <section class="module" aria-labelledby="m1">
+    <h2 id="m1">REPLACE: function one</h2>
+    <p class="text">REPLACE: what this control does and what the operator should watch. Say the real units.</p>
+    <div class="out">
+      <div class="control">
+        <label for="c1">REPLACE: parameter</label>
+        <input id="c1" type="range" min="0" max="100" value="40" oninput="this.nextElementSibling.value=this.value">
+        <output for="c1">40</output>
+      </div>
+      <div class="readout active"><span class="v">REPLACE: 12.4</span><span class="u">ms</span><span class="l">REPLACE: what the value is</span></div>
+    </div>
+  </section>
+
+  <section class="module" aria-labelledby="m2">
+    <h2 id="m2">REPLACE: function two</h2>
+    <p class="text">REPLACE: explanation beside its diagram.</p>
+    <svg class="diagram" viewBox="0 0 320 180" role="img" aria-labelledby="d2"><title id="d2">REPLACE: what the diagram shows</title>
+      <!-- Black linework, labels with leader lines; draw the actual part. -->
+      <rect x="60" y="50" width="200" height="80" fill="none" stroke="currentColor" stroke-width="1.2" rx="6"/>
+      <line x1="160" y1="50" x2="160" y2="24" stroke="currentColor" stroke-width="1"/>
+      <text x="160" y="18" text-anchor="middle">REPLACE: part</text>
+    </svg>
+  </section>
+</main>
+</body>
+</html>

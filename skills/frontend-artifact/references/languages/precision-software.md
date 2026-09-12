@@ -32,6 +32,10 @@ Light and dark treatments are equally valid. Choose the actual family, neutral t
 - Tiny low-contrast metadata, ambiguous icons or hidden labels to force density.
 - Copying Linear's branding, shell or dark palette as the definition of precision.
 
+## Starter
+
+Copy [the skeleton](../skeletons/precision-software.html) and fill its `REPLACE` slots. Its `:root` block holds this language's starting tokens; its font link is IBM Plex Sans with IBM Plex Mono, the first pairing under this language in [fonts.md](../fonts.md). Change a token only with a reason stated in the report. Run `audit.js` with `--compact`.
+
 ## Reference notes
 
 Inspect [the selected reference and its annotations](../../screenshots/precision-software/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.

@@ -32,6 +32,10 @@ The essay may be static, lightly interactive or include requested stepwise visua
 - Scroll hijacking, mandatory animation or hover-only explanations.
 - Unsupported claims, decorative numbers, misleading scales or colour meanings that change between figures.
 
+## Starter
+
+Copy [the skeleton](../skeletons/visual-essay.html) and fill its `REPLACE` slots. Its `:root` block holds this language's starting tokens; its font link is Crimson Pro with Public Sans, the first pairing under this language in [fonts.md](../fonts.md). Change a token only with a reason stated in the report. Run `audit.js` with no flag.
+
 ## Reference notes
 
 Inspect [the selected reference and its annotations](../../screenshots/visual-essay/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.

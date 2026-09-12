@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REPLACE: essay question</title>
+<!-- Fonts: see ../fonts.md. A narrative serif for prose; a sans for labels, annotations and controls. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400..700;1,400&family=Public+Sans:wght@400..700&display=swap">
+<style>
+/* Starter tokens for visual-essay. Change a value only with a stated reason. */
+:root {
+  color-scheme: light;
+  --font-text: "Crimson Pro", Georgia, serif;
+  --font-label: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+  --size-body: 1.25rem;         /* 20px; Crimson Pro runs small */
+  --size-label: 0.8125rem;
+  --size-h2: 1.75rem;
+  --size-h1: clamp(2.2rem, 5vw, 3.2rem);
+  --leading-body: 1.5;
+  --measure: 60ch;
+  --wide: 56rem;                /* evidence may exceed the measure, up to this */
+  --space: 0.5rem;
+  --ground: oklch(99% 0.003 90);
+  --ink: oklch(16% 0.01 260);
+  --ink-soft: oklch(44% 0.01 260);
+  --rule: oklch(88% 0.006 90);
+  --highlight: oklch(60% 0.17 50);   /* the essay's one emphasis colour */
+  --data-1: oklch(45% 0.13 150);     /* stable meaning across every figure */
+  --data-2: oklch(55% 0.02 260);     /* context, never unreadable */
+}
+* { box-sizing: border-box; }
+html { font-kerning: normal; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--ground); color: var(--ink); font: var(--size-body)/var(--leading-body) var(--font-text); }
+a { color: var(--highlight); text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
+:focus-visible { outline: 2px solid var(--highlight); outline-offset: 2px; }
+svg, img { max-width: 100%; height: auto; display: block; }
+
+.essay { padding: calc(var(--space) * 8) calc(var(--space) * 3) calc(var(--space) * 14); }
+.prose { max-width: var(--measure); margin: 0 auto; }
+.evidence { max-width: var(--wide); margin: calc(var(--space) * 5) auto; }
+h1 { font-size: var(--size-h1); line-height: 1.1; font-weight: 600; margin: 0 0 calc(var(--space) * 3); }
+h2 { font-size: var(--size-h2); line-height: 1.2; font-weight: 600; margin: calc(var(--space) * 8) 0 calc(var(--space) * 2); }
+p { margin: 0 0 calc(var(--space) * 2.5); }
+.prompt { color: var(--highlight); font-weight: 700; }
+
+/* Labels, annotations, legends, sources and controls use the sans at a size that reads. */
+.label { font-family: var(--font-label); font-size: var(--size-label); color: var(--ink-soft); }
+.label.on-figure { fill: var(--ink-soft); font-family: var(--font-label); font-size: 13px; }
+figcaption { font-family: var(--font-label); font-size: var(--size-label); color: var(--ink-soft); margin-top: var(--space); }
+.source { font-family: var(--font-label); font-size: var(--size-label); color: var(--ink-soft); border-top: 1px solid var(--rule); padding-top: var(--space); margin-top: calc(var(--space) * 6); }
+.legend { display: flex; flex-wrap: wrap; gap: var(--space) calc(var(--space) * 2); font-family: var(--font-label); font-size: var(--size-label); margin-bottom: var(--space); }
+.legend span::before { content: ""; display: inline-block; width: 0.8em; height: 0.8em; margin-right: 0.4em; vertical-align: -0.05em; background: var(--data-1); }
+.legend span.ctx::before { background: var(--data-2); }
+
+/* Controls only where manipulating the evidence aids understanding. */
+button { font: 600 var(--size-label)/1 var(--font-label); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink); background: #fff; border: 1px solid var(--ink); padding: calc(var(--space) * 1.25) calc(var(--space) * 2); min-height: 2.5rem; cursor: pointer; }
+.step { display: flex; gap: var(--space); align-items: center; margin: var(--space) 0; }
+</style>
+</head>
+<body>
+<article class="essay">
+  <header class="prose">
+    <p class="label">REPLACE: series · date</p>
+    <h1>REPLACE: the question the essay answers</h1>
+  </header>
+  <div class="prose">
+    <p>REPLACE: opening prose that raises the first question in the reader's mind.</p>
+    <p class="prompt">REPLACE: the question this first figure answers.</p>
+  </div>
+
+  <figure class="evidence">
+    <div class="legend"><span>REPLACE: measured series</span><span class="ctx">REPLACE: context</span></div>
+    <svg viewBox="0 0 900 360" role="img" aria-labelledby="fig1">
+      <title id="fig1">REPLACE: what the figure shows</title>
+      <!-- Draw the actual evidence. Keep data-1 meaning the same in every figure. Label axes with units. -->
+      <line x1="60" y1="300" x2="860" y2="300" stroke="oklch(88% 0.006 90)"/>
+      <text x="60" y="330" class="label on-figure">REPLACE: x axis (unit)</text>
+      <polyline fill="none" stroke="oklch(45% 0.13 150)" stroke-width="2.5" points="60,260 220,200 380,220 540,120 700,140 860,60"/>
+      <text x="700" y="128" class="label on-figure">REPLACE: annotation at the point that matters</text>
+    </svg>
+    <figcaption>REPLACE: what to notice, then the source.</figcaption>
+    <div class="step"><button type="button">REPLACE: next stage</button><span class="label">Stage 1 of 3</span></div>
+  </figure>
+
+  <div class="prose">
+    <h2>REPLACE: what the evidence changes</h2>
+    <p>REPLACE: the argument continues from what the reader just saw.</p>
+    <p class="source">REPLACE: sources, method, and which numbers are illustrative.</p>
+  </div>
+</article>
+</body>
+</html>

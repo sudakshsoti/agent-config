@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REPLACE: collection name</title>
+<!-- Fonts: see ../fonts.md. A serif with character for titles and description; a plain sans for metadata and controls. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=Karla:wght@400..700&display=swap">
+<style>
+/* Starter tokens for quiet-catalogue. Change a value only with a stated reason. */
+:root {
+  color-scheme: light;
+  --font-text: "Spectral", Georgia, serif;
+  --font-meta: "Karla", "Helvetica Neue", Arial, sans-serif;
+  --size-body: 1.0625rem;       /* 17px descriptions */
+  --size-title: 1.25rem;        /* entry titles, close to body */
+  --size-meta: 0.8125rem;
+  --size-h1: 1.75rem;
+  --leading-body: 1.5;
+  --space: 0.5rem;
+  --ground: oklch(97.5% 0.008 80);   /* warm, not cream-as-decoration */
+  --ink: oklch(22% 0.012 60);
+  --ink-soft: oklch(46% 0.012 60);   /* metadata stays fully legible */
+  --rule: oklch(86% 0.012 80);
+  --accent: oklch(44% 0.11 150);     /* links and selection only */
+  --thumb: oklch(92% 0.01 80);
+}
+* { box-sizing: border-box; }
+html { font-kerning: normal; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--ground); color: var(--ink); font: var(--size-body)/var(--leading-body) var(--font-text); }
+a { color: inherit; text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 0.15em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+img { max-width: 100%; height: auto; display: block; }
+
+.catalogue { max-width: 72rem; margin: 0 auto; padding: calc(var(--space) * 5) calc(var(--space) * 3) calc(var(--space) * 12); }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space) calc(var(--space) * 3); border-bottom: 1px solid var(--rule); padding-bottom: calc(var(--space) * 2); margin-bottom: calc(var(--space) * 3); }
+h1 { font-size: var(--size-h1); font-weight: 400; margin: 0; }
+.count { font-family: var(--font-meta); font-size: var(--size-meta); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+
+/* Filters as plain text controls, current one underlined. */
+.filters { display: flex; flex-wrap: wrap; gap: var(--space) calc(var(--space) * 2); font-family: var(--font-meta); font-size: var(--size-meta); margin-bottom: calc(var(--space) * 4); }
+.filters button { font: inherit; color: var(--ink-soft); background: none; border: 0; padding: var(--space) 0; min-height: 2.25rem; cursor: pointer; border-bottom: 1px solid transparent; }
+.filters button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* Entries lead the page. Every entry shares one metadata order: title, maker/date, place, status. */
+.entries { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: calc(var(--space) * 5) calc(var(--space) * 4); }
+.entry { display: grid; gap: var(--space); align-content: start; }
+.entry .thumb { aspect-ratio: 4 / 3; background: var(--thumb); overflow: hidden; }
+.entry .thumb img { width: 100%; height: 100%; object-fit: cover; }
+.entry h2 { font-size: var(--size-title); font-weight: 600; line-height: 1.3; margin: var(--space) 0 0; }
+.entry .desc { margin: 0; }
+.entry dl { display: grid; grid-template-columns: auto 1fr; gap: 0.15em var(--space); margin: 0; font-family: var(--font-meta); font-size: var(--size-meta); }
+.entry dt { color: var(--ink-soft); } .entry dd { margin: 0; }
+.entry .status { font-family: var(--font-meta); font-size: var(--size-meta); color: var(--accent); }
+
+/* A list variant for text-only collections. */
+.entries.rows { grid-template-columns: 1fr; gap: 0; }
+.entries.rows .entry { grid-template-columns: 1fr auto; padding: calc(var(--space) * 2) 0; border-bottom: 1px solid var(--rule); }
+</style>
+</head>
+<body>
+<main class="catalogue">
+  <header>
+    <h1>REPLACE: collection name</h1>
+    <span class="count">REPLACE: 48 objects</span>
+  </header>
+  <div class="filters" role="group" aria-label="Filter by topic">
+    <button type="button" aria-pressed="true">All</button>
+    <button type="button" aria-pressed="false">REPLACE: topic</button>
+    <button type="button" aria-pressed="false">REPLACE: topic</button>
+  </div>
+
+  <ul class="entries">
+    <li class="entry">
+      <a class="thumb" href="#"><img src="REPLACE.jpg" alt="REPLACE: what the object looks like" width="800" height="600"></a>
+      <h2><a href="#">REPLACE: object title as catalogued</a></h2>
+      <p class="desc">REPLACE: one or two sentences describing the object, written for someone comparing it with its neighbours.</p>
+      <dl><dt>Maker</dt><dd>REPLACE</dd><dt>Date</dt><dd>REPLACE</dd><dt>Place</dt><dd>REPLACE</dd></dl>
+      <span class="status">REPLACE: On display · Room 12</span>
+    </li>
+    <li class="entry">
+      <a class="thumb" href="#"><img src="REPLACE.jpg" alt="REPLACE" width="800" height="600"></a>
+      <h2><a href="#">REPLACE: second object</a></h2>
+      <p class="desc">REPLACE: description in the same register and length.</p>
+      <dl><dt>Maker</dt><dd>REPLACE</dd><dt>Date</dt><dd>REPLACE</dd><dt>Place</dt><dd>REPLACE</dd></dl>
+      <span class="status">REPLACE: Not on display</span>
+    </li>
+  </ul>
+</main>
+</body>
+</html>
