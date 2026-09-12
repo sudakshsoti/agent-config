@@ -32,6 +32,10 @@ The grid may be asymmetric or balanced. Display scale is available for presentat
 - Poster composition that breaks reading order or hides the primary task on a phone.
 - Refusing necessary accessible control boundaries because the visual language favours open space.
 
+## Starter
+
+Copy [the skeleton](../skeletons/swiss-graphic.html) and fill its `REPLACE` slots. Its `:root` block holds this language's starting tokens; its font link is Archivo alone, using its width axis, the first pairing under this language in [fonts.md](../fonts.md). Change a token only with a reason stated in the report. Run `audit.js` with `--display`.
+
 ## Reference notes
 
 Inspect [the selected reference and its annotations](../../screenshots/swiss-graphic/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.

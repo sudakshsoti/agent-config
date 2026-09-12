@@ -26,6 +26,7 @@ Exception: Codex may generate required `dist/<skill>.zip` packages with `scripts
 | `~/.agents/skills/` | agent-config | `install.sh` symlinks; Codex, opencode, omp, and pi read it |
 | `~/.codex/AGENTS.md`, `~/.omp/agent/AGENTS.md`, `~/.config/opencode/AGENTS.md`, `~/.pi/agent/AGENTS.md` | agent-config | symlinks to `global-agents.md` |
 | `~/.codex/config.toml` | **shared** | dotfiles writes it; agent-config merges non-secret keys; check both |
+| `~/.codex/prompts/*.md`, `~/.pi/agent/prompts/*.md` | agent-config (`codex/prompts/`, `pi/prompts/`) | `install.sh` symlinks file by file; machine-local prompts survive |
 | `~/.omp/agent/config.yml`, `lsp.yml`, `keybindings.yml`, `themes/`, `agents/` | agent-config | `install.sh` symlinks; omp writes through links |
 | `~/.pi/agent/settings.json`, `subagents.json`, `pi-fff.json`, `prompts/`, `themes/`, `extensions/`, `agents/` | agent-config | `install.sh` symlinks; pi writes through links |
 | `~/.config/omp/*.yml`, `*.tpl` | agent-config (`omp/overlays/`) | session-only `--config` overlays; no restore state |

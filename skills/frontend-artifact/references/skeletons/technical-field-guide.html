@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REPLACE: mechanism name</title>
+<!-- Fonts: see ../fonts.md. Keep two families: a reading serif and a mono for identifiers. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Starter tokens for technical-field-guide. Change a value only with a stated reason. */
+:root {
+  color-scheme: light;
+  --font-read: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-code: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --size-body: 1.125rem;        /* 18px reading size */
+  --size-small: 0.875rem;       /* captions, labels, dates */
+  --size-h2: 1.5rem;
+  --size-h1: 2.25rem;
+  --leading-body: 1.55;
+  --measure: 66ch;
+  --space: 0.5rem;              /* base unit; multiples of it only */
+  --ground: oklch(99% 0.004 90);
+  --ink: oklch(22% 0.012 260);
+  --ink-soft: oklch(45% 0.012 260);
+  --rule: oklch(88% 0.008 90);
+  --accent: oklch(50% 0.16 250); /* one explanatory colour, reused in diagrams */
+  --accent-soft: oklch(94% 0.03 250);
+  --radius: 4px;
+}
+* { box-sizing: border-box; }
+html { font-kerning: normal; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--ground); color: var(--ink); font: var(--size-body)/var(--leading-body) var(--font-read); font-optical-sizing: auto; }
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code, kbd, samp, .id { font-family: var(--font-code); font-size: 0.9em; }
+img, svg { max-width: 100%; height: auto; }
+
+.page { max-width: var(--measure); margin: 0 auto; padding: calc(var(--space) * 6) calc(var(--space) * 3) calc(var(--space) * 12); }
+header .meta { font-family: var(--font-code); font-size: var(--size-small); color: var(--ink-soft); margin: 0 0 var(--space); }
+h1 { font-size: var(--size-h1); line-height: 1.15; font-weight: 600; margin: 0 0 calc(var(--space) * 3); letter-spacing: 0; }
+h2 { font-size: var(--size-h2); line-height: 1.25; font-weight: 600; margin: calc(var(--space) * 8) 0 calc(var(--space) * 2); }
+p { margin: 0 0 calc(var(--space) * 2.5); }
+.lede { font-size: 1.2em; color: var(--ink-soft); }
+
+/* A figure stays with the paragraph that explains it. */
+figure { margin: calc(var(--space) * 4) 0; }
+figure > svg, figure > img { display: block; width: 100%; border: 1px solid var(--rule); border-radius: var(--radius); background: #fff; }
+figcaption { font-size: var(--size-small); color: var(--ink-soft); margin-top: var(--space); }
+figcaption b { color: var(--ink); font-weight: 600; }
+.label { font-family: var(--font-code); font-size: 0.75rem; fill: var(--ink-soft); }
+
+/* Containment only for a warning, definition or qualification. */
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: calc(var(--space) * 1.5) calc(var(--space) * 2); margin: calc(var(--space) * 3) 0; border-radius: 0 var(--radius) var(--radius) 0; }
+.callout p:last-child { margin-bottom: 0; }
+
+/* Tables for real reference data only. */
+table { border-collapse: collapse; width: 100%; font-size: var(--size-small); margin: calc(var(--space) * 3) 0; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: var(--space) 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-weight: 600; }
+
+@media (max-width: 480px) { :root { --size-body: 1.0625rem; --size-h1: 1.85rem; } .page { padding-top: calc(var(--space) * 4); } }
+</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <p class="meta">REPLACE: author or source · date</p>
+    <h1>REPLACE: the mechanism, named plainly</h1>
+    <p class="lede">REPLACE: one or two sentences saying what the reader will be able to explain after reading.</p>
+  </header>
+
+  <section id="stage-1">
+    <h2>REPLACE: first real part or stage</h2>
+    <p>REPLACE: the explanation that this diagram illustrates. Keep the concept the reader needs first.</p>
+    <figure>
+      <!-- Draw the actual mechanism. Give the accent colour one meaning and keep it across every figure. -->
+      <svg viewBox="0 0 640 240" role="img" aria-labelledby="fig1-title">
+        <title id="fig1-title">REPLACE: what the diagram shows</title>
+        <rect x="40" y="80" width="160" height="80" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <text x="120" y="126" text-anchor="middle" class="label">REPLACE</text>
+        <path d="M200 120 H420" stroke="oklch(50% 0.16 250)" stroke-width="2" marker-end="url(#arrow)"/>
+        <rect x="440" y="80" width="160" height="80" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <text x="520" y="126" text-anchor="middle" class="label">REPLACE</text>
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="oklch(50% 0.16 250)"/></marker></defs>
+      </svg>
+      <figcaption><b>Figure 1.</b> REPLACE: a caption a reader could find again later.</figcaption>
+    </figure>
+    <div class="callout"><p>REPLACE: only a warning, definition or qualification belongs here. Delete otherwise.</p></div>
+  </section>
+
+  <section id="stage-2">
+    <h2>REPLACE: second part or stage</h2>
+    <p>REPLACE: continue the mechanism. Identifiers and values such as <code>ttl=64</code> use the code face.</p>
+  </section>
+</main>
+</body>
+</html>

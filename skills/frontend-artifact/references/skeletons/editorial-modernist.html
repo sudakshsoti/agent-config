@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REPLACE: essay title</title>
+<!-- Fonts: see ../fonts.md. A serif with an optical-size axis carries display and body; a quiet sans for meta and captions. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400&family=Public+Sans:wght@400..700&display=swap">
+<style>
+/* Starter tokens for editorial-modernist. Change a value only with a stated reason. */
+:root {
+  color-scheme: light;
+  --font-text: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-meta: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+  --size-body: 1.1875rem;       /* 19px sustained reading */
+  --size-small: 0.8125rem;      /* meta and captions in the sans */
+  --size-h2: 1.6rem;
+  --size-h1: clamp(2.4rem, 5.5vw, 3.6rem);
+  --leading-body: 1.5;
+  --measure: 62ch;
+  --space: 0.5rem;
+  --ground: oklch(98.5% 0.006 85);
+  --ink: oklch(20% 0.015 60);
+  --ink-soft: oklch(46% 0.015 60);
+  --rule: oklch(86% 0.012 75);
+  --accent: oklch(46% 0.12 35);  /* editorial emphasis and links only */
+}
+* { box-sizing: border-box; }
+html { font-kerning: normal; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--ground); color: var(--ink); font: var(--size-body)/var(--leading-body) var(--font-text); font-optical-sizing: auto; }
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+img, svg { max-width: 100%; height: auto; display: block; }
+
+/* One reading sequence. At wide widths, a narrow meta column sits beside the prose. */
+.page { max-width: 72rem; margin: 0 auto; padding: calc(var(--space) * 8) calc(var(--space) * 3) calc(var(--space) * 14); }
+.masthead { max-width: calc(var(--measure) + 14rem); }
+.kicker { font-family: var(--font-meta); font-size: var(--size-small); color: var(--ink-soft); margin: 0 0 calc(var(--space) * 2); }
+h1 { font-size: var(--size-h1); line-height: 1.05; font-weight: 500; margin: 0 0 calc(var(--space) * 2); letter-spacing: 0; }
+.dek { font-style: italic; font-size: 1.25em; color: var(--ink-soft); margin: 0 0 calc(var(--space) * 5); max-width: var(--measure); }
+.byline { font-family: var(--font-meta); font-size: var(--size-small); color: var(--ink-soft); border-top: 1px solid var(--rule); padding-top: var(--space); }
+
+.body { display: grid; grid-template-columns: minmax(0, var(--measure)); gap: 0 calc(var(--space) * 6); }
+.body > * { grid-column: 1; }
+.body .side { font-family: var(--font-meta); font-size: var(--size-small); color: var(--ink-soft); line-height: 1.45; }
+@media (min-width: 900px) {
+  .body { grid-template-columns: 11rem minmax(0, var(--measure)); }
+  .body > * { grid-column: 2; }
+  .body .side { grid-column: 1; align-self: start; position: sticky; top: calc(var(--space) * 4); }
+}
+h2 { font-size: var(--size-h2); line-height: 1.2; font-weight: 500; margin: calc(var(--space) * 8) 0 calc(var(--space) * 2); }
+p { margin: 0 0 calc(var(--space) * 2.5); }
+p + p { text-indent: 0; }
+blockquote { margin: calc(var(--space) * 4) 0; padding-left: calc(var(--space) * 2); border-left: 2px solid var(--rule); font-style: italic; color: var(--ink-soft); }
+
+/* Imagery punctuates the sequence; at wide widths it may exceed the measure. */
+figure { margin: calc(var(--space) * 5) 0; }
+@media (min-width: 900px) { figure.wide { grid-column: 1 / -1; } }
+figcaption { font-family: var(--font-meta); font-size: var(--size-small); color: var(--ink-soft); margin-top: var(--space); max-width: var(--measure); }
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="masthead">
+    <p class="kicker">REPLACE: section or series</p>
+    <h1>REPLACE: a title that states the argument</h1>
+    <p class="dek">REPLACE: an italic deck that says what the essay argues and for whom.</p>
+    <p class="byline">REPLACE: author · date · reading time if real</p>
+  </header>
+
+  <div class="body">
+    <aside class="side">
+      <!-- Only material that belongs beside the text: a summary, a source note, a small table of contents. Delete otherwise. -->
+      REPLACE: side note or contents
+    </aside>
+    <p>REPLACE: opening paragraph. The prose sets the reading order. Write the actual argument here.</p>
+    <p>REPLACE: second paragraph.</p>
+    <figure class="wide">
+      <img src="REPLACE.png" alt="REPLACE: what the image shows and why it is here" width="1200" height="700">
+      <figcaption>REPLACE: caption attached to the evidence, with source.</figcaption>
+    </figure>
+    <h2>REPLACE: a section heading that advances the argument</h2>
+    <p>REPLACE: continue.</p>
+    <blockquote>REPLACE: a quotation only if the argument needs a voice other than the author's.</blockquote>
+  </div>
+</main>
+</body>
+</html>

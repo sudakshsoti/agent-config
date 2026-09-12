@@ -32,6 +32,10 @@ Display type and asymmetric composition are available when they serve editorial 
 - Magazine-like columns that produce an unclear reading order on a phone.
 - Applying a long-form opening to a utility or dashboard merely because this language was selected.
 
+## Starter
+
+Copy [the skeleton](../skeletons/editorial-modernist.html) and fill its `REPLACE` slots. Its `:root` block holds this language's starting tokens; its font link is Newsreader with Public Sans, the first pairing under this language in [fonts.md](../fonts.md). Change a token only with a reason stated in the report. Run `audit.js` with no flag.
+
 ## Reference notes
 
 Inspect [the selected reference and its annotations](../../screenshots/editorial-modernist/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.
