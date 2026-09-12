@@ -36,12 +36,91 @@ function addUsage(total, usage) {
 }
 
 function fit(left, right, width) {
-  const gap = Math.max(2, width - visibleWidth(left) - visibleWidth(right));
-  return truncateToWidth(`${left}${" ".repeat(gap)}${right}`, width, "");
+  if (!right) return truncateToWidth(left, width, "");
+
+  const fittedRight = truncateToWidth(right, width, "");
+  const leftWidth = Math.max(1, width - visibleWidth(fittedRight) - 1);
+  const fittedLeft = truncateToWidth(left, leftWidth, "");
+  const gap = Math.max(
+    1,
+    width - visibleWidth(fittedLeft) - visibleWidth(fittedRight),
+  );
+  return truncateToWidth(
+    `${fittedLeft}${" ".repeat(gap)}${fittedRight}`,
+    width,
+    "",
+  );
 }
 
 function plain(value) {
   return (value || "").replace(ANSI_PATTERN, "").trim();
+}
+
+function truncateMiddle(value, width) {
+  if (visibleWidth(value) <= width) return value;
+  if (width <= 1) return value.slice(0, width);
+
+  const remaining = width - 1;
+  const head = Math.ceil(remaining / 2);
+  const tail = Math.floor(remaining / 2);
+  return `${value.slice(0, head)}…${tail > 0 ? value.slice(-tail) : ""}`;
+}
+
+function joinSegments(segments, separator) {
+  return segments.filter(Boolean).join(separator);
+}
+
+function packSegments(segments, width, separator) {
+  const packed = [];
+  for (const segment of segments) {
+    const candidate = joinSegments([...packed, segment], separator);
+    if (visibleWidth(candidate) <= width) packed.push(segment);
+  }
+  return packed;
+}
+
+function formatLspAlert(value, width, theme) {
+  const text = plain(value);
+  const failedPart = text.match(/LSP Failed:\s*(.+?)(?:\s+·|$)/i)?.[1];
+  if (!failedPart) return undefined;
+
+  const names = failedPart
+    .split(",")
+    .map((name) => name.trim())
+    .filter(Boolean);
+  if (names.length === 0) return undefined;
+
+  const limit = width < 96 ? 1 : 2;
+  const shown = names.slice(0, limit).join(", ");
+  const remainder = names.length > limit ? ` +${names.length - limit}` : "";
+  const label = width < 96 ? "LSP !" : "LSP failed:";
+  const alert = `${label} ${shown}${remainder}`;
+  return theme.fg("error", alert);
+}
+
+function formatMcpAlert(value, authValue, width, theme) {
+  const text = plain(value);
+  const authText = plain(authValue);
+  if (!text && !authText) return undefined;
+
+  if (
+    authText ||
+    /needs auth|authentication required|auth required|authenticating/i.test(
+      text,
+    )
+  ) {
+    return theme.fg("warning", width < 96 ? "MCP auth" : "MCP authentication");
+  }
+
+  if (!/failed|error|unavailable|disconnected|connection lost/i.test(text)) {
+    return undefined;
+  }
+
+  const server = text.match(
+    /failed to (?:connect|initialize)(?: to)?\s+([^(:\s]+)/i,
+  )?.[1];
+  const label = width < 96 ? "MCP !" : "MCP failed:";
+  return theme.fg("error", `${label}${server ? ` ${server}` : ""}`);
 }
 
 export default function operationalFooter(pi) {
@@ -103,13 +182,27 @@ export default function operationalFooter(pi) {
             /^⚡\s*TPS:\s*/i,
             "",
           );
-          const lsp = plain(statuses.get("pi-lens-lsp"));
+          const lspAlert = formatLspAlert(
+            statuses.get("pi-lens-lsp"),
+            width,
+            theme,
+          );
+          const mcpAlert = formatMcpAlert(
+            statuses.get("mcp"),
+            statuses.get("mcp-auth"),
+            width,
+            theme,
+          );
           const extras = [...statuses.entries()]
             .filter(
               ([key, value]) =>
-                !["tokenSpeed", "pi-lens-lsp", "kohra-thinking"].includes(
-                  key,
-                ) && plain(value),
+                ![
+                  "tokenSpeed",
+                  "pi-lens-lsp",
+                  "mcp",
+                  "mcp-auth",
+                  "kohra-thinking",
+                ].includes(key) && plain(value),
             )
             .map(([, value]) => plain(value));
 
@@ -117,20 +210,24 @@ export default function operationalFooter(pi) {
           const location = `${compactPath(ctx.cwd)}${branch ? ` (${branch})` : ""}`;
           const model = ctx.model?.id || "no model";
           const thinking = ctx.thinkingLevel || "off";
+          const state = `${model} ${theme.fg("dim", "·")} ${thinking}`;
+          const locationWidth = Math.max(1, width - visibleWidth(state) - 1);
           const context = ctx.getContextUsage();
           const contextText =
             context?.percent == null
               ? `context ? / ${formatCount(context?.contextWindow || ctx.model?.contextWindow || 0)}`
               : `context ${context.percent.toFixed(1)}% / ${formatCount(context.contextWindow)}`;
 
-          const operational = [
-            contextText,
-            speed && speed !== "--" ? speed : undefined,
-            lsp && lsp !== "LSP Inactive" ? lsp : undefined,
-            ...extras,
-          ]
-            .filter(Boolean)
-            .join(theme.fg("dim", " · "));
+          const separator = theme.fg("dim", " · ");
+          const health = [lspAlert, mcpAlert].filter(Boolean);
+          const segments = [
+            theme.fg("text", contextText),
+            ...health,
+            ...extras.map((value) => theme.fg("dim", value)),
+            health.length === 0 && speed && speed !== "--"
+              ? theme.fg("dim", speed)
+              : undefined,
+          ].filter(Boolean);
           const accounting = [
             cacheHit === undefined
               ? undefined
@@ -143,20 +240,23 @@ export default function operationalFooter(pi) {
             .filter(Boolean)
             .join(" ");
 
-          const state = `${model} ${theme.fg("dim", "·")} ${thinking}`;
-          const rowOne = fit(theme.fg("muted", location), state, width);
-          const rowTwo = fit(
-            theme.fg("text", operational),
-            theme.fg("dim", accounting),
+          const accountingText = accounting
+            ? theme.fg("dim", accounting)
+            : undefined;
+          const right = health.length === 0 ? accountingText : undefined;
+          const availableWidth = right
+            ? Math.max(1, width - visibleWidth(right) - visibleWidth(separator))
+            : width;
+          const packed = packSegments(segments, availableWidth, separator);
+
+          const rowOne = fit(
+            theme.fg("muted", truncateMiddle(location, locationWidth)),
+            state,
             width,
           );
+          const rowTwo = fit(joinSegments(packed, separator), right, width);
 
-          if (width >= 96) return [rowOne, rowTwo];
-          return [
-            truncateToWidth(rowOne, width, ""),
-            truncateToWidth(operational, width, ""),
-            truncateToWidth(theme.fg("dim", accounting), width, ""),
-          ];
+          return [rowOne, rowTwo];
         },
       };
     });
