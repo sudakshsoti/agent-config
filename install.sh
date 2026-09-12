@@ -23,6 +23,9 @@
 #   codex/config.toml -> ~/.codex/config.toml
 #     Codex rewrites this file from its TUI and it may contain machine-local
 #     credentials, so it cannot safely be symlinked or replaced wholesale.
+#   codex/agents/*.toml -> ~/.codex/agents/*.toml
+#     Role layers are linked individually; Codex discovers their declarations
+#     through the managed [agents] table in config.toml.
 #
 # Also symlinked (the owning tool rewrites it, but writes follow the link and it
 # holds no secrets — see the OMP steps below):
@@ -461,7 +464,17 @@ if [ -d "$CODEX" ] && [ -f "$REPO/codex/config.toml" ]; then
   echo "merged  codex/config.toml"
 fi
 
-# 3d. Codex custom prompts: linked individually into ~/.codex/prompts so
+# 3d. Codex agent role layers: linked individually so machine-local role files
+#     survive. Their declarations and routing defaults are merged by 3c.
+if [ -d "$CODEX" ] && [ -d "$REPO/codex/agents" ]; then
+  mkdir -p "$CODEX/agents"
+  for agent_file in "$REPO"/codex/agents/*.toml; do
+    [ -f "$agent_file" ] || continue
+    link_into "$agent_file" "$CODEX/agents/$(basename "$agent_file")"
+  done
+fi
+
+# 3e. Codex custom prompts: linked individually into ~/.codex/prompts so
 #     machine-local prompts survive. Codex exposes each as a slash command
 #     (/prompts:<name>); the Pi copies of the same prompts live in pi/prompts.
 if [ -d "$CODEX" ] && [ -d "$REPO/codex/prompts" ]; then

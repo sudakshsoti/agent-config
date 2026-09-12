@@ -7,7 +7,8 @@ These are starting defaults, not measured quota savings on this repository.
 | Task / agent | Provider and model | Effort |
 | --- | --- | --- |
 | Main session; `builder` implementing an approved UI plan | `openai-codex/gpt-5.6-luna` | high |
-| `scout` and `Explore` low-stakes read-only discovery | `opencode-go/muse-spark-1.3-contributor` | minimal |
+| `scout`, `Explore` and `research` bounded read-only discovery | `opencode-go/muse-spark-1.3-contributor` | minimal |
+| unnamed `general-purpose` fallback | `openai-codex/gpt-5.6-luna` | medium |
 | `workflow` coordinating multi-part implementation | `openai-codex/gpt-5.6-sol` | medium |
 | `Plan` and `Critic` planning and visual review | `openai-codex/gpt-5.6-sol` | high |
 | `reviewer` adversarial review of plans and diffs on a second lineage | `opencode-go/glm-5.3-flash` | high |

@@ -74,8 +74,10 @@ whichever lever your surface gives you.
 - **OMP** — the `task` role already pins the worker (GPT-5.6-Luna at `xhigh`),
   so effort is the lever, not model: drop to `smol` for mechanical items.
 - **Codex** (`spawn_agent`) and **Grok** (subagents are on unless
-  `--no-subagents`) — one model in practice, so reasoning effort is the lever:
-  low for mechanical items, the surface default otherwise.
+  `--no-subagents`) — set both model and reasoning effort when the surface
+  allows it. Use the configured lower-cost default for mechanical items and
+  bounded research; reserve stronger models and higher effort for architecture,
+  security and difficult implementation decisions.
 
 If your surface won't let you set either per subagent, dispatch anyway. A fresh
 context scoped to one item is most of the win; the routing is the saving on top.
