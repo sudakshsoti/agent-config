@@ -625,6 +625,19 @@ if [ -d "$PI" ] && [ -d "$REPO/pi/extensions" ]; then
   for extension_dir in "$REPO"/pi/extensions/*; do
     [ -d "$extension_dir" ] || continue
     target_dir="$PI/extensions/$(basename "$extension_dir")"
+    # Reclaim a legacy directory symlink from the pre-file-by-file layout. The
+    # files inside it are already this repo's files, so dropping the link loses
+    # nothing. A link pointing anywhere else is hand-made: never clobber it.
+    if [ -L "$target_dir" ]; then
+      if [ "$(readlink "$target_dir")" = "$extension_dir" ]; then
+        rm -f "$target_dir"
+        echo "reclaim $(basename "$extension_dir") — replaced legacy directory symlink"
+      else
+        echo "⚠️  SKIP $(basename "$extension_dir") — $target_dir is a symlink to $(readlink "$target_dir")."
+        skipped=$((skipped + 1))
+        continue
+      fi
+    fi
     mkdir -p "$target_dir"
     for extension_file in "$extension_dir"/index.js "$extension_dir"/index.ts "$extension_dir"/theme.json; do
       [ -f "$extension_file" ] || continue
