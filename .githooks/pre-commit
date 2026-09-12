@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# pre-commit — the two fast checks, wired by `git config core.hooksPath .githooks`
+# pre-commit — fast checks, wired by `git config core.hooksPath .githooks`
 # (install.sh does that). Tracked in the repo rather than written into
 # .git/hooks, so it survives a clone and works from a git worktree, where
 # .git is a file and has no hooks/ directory of its own.
 #
-# Only the fast pair runs here; scripts/check.sh also runs
-# test-apply-codex-config.py. CI runs the full set.
+# Only fast checks run here; scripts/check.sh and CI run the full set.
 #
 # Bypass with `git commit --no-verify` when you genuinely mean to.
 set -uo pipefail
@@ -18,6 +17,8 @@ echo
 python3 "$repo_root/scripts/check-zips.py" "$repo_root" || status=1
 echo
 python3 "$repo_root/scripts/test-design-instructions.py" || status=1
+echo
+python3 "$repo_root/scripts/test-apply-web-search-config.py" || status=1
 
 if [[ $status -ne 0 ]]; then
   echo

@@ -3,7 +3,8 @@
 #
 # Before this existed each check had to be remembered and run by hand, which
 # in practice meant neither test script ran between the day it was written and
-# the day something broke. One command, run by both the pre-commit hook and CI.
+# the day something broke. One command, run manually and by CI; pre-commit runs
+# only the fast subset.
 #
 #   ./scripts/check.sh
 #
@@ -35,6 +36,7 @@ run() { # run <label> <command...>
 run "lint-skills.py" python3 "$repo_root/scripts/lint-skills.py" "$repo_root"
 run "check-zips.py" python3 "$repo_root/scripts/check-zips.py" "$repo_root"
 run "test-apply-codex-config.py" python3 "$repo_root/scripts/test-apply-codex-config.py"
+run "test-apply-web-search-config.py" python3 "$repo_root/scripts/test-apply-web-search-config.py"
 run "test-design-instructions.py" python3 "$repo_root/scripts/test-design-instructions.py"
 run "test-install-selected-skills.py" python3 "$repo_root/scripts/test-install-selected-skills.py"
 

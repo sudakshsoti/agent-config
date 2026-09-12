@@ -56,6 +56,12 @@
 #     Tracked Pi extensions and extension-specific theme overrides.
 #   pi/agents/*.md -> ~/.pi/agent/agents/*.md
 #     Custom pi-subagents definitions. Only linked if ~/.pi/agent exists.
+#   pi/web-search.json -> the live pi-web-access config path(s)
+#     MERGED, not linked: the live file is also pi-web-access's credential store,
+#     so only the repo-owned preference keys are pushed; credentials and
+#     unmanaged settings stay machine-local. PI_CODING_AGENT_DIR and
+#     XDG_CONFIG_HOME are honored; without either, both the 0.23.0 legacy path
+#     and the 0.29.0 path are written.
 
 #
 # Deliberately NOT tracked or linked (machine-local by design):
@@ -654,6 +660,30 @@ if [ -d "$PI" ] && [ -d "$REPO/pi/agents" ]; then
   for a in "$REPO"/pi/agents/*.md; do
     [ -f "$a" ] || continue
     link_into "$a" "$PI/agents/$(basename "$a")"
+  done
+fi
+
+# 3q. pi web-search preferences: merged, never symlinked, because this one file
+#     is also pi-web-access's credential store — keys written there by the
+#     extension must not follow a link back into the repo. Only repo-owned
+#     preferences are pushed; credentials and unmanaged settings survive.
+#
+#     pi-web-access honors PI_CODING_AGENT_DIR, then XDG_CONFIG_HOME. Without
+#     either override, 0.23.0 reads ~/.pi/web-search.json and 0.29.0 reads
+#     ~/.pi/agent/web-search.json, so write both default paths during migration.
+if [ -d "$PI" ] && [ -f "$REPO/pi/web-search.json" ]; then
+  if [ -n "${PI_CODING_AGENT_DIR:-}" ]; then
+    web_search_configs=("$PI_CODING_AGENT_DIR/web-search.json")
+  elif [ -n "${XDG_CONFIG_HOME:-}" ]; then
+    web_search_configs=("$XDG_CONFIG_HOME/pi/web-search.json")
+  else
+    web_search_configs=("$HOME/.pi/web-search.json" "$PI/web-search.json")
+  fi
+
+  for web_search_config in "${web_search_configs[@]}"; do
+    python3 "$REPO/scripts/apply-web-search-config.py" \
+      "$REPO/pi/web-search.json" "$web_search_config"
+    echo "merged  pi/web-search.json -> $web_search_config"
   done
 fi
 
