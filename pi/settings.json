@@ -72,7 +72,8 @@
     "npm:@ff-labs/pi-fff",
     "npm:pi-token-speed",
     "npm:pi-blackhole",
-    "npm:pi-quiet-activity"
+    "npm:pi-quiet-activity",
+    "npm:pi-mcp-adapter"
   ],
   "lastChangelogVersion": "0.85.1",
   "tuiMode": "fullscreen"
