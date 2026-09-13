@@ -253,6 +253,6 @@ The architecture-sprawl effort is complete when:
 
 Authorised scope for this run (2026-09-14): Phases 0–2 on branch `sprawl/phase-0-2`. The user accepted the Phase 1 ownership matrix in advance for this run. `dotfiles` changes remain a separate follow-up.
 
-- [ ] Phase 0 — behavioural baseline recorded
+- [x] Phase 0 — behavioural baseline recorded
 - [ ] Phase 1 — ownership matrix and instructions (agent-config side)
 - [ ] Phase 2 — truthful verification boundary

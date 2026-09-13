@@ -1,0 +1,27 @@
+# case: selective-pi
+# pre-created harness dirs: .pi/agent
+# vendor present: False
+# command: env -i HOME=<HOME> PATH=<stubs>:/opt/homebrew/bin:/usr/bin:/bin bash <REPO>/install.sh --skills-only=commit,vibe
+# exit: 0
+# checkout unchanged: True
+# git/claude stub calls: (none)
+# links: 4  files: 0
+
+## resulting HOME tree (sorted)
+dir   ~/.agents/
+dir   ~/.agents/skills/
+link  ~/.agents/skills/commit -> <REPO>/skills/commit
+link  ~/.agents/skills/vibe -> <REPO>/skills/vibe
+dir   ~/.claude/
+dir   ~/.claude/skills/
+link  ~/.claude/skills/commit -> <REPO>/skills/commit
+link  ~/.claude/skills/vibe -> <REPO>/skills/vibe
+dir   ~/.pi/
+dir   ~/.pi/agent/
+
+## install.sh output
+linked  commit
+linked  vibe
+linked  commit
+linked  vibe
+selected skill links=4
