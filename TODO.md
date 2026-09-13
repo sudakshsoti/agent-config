@@ -1,5 +1,14 @@
 # TODO
 
+## prompt-capture crash (pi + pi-claude-bridge)
+
+See `plans/pi-claude-bridge-prompt-capture-rca.md`.
+
+- [ ] Confirm the hypothesis via `CLAUDE_BRIDGE_DEBUG=1` log (record vs resolve lengths, `moduleInstanceId` split) and repro tests (replace-mode subagent, `/quiet-activity off`, `/reload`).
+- [ ] Apply workarounds: replace-mode / isolated subagents on non-bridge models; bridge models on main + append-mode agents.
+- [ ] Upstream bridge fix: shared `PromptCaptures` via `Symbol.for`, graceful miss (failed turn, not process exit), replace-mode projection, corrected error text.
+- [ ] Subagent coordination: child sessions load the bridge or route replace-mode children off bridge models.
+
 ## Next: automatically reconcile the Docker Sandbox bundle
 
 - [ ] Update `agent-sandbox run` so every `pi` or `omp` launch compares committed `HEAD` in canonical `~/dev/agent-config` with the installed bundle's `VERSION` and rebuilds the immutable bundle only when it is stale.
