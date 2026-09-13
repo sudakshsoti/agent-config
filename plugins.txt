@@ -76,6 +76,14 @@ plugin typescript-lsp@claude-plugins-official
 # migration time.
 external stablyai/orca orchestration computer-use
 external BexTuychiev/firecrawl-claude-code-skill firecrawl-web
+# The upstream repo also ships a Claude marketplace plugin, but this curated
+# allowlist intentionally mirrors only the useful engineering skills to every
+# harness through the shared ~/.agents/skills root. The two vocabulary skills
+# are dependencies of grill-with-docs and improve-codebase-architecture.
+# ask-matt is retained as a router; its less-used branches may name optional
+# Matt skills outside this allowlist rather than silently importing the whole
+# collection and consuming the shared context budget.
+external mattpocock/skills:skills/engineering setup-matt-pocock-skills ask-matt tdd code-review grill-with-docs improve-codebase-architecture domain-modeling codebase-design
 # emilkowalski/skills — all upstream skills, linked for every agent surface.
 external emilkowalski/skills
 
