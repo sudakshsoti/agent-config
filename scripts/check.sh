@@ -39,6 +39,8 @@ run "test-apply-codex-config.py" python3 "$repo_root/scripts/test-apply-codex-co
 run "test-apply-web-search-config.py" python3 "$repo_root/scripts/test-apply-web-search-config.py"
 run "test-design-instructions.py" python3 "$repo_root/scripts/test-design-instructions.py"
 run "test-install-selected-skills.py" python3 "$repo_root/scripts/test-install-selected-skills.py"
+run "test-omp-catastrophe-policy.py" python3 "$repo_root/scripts/test-omp-catastrophe-policy.py"
+run "test-catastrophe-guard.mjs" node "$repo_root/scripts/test-catastrophe-guard.mjs"
 
 echo "check.sh"
 printf '%s\n' "${results[@]}"
