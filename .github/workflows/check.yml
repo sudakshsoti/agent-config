@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # python3, jq and zip/unzip are preinstalled on ubuntu-latest, so there
-      # is nothing to set up — everything here is stdlib or coreutils.
+      # python3, node, jq and zip/unzip are preinstalled on ubuntu-latest, so
+      # there is nothing to set up — everything here is stdlib or coreutils.
       - name: Run ./scripts/check.sh
         run: ./scripts/check.sh

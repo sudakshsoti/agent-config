@@ -353,5 +353,7 @@ for (const { name, error } of failures) {
   console.error(`FAIL ${name}`);
   console.error(`     ${error.message}`);
 }
-console.log(`catastrophe-guard: ${passed} passed, ${failures.length} failed`);
+process.stdout.write(
+  `catastrophe-guard: ${passed} passed, ${failures.length} failed\n`,
+);
 process.exitCode = failures.length === 0 ? 0 : 1;
