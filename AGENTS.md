@@ -16,23 +16,17 @@ Exception: Codex may generate required `dist/<skill>.zip` packages with `scripts
 
 ## Which repo owns what
 
-`~/dev/agent-config` owns agent behaviour; `~/dev/dotfiles` owns the machine. Secrets belong in dotfiles (1Password + age), never agent-config. This table is duplicated in both repos; change both copies together.
+`~/dev/agent-config` owns agent behaviour; `~/dev/dotfiles` owns the machine. Secrets belong in dotfiles (1Password + age), never agent-config.
 
-| Path | Owner | Delivery |
-| --- | --- | --- |
-| `~/.claude/CLAUDE.md`, `skills/`, `agents/` | agent-config | `install.sh` symlinks; edits are live |
-| `~/.claude/settings.json` | agent-config | copy-if-absent; `./sync.sh` pulls the live file back |
-| `~/.claude/plugins/claude-hud/config.json` | **dotfiles** | chezmoi; exception under `~/.claude/` |
-| `~/.agents/skills/` | agent-config | `install.sh` symlinks; Codex, opencode, omp, and pi read it |
-| `~/.codex/AGENTS.md`, `~/.omp/agent/AGENTS.md`, `~/.config/opencode/AGENTS.md`, `~/.pi/agent/AGENTS.md` | agent-config | symlinks to `global-agents.md` |
-| `~/.codex/config.toml` | **shared** | dotfiles writes it; agent-config merges non-secret keys; check both |
-| `~/.codex/prompts/*.md`, `~/.pi/agent/prompts/*.md` | agent-config (`codex/prompts/`, `pi/prompts/`) | `install.sh` symlinks file by file; machine-local prompts survive |
-| `~/.omp/agent/config.yml`, `lsp.yml`, `keybindings.yml`, `themes/`, `agents/` | agent-config | `install.sh` symlinks; omp writes through links |
-| `~/.pi/agent/settings.json`, `subagents.json`, `pi-fff.json`, `prompts/`, `themes/`, `extensions/`, `agents/` | agent-config | `install.sh` symlinks; pi writes through links |
-| pi-web-access `web-search.json` (location depends on Pi/XDG config) | **shared** | `install.sh` **merges** `pi/web-search.json` because the live file is also a credential store; credentials and unmanaged settings stay machine-local |
-| `~/.config/omp/*.yml`, `*.tpl` | agent-config (`omp/overlays/`) | session-only `--config` overlays; no restore state |
-| `~/.config/opencode/opencode.jsonc`, `~/.zshrc`, `.gitconfig`, Brewfile, fonts, terminal/editor config | **dotfiles** | chezmoi |
-| `~/.omp/agent/mcp.json`, `.env`, `~/.claude/settings.local.json`, `~/.pi/agent/auth.json`, `models-store.json`, `sessions/`, `npm/` | **neither** | machine-local, credentials or runtime state; untracked |
+The canonical per-path contract is `docs/ownership.md`, with one row per surface in `docs/ownership.tsv`. Change ownership, delivery or writeback there first; do not grow a second table here. dotfiles' `AGENTS.md` still carries an older full table until its follow-up lands (see that document's "dotfiles follow-up"); where they differ, the contract wins.
+
+Summary of live destinations (the `~/` paths below are in `$HOME`, not this checkout):
+
+- **Symlinked from here** (edits are live; OMP and Pi write back through their links): Claude `CLAUDE.md`, `skills/`, `agents/`, `claude-powerline.json`; `~/.agents/skills/`; every harness `AGENTS.md`; Codex `agents/` and `prompts/`; OMP `config.yml`, `keybindings.yml`, `lsp.yml`, `themes/`, `agents/`; `~/.config/omp` overlays; Pi `settings.json`, `pi-fff.json`, `subagents.json`, `prompts/`, `themes/`, `extensions/`, `agents/`.
+- **Copied if absent, pulled back by `./sync.sh`:** `~/.claude/settings.json`.
+- **Merged with another writer:** `~/.codex/config.toml` (dotfiles modify script and `scripts/apply-codex-config.py`; `tui.status_line` is written by both) and pi-web-access `web-search.json` (credentials stay machine-local). Check the key partition in the contract before editing either.
+- **dotfiles (chezmoi):** `~/.claude/plugins/claude-hud/config.json`, `~/.config/opencode/opencode.jsonc`, shell (including `ompgo`/`ompcodex`), `agent-sandbox`, `.gitconfig`, Brewfile, fonts, terminal/editor config. The sandbox bundle is ours; its launcher and live operation are dotfiles'.
+- **Neither** (machine-local credentials or runtime state; untracked): `~/.claude/settings.local.json`, `~/.omp/agent/mcp.json`, `~/.omp/.env`, `~/.pi/agent/auth.json`, `models-store.json`, `sessions/`, `npm/`.
 
 - **Never let chezmoi claim an agent-config symlink.** A blind apply replaces it with a stale regular file. `.chezmoiignore` gates `.claude/CLAUDE.md`, `.claude/settings.json`, and `.config/omp`.
 - **Never edit agent-config's `settings.json` directly.** It is a snapshot overwritten by `./sync.sh` from `~/.claude/settings.json`; edit the live file, then sync.
