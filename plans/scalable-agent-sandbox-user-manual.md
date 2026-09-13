@@ -1,41 +1,37 @@
 # User manual: parallel Pi and OMP tasks
 
-> **Planned system:** This manual describes the workflow after `plans/scalable-agent-sandbox-tasks.md` is implemented. The `pws` and `ompws` commands documented here do not exist yet. Current `pi`, `omp`, `pw`, `ompw`, `pis`, and `omps` behavior remains authoritative until rollout is complete.
+> **Planned v1:** This manual describes the workflow after `plans/scalable-agent-sandbox-tasks.md` is implemented in the **dotfiles repository**. `pws` and `ompws` do not exist yet. Current commands remain authoritative until rollout is complete.
 
 ## Choose the right workflow
 
-Use the lightest isolation that fits the task.
+| Need | Command | Files and Git | Authentication |
+| --- | --- | --- | --- |
+| Work normally in the current checkout | `pi` or `omp` | Current host checkout | Host |
+| Parallel branch with immediate host/editor visibility | `pw TASK` or `ompw TASK` | Host linked worktree; shared host Git metadata | Host |
+| Sandbox edits one standalone host checkout directly | `pis` or `omps` | Direct host mount; repository checkpoint first | Sandbox-local |
+| Isolate one task from host files and Git metadata | `pws TASK` or `ompws TASK` | Private local sandbox clone | Sandbox-local per task |
 
-| Need | Command | Where files live | Git | Authentication |
-| --- | --- | --- | --- | --- |
-| Work normally in the current checkout | `pi` or `omp` | Current host checkout | Host | Host |
-| Work on a parallel branch with immediate host/editor visibility | `pw TASK` or `ompw TASK` | Host linked worktree | Shared host repository metadata | Host |
-| Give an agent sandbox access to the current standalone checkout | `pis` or `omps` | Host checkout, directly mounted | Host checkout | Sandbox-local |
-| Isolate a task's files and Git metadata from the host | `pws TASK` or `ompws TASK` | Private sandbox clone | Private guest repository | Sandbox-local per task |
+Practical rule:
 
-### Practical rule
+- Use `pi` for ordinary work.
+- Use `pw` when immediate host visibility matters more than containment.
+- Use `pis` only when a sandbox should deliberately edit the current standalone checkout.
+- Use `pws` for risky, concurrent, or long-running work that should not write to host files or shared Git metadata.
 
-- Start with `pi` for ordinary work.
-- Use `pw` when the main problem is branch or file separation and you want live access from host tools.
-- Use `pis` when you deliberately want a sandbox to edit one existing standalone checkout directly.
-- Use `pws` when the task is risky, long-running, concurrent with other tasks, or should not have writable access to host files or Git metadata.
+A linked worktree created by `pw` cannot be used with direct-mode `pis`. Choose one lane for each task.
 
-A linked worktree created by `pw` is not accepted by direct-mode `pis`. Choose either the host-worktree lane or the isolated-task lane for that task.
-
-## Command model
-
-### Existing commands
+## Existing commands
 
 ```zsh
-pi                         # Pi on the host
-omp                        # OMP on the host
-pw payment-report          # create/reuse a host worktree and launch Pi
-ompw payment-report        # create/reuse a host worktree and launch OMP
-pis                        # Pi in the direct sandbox for this standalone repo
-omps                       # OMP in the direct sandbox for this standalone repo
+pi                         # host Pi
+omp                        # host OMP
+pw payment-report          # host worktree + Pi
+ompw payment-report        # host worktree + OMP
+pis                        # direct repository sandbox + Pi
+omps                       # direct repository sandbox + OMP
 ```
 
-Current direct-sandbox management remains available:
+Direct-sandbox management remains unchanged:
 
 ```zsh
 agent-status
@@ -48,71 +44,74 @@ agent-reset
 agent-doctor
 ```
 
-See the installed dotfiles documentation at `docs/agent-sandbox-trial.md` in the dotfiles repository for direct-mode recovery details.
+Those direct commands ignore isolated task sandboxes. Task commands likewise ignore direct sandboxes.
 
-### Planned isolated-task commands
+## Planned v1 task commands
 
 ```zsh
-pws TASK                    # shorthand for: pws run TASK
-pws run TASK                # create or resume TASK with Pi
+pws TASK                    # create or resume TASK with Pi
+pws run TASK                # expanded form
 ompws TASK                  # create or resume TASK with OMP
-pws list                    # tasks for the current repository
+pws list                    # current repository's tasks
 pws list --all              # tasks across repositories
 pws list --json             # machine-readable inventory
-pws stop TASK               # stop while preserving the task
-pws export TASK             # create a host review worktree
-pws export TASK --update    # update an existing clean review worktree
-pws copy TASK PATH          # explicitly copy one host path into the guest
-pws remove TASK             # safe removal after verified export
-pws rescue TASK             # archive the complete guest repository
+pws stop TASK               # stop and preserve TASK
+pws export TASK             # one-time export to a host worktree
+pws remove TASK             # remove after verified export
 pws discard TASK            # explicitly destroy unexported state
-pws doctor                  # inspect task-system health
 ```
 
-Task names matching reserved subcommands such as `list`, `run`, `export`, or `remove` are rejected.
+Task names matching reserved subcommands are rejected.
+
+The following are deliberately deferred until v2: `copy`, `rescue`, `doctor`, repeated export/update, automatic ports, project hooks, and shared authentication.
 
 ## Start an isolated task
 
-Run the command from the canonical standalone repository, not from `~/dev`, a linked worktree, or an arbitrary subdirectory outside a repository.
+Run from the canonical standalone repository:
 
 ```zsh
 cd ~/dev/finance
 pws payment-report
 ```
 
-On first use, the system will:
+The system creates:
 
-1. identify the canonical repository;
-2. prepare a private committed-source staging checkout;
-3. select fresh `origin/main` as the default base;
-4. create a private clone-mode Docker Sandbox;
-5. create `task/payment-report` inside it;
-6. install the pinned agent configuration;
-7. launch Pi.
+1. a private, immutable source checkout for this task;
+2. a local clone-mode Docker Sandbox;
+3. guest branch `task/payment-report`;
+4. pinned Pi configuration inside the guest.
 
-The host `finance` checkout is not edited or reconfigured. The task's files, Git metadata, tools, authentication, and agent sessions remain inside its sandbox.
+The task's source mount is never shared with another task. The canonical `finance` checkout is not mounted, edited, reconfigured, or checkpointed.
 
-### Start from the current committed `HEAD`
+Task sandboxes are always local. The wrapper rejects `--cloud` and cloud sandbox identifiers; cloud sandboxes are outside v1.
 
-If the task must include local commits that are not on `origin/main`:
+### Select the base
+
+The default is fresh `origin/main`, matching `pw`.
+
+To include commits on the current local branch:
 
 ```zsh
 pws run payment-report --base HEAD
 ```
 
-Only committed history is transferred. Dirty tracked files, untracked files, and ignored files are not inherited.
+Only committed history is included. An unpushed `HEAD` is pinned to a task-specific internal ref and verified through the private source and guest clone.
 
-Before starting, inspect host state:
+Task creation refuses while the canonical checkout has tracked, staged, or untracked changes:
 
 ```zsh
 git status --short --ignored
 ```
 
-Commit appropriate source changes first, or copy a specific required file after task creation.
+Commit, stash, or remove those non-ignored changes before retrying. Ignored files do not block creation, but they are absent from the task. V1 cannot copy host-only `.env` or ignored files through `pws`; arrange required non-secret configuration manually during the pilot.
 
-### Pass arguments to the agent
+A repository without `origin/main` requires an explicit supported base. The tool does not guess.
 
-Arguments following the task options are passed to Pi or OMP without reinterpretation. Use the command's `--help` output for the final delimiter syntax implemented during rollout.
+## First launch and authentication
+
+A new task may install pinned tools and ask you to authenticate Pi or OMP. Authentication belongs only to that sandbox.
+
+It persists across exit, stop, and resume. It is destroyed by `remove` or `discard`. Host Pi/OMP authentication is never mounted or copied.
 
 ## Resume a task
 
@@ -123,316 +122,256 @@ cd ~/dev/finance
 pws payment-report
 ```
 
-Resume reuses:
+Resume returns to the same sandbox, guest branch, files, installed tools, sessions, and sandbox-local authentication.
 
-- the same sandbox;
-- the same guest branch and files;
-- installed guest tools;
-- sandbox-local authentication;
-- retained Pi or OMP state.
+Only one writable session may own a task. A second launch refuses instead of opening two agents against the same checkout.
 
-Only one writable agent session may own a task at a time. A second launch refuses instead of opening two agents against the same checkout.
+## Run tasks concurrently
 
-## Run several tasks concurrently
-
-Give every task a distinct, descriptive name:
+Use a distinct name for each objective:
 
 ```zsh
+# Terminal 1
 cd ~/dev/finance
 pws payment-report
 
-# In another terminal
+# Terminal 2
 cd ~/dev/finance
 pws reconcile-imports
 
-# OMP can own another independent task
+# Terminal 3
 cd ~/dev/finance
 ompws investigate-tax-rounding
 ```
 
-Each task receives its own sandbox and Git repository. Tasks from different repositories may use the same human-readable name because their full identities include the canonical repository.
+Each task has its own immutable host source and private guest repository. Tasks in different repositories may reuse the same display name because their full identity also includes the canonical repository.
 
-Inspect everything with:
+Inspect tasks with:
 
 ```zsh
+pws list
 pws list --all
 ```
 
-The list distinguishes live status from cached status and shows when cached information was last observed.
-
-## Work with host-only files
-
-Ignored files and secrets are not copied automatically. If a task needs one host file:
-
-```zsh
-pws copy payment-report .env.development
-```
-
-The command shows whether the file is ignored and asks for confirmation when appropriate. The file is copied only into that task sandbox—not into shared staging and not into another task.
-
-Use this sparingly:
-
-- Prefer test fixtures or non-secret development configuration.
-- Never copy the host Pi/OMP auth stores.
-- Do not copy an entire home directory, credential directory, or parent directory.
-- Remember that copied files are destroyed with the sandbox unless rescued separately.
-
-## Authentication
-
-Every isolated task is a separate login boundary. The first Pi or OMP launch in a new task may require authentication.
-
-Authentication persists when you exit or stop the task. It is destroyed when you remove or discard the sandbox. Exporting source code does not export credentials or agent session history.
-
-This is deliberate: tasks do not share mutable credential stores.
-
-## Stop without finishing
-
-To preserve a task but release its running sandbox resources:
+## Pause work
 
 ```zsh
 pws stop payment-report
 ```
 
-Stopping is always allowed, including when the working tree is dirty. Resume with:
+Stopping is always allowed, including when the guest is dirty. It preserves sandbox state for later resume:
 
 ```zsh
 pws payment-report
 ```
 
-Do not use `discard` merely to stop work for the day.
+Do not use `discard` just to release resources.
 
-## Export work for host review
+## Protect work during the v1 pilot
 
-Commit the task's source changes inside the sandbox, then make sure its working tree is clean:
+V1 export handles committed Git history only. It has no dirty-file rescue command.
+
+Before pausing important work for a long period:
+
+1. inspect `git status` inside the guest;
+2. create a normal or WIP commit;
+3. push it to an approved remote if you need off-sandbox durability.
+
+A stopped sandbox is persistent but is not a backup. Running `sbx prune`, `sbx reset`, or `sbx rm` outside `pws` can destroy it and bypass all safety checks.
+
+## Export for host review
+
+Inside the sandbox, commit the final source changes and make the working tree clean:
 
 ```zsh
 git status --short
 ```
 
-From the host:
+Then, from the host:
 
 ```zsh
 cd ~/dev/finance
 pws export payment-report
 ```
 
-Export will:
+Export:
 
-1. refuse if the task is active or dirty;
-2. transfer and verify the exact committed branch;
-3. retain a private recovery bundle on the host;
-4. import the commit under a namespaced host reference;
-5. create a normal host review branch and worktree.
+1. refuses if the task is active or dirty;
+2. streams a Git bundle from the guest;
+3. verifies the branch and exact commit;
+4. retains the verified bundle privately on the host;
+5. creates plain host branch `payment-report`;
+6. creates `~/worktrees/finance/payment-report` at that commit.
 
-Export does **not** merge, push, open a pull request, or remove the sandbox.
+It does not merge, push, open a pull request, remove the sandbox, or export ignored files, authentication, and agent sessions.
 
-Use normal host tools in the resulting review worktree:
+### Export is one-time in v1
+
+After export, continue work in the host review worktree:
 
 ```zsh
+cd ~/worktrees/finance/payment-report
 git status
 git log --oneline --decorate -10
-# run tests, amend commits, review, push, or use the existing finish workflow
 ```
 
-### Continue after exporting
+Use normal host testing, review, push, and existing finish commands there.
 
-The task sandbox remains available:
+Do not resume the sandbox expecting to export another revision. Updating an existing review worktree is deferred to v2. If the host branch or path already exists, export refuses instead of overwriting it or inventing another name.
 
-```zsh
-pws payment-report
-```
+## Deal with dirty guest work
 
-After committing more work, explicitly update the host review worktree:
+Export and normal removal refuse when tracked, staged, or untracked changes exist.
 
-```zsh
-pws export payment-report --update
-```
+In v1, choose one:
 
-Update refuses if the host review worktree is dirty or no longer points to the expected exported history. Resolve host changes before retrying; the command never overwrites them.
+1. commit the work, including as a clearly labeled WIP commit;
+2. inspect and delete disposable files inside the guest;
+3. stop the task and return later;
+4. intentionally discard the task after reviewing the reported paths.
 
-## Handle dirty or untracked guest work
-
-Normal export and removal refuse when tracked, staged, or untracked changes exist.
-
-Choose one of these actions:
-
-1. **Keep working:** resume and commit the files.
-2. **Delete disposable files manually:** inspect them inside the guest, then remove them.
-3. **Preserve everything:** run `pws rescue TASK`.
-4. **Intentionally lose it:** run `pws discard TASK` and confirm the exact sandbox name.
-
-Ignored files are reported separately. They are not part of Git export.
-
-## Rescue a task
-
-Use rescue when a dirty task cannot be cleaned or committed safely:
-
-```zsh
-pws rescue payment-report
-```
-
-Rescue creates a private, checksummed archive containing the complete guest repository, including `.git`, dirty files, untracked files, and ignored files.
-
-Treat the archive as sensitive because it may contain credentials or `.env` files. The tool reports its location but never extracts it automatically. Preserve the archive until recovery is verified.
-
-Rescue is a local recovery copy, not an off-device backup.
+Ignored files are not exported. There is no v1 rescue archive, so do not discard if anything may matter.
 
 ## Remove a completed task
 
-After exporting the current task commit and verifying the host worktree:
+After exporting and verifying the host worktree:
 
 ```zsh
 pws remove payment-report
 ```
 
-Normal removal refuses unless:
+Removal refuses unless:
 
-- no task session is active;
+- no session is active;
 - tracked, staged, and untracked state is clean;
-- the current commit exists in a verified host export;
-- the registry and guest identity agree.
+- guest `HEAD` equals the verified exported commit;
+- task registry, immutable source, sandbox, and guest identity agree.
 
-Before removal, review the warning: guest-local authentication, agent sessions, installed tools, and ignored files will be destroyed. Verified export bundles remain subject to the documented retention policy.
+The tool removes the sandbox before its immutable source checkout. If either step fails, it stops and reports the surviving paths.
 
-## Discard a task intentionally
+Removal destroys sandbox-local authentication, agent sessions, ignored files, and installed guest tools. The verified source bundle is retained according to its documented retention policy.
 
-Use discard only when the task's contents are not needed:
+## Discard intentionally
+
+Use discard only when task contents are not needed:
 
 ```zsh
 pws discard abandoned-experiment
 ```
 
-The command lists dirty, untracked, and ignored paths and requires the exact sandbox name as confirmation. This operation is intentionally difficult to perform accidentally.
+The tool reports dirty, untracked, and ignored paths and requires the exact hashed sandbox name. It states that v1 provides no recovery.
 
-If uncertain, stop or rescue instead.
+When uncertain, stop instead.
 
-## Diagnose problems
+## Inspect health and rollback readiness
 
-Start with:
+V1 has no task `doctor`. Use:
 
 ```zsh
-pws doctor
 pws list --all
-```
-
-Doctor reports, but does not automatically delete or repair:
-
-- unsupported `sbx` versions;
-- stale task locks;
-- missing staging checkouts;
-- task registry and sandbox mismatches;
-- orphan sandboxes;
-- unexported commits;
-- incomplete exports or removals.
-
-For machine-readable inventory:
-
-```zsh
 pws list --all --json
 ```
 
-Do not run `sbx rm` directly on a managed task. Doing so bypasses export and deletion checks.
+The inventory shows active, stopped, interrupted, mismatched, and unexported tasks when known. Run it before:
+
+- upgrading Docker Sandboxes;
+- changing or removing the `pws` aliases;
+- rolling back the pilot;
+- any manual Docker Sandbox cleanup.
+
+Do not run `sbx prune`, `sbx reset`, or `sbx rm` against managed task sandboxes. Their hashed names begin with the task-specific `agent-task-` convention.
 
 ## Common use cases
 
-### Quick change in the current checkout
+### Ordinary change
 
 ```zsh
 cd ~/dev/finance
 pi
 ```
 
-Use this when isolation is unnecessary.
-
-### Parallel task with host editor access
+### Parallel work with host editor access
 
 ```zsh
 cd ~/dev/finance
 pw update-dashboard
 ```
 
-Use a host worktree when immediate file visibility and host tooling matter more than containment.
-
-### Agent edits the current standalone checkout inside a sandbox
+### Sandboxed agent editing the current standalone checkout
 
 ```zsh
 cd ~/dev/finance
 pis
 ```
 
-Use direct mode deliberately. The host checkout changes immediately, and repository checkpoints protect recovery. Do not run it from a linked worktree.
+Direct mode changes host files immediately and creates a full repository checkpoint first. Do not run it from a linked worktree.
 
-### Risky dependency or migration experiment
+### Risky isolated experiment
 
 ```zsh
 cd ~/dev/finance
 pws try-new-migration
 ```
 
-The experiment cannot write to the canonical checkout or sibling task Git metadata. Export only if the result is worth retaining.
+The experiment cannot write to the canonical checkout or sibling task Git metadata.
 
-### Long-running task over several days
+### Multi-day task
 
 ```zsh
 pws multi-currency-report
-# exit the agent
+# create a WIP commit before a long pause
 pws stop multi-currency-report
 # later
 pws multi-currency-report
 ```
 
-Use stop rather than removal so tools, authentication, files, and sessions persist.
-
-### Review sandbox work on the host
+### Finish and review on the host
 
 ```zsh
+# Commit and clean the guest first
 pws export multi-currency-report
-# inspect the reported host worktree
+cd ~/worktrees/finance/multi-currency-report
+# Review, test, and continue only on the host
 ```
 
-The sandbox remains intact while review proceeds.
-
-### Abandon an experiment safely
+### Abandon safely
 
 ```zsh
 pws stop failed-experiment
-pws rescue failed-experiment   # if anything might matter
+# Resume and inspect if uncertain
+pws failed-experiment
+# Only then, if nothing matters:
 pws discard failed-experiment
 ```
 
 ## Safety rules
 
-1. Do not use `sbx rm` directly for managed tasks.
-2. Do not assume export includes dirty, untracked, or ignored files.
+1. Use `pw` when continuous host visibility is required.
+2. Use `pws` when task-level filesystem and Git isolation is required.
 3. Stop when pausing; remove only after verified export.
-4. Rescue before destructive cleanup whenever uncertain.
-5. Keep one task name per independent objective.
-6. Do not share authentication directories between task sandboxes.
-7. Inspect `pws doctor` before rollback, manual cleanup, or upgrading Docker Sandboxes.
-8. Use `pw`, not `pws`, when continuous host visibility is required.
-9. Use `pws`, not `pis`, when task-level Git and filesystem isolation is required.
-10. Treat local recovery archives as sensitive and not as off-device backups.
+4. Commit important guest work, even as WIP, because v1 has no rescue command.
+5. Treat export as a one-time handoff to host development.
+6. Never use direct `sbx prune`, `reset`, or `rm` for managed tasks.
+7. Do not assume dirty, untracked, ignored, authentication, or session data is exported.
+8. Keep one task name per independent objective.
+9. Never share host authentication directories with a task sandbox.
+10. Run `pws list --all` before rollback or manual cleanup.
 
-## Lifecycle summary
+## V1 lifecycle
 
 ```text
 create/resume
     pws TASK
         |
-        +--> stop and resume later
+        +--> stop and resume
         |       pws stop TASK
         |       pws TASK
         |
-        +--> commit and export
+        +--> commit and export once
         |       pws export TASK
-        |       pws export TASK --update   # after later commits
-        |
-        +--> rescue dirty state
-        |       pws rescue TASK
-        |
-        +--> safe cleanup after export
+        |       continue in the host worktree
         |       pws remove TASK
         |
-        +--> intentional destructive cleanup
+        +--> irreversible abandonment
                 pws discard TASK
 ```
