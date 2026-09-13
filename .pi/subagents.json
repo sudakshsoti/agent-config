@@ -10,7 +10,7 @@
   "strictAgentFiles": false,
   "disableDefaultAgents": false,
   "toolDescriptionMode": "full",
-  "fleetView": false,
+  "fleetView": true,
   "agentMentions": "model",
   "rememberAgents": true,
   "widgetMode": "background",

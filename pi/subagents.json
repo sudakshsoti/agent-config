@@ -1,6 +1,6 @@
 {
   "widgetMode": "background",
-  "fleetView": false,
+  "fleetView": true,
   "showModel": true,
   "backgroundByDefault": false,
   "workflowsEnabled": false
