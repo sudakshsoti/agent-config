@@ -41,26 +41,30 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
   block scalar in the template above makes colons and quotes literal — keep it.
   Single-line descriptions are also fine.
 
-The list below covers the repo-owned skills. Trimmed to 36 on 2026-08-19 after a
-usage audit: any skill unused across 1,203 transcripts (2026-07 through
-2026-08-19, at least 9 days old) was retired. The active design set is
-`design-interface`, `design-visual-system`, and `design-typography`; they classify
-surface intent before applying hierarchy. `frontend-artifact` reuses them for
-standalone browser artifacts with eight selectable visual languages and rendered review. `frontend-design` remains an external
-marketing/brand skill, not the route for product, reference, utility, dashboard,
-settings, or lookup-documentation work. Retired design-pipeline skills remain
-recoverable under `archive/skills/`.
+The list below covers the 40 repo-owned skills. Keep it synchronized with the
+actual `skills/*/SKILL.md` directories; `scripts/lint-skills.py` validates each
+skill's frontmatter and `scripts/check-zips.py` validates its upload artifact.
+The active design set is `design-interface`, `design-visual-system`, and
+`design-typography`; they classify surface intent before applying hierarchy.
+`frontend-artifact` reuses them for standalone browser artifacts with eight
+selectable visual languages and rendered review. `frontend-design` remains an
+external marketing/brand skill, not the route for product, reference, utility,
+dashboard, settings, or lookup-documentation work.
 
 - `backlog` — Run any project's backlog in Linear like a PM: capture, triage, grooming, acceptance criteria, and milestone/session planning (batch Ready issues into equal-effort, one-sitting Linear Milestones).
 - `clinical-reasoning` — Clinical decision support for clinicians in India: diagnostics, differentials, labs, imaging, drug interactions, prescribing, and escalation.
+- `codebase-memory` — Query a codebase knowledge graph for architecture, callers, dependencies, dead code, and impact analysis.
 - `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
-- `dbt` — Dialectical Behaviour Therapy in the Linehan tradition: skills coaching, chain analysis, and DBT materials.
+- `design-grill` — Interview through visual and behavioural interface decisions while recording agreed design decisions.
+- `design-interface` — Design and review controls, forms, lists, dashboards, settings, documentation, and non-happy-path states.
+- `design-strategy` — Industry-agnostic product and UX strategy, positioning, workflow critique, and decision logs.
+- `design-typography` — Choose typefaces, pairings, hierarchy, scales, OpenType features, and font loading.
+- `design-visual-system` — Define product UI art direction, colour, hierarchy, responsive layout, and CSS tokens.
 - `diagnosing-bugs` — Diagnosis loop for hard bugs and performance regressions: build a tight red-capable feedback loop, minimise, rank hypotheses, instrument, fix with a regression test.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
 - `frontend-artifact` — Standalone browser explainers, visual documents and small tools, with eight selectable visual languages, a starter skeleton and validated font pairing per language, measured references, a numeric audit (`references/audit.js`) and a fresh-context critic prompt. A named language approves its defaults; otherwise the agent recommends one and waits.
 - `vibe` — The interface workflow: quick tweak, shape first or risky change; Plan, Builder and Critic roles that run as subagents on Pi and Claude and sequentially on Codex, omp and opencode. `pi/prompts/vibe.md` and `codex/prompts/vibe.md` are thin wrappers that invoke it.
 - `find-skills` — Discover and install agent skills when asked "is there a skill for X".
-- `finite` — The advisor for a finite life: a daily orient across Linear/Todoist/notes, on-demand triage that names what a new commitment displaces, and the forced cull into a durable Season ledger. Burkeman-flavoured — kind, unflinching, subtractive.
 - `geopolitics` — Opinionated analyst for wars, sanctions, trade, defence, elections, negotiations, and other statecraft between countries.
 - `grilling` — Interview the user relentlessly about a plan/decision, round by round over a design tree, until nothing is left unsettled.
 - `gtd` — Sudaksh's personal GTD system: capture, inbox processing, daily/weekly reviews, Todoist/calendar routing, overwhelm triage, email triage, and procrastination audits.
@@ -68,14 +72,15 @@ recoverable under `archive/skills/`.
 - `harness-config-maintenance` — Safely change Claude, Codex, OMP, and Pi configuration while preserving ownership and secret boundaries.
 - `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, including the safe rclone-torbox recreate.
 - `humanizer` — Rewrite AI-sounding prose so it reads like a person, using Wikipedia's 35 "Signs of AI writing" patterns. Vendored from [blader/humanizer](https://github.com/blader/humanizer) (MIT). `/humanizer`.
+- `macos-design-guidelines` — Apply Apple Human Interface Guidelines when building Mac apps with SwiftUI or AppKit.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
 - `merge` — Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`.
 - `n8n-deploy` — RIGID homelab procedure: deploy/edit n8n workflows via the sqlite3 dance without clobbering the DB.
 - `obsidian-markdown` — Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.
-- `orient` — HTML guide to a repo — what it is, what decisions shaped it, and where sprawl lives. Every claim cited to file:line. `/orient`.
 - `peer-review` — Adversarial cross-lineage review of an engineering plan written by another agent. `/peer-review`.
 - `pr` — Open a GitHub PR via `gh` — title from commits, why-first body, no AI footer. `/pr`.
 - `push` — Safe push — sets upstream, shows outgoing commits, `--force-with-lease`, warns on main. `/push`.
+- `research` — Investigate primary sources and record cited findings in a Markdown report.
 - `rights-counsel` — Indian consumer, EPF, and insurance rights analyst for advice, complaints, notices, and representations.
 - `self-review` — Self-review the plan you just proposed via the plan-critic subagent, then revise it. `/self-review`.
 - `shopping-research` — Purchase advisor for buying in India: product comparisons, pricing, sellers, deals, and when to buy.
@@ -87,12 +92,13 @@ recoverable under `archive/skills/`.
 - `vedic-astrology` — Vedic astrology (Jyotish) advisor for charts, dashas, transits, timing, compatibility, and remedies.
 - `writing-editor` — Writing partner for personal essays and blog posts: get words onto the page, then shape them into something publishable.
 
-The retired `design-brief` pipeline (`design-brief`, `app-ui`,
-`interface-composition`, `brand-studio`, `design-strategy`, and `design-review`)
-and `nightjar` remain under `archive/skills/`. `design-interface`,
-`design-visual-system`, and `design-typography` are active repo-owned skills. `frontend-design` is an external marketing and brand skill installed by the
-manifest, and is limited to those surfaces by the global interface-intent
-contract. Everything retired is recoverable from git history or
+The archived design-pipeline skills (`app-ui`, `brand-studio`, `design-brief`,
+`design-foil`, `design-review`, `frontend-craft`, `interface-composition`,
+`nightjar`, and `typography-craft`) remain under `archive/skills/`.
+`design-interface`, `design-visual-system`, and `design-typography` are active
+repo-owned skills. `frontend-design` is an external marketing and brand skill,
+not the route for product, reference, utility, dashboard, settings, or
+lookup-documentation work. Everything archived is recoverable from
 `archive/skills/`.
 
 ## Installing per surface
