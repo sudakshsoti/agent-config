@@ -20,8 +20,7 @@ marketplace anthropics/claude-plugins-community
 # superpowers is deliberately NOT installed. Its skills are vendored into
 # skills/ instead, because the plugin's SessionStart hook injects ~650 tokens
 # into every session and after every /clear, and Claude Code has no way to
-# disable one hook from a plugin. See docs/vendored-mattpocock-skills.md for
-# what replaced it.
+# disable one hook from a plugin.
 # plugin superpowers@claude-plugins-official
 # frontend-design moved off the plugin lane to `external` (2026-09-07) so Codex,
 # opencode and omp see it too — it ships one SKILL.md and nothing else, so the
@@ -82,7 +81,7 @@ external BexTuychiev/firecrawl-claude-code-skill firecrawl-web
 # ask-matt is retained as a router; its less-used branches may name optional
 # Matt skills outside this allowlist rather than silently importing the whole
 # collection and consuming the shared context budget.
-external mattpocock/skills:skills/engineering setup-matt-pocock-skills ask-matt tdd code-review grill-with-docs improve-codebase-architecture domain-modeling codebase-design
+external mattpocock/skills:skills/engineering setup-matt-pocock-skills ask-matt tdd code-review grill-with-docs improve-codebase-architecture domain-modeling codebase-design to-spec to-tickets triage
 # emilkowalski/skills — all upstream skills, linked for every agent surface.
 external emilkowalski/skills
 

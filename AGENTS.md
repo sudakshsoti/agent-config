@@ -47,6 +47,20 @@ Summary of live destinations (the `~/` paths below are in `$HOME`, not this chec
 - `install.sh` cannot remove real directories with `--prune`; move them into a declared lane. Baseline's old links were removed by hand on 2026-09-07; disabling a Claude plugin never disables copies in other roots.
 - `codebase-memory` is repo-owned in `skills/codebase-memory/`; its MCP server is separate and does not supply the skill.
 
+## Agent skills
+
+### Issue tracker
+
+Issues and specs live in GitHub Issues on `sudakshsoti/agent-config`, via `gh`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-role vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `CONTEXT.md` plus `docs/adr/`, created lazily. See `docs/agents/domain.md`.
+
 ## Gotchas
 
 - `scripts/build-zip.sh` requires the system `zip` executable; it now checks for it before replacing any archive. On a machine without package-install privileges, the distribution's zip package can be extracted into a user-owned executable directory.
