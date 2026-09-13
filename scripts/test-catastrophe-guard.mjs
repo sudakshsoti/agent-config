@@ -350,8 +350,8 @@ await test("default export registers a tool_call handler", () => {
 rmSync(base, { recursive: true, force: true });
 
 for (const { name, error } of failures) {
-  console.error(`FAIL ${name}`);
-  console.error(`     ${error.message}`);
+  process.stderr.write(`FAIL ${name}\n`);
+  process.stderr.write(`     ${error.message}\n`);
 }
 process.stdout.write(
   `catastrophe-guard: ${passed} passed, ${failures.length} failed\n`,
