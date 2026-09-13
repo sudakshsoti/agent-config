@@ -21,6 +21,14 @@ def git(repo: Path, *args: str) -> subprocess.CompletedProcess[str]:
     return run(["git", "-C", str(repo), *args])
 
 
+def remove_tree(path: Path) -> None:
+    """Remove test fixture state and report cleanup failures as test failures."""
+    try:
+        shutil.rmtree(path)
+    except OSError as error:
+        raise AssertionError(f"failed to remove test directory {path}: {error}") from error
+
+
 class BundleContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory(prefix="agent-sandbox-test-")
@@ -34,8 +42,10 @@ class BundleContractTests(unittest.TestCase):
         fixture_source = self.fixture / "sandbox/bootstrap"
         if not fixture_source.exists() or (source / "install.sh").read_bytes() != (fixture_source / "install.sh").read_bytes():
             fixture_source.parent.mkdir(parents=True, exist_ok=True)
-            if fixture_source.exists():
-                shutil.rmtree(fixture_source, ignore_errors=True)
+            if fixture_source.is_dir() and not fixture_source.is_symlink():
+                remove_tree(fixture_source)
+            elif fixture_source.is_symlink() or fixture_source.is_file():
+                fixture_source.unlink()
             shutil.copytree(source, fixture_source)
         fixture_builder = self.fixture / "scripts/build-agent-sandbox-bundle.sh"
         if not fixture_builder.exists() or fixture_builder.read_bytes() != BUILDER.read_bytes():
