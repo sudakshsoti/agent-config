@@ -22,9 +22,17 @@ def git(repo: Path, *args: str) -> subprocess.CompletedProcess[str]:
 
 
 def remove_tree(path: Path) -> None:
-    """Remove test fixture state and report cleanup failures as test failures."""
+    """Remove test fixture state and report cleanup failures as test failures.
+
+    Handles directories, plain files and symlinks (including broken ones):
+    ``shutil.rmtree`` itself refuses symlinks, so unlinking is decided here
+    rather than at every call site.
+    """
     try:
-        shutil.rmtree(path)
+        if path.is_symlink() or path.is_file():
+            path.unlink()
+        else:
+            shutil.rmtree(path)
     except OSError as error:
         raise AssertionError(f"failed to remove test directory {path}: {error}") from error
 
@@ -42,10 +50,8 @@ class BundleContractTests(unittest.TestCase):
         fixture_source = self.fixture / "sandbox/bootstrap"
         if not fixture_source.exists() or (source / "install.sh").read_bytes() != (fixture_source / "install.sh").read_bytes():
             fixture_source.parent.mkdir(parents=True, exist_ok=True)
-            if fixture_source.is_dir() and not fixture_source.is_symlink():
+            if fixture_source.is_symlink() or fixture_source.exists():
                 remove_tree(fixture_source)
-            elif fixture_source.is_symlink() or fixture_source.is_file():
-                fixture_source.unlink()
             shutil.copytree(source, fixture_source)
         fixture_builder = self.fixture / "scripts/build-agent-sandbox-bundle.sh"
         if not fixture_builder.exists() or fixture_builder.read_bytes() != BUILDER.read_bytes():
@@ -53,7 +59,11 @@ class BundleContractTests(unittest.TestCase):
             fixture_builder.chmod(0o755)
         add = run(["git", "add", "sandbox/bootstrap", "scripts/build-agent-sandbox-bundle.sh"], cwd=self.fixture)
         self.assertEqual(add.returncode, 0, add.stderr)
-        commit = run(["git", "-c", "user.name=Bundle Test", "-c", "user.email=bundle-test@example.invalid", "commit", "--quiet", "-m", "test fixture"], cwd=self.fixture)
+        # --allow-empty keeps the fixture HEAD committed whether the copied
+        # sources differ from the clone (fresh change) or are already
+        # identical (change is committed). A plain commit exits 1 with
+        # "nothing to commit" in the identical case, failing every test here.
+        commit = run(["git", "-c", "user.name=Bundle Test", "-c", "user.email=bundle-test@example.invalid", "commit", "--allow-empty", "--quiet", "-m", "test fixture"], cwd=self.fixture)
         self.assertEqual(commit.returncode, 0, commit.stderr)
         self.output = self.tmp / "bundle"
         self.build()
