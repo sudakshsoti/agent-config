@@ -16,10 +16,12 @@
     "enabled": true
   },
   "tokenSpeed": {
-    "colorSlow": "#E19796",
-    "colorMedium": "#D2A56D",
-    "colorFast": "#A4B776",
-    "colorBlazing": "#70B4A2"
+    "colors": {
+      "slow": "#E19796",
+      "medium": "#D2A56D",
+      "fast": "#A4B776",
+      "blazing": "#70B4A2"
+    }
   },
   "powerline": {
     "preset": "default",
