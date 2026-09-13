@@ -8,7 +8,8 @@ These are starting defaults, not measured quota savings on this repository.
 | --- | --- | --- |
 | Main session; `builder` implementing an approved UI plan | `openai-codex/gpt-5.6-luna` | high |
 | `code-worker` precisely scoped routine fixes, tests and mechanical refactors | `opencode-go/deepseek-v4.1-flash` | high |
-| `scout`, `Explore` and `research` bounded read-only discovery | `opencode-go/muse-spark-1.3-contributor` | minimal |
+| `scout` and `Explore` bounded read-only discovery | `opencode-go/muse-spark-1.3-contributor` | minimal |
+| `research` primary-source investigation and cited reports | `opencode-go/muse-spark-1.3-contributor` | high |
 | unnamed `general-purpose` fallback | `openai-codex/gpt-5.6-luna` | medium |
 | `workflow` coordinating multi-part implementation | `openai-codex/gpt-5.6-sol` | medium |
 | `Plan` and `Critic` planning and visual review | `openai-codex/gpt-5.6-sol` | high |
