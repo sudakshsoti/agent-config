@@ -1,0 +1,14 @@
+# Committed, non-secret agent configuration payload.
+# Directory entries include only committed files through git archive.
+global-agents.md
+skills/
+pi/settings.json
+pi/subagents.json
+pi/prompts/
+pi/themes/
+pi/extensions/
+pi/agents/
+omp/config.yml
+omp/lsp.yml
+omp/themes/
+omp/overlays/
