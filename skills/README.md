@@ -79,6 +79,7 @@ recoverable under `archive/skills/`.
 - `rights-counsel` — Indian consumer, EPF, and insurance rights analyst for advice, complaints, notices, and representations.
 - `self-review` — Self-review the plan you just proposed via the plan-critic subagent, then revise it. `/self-review`.
 - `shopping-research` — Purchase advisor for buying in India: product comparisons, pricing, sellers, deals, and when to buy.
+- `skill-lifecycle` — Add, rename, retire, package, install, and audit repo-owned skills without stale inventory or ZIPs.
 - `strategy-counsel` — Strategic advisor for power, influence, and negotiation inside organisations and in arm's-length dealings.
 - `update-branch-name` — Rename the current branch to a semantic-prefix + kebab-case convention, preferring GitHub's server-side rename so an open PR isn't orphaned. `/update-branch-name`.
 - `ux-writing` — User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.
