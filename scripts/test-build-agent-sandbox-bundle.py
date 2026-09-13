@@ -51,8 +51,15 @@ class BundleContractTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.temp.cleanup()
 
-    def build(self, output: Path | None = None, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
-        return run([str((cwd or self.fixture) / "scripts/build-agent-sandbox-bundle.sh"), "--output", str(output or self.output)], cwd=cwd or self.fixture)
+    def build(self, output: Path | None = None, cwd: Path | None = None, home: Path | None = None) -> subprocess.CompletedProcess[str]:
+        environment = os.environ.copy()
+        if home is not None:
+            environment["HOME"] = str(home)
+        return run(
+            [str((cwd or self.fixture) / "scripts/build-agent-sandbox-bundle.sh"), "--output", str(output or self.output)],
+            cwd=cwd or self.fixture,
+            env=environment,
+        )
 
     def install(self, bundle: Path, home: Path, *args: str, path: str | None = None) -> subprocess.CompletedProcess[str]:
         environment = os.environ.copy()
@@ -64,6 +71,10 @@ class BundleContractTests(unittest.TestCase):
     def test_bundle_is_allowlisted_and_has_metadata(self) -> None:
         self.assertTrue((self.output / "install.sh").exists())
         self.assertEqual((self.output / "VERSION").read_text().splitlines()[0], "bundle_format=1")
+        self.assertEqual(
+            (self.output / ".agent-config-sandbox-bundle").read_text(),
+            "agent-config-sandbox-bundle:1\n",
+        )
         metadata = (self.output / "VERSION").read_text()
         self.assertIn("pi_target_version=0.85.1", metadata)
         self.assertIn("omp_target_version=18.1.19", metadata)
@@ -72,7 +83,7 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn(f"commit={head_commit}", metadata)
         self.assertEqual(
             {path.name for path in self.output.iterdir()},
-            {"install.sh", "manifest.txt", "VERSION", "SHA256SUMS", "snapshot"},
+            {"install.sh", "manifest.txt", "VERSION", "SHA256SUMS", "snapshot", ".agent-config-sandbox-bundle"},
         )
         paths = {str(path.relative_to(self.output)) for path in self.output.rglob("*")}
         forbidden = ("auth.json", "models-store", "mcp.json", "web-search.json", ".env", "vendor", "sessions", "cache", "database", "omp/agents", "pi/pi-fff.json")
@@ -143,6 +154,59 @@ class BundleContractTests(unittest.TestCase):
         result = self.build(self.fixture / "output-inside-repo")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("outside the repository", result.stderr)
+
+    def test_output_under_home_dev_is_refused(self) -> None:
+        fake_home = self.tmp / "fake-home"
+        target = fake_home / "dev" / "workspace" / "bundle"
+        target.parent.mkdir(parents=True)
+        result = self.build(target, home=fake_home)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("HOME/dev", result.stderr)
+        self.assertFalse(target.exists())
+        self.assertEqual({path.name for path in (fake_home / "dev").iterdir()}, {"workspace"})
+
+    def test_existing_unmarked_directory_is_refused_and_preserved(self) -> None:
+        target = self.tmp / "unmarked-dir"
+        target.mkdir()
+        sentinel = target / "keep.txt"
+        sentinel.write_text("do not touch\n")
+        result = self.build(target)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("unmarked output directory", result.stderr)
+        self.assertEqual(sentinel.read_text(), "do not touch\n")
+        self.assertEqual(sorted(path.name for path in target.iterdir()), ["keep.txt"])
+
+    def test_existing_unmarked_file_is_refused_and_preserved(self) -> None:
+        target = self.tmp / "unmarked-file"
+        target.write_text("not a bundle\n")
+        result = self.build(target)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("existing non-directory output", result.stderr)
+        self.assertEqual(target.read_text(), "not a bundle\n")
+
+    def test_existing_directory_with_wrong_marker_is_refused(self) -> None:
+        target = self.tmp / "wrong-marker"
+        target.mkdir()
+        (target / ".agent-config-sandbox-bundle").write_text("some-other-tool\n")
+        sentinel = target / "keep.txt"
+        sentinel.write_text("keep\n")
+        result = self.build(target)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("unrecognized bundle marker", result.stderr)
+        self.assertEqual(sentinel.read_text(), "keep\n")
+
+    def test_marked_prior_bundle_is_replaced(self) -> None:
+        marker = self.output / ".agent-config-sandbox-bundle"
+        self.assertEqual(marker.read_text(), "agent-config-sandbox-bundle:1\n")
+        obsolete = self.output / "obsolete.txt"
+        obsolete.write_text("stale\n")
+        head_commit = git(self.fixture, "rev-parse", "HEAD").stdout.strip()
+        rebuilt = self.build()
+        self.assertEqual(rebuilt.returncode, 0, rebuilt.stderr)
+        self.assertFalse(obsolete.exists())
+        self.assertTrue((self.output / "install.sh").is_file())
+        self.assertEqual(marker.read_text(), "agent-config-sandbox-bundle:1\n")
+        self.assertIn(f"commit={head_commit}", (self.output / "VERSION").read_text())
 
     def test_filesystem_root_output_is_refused(self) -> None:
         result = self.build(Path("/"))

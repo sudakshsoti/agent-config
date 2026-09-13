@@ -9,6 +9,11 @@ MANIFEST_PATH="sandbox/bootstrap/manifest.txt"
 INSTALLER_PATH="sandbox/bootstrap/install.sh"
 DEFAULT_OUTPUT="${HOME:-}/.local/share/agent-sandbox/bootstrap"
 OUTPUT="${DEFAULT_OUTPUT}"
+# Narrow marker written into every bundle. Replacement of an existing output is
+# allowed only when this exact file/value is present, so an unrelated directory
+# or file is never overwritten.
+BUNDLE_MARKER_NAME=".agent-config-sandbox-bundle"
+BUNDLE_MARKER_VALUE="agent-config-sandbox-bundle:1"
 
 usage() {
   printf 'usage: %s [--output PATH]\n' "$(basename "$0")"
@@ -50,6 +55,14 @@ case "$OUTPUT" in
   "$REPO_REAL"|"$REPO_REAL"/*) fail 'output must be outside the repository' ;;
   "$SOURCE_REAL"|"$SOURCE_REAL"/*) fail 'output must be outside the bootstrap source tree' ;;
   /) fail 'output must not be filesystem root' ;;
+esac
+
+# The installed bundle is the immutable trust anchor for a sandbox. The broad
+# ~/dev workspace stays writable for ordinary development, so no output may sit
+# anywhere under it, not only inside this repository's own checkout.
+HOME_REAL="$(canonical_path "${HOME}")"
+case "$OUTPUT" in
+  "$HOME_REAL/dev"|"$HOME_REAL/dev"/*) fail "output must be outside \$HOME/dev" ;;
 esac
 
 # In a linked worktree REPO_REAL is the worktree, not the checkout the branch is
@@ -112,9 +125,20 @@ done
 
 commit="$(git -C "$REPO_ROOT" rev-parse HEAD)"
 parent="$(dirname -- "$OUTPUT")"
-mkdir -p -- "$parent"
 [ ! -L "$OUTPUT" ] || fail 'output must not be a symlink'
 
+# Replacement is allowed only when the destination is a bundle this builder
+# produced. An unmarked file or directory is left untouched and the caller must
+# remove it deliberately before a bundle may take its place.
+if [ -e "$OUTPUT" ]; then
+  [ -d "$OUTPUT" ] || fail "refusing to replace existing non-directory output: $OUTPUT"
+  marker_file="$OUTPUT/$BUNDLE_MARKER_NAME"
+  [ -f "$marker_file" ] || fail "refusing to replace unmarked output directory: $OUTPUT"
+  [ "$(cat -- "$marker_file")" = "$BUNDLE_MARKER_VALUE" ] ||
+    fail "refusing to replace output with unrecognized bundle marker: $OUTPUT"
+fi
+
+mkdir -p -- "$parent"
 stage="$(mktemp -d "$parent/.bootstrap-build.XXXXXX")"
 cleanup() { rm -rf -- "$stage"; }
 trap cleanup EXIT
@@ -148,6 +172,10 @@ pi_target_version=0.85.1
 omp_target_version=18.1.19
 sbx_tested_version=0.42.1
 EOF
+
+# Written before SHA256SUMS is generated so the marker is covered by the
+# bundle's own checksum list.
+printf '%s\n' "$BUNDLE_MARKER_VALUE" > "$stage/$BUNDLE_MARKER_NAME"
 
 checksum() {
   if command -v sha256sum >/dev/null 2>&1; then
