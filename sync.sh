@@ -12,9 +12,11 @@
 #
 # It also strips hook commands belonging to other tools (superset,
 # codebase-memory-mcp's cbm-* scripts, herdr's agent-state script, and the
-# retired supacode). The supacode pattern is kept in the filter on purpose:
-# it is a cheap guard against a stale hook creeping back in from an old
-# machine, not an integration. Those show
+# retired supacode and orca ~/.orca/agent-hooks wrappers). The supacode and
+# orca patterns are kept in the filter on purpose: they are a cheap guard
+# against a stale hook creeping back in from an old machine, not an
+# integration. Paseo hooks are deliberately NOT stripped: they are tracked
+# configuration and no-op unless PASEO_TERMINAL_ID is set. Those show
 # up in ~/.claude/settings.json because it's a blind copy of whatever's
 # installed on this machine, but they're machine state, not configuration --
 # a fresh machine restoring from this repo would otherwise install hooks for
@@ -44,7 +46,7 @@ jq --arg home "$HOME" '
   | if .hooks then
       (.hooks |= with_entries(
          (.value |= map(.hooks |= map(select(
-            .command | test("supacode-managed-hook|SUPERSET_HOME_DIR|cbm-|herdr-agent-state") | not))))
+            .command | test("supacode-managed-hook|SUPERSET_HOME_DIR|cbm-|herdr-agent-state|\\.orca/agent-hooks") | not))))
          | .value |= map(select((.hooks | length) > 0))
        ))
       | (.hooks |= with_entries(select((.value | length) > 0)))

@@ -74,7 +74,6 @@ plugin typescript-lsp@claude-plugins-official
 # machine-local and has no restore command — so a fresh machine got none of
 # them. Each line is pinned to exactly the skills that were in use at
 # migration time.
-external stablyai/orca orchestration computer-use
 external BexTuychiev/firecrawl-claude-code-skill firecrawl-web
 # The upstream repo also ships a Claude marketplace plugin, but this curated
 # allowlist intentionally mirrors only the useful engineering skills to every
