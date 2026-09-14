@@ -1,6 +1,6 @@
 ---
 name: execute-plan
-description: "Use when the user points to a markdown checklist plan and wants hands-off execution: delegate independent items, choose suitable agents, verify each slice, and commit it. It orchestrates plan files; use orchestration for general worker coordination without a checklist."
+description: "Use when the user points to a markdown checklist plan and wants hands-off execution: delegate independent items, choose suitable agents, verify each slice, and commit it. Agent-agnostic checklist execution; in Pi, use pi-workstreams when dependency and integration coordination is the primary task."
 allowed-tools: Read, Edit, Bash(git*), Task, Glob, Grep
 ---
 
@@ -8,7 +8,8 @@ allowed-tools: Read, Edit, Bash(git*), Task, Glob, Grep
 
 You are the **orchestrator**. Drive a checklist plan to completion by delegating
 each item to a fresh subagent. Your own context stays small — that is the point.
-Don't read source files, run the builds, or write the code yourself.
+Don't re-investigate source files, run builds, or write the code yourself,
+except for the Pi acceptance-verification step described below.
 
 Plan path is in `$ARGUMENTS`; default `PLAN.md`, else glob `*PLAN*.md` and say
 which one you found.
@@ -70,10 +71,14 @@ whichever lever your surface gives you.
 
 - **OMP** — the `task` role already pins the worker (GPT-5.6-Luna at `xhigh`),
   so effort is the lever, not model: drop to `smol` for mechanical items.
-- **Pi** — per-job models are in each agent's frontmatter, and a dispatch can
-  override both model and thinking. Use the configured lower-cost default for
-  mechanical items and bounded research; reserve stronger models and higher
-  effort for architecture, security and difficult implementation decisions.
+- **Pi** — use [pi-specialist-delegation](../pi-specialist-delegation/SKILL.md)
+  for role selection, handoff packets, and verification. Per-job defaults live
+  in agent frontmatter; reserve stronger models for judgment-heavy work.
+  [pi-workstreams](../pi-workstreams/SKILL.md) supplies dependency and exclusive
+  edit-ownership checks when needed, not a second scheduler over this checklist.
+  Keep this skill's checklist and checkpoint policy as the single execution
+  loop. Before ticking an item, perform the acceptance verification in
+  pi-specialist-delegation; this is the Pi exception to the shortcut below.
 
 If your surface won't let you set either per subagent, dispatch anyway. A fresh
 context scoped to one item is most of the win; the routing is the saving on top.
@@ -87,9 +92,11 @@ so the routing is auditable.
 - **Evidence, then the tick.** The commit is what makes each step recoverable, and
   an unverified commit isn't a checkpoint. A return with no concrete evidence is a
   failed item — re-dispatch it.
-- **Trust what comes back.** Read the return; don't re-open the worker's files or
-  re-run its commands. Investigating for yourself is how this skill's context
-  bloats and stops being worth running.
+- **Trust what comes back, subject to the harness verification contract.**
+  Outside Pi, read the return without repeating its investigation unless
+  higher-priority instructions require more. In Pi, inspect the actual changes
+  and run the relevant acceptance checks using pi-specialist-delegation before
+  ticking the item. This verifies the result without redoing worker discovery.
 - **Don't ask for approval between items.** Keep going.
 - Stop early if an item is genuinely ambiguous or a commit fails. Say which item
   and why, and leave the plan file reflecting real progress so a later run resumes

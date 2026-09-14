@@ -41,7 +41,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
   the template above makes colons and quotes literal — keep it. Single-line
   descriptions are also fine.
 
-The list below covers the 34 repo-owned skills. Keep it synchronized with the
+The list below covers the 36 repo-owned skills. Keep it synchronized with the
 actual `skills/*/SKILL.md` directories; `scripts/lint-skills.py` validates each
 skill's frontmatter and fails when this list and the source tree disagree.
 The active design set is `design-interface`, `design-visual-system`, and
@@ -75,6 +75,8 @@ dashboard, settings, or lookup-documentation work.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
 - `obsidian-markdown` — Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.
 - `peer-review` — Adversarial cross-lineage review of an engineering plan written by another agent. `/peer-review`.
+- `pi-specialist-delegation` — In Pi, choose specialist subagents, brief bounded work, and retain synthesis and verification responsibility.
+- `pi-workstreams` — In Pi, coordinate approved implementation streams with dependencies, exclusive edit ownership, blockers, and integration verification.
 - `research` — Investigate primary sources and record cited findings in a Markdown report.
 - `rights-counsel` — Indian consumer, EPF, and insurance rights analyst for advice, complaints, notices, and representations.
 - `self-review` — Critique your own plan against a fixed checklist, then revise it. `/self-review`.
@@ -95,6 +97,16 @@ left in the tree still counts as catalogue drift.
 repo-owned skills. `frontend-design` is an external marketing and brand skill,
 not the route for product, reference, utility, dashboard, settings, or
 lookup-documentation work.
+
+## Pi implementation coordination
+
+`pi-specialist-delegation` owns individual worker selection and handoffs;
+`pi-workstreams` uses it when multiple implementation streams need dependency
+and integration management. Both are Pi-specific despite sharing the normal
+installation root. Neither changes agent permissions, model routing, or enables
+named workflow features. `execute-plan` remains the agent-agnostic checklist
+executor; choose one execution loop rather than stacking schedulers. Existing
+implementation, UI, and review skills still own their domain-specific checks.
 
 ## Installing
 

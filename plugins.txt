@@ -23,7 +23,6 @@
 # To disable a source, comment out its line and re-run `./install.sh --prune`,
 # which clears the links it left in ~/.agents/skills.
 
-external stablyai/orca orchestration computer-use
 external BexTuychiev/firecrawl-claude-code-skill firecrawl-web
 
 # The upstream repo also ships a marketplace plugin, but this curated allowlist
