@@ -10,9 +10,7 @@
 
 ## Claude-only — do not edit these as Codex
 
-`agents/`, `settings.json`, `claude-powerline.json`, `plugins.txt`, `dist/`.
-
-Exception: Codex may generate required `dist/<skill>.zip` packages with `scripts/build-zip.sh` for repo-owned skills it creates or changes. Do not hand-edit archive contents or change unrelated packages. This exception was approved for the shared frontend-artifact work on 2026-09-12; all other Claude-only restrictions remain.
+`agents/`, `settings.json`, `claude-powerline.json`, `plugins.txt`.
 
 ## Which repo owns what
 
@@ -42,7 +40,7 @@ Exception: Codex may generate required `dist/<skill>.zip` packages with `scripts
 | --- | --- | --- | --- |
 | `external <owner/repo> [skill ...]` | `plugins.txt` | Claude, Codex, opencode, omp | Third-party skills; cloned to `vendor/` and linked to `~/.claude/skills` and `~/.agents/skills` |
 | `marketplace` + `plugin` | `plugins.txt` | Claude only | More than skills and ships `.claude-plugin/marketplace.json` |
-| `skills/<name>/` | repo | Claude, Codex, opencode, omp | Repo-owned/editable; requires `dist/<name>.zip` and `scripts/lint-skills.py` |
+| `skills/<name>/` | repo | Claude, Codex, opencode, omp | Repo-owned/editable; requires `scripts/lint-skills.py` |
 
 - **Never `npx skills add`.** Its machine-local `~/.agents/.skill-lock.json` has no restore command and is invisible to this repo.
 - A plain skills repo without `.claude-plugin/marketplace.json` is `external`, not a plugin. Plugins are Claude-only; use `external` or `skills/` when other harnesses must see a skill.
@@ -54,7 +52,6 @@ Exception: Codex may generate required `dist/<skill>.zip` packages with `scripts
 
 ## Gotchas
 
-- `scripts/build-zip.sh` requires the system `zip` executable; it now checks for it before replacing any archive. On a machine without package-install privileges, the distribution's zip package can be extracted into a user-owned executable directory.
 - In the current Pi package layout, `pi-playwright`'s `pw.js` expects an uninstalled package-local CLI; the working hoisted executable is `~/.pi/agent/npm/node_modules/.bin/playwright-cli`. Use `--browser=chromium` for the installed browser instead of assuming system Chrome exists.
 
 - macOS has no GNU `timeout`; use Python `subprocess.run(..., timeout=...)` or a background process plus `kill`.

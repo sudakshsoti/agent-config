@@ -1,5 +1,11 @@
 .DS_Store
 
+# IDE project state is machine-local.
+.idea/
+
+# `npm ci` restores this; it is a local build product, never tracked.
+node_modules/
+
 # hooks/context_size.py is imported rather than run, so Python byte-compiles it
 # next to the source the first time a hook fires.
 __pycache__/
@@ -11,6 +17,6 @@ omp/config.yml.lock
 
 # vendor/ holds third-party skill repos declared as `external` lines in
 # plugins.txt. install.sh clones and fast-forwards them; the symlinks in
-# ~/.claude/skills and ~/.agents/skills point in here. Tracked by reference
-# (the plugins.txt line), never by content — upstream files stay upstream.
+# ~/.agents/skills point in here. Tracked by reference (the plugins.txt line),
+# never by content — upstream files stay upstream.
 vendor/

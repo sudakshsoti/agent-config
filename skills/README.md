@@ -1,7 +1,7 @@
 # Skills library
 
-Agent Skills usable by **both Claude Code and Claude.ai**. Each skill is a
-directory holding a `SKILL.md`; the format is identical across surfaces.
+Agent Skills usable by **OMP and Pi**. Each skill is a directory holding a
+`SKILL.md`; the format is the same on both.
 
 ## Convention
 
@@ -43,7 +43,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 
 The list below covers the 40 repo-owned skills. Keep it synchronized with the
 actual `skills/*/SKILL.md` directories; `scripts/lint-skills.py` validates each
-skill's frontmatter and `scripts/check-zips.py` validates its upload artifact.
+skill's frontmatter and fails when this list and the source tree disagree.
 The active design set is `design-interface`, `design-visual-system`, and
 `design-typography`; they classify surface intent before applying hierarchy.
 `frontend-artifact` reuses them for standalone browser artifacts with eight
@@ -84,7 +84,7 @@ dashboard, settings, or lookup-documentation work.
 - `rights-counsel` — Indian consumer, EPF, and insurance rights analyst for advice, complaints, notices, and representations.
 - `self-review` — Self-review the plan you just proposed via the plan-critic subagent, then revise it. `/self-review`.
 - `shopping-research` — Purchase advisor for buying in India: product comparisons, pricing, sellers, deals, and when to buy.
-- `skill-lifecycle` — Add, rename, retire, package, install, and audit repo-owned skills without stale inventory or ZIPs.
+- `skill-lifecycle` — Add, rename, retire, install, and audit repo-owned skills without stale inventory or orphan references.
 - `strategy-counsel` — Strategic advisor for power, influence, and negotiation inside organisations and in arm's-length dealings.
 - `update-branch-name` — Rename the current branch to a semantic-prefix + kebab-case convention, preferring GitHub's server-side rename so an open PR isn't orphaned. `/update-branch-name`.
 - `ux-writing` — User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.
@@ -92,23 +92,22 @@ dashboard, settings, or lookup-documentation work.
 - `vedic-astrology` — Vedic astrology (Jyotish) advisor for charts, dashas, transits, timing, compatibility, and remedies.
 - `writing-editor` — Writing partner for personal essays and blog posts: get words onto the page, then shape them into something publishable.
 
-The archived design-pipeline skills (`app-ui`, `brand-studio`, `design-brief`,
+The retired design-pipeline skills (`app-ui`, `brand-studio`, `design-brief`,
 `design-foil`, `design-review`, `frontend-craft`, `interface-composition`,
-`nightjar`, and `typography-craft`) remain under `archive/skills/`.
+`nightjar`, and `typography-craft`) are recoverable from Git history by their
+path, `skills/<name>/`. Nothing is kept on disk for them: an uninstalled skill
+left in the tree still counts as catalogue drift.
 `design-interface`, `design-visual-system`, and `design-typography` are active
 repo-owned skills. `frontend-design` is an external marketing and brand skill,
 not the route for product, reference, utility, dashboard, settings, or
-lookup-documentation work. Everything archived is recoverable from
-`archive/skills/`.
+lookup-documentation work.
 
-## Installing per surface
+## Installing
 
-Skills **do not sync** between surfaces — install separately where you want each one.
-
-### Claude Code
-
-Filesystem-based, no upload. **On a new machine, clone this repo and run the
-linker** — it symlinks every skill here into `~/.claude/skills/`:
+Skills are delivered as source. There is one shared skills root —
+`~/.agents/skills` — and both OMP and Pi read it, so a repo-owned skill is
+linked once rather than once per harness. **On a new machine, clone this repo
+and run the linker**:
 
 ```bash
 git clone https://github.com/sudakshsoti/agent-config.git ~/dev/agent-config
@@ -116,31 +115,15 @@ cd ~/dev/agent-config && ./install.sh
 ```
 
 `./install.sh` is idempotent (safe to re-run after adding a skill) and
-`./install.sh --prune` clears symlinks for skills you've removed. To link a
-single skill by hand instead:
+`./install.sh --prune` clears managed symlinks for skills you've removed. To
+link a single skill by hand instead:
 
 ```bash
-ln -s "$PWD/skills/commit" ~/.claude/skills/commit      # personal
-ln -s "$PWD/skills/commit" /path/to/project/.claude/skills/   # project-scoped
+ln -s "$PWD/skills/research" ~/.agents/skills/research
 ```
 
-Claude discovers each by `name`/`description`; invoke implicitly or with `/commit`.
-
-### Claude.ai (Pro / Max / Team / Enterprise, code execution on)
-
-Upload as a **zip of the skill folder** via Settings → Features → Skills:
-
-```bash
-cd skills && zip -r commit.zip commit && cd -
-```
-
-Then upload `commit.zip`. Uploaded per-user; re-upload after edits.
-
-### Claude API
-
-Upload via the `/v1/skills` endpoints and reference the `skill_id` in the
-`container` param (needs the `skills-2025-10-02` + `code-execution-2025-08-25`
-beta headers). Note: API skills run with **no network access**.
+Link the skill directory itself, never a copy: a real directory at that path is
+treated as unmanaged and is left alone with a warning.
 
 ## Notes
 
@@ -148,5 +131,5 @@ beta headers). Note: API skills run with **no network access**.
   a token in one. (Historical note: an old `todoist-gtd/SKILL.md` embedded a
   live Todoist token; it remains in the **claude-projects** repo's git
   history — rotate that token if you haven't.)
-- Audit any third-party skill before installing; a `SKILL.md` can direct Claude
-  to run code and use tools.
+- Audit any third-party skill before installing; a `SKILL.md` can direct an
+  agent to run code and use tools.

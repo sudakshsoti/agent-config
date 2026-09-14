@@ -23,7 +23,7 @@ cd ~/dev/agent-config && ./install.sh
   must reach every harness, or when the repo ships no
   `.claude-plugin/marketplace.json` and so cannot be a plugin at all.
   Externals are vendored by reference: their files never enter this repo's
-  history, so `scripts/lint-skills.py` and `dist/*.zip` do not apply to them,
+  history, so `scripts/lint-skills.py` does not apply to them,
   and re-running `./install.sh` fast-forwards each clone to latest.
 - `agents/` — Subagent definitions (e.g. `plan-critic`). Symlinked per file.
 - `settings.json` — Global settings, sanitized, no API keys. Copied if missing.

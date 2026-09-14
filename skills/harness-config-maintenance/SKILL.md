@@ -20,7 +20,7 @@ absorb unrelated changes.
 | Codex settings | `codex/config.toml` | Selectively merged; never replace the user's full config or credentials. |
 | OMP behavior | `omp/config.yml`, `omp/lsp.yml`, overlays | Symlinked and may be rewritten by OMP; review the diff after TUI changes. |
 | Pi behavior | `pi/settings.json`, `pi/subagents.json`, prompts, agents, extensions | Symlinked and may be rewritten by Pi; auth and runtime state stay machine-local. |
-| Skill catalogue | `skills/`, `plugins.txt`, `dist/` | Follow `skill-lifecycle`; keep repo-owned ZIPs in sync. |
+| Skill catalogue | `skills/`, `plugins.txt` | Follow `skill-lifecycle`; source-only, no packaged artifact. |
 | Shell and machine tooling | `dotfiles` repository | Do not move launcher or chezmoi changes here just because this repo documents them. |
 
 When a file is a live symlink target, edit the tracked source intentionally and
@@ -89,7 +89,7 @@ Keep these distinctions intact:
   allowlist; Claude-only packages use the marketplace/plugin lane.
 - Prefer a narrow allowlist. A bare upstream collection can silently consume
   the shared context budget.
-- Follow `skills/skill-lifecycle/SKILL.md` for ZIPs, inventory, and pruning.
+- Follow `skills/skill-lifecycle/SKILL.md` for inventory and pruning.
 
 ### Installer or sync behavior
 

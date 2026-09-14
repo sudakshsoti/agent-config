@@ -1,6 +1,6 @@
 ---
 name: skill-lifecycle
-description: "Use when adding, renaming, retiring, packaging, installing, or auditing a repo-owned agent skill in agent-config. Keep frontmatter, inventory, distribution ZIPs, manifest policy, and installation checks synchronized."
+description: "Use when adding, renaming, retiring, installing, or auditing a repo-owned agent skill in agent-config. Keep frontmatter, inventory, manifest policy, and installation checks synchronized."
 ---
 
 # Skill lifecycle
@@ -42,22 +42,21 @@ Make the description a precise discovery surface. Do not solve missed triggers
 by putting the whole procedure in frontmatter.
 
 Update the matching entry in `skills/README.md`. If the skill is renamed, update
-all references and remove the old `dist/<old-name>.zip`; do not leave aliases
-that make the catalogue ambiguous.
+all references and remove the old entry; do not leave aliases that make the
+catalogue ambiguous.
 
-## Package and install
+## Install
 
-A repo-owned skill is live through symlinks for Claude and the shared
-`~/.agents/skills` root. It also needs a tracked upload artifact:
+A repo-owned skill is delivered as source under `skills/<name>/`; there is no
+packaged artifact to keep in sync. One symlink is written into the shared
+`~/.agents/skills` root, and OMP and Pi both read it from there:
 
 ```bash
-./scripts/build-zip.sh <name>
 python3 scripts/lint-skills.py
-python3 scripts/check-zips.py
 ```
 
-Never hand-edit a ZIP. The archive must contain one top-level `<name>/`
-directory and must match every source file under the skill directory.
+The installer refuses to replace a real unmanaged directory, so a stale `mv`d
+copy must be removed deliberately before a link can be created.
 
 For a safe local link test, use a disposable `HOME` and the selective installer:
 
@@ -76,9 +75,8 @@ Before removing it:
 
 1. search the repository for the skill name and references to its commands;
 2. remove or update callers, documentation, and manifest entries;
-3. remove its matching `dist/<name>.zip`;
-4. run the frontmatter, ZIP, and installer checks;
-5. run `./install.sh --prune` from the canonical checkout when cleaning live
+3. run the frontmatter and installer checks;
+4. run `./install.sh --prune` from the canonical checkout when cleaning live
    symlinks is explicitly intended.
 
 Pruning only removes managed dangling links. Do not delete unmanaged skills or
@@ -90,14 +88,13 @@ For any catalogue change, run the narrowest checks first, then the full suite:
 
 ```bash
 python3 scripts/lint-skills.py
-python3 scripts/check-zips.py
 python3 scripts/test-install-selected-skills.py
 ./scripts/check.sh
 ```
 
 Inspect `git diff --check` and `git status --short` afterwards. A new skill is
-not complete if its source passes but its ZIP, README inventory, manifest lane,
-or installation behavior is stale.
+not complete if its source passes but its README inventory, manifest lane, or
+installation behavior is stale.
 
 ## Safety boundaries
 

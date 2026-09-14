@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
-"""lint-skills.py — enforce the SKILL.md frontmatter contract in skills/README.md.
+"""lint-skills.py — enforce the source SKILL.md contract in skills/README.md.
 
-Nothing else validates this, and every violation is silent: a `name` that does
-not match its directory does not error anywhere, it just makes the skill load
-under the wrong name (or not at all). That really happened — `composition-
-patterns` declared `name: vercel-composition-patterns` and Codex listed it
-wrong for weeks.
+Two contracts, both silent when violated. The first is frontmatter: a `name`
+that does not match its directory does not error anywhere, it just makes the
+skill load under the wrong name (or not at all). That really happened —
+`composition-patterns` declared `name: vercel-composition-patterns` and one
+harness listed it wrong for weeks.
 
-The sharpest rule is the block scalar one. Claude Code's YAML parser is
-lenient; Codex's is strict, and a bare unquoted multi-line `description`
-containing a colon-space parses as a nested mapping, so the whole skill fails
-to load with "mapping values are not allowed in this context".
+The second is catalogue consistency: `skills/README.md` is the hand-written
+index of the source skills, and a skill added or renamed without an index
+edit (or an index entry whose directory is gone) is invisible drift.
+
+The sharpest frontmatter rule is the block scalar one. Claude Code's YAML
+parser is lenient; other harnesses are strict, and a bare unquoted multi-line
+`description` containing a colon-space parses as a nested mapping, so the
+whole skill fails to load with "mapping values are not allowed in this
+context".
 
 Stdlib only, deliberately: PyYAML is not a dependency of this repo and must
 not become one for a lint. Hence the small parser below, which handles exactly
@@ -34,6 +39,7 @@ WARN_DESCRIPTION = 1000
 WARN_BODY_BYTES = 20000  # ~5k tokens
 NAME_RE = re.compile(r"^[a-z0-9-]+$")
 KEY_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_.-]*):(.*)$")
+CATALOGUE_RE = re.compile(r"^- `([a-z0-9-]+)` — ")
 BANNED_IN_NAME = ("claude", "anthropic")
 
 
@@ -213,6 +219,37 @@ def lint_skill(path, dirname):
     return fails, warns
 
 
+def read_text(path):
+    """Return the file's text, or None when it cannot be read."""
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            return fh.read()
+    except OSError:
+        return None
+
+
+def lint_catalogue(skills_dir, dirnames):
+    """Return (fails, warns) comparing skills/README.md against the source tree.
+
+    The catalogue is the bullet list of source skills; only lines of the form
+    ``- `name` — description`` are entries, so prose that happens to mention a
+    skill name in backticks is not mistaken for one.
+    """
+    readme = os.path.join(skills_dir, "README.md")
+    text = read_text(readme)
+    if text is None:
+        return ["skills/README.md is missing — no catalogue to check"], []
+    listed = {m.group(1) for m in (CATALOGUE_RE.match(l) for l in text.splitlines()) if m}
+
+    present = set(dirnames)
+    fails = []
+    for name in sorted(listed - present):
+        fails.append("skills/README.md lists %r but there is no skills/%s/SKILL.md" % (name, name))
+    for name in sorted(present - listed):
+        fails.append("skills/%s is not listed in skills/README.md" % name)
+    return fails, []
+
+
 def main(argv):
     if len(argv) > 2:
         sys.stderr.write("usage: lint-skills.py [repo-root]\n")
@@ -223,15 +260,23 @@ def main(argv):
         sys.stderr.write("FATAL: no skills/ directory under %s\n" % repo_root)
         return 2
 
+    try:
+        entries = sorted(os.listdir(skills_dir))
+    except OSError as exc:
+        sys.stderr.write("FATAL: cannot read %s (%s)\n" % (skills_dir, exc))
+        return 2
+
     print("skill frontmatter")
     passed = failed = warned = 0
-    for dirname in sorted(os.listdir(skills_dir)):
+    sources = []
+    for dirname in entries:
         # _archive is deliberately not installed, so the contract does not apply.
         if dirname.startswith("_") or dirname.startswith("."):
             continue
         path = os.path.join(skills_dir, dirname, "SKILL.md")
         if not os.path.isfile(path):
             continue
+        sources.append(dirname)
         fails, warns = lint_skill(path, dirname)
         for detail in fails:
             print("  FAIL  %s (%s)" % (dirname, detail))
@@ -246,6 +291,15 @@ def main(argv):
                 print("  ok    %s" % dirname)
 
     print()
+    print("skill catalogue")
+    cat_fails, _ = lint_catalogue(skills_dir, sources)
+    for detail in cat_fails:
+        print("  FAIL  %s" % detail)
+    if not cat_fails:
+        print("  ok    %d source skills match skills/README.md" % len(sources))
+
+    print()
+    failed += len(cat_fails)
     summary = "%d passed, %d failed" % (passed, failed)
     if warned:
         summary += ", %d warnings (not fatal)" % warned

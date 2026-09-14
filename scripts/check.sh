@@ -34,7 +34,6 @@ run() { # run <label> <command...>
 }
 
 run "lint-skills.py" python3 "$repo_root/scripts/lint-skills.py" "$repo_root"
-run "check-zips.py" python3 "$repo_root/scripts/check-zips.py" "$repo_root"
 run "test-apply-codex-config.py" python3 "$repo_root/scripts/test-apply-codex-config.py"
 run "test-apply-web-search-config.py" python3 "$repo_root/scripts/test-apply-web-search-config.py"
 run "test-design-instructions.py" python3 "$repo_root/scripts/test-design-instructions.py"
