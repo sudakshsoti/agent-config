@@ -16,22 +16,21 @@ Exception: Codex may generate required `dist/<skill>.zip` packages with `scripts
 
 ## Which repo owns what
 
-`~/dev/agent-config` owns agent behaviour; `~/dev/dotfiles` owns the machine. Secrets belong in dotfiles (1Password + age), never agent-config. This table is duplicated in both repos; change both copies together.
+`~/dev/agent-config` owns agent behaviour; `~/dev/dotfiles` owns the machine. Secrets belong in dotfiles (1Password + age), never agent-config. dotfiles' `AGENTS.md` points here rather than copying this table.
 
 | Path | Owner | Delivery |
 | --- | --- | --- |
 | `~/.claude/CLAUDE.md`, `skills/`, `agents/` | agent-config | `install.sh` symlinks; edits are live |
 | `~/.claude/settings.json` | agent-config | copy-if-absent; `./sync.sh` pulls the live file back |
-| `~/.claude/plugins/claude-hud/config.json` | **dotfiles** | chezmoi; exception under `~/.claude/` |
 | `~/.agents/skills/` | agent-config | `install.sh` symlinks; Codex, opencode, omp, and pi read it |
 | `~/.codex/AGENTS.md`, `~/.omp/agent/AGENTS.md`, `~/.config/opencode/AGENTS.md`, `~/.pi/agent/AGENTS.md` | agent-config | symlinks to `global-agents.md` |
-| `~/.codex/config.toml` | **shared** | dotfiles writes it; agent-config merges non-secret keys; check both |
+| `~/.codex/config.toml` | agent-config | `install.sh` merges non-secret keys; everything else is machine-local |
 | `~/.codex/prompts/*.md`, `~/.pi/agent/prompts/*.md` | agent-config (`codex/prompts/`, `pi/prompts/`) | `install.sh` symlinks file by file; machine-local prompts survive |
 | `~/.omp/agent/config.yml`, `lsp.yml`, `keybindings.yml`, `themes/`, `agents/` | agent-config | `install.sh` symlinks; omp writes through links |
 | `~/.pi/agent/settings.json`, `subagents.json`, `pi-fff.json`, `prompts/`, `themes/`, `extensions/`, `agents/` | agent-config | `install.sh` symlinks; pi writes through links |
 | pi-web-access `web-search.json` (location depends on Pi/XDG config) | **shared** | `install.sh` **merges** `pi/web-search.json` because the live file is also a credential store; credentials and unmanaged settings stay machine-local |
 | `~/.config/omp/*.yml`, `*.tpl` | agent-config (`omp/overlays/`) | session-only `--config` overlays; no restore state |
-| `~/.config/opencode/opencode.jsonc`, `~/.zshrc`, `.gitconfig`, Brewfile, fonts, terminal/editor config | **dotfiles** | chezmoi |
+| `~/.zshrc`, `.gitconfig`, Brewfile, fonts, terminal/editor config | **dotfiles** | chezmoi |
 | `~/.omp/agent/mcp.json`, `.env`, `~/.claude/settings.local.json`, `~/.pi/agent/auth.json`, `models-store.json`, `sessions/`, `npm/` | **neither** | machine-local, credentials or runtime state; untracked |
 
 - **Never let chezmoi claim an agent-config symlink.** A blind apply replaces it with a stale regular file. `.chezmoiignore` gates `.claude/CLAUDE.md`, `.claude/settings.json`, and `.config/omp`.
@@ -62,7 +61,7 @@ Exception: Codex may generate required `dist/<skill>.zip` packages with `scripts
 - The pre-commit hook formats staged source in the working tree. After each commit, inspect `git status` and separate unrelated formatter changes.
 - **Current plain OMP routing is authoritative in `omp/config.yml`:** `default`/`task` → `openai-codex/gpt-5.6-luna:high`; `plan`/`slow` → `gpt-5.6-sol:medium`; `designer`/`vision` → `gpt-5.6-sol:high`; `adversary`/`reviewer`/`security-reviewer`/`advisor` → `opencode-go/glm-5.3-flash:high`; `scout` → `opencode-go/deepseek-v4-flash:low`; `usageAwareFallback: false`; `codeMode: "off"`. Overlays differ.
 - Non-interactive `omp -p` from a persistent kernel needs closed stdin (`stdin=DEVNULL` or `</dev/null`); otherwise it waits at `readPipedInput`.
-- `omp` is the binary, not a restoring wrapper. `ompgo` and `ompcodex` pass session-only `--config` overlays; never add persistent apply/restore state.
+- `omp` is the binary, not a restoring wrapper. Overlays are passed per session with `--config`; never add persistent apply/restore state.
 - Thinking levels are model-specific: `deepseek-v4-flash`, `glm-5.3-flash`, and `kimi-k3` expose only low/high/max; `medium` silently runs as high.
 - omp rewrites `omp/config.yml` and removes comments while preserving values; keep rationale in `docs/`.
 - Only `~/.omp/agent/AGENTS.md` survives omp context priority over `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`; all five harness paths must symlink to `global-agents.md`.
