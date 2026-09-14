@@ -158,50 +158,6 @@ tools:
   approvalMode: yolo
   approval:
     {}
-bash:
-  patterns:
-    - match: sudo *
-      approval: deny
-    - match: rm *-r* /
-      approval: deny
-    - match: rm *-r* /*
-      approval: deny
-    - match: rm *-r* /Users
-      approval: deny
-    - match: rm *-r* /Users/*
-      approval: deny
-    - match: rm *-r* /Volumes
-      approval: deny
-    - match: rm *-r* /Volumes/*
-      approval: deny
-    - match: rm *-r* ~*
-      approval: deny
-    - match: find / *-delete*
-      approval: deny
-    - match: find /Users/* -delete*
-      approval: deny
-    - match: find /Volumes/* -delete*
-      approval: deny
-    - match: mkfs*
-      approval: deny
-    - match: dd *of=/dev/*
-      approval: deny
-    - match: diskutil erase*
-      approval: deny
-    - match: diskutil partition*
-      approval: deny
-    - match: chmod *-R* /*
-      approval: deny
-    - match: chown *-R* /*
-      approval: deny
-    - match: rm *-r*
-      approval: prompt
-    - match: git reset --hard*
-      approval: prompt
-    - match: git clean *
-      approval: prompt
-    - match: git push *--force*
-      approval: prompt
 tui:
   textSizing: false
   tight: false
