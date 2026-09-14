@@ -81,7 +81,7 @@ external BexTuychiev/firecrawl-claude-code-skill firecrawl-web
 # ask-matt is retained as a router; its less-used branches may name optional
 # Matt skills outside this allowlist rather than silently importing the whole
 # collection and consuming the shared context budget.
-external mattpocock/skills:skills/engineering setup-matt-pocock-skills ask-matt tdd code-review grill-with-docs improve-codebase-architecture domain-modeling codebase-design to-spec to-tickets triage
+external mattpocock/skills:skills/engineering setup-matt-pocock-skills ask-matt tdd code-review implement grill-with-docs improve-codebase-architecture domain-modeling codebase-design to-spec to-tickets triage
 # emilkowalski/skills — all upstream skills, linked for every agent surface.
 external emilkowalski/skills
 
