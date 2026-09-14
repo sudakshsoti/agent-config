@@ -41,7 +41,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
   the template above makes colons and quotes literal — keep it. Single-line
   descriptions are also fine.
 
-The list below covers the 40 repo-owned skills. Keep it synchronized with the
+The list below covers the 34 repo-owned skills. Keep it synchronized with the
 actual `skills/*/SKILL.md` directories; `scripts/lint-skills.py` validates each
 skill's frontmatter and fails when this list and the source tree disagree.
 The active design set is `design-interface`, `design-visual-system`, and
@@ -54,7 +54,6 @@ dashboard, settings, or lookup-documentation work.
 - `backlog` — Run any project's backlog in Linear like a PM: capture, triage, grooming, acceptance criteria, and milestone/session planning (batch Ready issues into equal-effort, one-sitting Linear Milestones).
 - `clinical-reasoning` — Clinical decision support for clinicians in India: diagnostics, differentials, labs, imaging, drug interactions, prescribing, and escalation.
 - `codebase-memory` — Query a codebase knowledge graph for architecture, callers, dependencies, dead code, and impact analysis.
-- `commit` — Stage + commit in the user's house style (`scope: summary` + why-first body, no attribution). `/commit`.
 - `design-grill` — Interview through visual and behavioural interface decisions while recording agreed design decisions.
 - `design-interface` — Design and review controls, forms, lists, dashboards, settings, documentation, and non-happy-path states.
 - `design-strategy` — Industry-agnostic product and UX strategy, positioning, workflow critique, and decision logs.
@@ -70,23 +69,18 @@ dashboard, settings, or lookup-documentation work.
 - `gtd` — Sudaksh's personal GTD system: capture, inbox processing, daily/weekly reviews, Todoist/calendar routing, overwhelm triage, email triage, and procrastination audits.
 - `handoff` — Structured session-handoff docs for continuity across sessions.
 - `harness-config-maintenance` — Safely change OMP and Pi configuration while preserving ownership and secret boundaries.
-- `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, including the safe rclone-torbox recreate.
+- `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, with three modes — generic stack change, the rclone-torbox safe recreate, and the n8n sqlite3 workflow dance.
 - `humanizer` — Rewrite AI-sounding prose so it reads like a person, using Wikipedia's 35 "Signs of AI writing" patterns. Vendored from [blader/humanizer](https://github.com/blader/humanizer) (MIT). `/humanizer`.
 - `macos-design-guidelines` — Apply Apple Human Interface Guidelines when building Mac apps with SwiftUI or AppKit.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
-- `merge` — Land the current branch's PR via `gh` — checks CI, squash by default, deletes branch. `/merge`.
-- `n8n-deploy` — RIGID homelab procedure: deploy/edit n8n workflows via the sqlite3 dance without clobbering the DB.
 - `obsidian-markdown` — Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.
 - `peer-review` — Adversarial cross-lineage review of an engineering plan written by another agent. `/peer-review`.
-- `pr` — Open a GitHub PR via `gh` — title from commits, why-first body, no AI footer. `/pr`.
-- `push` — Safe push — sets upstream, shows outgoing commits, `--force-with-lease`, warns on main. `/push`.
 - `research` — Investigate primary sources and record cited findings in a Markdown report.
 - `rights-counsel` — Indian consumer, EPF, and insurance rights analyst for advice, complaints, notices, and representations.
 - `self-review` — Critique your own plan against a fixed checklist, then revise it. `/self-review`.
 - `shopping-research` — Purchase advisor for buying in India: product comparisons, pricing, sellers, deals, and when to buy.
 - `skill-lifecycle` — Add, rename, retire, install, and audit repo-owned skills without stale inventory or orphan references.
 - `strategy-counsel` — Strategic advisor for power, influence, and negotiation inside organisations and in arm's-length dealings.
-- `update-branch-name` — Rename the current branch to a semantic-prefix + kebab-case convention, preferring GitHub's server-side rename so an open PR isn't orphaned. `/update-branch-name`.
 - `ux-writing` — User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.
 - `vbc-design` — Deep payer/provider healthcare design: value-based-care economics, role workflows, data and attribution gotchas, registry and cohort design, grounded in Value Connect.
 - `vedic-astrology` — Vedic astrology (Jyotish) advisor for charts, dashas, transits, timing, compatibility, and remedies.
