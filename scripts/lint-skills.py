@@ -40,6 +40,7 @@ WARN_BODY_BYTES = 20000  # ~5k tokens
 NAME_RE = re.compile(r"^[a-z0-9-]+$")
 KEY_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_.-]*):(.*)$")
 CATALOGUE_RE = re.compile(r"^- `([a-z0-9-]+)` — ")
+STATED_COUNT_RE = re.compile(r"covers the (\d+) repo-owned skills")
 BANNED_IN_NAME = ("claude", "anthropic")
 
 
@@ -242,7 +243,8 @@ def lint_catalogue(skills_dir, dirnames):
     text = read_text(readme)
     if text is None:
         return ["skills/README.md is missing — no catalogue to check"], []
-    listed = {m.group(1) for m in (CATALOGUE_RE.match(l) for l in text.splitlines()) if m}
+    lines = text.splitlines()
+    listed = {m.group(1) for m in (CATALOGUE_RE.match(l) for l in lines) if m}
 
     present = set(dirnames)
     fails = []
@@ -250,6 +252,21 @@ def lint_catalogue(skills_dir, dirnames):
         fails.append("skills/README.md lists %r but there is no skills/%s/SKILL.md" % (name, name))
     for name in sorted(present - listed):
         fails.append("skills/%s is not listed in skills/README.md" % name)
+
+    # The prose also states the count ("The list below covers the N
+    # repo-owned skills"); that number drifts independently of the bullet
+    # list itself, so check it separately.
+    stated = [m for m in (STATED_COUNT_RE.search(l) for l in lines) if m]
+    if not stated:
+        fails.append("skills/README.md has no 'covers the N repo-owned skills' sentence to check")
+    else:
+        stated_count = int(stated[0].group(1))
+        if stated_count != len(present):
+            fails.append(
+                "skills/README.md states %d repo-owned skills but %d exist under skills/"
+                % (stated_count, len(present))
+            )
+
     return fails, []
 
 

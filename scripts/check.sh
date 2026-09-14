@@ -76,6 +76,7 @@ fi
 # Static checks first. They are not discovered: they do not follow the
 # scripts/test-* naming rule.
 run "lint-skills.py" python3 "$repo_root/scripts/lint-skills.py" "$repo_root"
+run "check-manifest.py" python3 "$repo_root/scripts/check-manifest.py" "$repo_root"
 
 # Lexical discovery: every scripts/test-* regular file, by extension.
 for test_file in "$repo_root"/scripts/test-*; do
