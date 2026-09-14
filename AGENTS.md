@@ -10,7 +10,7 @@ harness-neutral preferences that install into OMP and Pi live in
 
 | Destination | Source | Delivery |
 | --- | --- | --- |
-| `~/.agents/skills/` | `skills/`, `vendor/` | symlink per skill; both OMP and Pi read this one root |
+| `~/.agents/skills/` | `skills/`, `vendor/` | symlink per skill; OMP and Pi (and Codex/OpenCode, if present) read this one root; filled only when one of those consumers exists |
 | `~/.omp/agent/` + `~/.config/omp/` | `omp/`, `global-agents.md` | symlink per file; OMP writes through the links |
 | `~/.pi/agent/` | `pi/`, `global-agents.md` | symlink per file; Pi writes through the links |
 
@@ -32,6 +32,11 @@ pi-web-access's credential store, so only repo-owned keys are pushed.
   alone with a warning.
 - `./install.sh --skills-only=name,other-name` links only the named repo-owned
   skills into `~/.agents/skills`, with no config writes and no external fetches.
+- Full, `--skills-only` and `--prune` runs share one predicate,
+  `shared_root_consumers_present`: `~/.agents/skills` is touched only when
+  `~/.omp/agent`, `~/.pi/agent`, `~/.codex` or `~/.config/opencode` exists.
+  With none, no `~/.agents` is created and the run prints a note. Codex and
+  OpenCode are presence checks only; nothing is configured for them.
 - `--no-external` skips the external git fetch; relinking still runs, so an
   offline re-run repairs links from what is already cloned.
 - `install.sh` refuses any checkout whose `rev-parse --git-dir` differs from
@@ -70,6 +75,16 @@ Secrets belong in dotfiles (1Password + age), never here.
 - `python3 scripts/lint-skills.py` enforces all of that **and** that the bullet
   list in `skills/README.md` matches the source directories. Adding or renaming
   a skill without editing that list is a failure, not drift to be noticed later.
+  It also checks the "covers the N repo-owned skills" count sentence.
+- `python3 scripts/check-manifest.py` (run by `check.sh`) fails on malformed
+  `plugins.txt` lines and on a skill name allowlisted by two `external` lines;
+  `scripts/manifest.py` is the shared parser.
+- `scripts/ownership_collisions.py` (tested by `check.sh`) reports chezmoi
+  source entries that would claim an install destination.
+- `python3 scripts/audit-local.py [--home DIR] [--dotfiles DIR] [--json]` is an
+  opt-in, read-only, offline drift audit of this machine (dangling or foreign
+  links, undeclared `vendor/` clones, chezmoi collisions). It exits 0 with
+  findings; `check.sh` never runs it.
 - Never `npx skills add`. Its machine-local `~/.agents/.skill-lock.json` has no
   restore command and is invisible to this repo.
 - Name the skills you want on an `external` line. A bare repo imports every
@@ -104,7 +119,7 @@ Secrets belong in dotfiles (1Password + age), never here.
 - Pi's OpenCode Go/OpenRouter credentials are API keys in untracked `~/.pi/agent/auth.json`; `openai-codex` uses OAuth. Never add an `anthropic/*` subscription model to Pi: Anthropic rejects third-party subscription OAuth (`earendil-works/pi#3372`).
 - `~/.omp/stats.db` stopped recording around 2026-09-02 19:04; use live `model_perf` in `~/.omp/agent/agent.db` for served-model evidence.
 - Another process may push to the active feature branch between local commits. Fetch before pushing; if the remote advanced, preserve unrelated dirty files, rebase, then restore them.
-- `npm ci` restores the ignored `node_modules/` (it carries `pi-token-speed`, consumed by `pi/settings.json`). Never commit it.
+- `scripts/check.sh` bootstraps the ignored `node_modules/` (it carries `pi-token-speed`, consumed by `pi/settings.json`) by running `npm ci` when `node_modules/@earendil-works/pi-tui` is missing. Never commit it.
 
 ## Agent skills
 

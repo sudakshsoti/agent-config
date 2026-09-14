@@ -221,7 +221,7 @@ class InstallerTest(DisposableInstallCase):
         self.assertEqual(selective_links, full_links)
 
     def test_shared_root_is_filled_without_creating_harness_config(self):
-        for present in ("omp", "pi", "both", "neither"):
+        for present in ("omp", "pi", "both"):
             with self.subTest(present=present):
                 remove_tree(self.test_home)
                 self.test_home.mkdir()
@@ -238,6 +238,119 @@ class InstallerTest(DisposableInstallCase):
                 self.assert_no_retired_harness_paths()
                 self.assertFalse((self.test_home / ".pi/agent/settings.json").exists())
                 self.assertFalse((self.test_home / ".omp/agent/config.yml").exists())
+
+    def test_no_consumer_creates_no_shared_root(self):
+        # With none of ~/.codex, ~/.pi/agent, ~/.config/opencode or
+        # ~/.omp/agent present, both selective and full installs must create
+        # no ~/.agents at all — not even an empty skills/ directory — while
+        # still exiting 0 and saying so.
+        remove_tree(self.test_home)
+        self.test_home.mkdir()
+        selective = self.install("--skills-only=alpha")
+        self.assertEqual(selective.returncode, 0, selective.stdout + selective.stderr)
+        self.assertFalse((self.test_home / ".agents").exists())
+        self.assertIn("no shared-skill-root consumer", selective.stdout)
+
+        full = self.install("--no-external")
+        self.assertEqual(full.returncode, 0, full.stdout + full.stderr)
+        self.assertFalse((self.test_home / ".agents").exists())
+        self.assertIn("no shared-skill-root consumer", full.stdout)
+
+    # Every consumer set that shared_root_consumers_present checks, mapped to
+    # the home-relative directories that make it true. "none" and "all" are
+    # the extremes; the other four isolate one consumer at a time.
+    CONSUMER_SETS = {
+        "none": (),
+        "codex": (".codex",),
+        "pi": (".pi/agent",),
+        "opencode": (".config/opencode",),
+        "omp": (".omp/agent",),
+        "all": (".codex", ".pi/agent", ".config/opencode", ".omp/agent"),
+    }
+
+    def _reset_home_for_consumers(self, relatives):
+        remove_tree(self.test_home)
+        self.test_home.mkdir()
+        for relative in relatives:
+            (self.test_home / relative).mkdir(parents=True)
+
+    def test_consumer_matrix_agrees_across_modes(self):
+        # Stub external source so full installs exercise S04 (externals follow
+        # the same gate) alongside the repo-owned skills every mode links.
+        vendor_skill = self.repo / "vendor/example-skills/skills/ext-one"
+        vendor_skill.mkdir(parents=True)
+        (vendor_skill / "SKILL.md").write_text(
+            "---\nname: ext-one\ndescription: External stub.\n---\n",
+            encoding="utf-8",
+        )
+        (self.repo / "plugins.txt").write_text(
+            "external example/skills ext-one\n", encoding="utf-8"
+        )
+
+        for name, relatives in self.CONSUMER_SETS.items():
+            with self.subTest(consumer_set=name):
+                # Selective mode: repo-owned names only (external skills are
+                # never selectable through --skills-only).
+                self._reset_home_for_consumers(relatives)
+                selective = self.install("--skills-only=alpha,beta,gamma")
+                self.assertEqual(
+                    selective.returncode, 0, selective.stdout + selective.stderr
+                )
+                selective_links = links_under(self.test_home / ".agents")
+
+                # Full mode: repo-owned names plus the stubbed external.
+                self._reset_home_for_consumers(relatives)
+                full = self.install("--no-external")
+                self.assertEqual(full.returncode, 0, full.stdout + full.stderr)
+                full_links = links_under(self.test_home / ".agents")
+
+                if name == "none":
+                    self.assertEqual(selective_links, {})
+                    self.assertEqual(full_links, {})
+                    self.assertFalse((self.test_home / ".agents").exists())
+                else:
+                    self.assertEqual(
+                        selective_links,
+                        {
+                            f"skills/{skill}": str(self.repo / "skills" / skill)
+                            for skill in ("alpha", "beta", "gamma")
+                        },
+                    )
+                    expected_full = dict(selective_links)
+                    expected_full["skills/ext-one"] = str(vendor_skill)
+                    self.assertEqual(full_links, expected_full)
+
+                # ~/.pi/agent/skills must never exist, and this repo must never
+                # write Codex or OpenCode config, in any consumer set or mode.
+                for relative in relatives:
+                    if relative == ".pi/agent":
+                        self.assertFalse(
+                            (self.test_home / ".pi/agent/skills").exists()
+                        )
+                    if relative == ".codex":
+                        self.assertEqual(
+                            list((self.test_home / ".codex").iterdir()), []
+                        )
+                    if relative == ".config/opencode":
+                        self.assertEqual(
+                            list((self.test_home / ".config/opencode").iterdir()), []
+                        )
+
+    def test_prune_under_pi_only_covers_the_shared_root(self):
+        self._reset_home_for_consumers((".pi/agent",))
+        result = self.install("--skills-only=alpha")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        shared = self.test_home / ".agents/skills"
+        self.assertTrue((shared / "alpha").is_symlink())
+        (shared / "ghost").symlink_to(self.repo / "skills/deleted-skill")
+
+        pruned = self.install("--no-external", "--prune")
+        self.assertEqual(pruned.returncode, 0, pruned.stdout + pruned.stderr)
+        self.assertFalse((shared / "ghost").is_symlink())
+        # The repo-owned skills relinked by the full install survive.
+        for skill in ("alpha", "beta", "gamma"):
+            self.assertTrue((shared / skill).is_symlink())
+        self.assertFalse((self.test_home / ".pi/agent/skills").exists())
 
     def test_only_selected_links_change_and_repeated_run_is_safe(self):
         result = self.install("--skills-only=alpha,beta")

@@ -1,0 +1,6 @@
+dot_config/starship.toml
+dot_agents/private_skills/exact_myskill/dot_config
+dot_omp/private_agent/create_config.yml
+dot_config/private_omp/executable_search-keys.tpl
+symlink_dot_local/private_bin/omp-go-overlay
+.chezmoiignore
