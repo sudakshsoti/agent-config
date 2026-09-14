@@ -292,6 +292,15 @@ class InstallerTest(unittest.TestCase):
 
     def test_prune_removes_retired_repo_links_and_preserves_real_files(self):
         home = self.test_home
+        # The retired harness sources still exist on disk here, so every symlink
+        # below resolves. That matters: prune must remove a link because of
+        # *where it points*, not because its target happens to be missing. A
+        # dangling fixture link would pass through the weaker dangling-link path
+        # and prove nothing about retired-harness cleanup.
+        for relative in ("agents/plan-critic.md", "codex/prompts/vibe.md"):
+            retired = self.repo / relative
+            retired.parent.mkdir(parents=True, exist_ok=True)
+            retired.write_text("retired source\n", encoding="utf-8")
         for relative in (".claude/skills", ".codex/agents", ".codex/prompts",
                          ".config/opencode", ".claude/agents"):
             (home / relative).mkdir(parents=True, exist_ok=True)
@@ -316,6 +325,11 @@ class InstallerTest(unittest.TestCase):
 
         result = self.install("--no-external", "--prune")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+        # Every retired link below resolved before the prune, so removal must
+        # come from the retired-harness rule rather than the dangling sweep.
+        self.assertIn("retired harness link", result.stdout)
+        self.assertNotIn("(dangling)", result.stdout)
 
         for relative in (".claude/CLAUDE.md", ".claude/skills/alpha",
                          ".claude/agents/plan-critic.md", ".codex/AGENTS.md",
@@ -355,6 +369,57 @@ class InstallerTest(unittest.TestCase):
         second = self.install("--no-external", "--prune")
         self.assertEqual(second.returncode, 0, second.stdout + second.stderr)
         self.assertEqual(snapshot(self.directory), after_first)
+
+    def test_external_sources_link_by_frontmatter_name_and_honor_allowlist(self):
+        # vendor/ is pre-populated, and --no-external suppresses the fetch, so
+        # the linking path runs without touching the network or the git stub.
+        vendor_skills = self.repo / "vendor/example-skills/skills"
+        for dirname, declared in (("odd-directory", "renamed-skill"), ("other", "spare-skill")):
+            skill = vendor_skills / dirname
+            skill.mkdir(parents=True)
+            (skill / "SKILL.md").write_text(
+                f"---\nname: {declared}\ndescription: External.\n---\n",
+                encoding="utf-8",
+            )
+        # A repo-owned skill of the same name must win the collision.
+        ours = self.repo / "skills/renamed-skill"
+        ours.mkdir()
+        (ours / "SKILL.md").write_text(
+            "---\nname: renamed-skill\ndescription: Ours.\n---\n", encoding="utf-8"
+        )
+        (self.repo / "plugins.txt").write_text(
+            "external example/skills renamed-skill spare-skill\n", encoding="utf-8"
+        )
+
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        links = links_under(self.test_home / ".agents")
+        # Linked under its declared name, not its directory name.
+        self.assertEqual(
+            links["skills/spare-skill"], str(vendor_skills / "other")
+        )
+        # The repo-owned copy wins, and the external one is reported as shadowed.
+        self.assertEqual(links["skills/renamed-skill"], str(ours))
+        self.assertIn("shadowed by this repo's skills/renamed-skill", result.stdout)
+        self.assertNotIn("skills/odd-directory", links)
+
+    def test_external_allowlist_excludes_unnamed_skills(self):
+        vendor_skills = self.repo / "vendor/example-skills/skills"
+        for name in ("wanted", "unwanted"):
+            skill = vendor_skills / name
+            skill.mkdir(parents=True)
+            (skill / "SKILL.md").write_text(
+                f"---\nname: {name}\ndescription: External.\n---\n", encoding="utf-8"
+            )
+        (self.repo / "plugins.txt").write_text(
+            "external example/skills wanted\n", encoding="utf-8"
+        )
+
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        links = links_under(self.test_home / ".agents")
+        self.assertEqual(links["skills/wanted"], str(vendor_skills / "wanted"))
+        self.assertNotIn("skills/unwanted", links)
 
     def test_ephemeral_worktree_requires_explicit_force(self):
         ephemeral = self.directory / "worktrees/temporary-checkout"

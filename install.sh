@@ -23,7 +23,7 @@
 #       or dropped nothing. FALSE for comments — a fully annotated
 #       modelRoles/retry block was replaced in one session by a value-identical
 #       version with every `#` line gone. Do NOT keep decision rationale in
-#       this file; it belongs in docs/.
+#       this file; it belongs in `design/decisions.md` or this repo's AGENTS.md.
 #       OMP locks the *resolved* path, so writes leave an empty
 #       omp/config.yml.lock in the checkout — .gitignore covers it.
 #     omp/keybindings.yml    -> ~/.omp/agent/keybindings.yml

@@ -183,7 +183,7 @@ When no mode fits, act as a GTD-aware thinking partner. Capture every open loop 
 
 ## Connector and state protocol
 
-Use tools only when a mode requires them. Do not scan email or calendar on every session. Todoist is reached through the session's Todoist tools: fetch current projects and labels before an operation because IDs change, then cache them within the conversation. Priority mapping is P1 urgent = API 4, P2 high = 3, P3 medium = 2, and P4 none = 1. Context labels are the eight `@` labels in the destinations section. Existing time-estimate labels are `10 Min` and `60Min`. Waiting For task text is `[What] -- [Who] (requested [date])`.
+Use tools only when a mode requires them. Do not scan email or calendar on every session. Todoist is reached through whatever Todoist tooling the session has available: fetch current projects and labels before an operation because IDs change, then cache them within the conversation. Priority mapping is P1 urgent = API 4, P2 high = 3, P3 medium = 2, and P4 none = 1. Context labels are the eight `@` labels in the destinations section. Existing time-estimate labels are `10 Min` and `60Min`. Waiting For task text is `[What] -- [Who] (requested [date])`.
 
 Surface Todoist plans before pushing and execute in one confirmed batch. Pagination continues until there is no next cursor. The connector cannot reparent or move tasks between projects; create the replacement in the correct project and close the original. All calendar operations use Asia/Kolkata. The daily review also checks next-morning events.
 

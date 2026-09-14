@@ -89,7 +89,7 @@ Secrets belong in dotfiles (1Password + age), never here.
 - Non-interactive `omp -p` from a persistent kernel needs closed stdin (`stdin=DEVNULL` or `</dev/null`); otherwise it waits at `readPipedInput`.
 - `omp` is the binary, not a restoring wrapper. Overlays are passed per session with `--config`; never add persistent apply/restore state.
 - Thinking levels are model-specific: `deepseek-v4-flash`, `glm-5.3-flash`, and `kimi-k3` expose only low/high/max; `medium` silently runs as high.
-- OMP rewrites `omp/config.yml` and removes comments while preserving values; keep rationale in `docs/` or here, never in that file.
+- OMP rewrites `omp/config.yml` and removes comments while preserving values; keep rationale in `design/decisions.md` or here, never in that file.
 - A bare `omp -p --model <id>` can hide model failures behind fallback. Probe with retry disabled: `omp -p --model <id> --config <(printf 'retry:\n  enabled: false\n') "Reply with exactly: ok"`.
 - `retry.fallbackChains` specificity is exact model → provider key → role → default. `provider/*` is a chain key, not a rung; as a rung it preserves the model id and can build an invalid gateway id.
 - OMP loads `~/.omp/.env` at startup; an existing process variable wins. After `op inject`, restart OMP. `omp token <provider>` shows the key actually used.

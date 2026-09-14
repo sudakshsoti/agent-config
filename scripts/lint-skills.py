@@ -171,8 +171,9 @@ def parse_frontmatter(text):
 def lint_skill(path, dirname):
     """Return (fails, warns) — two lists of human-readable strings."""
     fails, warns = [], []
-    with open(path, "r", encoding="utf-8") as fh:
-        text = fh.read()
+    text = read_text(path)
+    if text is None:
+        return ["cannot read %s" % path], []
 
     fields, body, error = parse_frontmatter(text)
     if error:
