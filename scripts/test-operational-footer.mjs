@@ -7,7 +7,15 @@ import { resolve } from "node:path";
 import vm from "node:vm";
 
 const require = createRequire(import.meta.url);
-const tui = require("@earendil-works/pi-tui");
+let tui;
+try {
+  tui = require("@earendil-works/pi-tui");
+} catch (error) {
+  if (error?.code !== "MODULE_NOT_FOUND") throw error;
+  // Exit 77 is check.sh's SKIP: the npm dependency is not installed here.
+  console.error(`SKIP: @earendil-works/pi-tui is not installed (${error.message.split("\n")[0]})`);
+  process.exit(77);
+}
 const sourcePath = resolve(
   process.argv[2] ??
     new URL("../pi/extensions/operational-footer/index.js", import.meta.url)
