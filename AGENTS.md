@@ -75,6 +75,16 @@ Secrets belong in dotfiles (1Password + age), never here.
 - `python3 scripts/lint-skills.py` enforces all of that **and** that the bullet
   list in `skills/README.md` matches the source directories. Adding or renaming
   a skill without editing that list is a failure, not drift to be noticed later.
+  It also checks the "covers the N repo-owned skills" count sentence.
+- `python3 scripts/check-manifest.py` (run by `check.sh`) fails on malformed
+  `plugins.txt` lines and on a skill name allowlisted by two `external` lines;
+  `scripts/manifest.py` is the shared parser.
+- `scripts/ownership_collisions.py` (tested by `check.sh`) reports chezmoi
+  source entries that would claim an install destination.
+- `python3 scripts/audit-local.py [--home DIR] [--dotfiles DIR] [--json]` is an
+  opt-in, read-only, offline drift audit of this machine (dangling or foreign
+  links, undeclared `vendor/` clones, chezmoi collisions). It exits 0 with
+  findings; `check.sh` never runs it.
 - Never `npx skills add`. Its machine-local `~/.agents/.skill-lock.json` has no
   restore command and is invisible to this repo.
 - Name the skills you want on an `external` line. A bare repo imports every

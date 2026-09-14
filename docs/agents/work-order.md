@@ -6,13 +6,6 @@ This is the maintainer's working order for the open GitHub issues in this reposi
 
 ## Recommended order
 
-### 0. Verify the live crash first
-
-- **[#43](https://github.com/sudakshsoti/agent-config/issues/43)** — `pi-claude-bridge`: `prompt-capture: no capture` kills the Pi process.
-- Category: `bug`; current state: `needs-triage`.
-- Reproduce this in the bridge repository. If confirmed, fix it before the backlog below. If it cannot be reproduced, request logs, versions, and exact invocation details.
-- This repository does not contain `pi-claude-bridge`, so verification cannot happen locally.
-
 ### 1. Foundation — work in parallel when possible
 
 - **[#34](https://github.com/sudakshsoti/agent-config/issues/34)** — make `scripts/check.sh` discover every `scripts/test-*` and report pass/fail/skip truthfully.
@@ -49,17 +42,24 @@ Issue #38 has a hard dependency on #36 and a soft sequencing recommendation to l
 
 **[#33](https://github.com/sudakshsoti/agent-config/issues/33)** is the parent specification for #34–#42. Track it as the parent; do not pick it up as an independent implementation task.
 
-## Triage labels
+## Status
 
-| Issues | Category | Current state |
+As of 2026-09-14. "Local branch" means committed on `jolly-fuzzy-glyph`, not yet
+pushed or merged, so the issue stays open until the PR merges.
+
+| Issue | State | Notes |
 | --- | --- | --- |
-| #33 | `enhancement` | `ready-for-agent` (parent/spec only) |
-| #34–#41 | `enhancement` | `ready-for-agent` |
-| #42 | `enhancement` | `needs-triage` until dependencies complete; then `ready-for-human` |
-| #43 | `bug` | `needs-triage` |
-| #44–#45 | `enhancement` | `needs-triage` |
-
-`needs-info` and `wontfix` are available for future triage but are not appropriate for the current open issues.
+| #33 | open | parent spec only |
+| #34, #36 | closed, completed | PR #49 |
+| #35 | implemented on local branch | `node_modules/` was already ignored on `main`; ownership-contract doc updates not applicable |
+| #37 | implemented on local branch | one consumer predicate gates fill and prune |
+| #39 | implemented on local branch | `plugins.txt` and catalogue count checks; `sync.sh` filter superseded by the cull |
+| #40 | partly implemented on local branch | chezmoi collision check done; `ownership.tsv` and Codex key partition not applicable (never on `main`, Codex config removed by the cull) |
+| #41 | implemented on local branch | `host-overlay-link` category deferred pending #38; Codex key-overlap category dropped |
+| #38 | on hold | conflicts with the cull plan, which retains the host OMP overlays; needs a maintainer decision |
+| #42 | runbook prepared | `docs/phase-2-live-apply.md`; becomes `ready-for-human` once the branch merges and #38/#40 scope is decided |
+| #43, #46–#48 | closed, not planned | `pi-claude-bridge` lives outside this repository |
+| #44, #45 | `needs-triage` | re-triage after Phase 2 |
 
 ## Tracker metadata
 
@@ -75,8 +75,8 @@ No duplicate issue is needed.
 
 ## How to proceed
 
-1. Verify and resolve #43, or move it to `needs-info` with concrete reporter questions.
-2. Start #34 and #36 as the first implementation wave.
+1. Push `jolly-fuzzy-glyph`, open the Phase 2 PR, and close #35, #37, #39 and #41 when it merges.
+2. Decide #38 (retire or keep host overlays) and whether #40's contract half is closed as superseded.
 3. Keep the GitHub `blocked by` relationships up to date as issues close or scope changes.
 4. Run the narrow relevant tests after each issue, then run `bash scripts/check.sh` at the Phase 2 closeout.
 5. Do not perform the live home/dotfiles apply from an AFK agent; reserve #42 for an explicit human-run session.
