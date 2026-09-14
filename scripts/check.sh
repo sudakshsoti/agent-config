@@ -39,7 +39,7 @@ run "test-design-instructions.py" python3 "$repo_root/scripts/test-design-instru
 run "test-install-selected-skills.py" python3 "$repo_root/scripts/test-install-selected-skills.py"
 run "test-omp-catastrophe-policy.py" python3 "$repo_root/scripts/test-omp-catastrophe-policy.py"
 run "test-catastrophe-guard.mjs" node "$repo_root/scripts/test-catastrophe-guard.mjs"
-run "test-build-agent-sandbox-bundle.py" python3 "$repo_root/scripts/test-build-agent-sandbox-bundle.py"
+run "test-operational-footer.mjs" node "$repo_root/scripts/test-operational-footer.mjs"
 
 echo "check.sh"
 printf '%s\n' "${results[@]}"
