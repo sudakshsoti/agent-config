@@ -9,7 +9,7 @@
 | Work normally in the current checkout | `pi` or `omp` | Current host checkout | Host |
 | Parallel branch with immediate host/editor visibility | `pw TASK` or `ompw TASK` | Host linked worktree; shared host Git metadata | Host |
 | Sandbox edits one standalone host checkout directly | `pis` or `omps` | Direct host mount; repository checkpoint first | Sandbox-local |
-| Isolate one task from host files and Git metadata | `pws TASK` or `ompws TASK` | Private local sandbox clone | Sandbox-local per task |
+| Isolate one task from host files and Git metadata | `pws TASK` or `ompws TASK` | Docker-managed private local clone | Sandbox-local per task |
 
 Practical rule:
 
@@ -67,35 +67,28 @@ The following are deliberately deferred until v2: `copy`, `rescue`, `doctor`, re
 
 ## Start an isolated task
 
-Run from the canonical standalone repository:
+Run from the canonical main repository checkout, not a linked worktree:
 
 ```zsh
 cd ~/dev/finance
 pws payment-report
 ```
 
-The system creates:
+The system passes the canonical `finance` checkout directly to Docker's clone mode. Docker creates:
 
-1. a private, immutable source checkout for this task;
-2. a local clone-mode Docker Sandbox;
-3. guest branch `task/payment-report`;
-4. pinned Pi configuration inside the guest.
+1. a private writable Git clone inside the sandbox;
+2. guest branch `task/payment-report`;
+3. pinned Pi configuration inside the guest.
 
-The task's source mount is never shared with another task. The canonical `finance` checkout is not mounted, edited, reconfigured, or checkpointed.
+The canonical checkout is used as the clone input and remains outside the guest clone's writable files and Git metadata. No custom mirror or per-task source checkout is created, and task mode does not create a direct-mode checkpoint.
 
 Task sandboxes are always local. The wrapper rejects `--cloud` and cloud sandbox identifiers; cloud sandboxes are outside v1.
 
 ### Select the base
 
-The default is fresh `origin/main`, matching `pw`.
+Docker clone mode follows whichever committed ref the canonical main checkout has checked out at creation time. No branch is created automatically by Docker; the task engine records that base commit and then creates guest branch `task/payment-report` from it.
 
-To include commits on the current local branch:
-
-```zsh
-pws run payment-report --base HEAD
-```
-
-Only committed history is included. An unpushed `HEAD` is pinned to a task-specific internal ref and verified through the private source and guest clone.
+To choose a different committed base, check it out in the canonical main checkout first, then start the task. The checkout must be clean. V1 does not create mirror refs, temporarily switch the canonical checkout, or independently select `origin/main`. Because this changes the ref visible to host work using that checkout, do it only when no other direct or host task depends on the current ref.
 
 Task creation refuses while the canonical checkout has tracked, staged, or untracked changes:
 
@@ -105,7 +98,7 @@ git status --short --ignored
 
 Commit, stash, or remove those non-ignored changes before retrying. Ignored files do not block creation, but they are absent from the task. V1 cannot copy host-only `.env` or ignored files through `pws`; arrange required non-secret configuration manually during the pilot.
 
-A repository without `origin/main` requires an explicit supported base. The tool does not guess.
+An uncommitted or linked-worktree source is rejected because Docker clone mode requires the main Git checkout. The tool does not guess or silently change the base.
 
 ## First launch and authentication
 
@@ -144,7 +137,7 @@ cd ~/dev/finance
 ompws investigate-tax-rounding
 ```
 
-Each task has its own immutable host source and private guest repository. Tasks in different repositories may reuse the same display name because their full identity also includes the canonical repository.
+Each task has its own Docker-managed private guest clone. Tasks in different repositories may reuse the same display name because their full identity also includes the canonical repository.
 
 Inspect tasks with:
 
@@ -245,9 +238,9 @@ Removal refuses unless:
 - no session is active;
 - tracked, staged, and untracked state is clean;
 - guest `HEAD` equals the verified exported commit;
-- task registry, immutable source, sandbox, and guest identity agree.
+- task registry, canonical checkout, sandbox, and guest identity agree.
 
-The tool removes the sandbox before its immutable source checkout. If either step fails, it stops and reports the surviving paths.
+The tool removes the Docker-managed sandbox clone. If removal fails, it stops and reports the surviving sandbox and recovery paths. If the canonical checkout was moved or deleted, removal refuses until the recorded path is restored.
 
 Removal destroys sandbox-local authentication, agent sessions, ignored files, and installed guest tools. The verified source bundle is retained according to its documented retention policy.
 
