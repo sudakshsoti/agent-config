@@ -98,7 +98,6 @@
     "npm:pi-token-speed",
     "npm:pi-quiet-activity",
     "npm:pi-mcp-adapter",
-    "npm:pi-claude-bridge",
     {
       "source": "npm:cc-safety-net",
       "extensions": []
