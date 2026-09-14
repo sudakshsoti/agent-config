@@ -101,3 +101,17 @@ Secrets belong in dotfiles (1Password + age), never here.
 - `~/.omp/stats.db` stopped recording around 2026-09-02 19:04; use live `model_perf` in `~/.omp/agent/agent.db` for served-model evidence.
 - Another process may push to the active feature branch between local commits. Fetch before pushing; if the remote advanced, preserve unrelated dirty files, rebase, then restore them.
 - `npm ci` restores the ignored `node_modules/` (it carries `pi-token-speed`, consumed by `pi/settings.json`). Never commit it.
+
+## Agent skills
+
+### Issue tracker
+
+Issues for this repo live in GitHub Issues and are managed with the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the canonical labels `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, and `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This is a single-context repo using a root `CONTEXT.md` and `docs/adr/`. See `docs/agents/domain.md`.

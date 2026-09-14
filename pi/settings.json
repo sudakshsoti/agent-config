@@ -11,7 +11,7 @@
   "theme": "kohra",
   "quietStartup": true,
   "showLastPrompt": false,
-  "hideThinkingBlock": false,
+  "hideThinkingBlock": true,
   "compaction": {
     "enabled": true,
     "reserveTokens": 49152,
