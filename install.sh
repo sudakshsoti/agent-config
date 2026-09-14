@@ -589,13 +589,19 @@ fi
 #     discovered twice — the exact mistake baseline made and that AGENTS.md
 #     warns about.
 if [ ! -d "$PI" ]; then
-  echo "⚠️  SKIP pi — no $PI (pi not installed). settings.json, pi-fff.json, subagents.json, prompts/, themes/ and agents/ not linked."
+  echo "⚠️  SKIP pi — no $PI (pi not installed). settings.json, pi-fff.json, keybindings.json, subagents.json, prompts/, themes/ and agents/ not linked."
 fi
 if [ -d "$PI" ] && [ -f "$REPO/pi/settings.json" ]; then
   link_into "$REPO/pi/settings.json" "$PI/settings.json"
 fi
 if [ -d "$PI" ] && [ -f "$REPO/pi/pi-fff.json" ]; then
   link_into "$REPO/pi/pi-fff.json" "$PI/pi-fff.json"
+fi
+# pi keybindings: overrides only — every action pi does not name here keeps its
+# default chord. app.tools.expand defaults to ctrl+o alone; ctrl+shift+o is the
+# chord muscle memory reaches for and was unbound outside /tree.
+if [ -d "$PI" ] && [ -f "$REPO/pi/keybindings.json" ]; then
+  link_into "$REPO/pi/keybindings.json" "$PI/keybindings.json"
 fi
 # 3l. pi-subagents settings: background-only widget and FleetView off. Global scope only — the
 #     /agents menu writes to <cwd>/.pi/subagents.json, never to this file, so a

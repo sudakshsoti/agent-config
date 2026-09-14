@@ -11,7 +11,7 @@
   "theme": "kohra",
   "quietStartup": true,
   "showLastPrompt": false,
-  "hideThinkingBlock": true,
+  "hideThinkingBlock": false,
   "compaction": {
     "enabled": true,
     "reserveTokens": 49152,
@@ -81,6 +81,9 @@
       }
     ]
   },
+  "extensions": [
+    "-extensions/catastrophe-guard/index.js"
+  ],
   "packages": [
     "npm:@tintinweb/pi-subagents@0.19.0",
     "npm:@juicesharp/rpiv-ask-user-question@2.6.0",
@@ -96,7 +99,10 @@
     "npm:pi-quiet-activity",
     "npm:pi-mcp-adapter",
     "npm:pi-claude-bridge",
-    "npm:cc-safety-net",
+    {
+      "source": "npm:cc-safety-net",
+      "extensions": []
+    },
     "git:github.com/elpapi42/pi-observational-memory"
   ],
   "lastChangelogVersion": "0.85.1",
