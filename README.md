@@ -38,7 +38,9 @@ Three destinations, and nothing else.
   if `~/.omp/agent` exists.
 - `omp/keybindings.yml`, `omp/lsp.yml`, `omp/themes/*.json`, `omp/agents/*.md` —
   linked individually into `~/.omp/agent/`, so machine-local entries survive.
-  `adversary` is the cross-lineage plan reviewer behind `/peer-review`.
+  `adversary` is the cross-lineage plan reviewer behind `/peer-review`;
+  `builder`, `code-worker`, `plan`, `critic`, `research` and `workflow` port
+  Pi's roles, with models set in `task.agentModelOverrides`.
 - `omp/overlays/*` — model-role overlays symlinked into `~/.config/omp/`.
   `ompgo` loads `go-overlay.yml`; `ompcodex` loads `codex-only-overlay.yml`.
   Both shell functions use `omp --config` for one session without changing the

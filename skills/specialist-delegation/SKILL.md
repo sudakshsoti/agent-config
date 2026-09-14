@@ -1,15 +1,15 @@
 ---
 name: specialist-delegation
-description: "Use in Pi when deciding whether to delegate work, selecting specialist subagents, or preparing and verifying a worker handoff. Owns individual dispatches; use workstreams for dependencies, edit ownership, and integration across multiple implementation streams."
-compatibility: "Pi with the Agent subagent tool; check the live tool schema and available agent roles."
+description: "Use in Pi or OMP when deciding whether to delegate work, selecting specialist subagents, or preparing and verifying a worker handoff. Owns individual dispatches; use workstreams for dependencies, edit ownership, and integration across multiple implementation streams."
+compatibility: "Pi with the Agent subagent tool, or OMP with the task tool; check the live tool schema and available agent roles."
 ---
 
-# Pi specialist delegation
+# Specialist delegation
 
 Delegate a bounded outcome, not responsibility for understanding the task. This
-skill is Pi-specific even though it is distributed through the shared skills
-root. If Pi's Agent tool is unavailable, work directly or report the limitation;
-do not invent an API or install another coordinator.
+skill covers Pi (the `Agent` tool) and OMP (the `task` tool). If neither
+delegation tool is available, work directly or report the limitation; do not
+invent an API or install another coordinator.
 
 ## Decide before dispatching
 
@@ -25,32 +25,36 @@ not delegate merely to use more agents, duplicate a running investigation, or
 ask a child to recursively delegate a bounded lookup.
 
 For multiple implementation streams with dependencies or shared edit risks,
-load [pi-workstreams](../pi-workstreams/SKILL.md) first. Independent lookups do
+load [workstreams](../workstreams/SKILL.md) first. Independent lookups do
 not need a workflow graph.
 
 ## Select by role, permission, and judgment
 
 Inspect the currently available roles and tool schema. In this repository,
-`pi/agents/*.md` and `pi/model-ladder.md` own routing; these are agent-config
-source paths, not paths to assume in the target project. In an installed
-session, inspect available role definitions (normally `~/.pi/agent/agents/`)
-and the live tool schema. Do not copy model IDs into packets as permanent
+Pi routing lives in `pi/agents/*.md` and `pi/model-ladder.md`; OMP mirrors that
+ladder in `omp/agents/*.md` plus `task.agentModelOverrides` in `omp/config.yml`,
+which takes precedence over agent frontmatter. These are agent-config source
+paths, not paths to assume in the target project. In an installed session,
+inspect available role definitions (normally `~/.pi/agent/agents/` or
+`~/.omp/agent/agents/` plus OMP's bundled agents) and the live tool schema. Do not copy model IDs into packets as permanent
 policy. Project role overrides may differ. Use the least
 expensive capable role, not an unspecified child inheriting the parent model.
 
-| Work | Starting role | Boundary |
-| --- | --- | --- |
-| One bounded path, reference, or fact lookup | `scout` | Read-only; return a conclusion with locations. |
-| Unknown code paths, existing patterns, dependencies | `Explore` | Read-only discovery; parent synthesizes the change. |
-| Public/disposable source lookup | `public-scout` | Never private code, user data, unreleased designs, or credentials. |
-| Primary-source investigation and cited report | `research` | Follow the research skill; reserve its report path as a write. |
-| Precise low-risk fix, test, mechanical refactor | `code-worker` | Parent has already made design decisions; exact scope and checks. |
-| Approved interface implementation | `builder` | Follow vibe and relevant design skills, including rendered evidence. |
-| UX implementation plan | `Plan` | Read-only planning, not a generic backend architect. |
-| Supplied interface screenshots | `Critic` | Read-only visual review, not engineering peer review. |
-| Adversarial plan/diff review | `reviewer` | Read-only; preserve the second-lineage requirement for peer review. |
-| Broader reasoning or implementation outside these contracts | `general-purpose` | Explicit scope; use only when a narrower specialist is insufficient. |
-| Approved multi-part coordination | `workflow` | Check its child-role restrictions; see pi-workstreams. |
+| Work | Pi role | OMP agent | Boundary |
+| --- | --- | --- | --- |
+| One bounded path, reference, or fact lookup | `scout` | `scout` | Read-only; return a conclusion with locations. |
+| Unknown code paths, existing patterns, dependencies | `Explore` | `scout` | Read-only discovery; parent synthesizes the change. |
+| Public/disposable source lookup | `public-scout` | `scout` | Never private code, user data, unreleased designs, or credentials. |
+| Primary-source investigation and cited report | `research` | `research` | Follow the research skill; reserve its report path as a write. |
+| Precise low-risk fix, test, mechanical refactor | `code-worker` | `code-worker` | Parent has already made design decisions; exact scope and checks. |
+| Strictly mechanical update or data collection | `code-worker` | `sonic` | No judgement; exact instructions. |
+| Approved interface implementation | `builder` | `builder` | Follow vibe and relevant design skills, including rendered evidence. |
+| UX implementation plan | `Plan` | `plan` | Read-only planning, not a generic backend architect. |
+| Supplied interface screenshots | `Critic` | `critic` | Read-only visual review, not engineering peer review. |
+| Adversarial plan/diff review | `reviewer` | `adversary` | Read-only; preserve the second-lineage requirement for peer review. |
+| Structured review of recent code changes | `reviewer` | `reviewer` | OMP's bundled `/review` contract; keep its output shape. |
+| Broader reasoning or implementation outside these contracts | `general-purpose` | `task` | Explicit scope; use only when a narrower specialist is insufficient. |
+| Approved multi-part coordination | `workflow` | `workflow` | Check its child-role restrictions; see workstreams. |
 
 Escalate judgment-heavy or security-sensitive work rather than forcing it into
 `code-worker`. If overriding model or thinking, follow the current ladder and
@@ -87,8 +91,11 @@ before editing, not permission to redesign adjacent code.
 
 ## Launch and coordinate
 
-- Use `Agent` with the exact `subagent_type`, a short description, and the
-  packet. Inspect the live schema rather than assuming optional tools exist.
+- **Pi:** use `Agent` with the exact `subagent_type`, a short description, and
+  the packet. **OMP:** use `task` with the exact `agent`, the shared packet in
+  `context`, and one `tasks` entry per assignment (`isolated` requests a
+  worktree when enabled). Inspect the live schema rather than assuming optional
+  tools exist.
 - Set `run_in_background: true` when other useful work can continue. Use false
   only when the very next action depends on the result and there is nothing
   else useful to do. Defaults vary across installations; be explicit.
@@ -125,8 +132,8 @@ Report what was verified and what remains uncertain, not merely â€œagent done.â€
 - `self-review` owns the in-lineage plan check; `peer-review` owns adversarial
   cross-lineage plan review. Use `code-review` for its standards/spec diff review.
 - `execute-plan` owns hands-off execution of a supplied checklist, including its
-  checkpoint policy. This skill supplies Pi routing, not a second execution
-  loop. Follow its Pi verification exception rather than the general
-  no-reinspection shortcut.
+  checkpoint policy. This skill supplies harness routing, not a second
+  execution loop. Follow its delegation verification rule rather than the
+  general no-reinspection shortcut.
 - `handoff` creates session-continuity documents; a worker packet is not a
   request to create one.

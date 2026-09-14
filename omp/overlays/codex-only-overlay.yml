@@ -40,6 +40,12 @@ task:
     sonic: openai-codex/gpt-5.6-luna:low
     reviewer: openai-codex/gpt-5.6-sol:high
     security-reviewer: openai-codex/gpt-5.6-sol:high
+    code-worker: openai-codex/gpt-5.6-luna:high
+    builder: openai-codex/gpt-5.6-terra:high
+    plan: openai-codex/gpt-5.6-sol:high
+    critic: openai-codex/gpt-5.6-sol:high
+    workflow: openai-codex/gpt-5.6-sol:medium
+    research: openai-codex/gpt-5.6-terra:high
 retry:
   fallbackChains:
     openai-codex/*:

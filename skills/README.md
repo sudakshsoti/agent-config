@@ -75,17 +75,17 @@ dashboard, settings, or lookup-documentation work.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
 - `obsidian-markdown` — Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.
 - `peer-review` — Adversarial cross-lineage review of an engineering plan written by another agent. `/peer-review`.
-- `specialist-delegation` — In Pi, choose specialist subagents, brief bounded work, and retain synthesis and verification responsibility.
-- `workstreams` — In Pi, coordinate approved implementation streams with dependencies, exclusive edit ownership, blockers, and integration verification.
 - `research` — Investigate primary sources and record cited findings in a Markdown report.
 - `rights-counsel` — Indian consumer, EPF, and insurance rights analyst for advice, complaints, notices, and representations.
 - `self-review` — Critique your own plan against a fixed checklist, then revise it. `/self-review`.
 - `shopping-research` — Purchase advisor for buying in India: product comparisons, pricing, sellers, deals, and when to buy.
 - `skill-lifecycle` — Add, rename, retire, install, and audit repo-owned skills without stale inventory or orphan references.
+- `specialist-delegation` — In Pi or OMP, choose specialist subagents, brief bounded work, and retain synthesis and verification responsibility.
 - `strategy-counsel` — Strategic advisor for power, influence, and negotiation inside organisations and in arm's-length dealings.
 - `ux-writing` — User-centered interface microcopy: buttons, errors, empty states, onboarding, voice/tone, a11y.
 - `vbc-design` — Deep payer/provider healthcare design: value-based-care economics, role workflows, data and attribution gotchas, registry and cohort design, grounded in Value Connect.
 - `vedic-astrology` — Vedic astrology (Jyotish) advisor for charts, dashas, transits, timing, compatibility, and remedies.
+- `workstreams` — In Pi or OMP, coordinate approved implementation streams with dependencies, exclusive edit ownership, blockers, and integration verification.
 - `writing-editor` — Writing partner for personal essays and blog posts: get words onto the page, then shape them into something publishable.
 
 The retired design-pipeline skills (`app-ui`, `brand-studio`, `design-brief`,
@@ -98,12 +98,11 @@ repo-owned skills. `frontend-design` is an external marketing and brand skill,
 not the route for product, reference, utility, dashboard, settings, or
 lookup-documentation work.
 
-## Pi implementation coordination
+## Implementation coordination
 
 `specialist-delegation` owns individual worker selection and handoffs;
 `workstreams` uses it when multiple implementation streams need dependency
-and integration management. Both are Pi-specific despite sharing the normal
-installation root. Neither changes agent permissions, model routing, or enables
+and integration management. Both cover Pi and OMP role names. Neither changes agent permissions, model routing, or enables
 named workflow features. `execute-plan` remains the agent-agnostic checklist
 executor; choose one execution loop rather than stacking schedulers. Existing
 implementation, UI, and review skills still own their domain-specific checks.

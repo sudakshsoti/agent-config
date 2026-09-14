@@ -35,6 +35,12 @@ task:
     sonic: opencode-go/muse-spark-1.3-contributor:xhigh
     reviewer: opencode-go/muse-spark-1.3-contributor:xhigh
     security-reviewer: opencode-go/muse-spark-1.3-contributor:xhigh
+    code-worker: opencode-go/deepseek-v4.1-flash:high
+    builder: opencode-go/muse-spark-1.3-contributor:xhigh
+    plan: opencode-go/glm-5.3-flash:high
+    critic: opencode-go/glm-5.3-flash:high
+    workflow: opencode-go/glm-5.3-flash:high
+    research: opencode-go/muse-spark-1.3-contributor:high
 retry:
   fallbackChains:
     opencode-go/*:

@@ -26,7 +26,7 @@ How the roles run depends on the harness:
 | Harness | Plan | Builder | Critic |
 | --- | --- | --- | --- |
 | Pi | `Plan` subagent in the foreground | `builder` subagent | `Critic` subagent with images attached |
-| OMP | main session, sequentially | main session | a second non-interactive run with the images, stdin closed |
+| OMP | `plan` subagent via `task` | `builder` subagent | `critic` subagent given the absolute screenshot paths to read |
 
 When a role runs in the main session, still write its output in the role's shape before moving on. The Critic must run in a fresh context: a session reviewing its own build approves it. If no image-capable reviewer exists, report "Critic pass unavailable" and do not claim visual quality.
 

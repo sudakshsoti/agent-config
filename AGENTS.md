@@ -96,12 +96,22 @@ Secrets belong in dotfiles (1Password + age), never here.
 
   | Roles/settings | Value |
   | --- | --- |
-  | `default`/`task` | `openai-codex/gpt-5.6-luna:high` |
-  | `plan`/`slow` | `openai-codex/gpt-5.6-sol:medium` |
-  | `designer`/`vision` | `openai-codex/gpt-5.6-sol:high` |
+  | `default` role; `builder` agent | `openai-codex/gpt-5.6-luna:high` |
+  | `task` role and agent | `openai-codex/gpt-5.6-luna:medium` |
+  | `plan`/`designer`/`vision` roles; `plan`/`critic` agents | `openai-codex/gpt-5.6-sol:high` |
+  | `slow` role; `workflow` agent | `openai-codex/gpt-5.6-sol:medium` |
   | `adversary`/`reviewer`/`security-reviewer`/`advisor` | `opencode-go/glm-5.3-flash:high` |
-  | `scout` | `opencode-go/deepseek-v4-flash:low` |
+  | `scout` agent | `opencode-go/muse-spark-1.3-contributor:minimal` |
+  | `research` agent | `opencode-go/muse-spark-1.3-contributor:high` |
+  | `code-worker` agent | `opencode-go/deepseek-v4.1-flash:high` |
   | `usageAwareFallback` / `codeMode` | `false` / `"off"` |
+
+  Agent models mirror the Pi ladder through `task.agentModelOverrides`, which
+  beats agent frontmatter; each overlay must override every agent too, or a
+  base `opencode-go` pin leaks into `ompcodex`. OMP's bundled `scout`,
+  `reviewer`, `security-reviewer`, `task` and `sonic` are kept, not shadowed:
+  `/review` depends on bundled `reviewer`. Pi `Explore`/`public-scout` map to
+  OMP `scout`, Pi `reviewer` to `adversary`, Pi `general-purpose` to `task`.
 
   Overlays differ. `omp -p` from a persistent kernel needs closed stdin
   (`stdin=DEVNULL` or `</dev/null`) or it waits at `readPipedInput`.
@@ -121,8 +131,8 @@ Secrets belong in dotfiles (1Password + age), never here.
   `omp token <provider>` shows the key actually used.
 - Muse Spark requires `/v1/responses` and omp ≥18.1.6; installed omp is 18.1.21.
   Pi's catalogue uses `api: openai-responses` at
-  `https://opencode.ai/zen/go/v1`. No plain OMP role uses Muse Spark;
-  `omp/overlays/go-overlay.yml` may.
+  `https://opencode.ai/zen/go/v1`. Plain OMP uses Muse Spark only for the
+  `scout` and `research` agents; `omp/overlays/go-overlay.yml` uses it more.
 - Pi has no OMP-style `modelRoles` or `fallbackChains`; per-job models are in
   `pi/agents/*.md` frontmatter. Default is `openai-codex/gpt-5.6-luna`.
   Routing: main/builder → Luna high; code-worker → DeepSeek V4.1 Flash high

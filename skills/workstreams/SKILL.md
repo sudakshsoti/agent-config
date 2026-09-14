@@ -1,10 +1,10 @@
 ---
 name: workstreams
-description: "Use in Pi when a larger approved implementation needs multiple workstreams with dependencies, exclusive edit ownership, blockers, and an integration gate. Uses specialist-delegation for worker dispatch; not for trivial edits or a second execution loop over an execute-plan checklist."
-compatibility: "Pi with the Agent subagent tool; no named workflow feature or external coordinator required."
+description: "Use in Pi or OMP when a larger approved implementation needs multiple workstreams with dependencies, exclusive edit ownership, blockers, and an integration gate. Uses specialist-delegation for worker dispatch; not for trivial edits or a second execution loop over an execute-plan checklist."
+compatibility: "Pi with the Agent subagent tool, or OMP with the task tool; no named workflow feature or external coordinator required."
 ---
 
-# Pi workstreams
+# Workstreams
 
 Coordinate an approved implementation as a small dependency graph. The main
 session retains responsibility for requirements, technical synthesis, scope,
@@ -19,7 +19,7 @@ separate specialist proof, or a shared integration gate.
 
 Do the work directly for a one-file change, tightly coupled edits, or work whose
 briefings cost more than the implementation. Several independent lookups need
-only [pi-specialist-delegation](../pi-specialist-delegation/SKILL.md). Serial
+only [specialist-delegation](../specialist-delegation/SKILL.md). Serial
 execution is a valid outcome; do not invent parallelism to justify a workflow.
 
 Before dispatch:
@@ -39,24 +39,26 @@ Before dispatch:
 ## Pick one coordinator
 
 Normally the main session coordinates and dispatches implementation specialists
-using `pi-specialist-delegation`. Do not create a second scheduler for the same
+using `specialist-delegation`. Do not create a second scheduler for the same
 work or let workers recursively build their own fleets.
 
 The configured `workflow` agent is an optional owner of one disjoint approved
 slice, not a mandatory orchestrator. This repository currently restricts its
-children to `Plan`, `Explore`, `scout`, and `public-scout`; its instructions
+children to `Plan`, `Explore`, `scout`, and `public-scout` in Pi, and to `plan`
+and `scout` in OMP (its `spawns` list); its instructions
 permit only discovery/planning delegation. It can implement its assigned slice
 itself and return evidence, but cannot be told to dispatch `code-worker` or
 `builder`. Read the active role before use; do not bypass its allowlist or edit
 configuration to expand its authority.
 
-In agent-config, `pi/subagents.json` currently disables named workflows (the
-installed settings normally live at `~/.pi/agent/subagents.json`). These are
+In agent-config, `pi/subagents.json` currently disables Pi named workflows (the
+installed settings normally live at `~/.pi/agent/subagents.json`); OMP has no
+separate workflow runtime to enable. These are
 current configuration facts, not permanent requirements; inspect active role
 and tool definitions rather than assuming source paths exist in the target
-project. Ordinary Agent calls
+project. Ordinary Agent (Pi) or task (OMP) calls
 are sufficient for this method; do not enable workflow settings or assume a
-workflow/DAG runtime API exists. Use available task tracking and Agent tools.
+workflow/DAG runtime API exists. Use available task tracking and delegation tools.
 
 ## Model deliverables and blocking edges
 
@@ -100,13 +102,13 @@ Workers must stop before expanding their write set. Serialize formatters,
 codegen, snapshot updates, or tests that mutate shared fixtures or use the same
 exclusive external resource.
 
-**Isolated worktrees:** use only when the live Agent tool supports them and the
+**Isolated worktrees:** use only when the live delegation tool supports them and the
 repository permits them. An isolated worker sees the committed base, not the
 parent's uncommitted changes. Do not dispatch dependent work until its required
 inputs exist in that base, or choose serial shared-checkout execution. Never
 commit unrelated dirty files just to make a worktree see them.
 
-The Agent tool may return a committed branch and remove its temporary worktree
+The delegation tool may return a committed branch and remove its temporary worktree
 on completion. Explain that impact before using isolation; preserve the returned
 branch/commit and inspect it before integration. Isolation prevents concurrent
 filesystem writes, not semantic conflicts or inconsistent shared interfaces.
@@ -120,12 +122,13 @@ sweep sibling changes with `git add -A` or `commit -a`.
 
 ## Dispatch and advance only ready work
 
-Use the packet and role selection in `pi-specialist-delegation`; add the slice
+Use the packet and role selection in `specialist-delegation`; add the slice
 ID, accepted upstream revision, exclusive write paths, integration owner, and
 stop conditions. Bound both the work and the expected return.
 
 1. Select a small ready batch with satisfied dependencies and disjoint writes.
-2. Send independent Agent calls in a single message; explicitly choose
+2. Send independent delegation calls in a single message (in OMP, one `task`
+   call with several `tasks` entries); explicitly choose
    background execution when useful work remains.
 3. Record IDs, then work on a non-overlapping task. Do not duplicate a worker's
    investigation or poll for background results; consume completion notices.
@@ -189,8 +192,8 @@ the sole progress mechanism. When explicit cross-stream coordination is needed,
 choose this skill as the execution mode and state the choice; do not silently
 change an explicitly requested execute-plan or commit policy.
 
-Both modes use pi-specialist-delegation's acceptance verification for individual
-workers. Execute-plan's Pi exception makes that verification explicit; the final
+Both modes use specialist-delegation's acceptance verification for individual
+workers. Execute-plan's delegation rule makes that verification explicit; the final
 cross-stream integration gate above is additional proof, not a duplicate worker
 review.
 
