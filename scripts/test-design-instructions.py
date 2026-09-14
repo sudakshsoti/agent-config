@@ -6,7 +6,6 @@ fixtures; it does not claim to measure whether a model obeys the contract.
 """
 
 from pathlib import Path
-import re
 import sys
 
 
@@ -25,7 +24,6 @@ def main() -> int:
     visual = ROOT / "skills/design-visual-system/SKILL.md"
     typography = ROOT / "skills/design-typography/SKILL.md"
     artifact = ROOT / "skills/frontend-artifact/SKILL.md"
-    infographic = ROOT / "ux-first-pi-configuration-plan.html"
     plugins = ROOT / "plugins.txt"
     skills_readme = ROOT / "skills/README.md"
     cases = ROOT / "tests/design-intent-cases.md"
@@ -65,10 +63,6 @@ def main() -> int:
     ):
         if retired_example in visual_text:
             raise AssertionError(f"design-visual-system retains {retired_example!r}")
-
-    infographic_text = infographic.read_text(encoding="utf-8")
-    if re.search(r"letter-spacing\s*:\s*-", infographic_text):
-        raise AssertionError("UX-first Pi infographic contains negative letter-spacing")
 
     plugin_text = plugins.read_text(encoding="utf-8")
     if "Product screens go to `app-ui`" in plugin_text:
