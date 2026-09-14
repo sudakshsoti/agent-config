@@ -23,7 +23,14 @@ const PROTECTED_DIRS = ["/Users", "/Volumes", "/dev"];
 
 const SHELL_SEPARATOR = /(?:&&|\|\||[;&|\n])/;
 const ENV_ASSIGNMENT = /^[A-Za-z_][A-Za-z0-9_]*=/;
-const COMMAND_WRAPPERS = new Set(["command", "env", "nice", "nohup", "time", "exec"]);
+const COMMAND_WRAPPERS = new Set([
+  "command",
+  "env",
+  "nice",
+  "nohup",
+  "time",
+  "exec",
+]);
 
 function stripQuotes(token) {
   if (typeof token !== "string" || token.length < 2) return token;
@@ -44,13 +51,15 @@ function commandName(token) {
 }
 
 function segments(command) {
-  return String(command ?? "")
-    // `\<newline>` is a line continuation: the shell joins the lines, so
-    // treating them as separate segments would hide the arguments that follow.
-    .replace(/\\\r?\n/g, " ")
-    .split(SHELL_SEPARATOR)
-    .map((segment) => segment.trim())
-    .filter(Boolean);
+  return (
+    String(command ?? "")
+      // `\<newline>` is a line continuation: the shell joins the lines, so
+      // treating them as separate segments would hide the arguments that follow.
+      .replace(/\\\r?\n/g, " ")
+      .split(SHELL_SEPARATOR)
+      .map((segment) => segment.trim())
+      .filter(Boolean)
+  );
 }
 
 // Locate the actual command inside a pipeline segment, skipping leading
@@ -62,14 +71,23 @@ function resolveCommand(tokens) {
   let advanced = true;
   while (advanced && index < tokens.length) {
     advanced = false;
-    while (index < tokens.length && ENV_ASSIGNMENT.test(stripQuotes(tokens[index]))) {
+    while (
+      index < tokens.length &&
+      ENV_ASSIGNMENT.test(stripQuotes(tokens[index]))
+    ) {
       index += 1;
       advanced = true;
     }
-    while (index < tokens.length && COMMAND_WRAPPERS.has(commandName(tokens[index]))) {
+    while (
+      index < tokens.length &&
+      COMMAND_WRAPPERS.has(commandName(tokens[index]))
+    ) {
       index += 1;
       advanced = true;
-      while (index < tokens.length && stripQuotes(tokens[index]).startsWith("-")) {
+      while (
+        index < tokens.length &&
+        stripQuotes(tokens[index]).startsWith("-")
+      ) {
         index += 1;
       }
     }
@@ -82,7 +100,8 @@ function hasRecursiveFlag(tokens) {
   return tokens.some((token) => {
     const value = stripQuotes(token);
     if (value === "--recursive") return true;
-    if (!value.startsWith("-") || value === "-" || value.startsWith("--")) return false;
+    if (!value.startsWith("-") || value === "-" || value.startsWith("--"))
+      return false;
     return /[rR]/.test(value.slice(1));
   });
 }
@@ -146,7 +165,9 @@ function hardDenyReason(command) {
 
     if (name === "rm" && hasRecursiveFlag(rest)) {
       const targets = positionalArguments(rest);
-      if (targets.some((target) => isProtectedRoot(normalizeShellPath(target)))) {
+      if (
+        targets.some((target) => isProtectedRoot(normalizeShellPath(target)))
+      ) {
         return "recursive rm on a protected root ('/', /Users, /Volumes, ~, /dev)";
       }
     }
@@ -164,7 +185,9 @@ function hardDenyReason(command) {
 
     if ((name === "chmod" || name === "chown") && hasRecursiveFlag(rest)) {
       const targets = positionalArguments(rest);
-      if (targets.some((target) => isProtectedRoot(normalizeShellPath(target)))) {
+      if (
+        targets.some((target) => isProtectedRoot(normalizeShellPath(target)))
+      ) {
         return `recursive ${name} on a protected root ('/', /Users, /Volumes, ~, /dev)`;
       }
     }
@@ -333,7 +356,10 @@ export async function handleToolCall(event, ctx) {
           reason: `${detail}\n\nBlocked: no UI is available to confirm.`,
         };
       }
-      const approved = await ctx.ui.confirm("Confirm destructive command", detail);
+      const approved = await ctx.ui.confirm(
+        "Confirm destructive command",
+        detail,
+      );
       if (!approved) return { block: true, reason: "Blocked by user" };
     }
   }

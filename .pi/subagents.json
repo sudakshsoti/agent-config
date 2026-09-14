@@ -18,8 +18,8 @@
   "worktreeIsolation": true,
   "workflowsEnabled": false,
   "maxSubagentDepth": 2,
-  "reportUsage": false,
-  "showCost": false,
+  "reportUsage": true,
+  "showCost": true,
   "showModel": true,
   "viewerMarkdown": "assistant"
 }

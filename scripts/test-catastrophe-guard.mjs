@@ -44,7 +44,10 @@ await test("extractWriteTarget reads write and edit input.path", () => {
     "a.txt",
   );
   assert.equal(
-    guard.extractWriteTarget({ toolName: "edit", input: { path: "/tmp/a.txt" } }),
+    guard.extractWriteTarget({
+      toolName: "edit",
+      input: { path: "/tmp/a.txt" },
+    }),
     "/tmp/a.txt",
   );
 });
@@ -123,10 +126,7 @@ await test("isWithin uses exact or separator containment", () => {
 await test("canonicalizePath appends missing components", () => {
   const canonical = guard.canonicalizePath("missing/deep.txt", cwd);
   // macOS exposes /var through /private/var; compare canonicalized paths.
-  assert.equal(
-    canonical,
-    path.join(realpathSync(cwd), "missing", "deep.txt"),
-  );
+  assert.equal(canonical, path.join(realpathSync(cwd), "missing", "deep.txt"));
 });
 
 // ---------------------------------------------------------------------------
@@ -168,11 +168,14 @@ const promptCases = [
   "git push origin main --force-with-lease",
 ];
 
-
 for (const command of denyCases) {
   await test(`deny: ${command}`, () => {
     const result = guard.classifyBash(command);
-    assert.equal(result.verdict, "deny", `expected deny, got ${result.verdict}`);
+    assert.equal(
+      result.verdict,
+      "deny",
+      `expected deny, got ${result.verdict}`,
+    );
     assert.ok(result.reason, "expected a reason");
   });
 }
@@ -180,7 +183,11 @@ for (const command of denyCases) {
 for (const command of promptCases) {
   await test(`prompt: ${command}`, () => {
     const result = guard.classifyBash(command);
-    assert.equal(result.verdict, "prompt", `expected prompt, got ${result.verdict}`);
+    assert.equal(
+      result.verdict,
+      "prompt",
+      `expected prompt, got ${result.verdict}`,
+    );
     assert.ok(result.reason, "expected a reason");
   });
 }
@@ -210,7 +217,11 @@ const genuinelyAllowed = [
 for (const command of genuinelyAllowed) {
   await test(`allow: ${command}`, () => {
     const result = guard.classifyBash(command);
-    assert.equal(result.verdict, "allow", `expected allow, got ${result.verdict}`);
+    assert.equal(
+      result.verdict,
+      "allow",
+      `expected allow, got ${result.verdict}`,
+    );
   });
 }
 

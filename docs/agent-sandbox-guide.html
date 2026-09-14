@@ -1,0 +1,1504 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent sandbox guide</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='24' rx='2' fill='%232f63b7'/%3E%3Cpath d='M10 16h12M16 10v12' stroke='white' stroke-width='2'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --font-read: "Source Serif 4", Georgia, "Times New Roman", serif;
+        --font-code:
+          "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+        --size-body: 1.125rem;
+        --size-small: 0.875rem;
+        --size-h2: 1.5rem;
+        --size-h1: 2.25rem;
+        --leading-body: 1.55;
+        --measure: 66ch;
+        --space: 0.5rem;
+        --ground: oklch(99% 0.004 90);
+        --ink: oklch(22% 0.012 260);
+        --ink-soft: oklch(45% 0.012 260);
+        --rule: oklch(88% 0.008 90);
+        --accent: oklch(50% 0.16 250);
+        --accent-soft: oklch(94% 0.03 250);
+        --good: oklch(42% 0.1 145);
+        --warn: oklch(42% 0.12 70);
+        --radius: 4px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        font-kerning: normal;
+        -webkit-text-size-adjust: 100%;
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--ground);
+        color: var(--ink);
+        font: var(--size-body)/var(--leading-body) var(--font-read);
+        font-optical-sizing: auto;
+      }
+      a {
+        color: var(--accent);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 0.15em;
+      }
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+      code,
+      kbd,
+      samp,
+      .id,
+      .meta,
+      .status-label,
+      .command-label,
+      button {
+        font-family: var(--font-code);
+        font-size: 0.9em;
+      }
+      img,
+      svg {
+        max-width: 100%;
+        height: auto;
+      }
+      .page {
+        max-width: var(--measure);
+        margin: 0 auto;
+        padding: calc(var(--space) * 6) calc(var(--space) * 3)
+          calc(var(--space) * 12);
+      }
+      header .meta {
+        color: var(--ink-soft);
+        margin: 0 0 var(--space);
+      }
+      h1 {
+        font-size: var(--size-h1);
+        line-height: 1.15;
+        font-weight: 600;
+        margin: 0 0 calc(var(--space) * 3);
+        letter-spacing: 0;
+      }
+      h2 {
+        font-size: var(--size-h2);
+        line-height: 1.25;
+        font-weight: 600;
+        margin: calc(var(--space) * 8) 0 calc(var(--space) * 2);
+        letter-spacing: 0;
+      }
+      h3 {
+        font-size: 1.08rem;
+        line-height: 1.35;
+        font-weight: 600;
+        margin: calc(var(--space) * 4) 0 var(--space);
+      }
+      p {
+        margin: 0 0 calc(var(--space) * 2.5);
+      }
+      .lede {
+        font-size: 1.2em;
+        color: var(--ink-soft);
+      }
+      .rule {
+        border: 0;
+        border-top: 1px solid var(--rule);
+        margin: calc(var(--space) * 6) 0;
+      }
+      .status {
+        border-block: 1px solid var(--rule);
+        padding: calc(var(--space) * 2) 0;
+        margin: calc(var(--space) * 3) 0;
+      }
+      .status-label,
+      .command-label {
+        color: var(--ink-soft);
+        font-size: var(--size-small);
+      }
+      .status strong {
+        font-weight: 600;
+      }
+      .status ul {
+        list-style: none;
+        padding: 0;
+        margin: var(--space) 0 0;
+        display: grid;
+        gap: var(--space);
+      }
+      .status li {
+        padding-left: calc(var(--space) * 2);
+        position: relative;
+      }
+      .status li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.65em;
+        inline-size: 0.45em;
+        block-size: 0.45em;
+        border-radius: 50%;
+        background: var(--good);
+      }
+      .status li.pending::before {
+        background: var(--warn);
+      }
+      .callout {
+        border-left: 3px solid var(--accent);
+        background: var(--accent-soft);
+        padding: calc(var(--space) * 1.5) calc(var(--space) * 2);
+        margin: calc(var(--space) * 3) 0;
+        border-radius: 0 var(--radius) var(--radius) 0;
+      }
+      .callout p:last-child {
+        margin-bottom: 0;
+      }
+      .warning {
+        border-left-color: var(--warn);
+        background: oklch(96% 0.025 70);
+      }
+      .good {
+        border-left-color: var(--good);
+        background: oklch(95% 0.025 145);
+      }
+      figure {
+        margin: calc(var(--space) * 4) 0;
+      }
+      .figure-scroll {
+        max-width: 100%;
+        overflow-x: auto;
+        border: 1px solid var(--rule);
+        border-radius: var(--radius);
+        background: #fff;
+        padding: var(--space);
+      }
+      .figure-scroll svg {
+        display: block;
+        min-inline-size: 42rem;
+        width: 100%;
+      }
+      .pan-hint {
+        display: none;
+        font-family: var(--font-code);
+        font-size: var(--size-small);
+        color: var(--ink-soft);
+        margin-bottom: var(--space);
+      }
+      figcaption {
+        font-size: var(--size-small);
+        color: var(--ink-soft);
+        margin-top: var(--space);
+      }
+      figcaption b {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .label {
+        font-family: var(--font-code);
+        font-size: 0.75rem;
+        fill: var(--ink-soft);
+      }
+      .blue-label {
+        fill: var(--accent);
+        font-weight: 500;
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: calc(var(--space) * 2);
+        font-size: var(--size-small);
+        margin-top: var(--space);
+        color: var(--ink-soft);
+      }
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space);
+      }
+      .legend i {
+        display: inline-block;
+        inline-size: 0.8em;
+        block-size: 0.8em;
+        border: 1px solid currentColor;
+      }
+      .legend .blue-key i {
+        background: var(--accent-soft);
+        border-color: var(--accent);
+      }
+      .compare {
+        width: 100%;
+        font-size: var(--size-small);
+        margin: calc(var(--space) * 3) 0;
+        border-collapse: collapse;
+        font-variant-numeric: tabular-nums;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: var(--space) calc(var(--space) * 1.25) var(--space) 0;
+        border-bottom: 1px solid var(--rule);
+        vertical-align: top;
+      }
+      th {
+        font-weight: 600;
+      }
+      .steps {
+        padding-left: 1.35em;
+      }
+      .steps li {
+        padding-left: var(--space);
+        margin-bottom: var(--space);
+      }
+      .command-block {
+        border: 1px solid var(--rule);
+        background: #fff;
+        border-radius: var(--radius);
+        margin: calc(var(--space) * 2) 0;
+      }
+      .command-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space);
+        border-bottom: 1px solid var(--rule);
+        padding: var(--space) calc(var(--space) * 1.5);
+      }
+      .command-label {
+        margin: 0;
+      }
+      .copy-button {
+        min-block-size: 44px;
+        padding: 0 calc(var(--space) * 1.5);
+        border: 1px solid var(--rule);
+        border-radius: var(--radius);
+        color: var(--ink);
+        background: var(--ground);
+        cursor: pointer;
+      }
+      .copy-button:hover {
+        background: var(--accent-soft);
+      }
+      pre {
+        margin: 0;
+        padding: calc(var(--space) * 1.5);
+        overflow-x: auto;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font: 0.88rem/1.5 var(--font-code);
+      }
+      .copy-status {
+        min-block-size: 1.4em;
+        color: var(--good);
+        font-size: var(--size-small);
+        margin: 0 calc(var(--space) * 1.5) var(--space);
+      }
+      .toc {
+        border-bottom: 1px solid var(--rule);
+        padding-bottom: calc(var(--space) * 2);
+      }
+      .toc ol {
+        margin: var(--space) 0 0;
+        padding-left: 1.35em;
+        columns: 2;
+        column-gap: calc(var(--space) * 4);
+      }
+      .toc li {
+        break-inside: avoid;
+        font-size: var(--size-small);
+      }
+      .boundary {
+        border: 1px solid var(--rule);
+        padding: calc(var(--space) * 2);
+        margin: calc(var(--space) * 3) 0;
+      }
+      .boundary fieldset {
+        border: 0;
+        padding: 0;
+        margin: 0;
+      }
+      .boundary legend {
+        font-weight: 600;
+        padding: 0;
+        margin-bottom: var(--space);
+      }
+      .boundary-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space);
+      }
+      .boundary button {
+        min-block-size: 44px;
+        padding: var(--space);
+        text-align: left;
+        border: 1px solid var(--rule);
+        border-radius: var(--radius);
+        background: #fff;
+        color: var(--ink);
+        cursor: pointer;
+      }
+      .boundary button:hover,
+      .boundary button[aria-pressed="true"] {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+      .boundary-answer {
+        margin: calc(var(--space) * 2) 0 0;
+        padding-top: calc(var(--space) * 1.5);
+        border-top: 1px solid var(--rule);
+      }
+      .boundary-answer p:last-child {
+        margin-bottom: 0;
+      }
+      .dl-grid {
+        display: grid;
+        grid-template-columns: minmax(9em, 0.7fr) 1.3fr;
+        gap: 0 calc(var(--space) * 2);
+        margin: calc(var(--space) * 2) 0;
+      }
+      .dl-grid dt,
+      .dl-grid dd {
+        border-bottom: 1px solid var(--rule);
+        padding: var(--space) 0;
+        margin: 0;
+      }
+      .dl-grid dt {
+        font-family: var(--font-code);
+        font-size: var(--size-small);
+        font-weight: 500;
+      }
+      .limitations td:first-child {
+        font-family: var(--font-code);
+      }
+      .small {
+        font-size: var(--size-small);
+        color: var(--ink-soft);
+      }
+      @media (min-width: 72rem) {
+        .toc {
+          position: sticky;
+          top: var(--space);
+          background: var(--ground);
+          z-index: 1;
+          padding-top: var(--space);
+        }
+      }
+      @media (max-width: 480px) {
+        :root {
+          --size-body: 1.0625rem;
+          --size-h1: 1.85rem;
+        }
+        .page {
+          padding-top: calc(var(--space) * 4);
+        }
+        .toc ol {
+          columns: 1;
+        }
+        .boundary-buttons {
+          grid-template-columns: 1fr;
+        }
+        .dl-grid {
+          grid-template-columns: 1fr;
+        }
+        .dl-grid dt {
+          border-bottom: 0;
+          padding-bottom: 0;
+        }
+        .dl-grid dd {
+          padding-top: 0;
+        }
+        th,
+        td {
+          padding-right: var(--space);
+        }
+        .pan-hint {
+          display: block;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        *,
+        *::before,
+        *::after {
+          transition-duration: 0.01ms !important;
+        }
+      }
+      @media print {
+        body {
+          background: #fff;
+          color: #000;
+        }
+        .page {
+          max-width: none;
+          padding: 0;
+        }
+        .toc {
+          position: static;
+        }
+        .copy-button,
+        .copy-status {
+          display: none;
+        }
+        .figure-scroll {
+          overflow: visible;
+        }
+        .figure-scroll svg {
+          min-inline-size: 0;
+        }
+        a {
+          color: #000;
+        }
+        h2,
+        h3,
+        figure,
+        .command-block,
+        .boundary {
+          break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <p class="meta">
+          Owner reference · Docker Sandboxes trial · current feature branch
+        </p>
+        <h1>Agent sandbox guide</h1>
+        <p class="lede">
+          A plain-language map of how Pi and OMP will work inside one Docker
+          Sandbox per repository, what still needs activation, and how to
+          recover when you need to.
+        </p>
+      </header>
+
+      <section class="status" aria-labelledby="status-heading">
+        <p id="status-heading" class="status-label">
+          Current activation status
+        </p>
+        <ul>
+          <li>
+            <strong>Ready and tested:</strong> Docker Sandboxes
+            <code>v0.42.1</code> is installed and logged in. The balanced global
+            network policy is initialized, and SSH forwarding is
+            <code>false</code>.
+          </li>
+          <li>
+            <strong>Contract smoke test passed:</strong> direct workspace
+            write-through, outside-home containment, persistence, loopback port
+            publication, closed stdin, and zero sandbox MCP servers.
+          </li>
+          <li>
+            <strong>Guarded:</strong> a hard-link escape was demonstrated; the
+            in-progress launcher checkpoint engine detects external hard links
+            and refuses launch. Pi/OMP catastrophe guards and the immutable
+            config bundle are committed on this feature branch.
+          </li>
+          <li class="pending">
+            <strong>Not active yet:</strong> the baseline dotfiles launcher is
+            committed, but automatic checkpoint addition is uncommitted and not
+            fully integrated or tested. Live shell wrappers have not been
+            applied; no persistent real-project sandbox exists; Pi/OMP sandbox
+            authentication is not complete.
+          </li>
+        </ul>
+      </section>
+
+      <p>
+        Read this as a setup and lookup guide, not as a claim that the trial is
+        already your daily default. Wherever a command depends on activation, it
+        is labelled <strong>after activation</strong>.
+      </p>
+
+      <nav class="toc" aria-label="On this page">
+        <p class="status-label">On this page</p>
+        <ol>
+          <li><a href="#system">What this is</a></li>
+          <li><a href="#workflow">Workflow change</a></li>
+          <li><a href="#boundary">Boundary explorer</a></li>
+          <li><a href="#commands">Commands</a></li>
+          <li><a href="#web">Web development</a></li>
+          <li><a href="#credentials">Credentials</a></li>
+          <li><a href="#checkpoints">Checkpoints</a></li>
+          <li><a href="#limits">Limitations</a></li>
+          <li><a href="#troubleshooting">Troubleshooting</a></li>
+          <li><a href="#glossary">Glossary</a></li>
+        </ol>
+      </nav>
+
+      <section id="system" aria-labelledby="system-heading">
+        <h2 id="system-heading">What this system is</h2>
+        <p>
+          The intended unit is small: one canonical Git repository, strictly
+          under <code>~/dev</code>, is mounted read-write into its own
+          persistent Docker Sandbox. Pi or OMP runs in that sandbox. The host
+          Mac keeps Chrome, the checkpoint directory, the launcher, and explicit
+          host escape hatches.
+        </p>
+        <p>
+          The mount is direct, so edits made by the agent appear in the
+          repository on the Mac. The protection comes from limiting what the
+          sandbox can see, refusing unsafe repository shapes, checking external
+          hard links before launch, and making a full repository checkpoint
+          first.
+        </p>
+        <figure>
+          <p class="pan-hint">
+            <strong>Mobile:</strong> swipe horizontally or focus this diagram
+            and use the arrow keys to inspect the full path.
+          </p>
+          <div
+            class="figure-scroll"
+            tabindex="0"
+            role="region"
+            aria-label="Scrollable diagram of the host, checkpoint, repository sandbox, and browser path"
+          >
+            <svg
+              viewBox="0 0 720 278"
+              role="img"
+              aria-labelledby="system-figure-title system-figure-desc"
+            >
+              <title id="system-figure-title">
+                Host Mac to sandbox to host Chrome flow
+              </title>
+              <desc id="system-figure-desc">
+                The host Mac creates a checkpoint outside dev, mounts one
+                repository into a protected sandbox, runs the agent there, and
+                publishes a loopback-only port to host Chrome.
+              </desc>
+              <defs>
+                <marker
+                  id="blue-arrow"
+                  viewBox="0 0 10 10"
+                  refX="9"
+                  refY="5"
+                  markerWidth="7"
+                  markerHeight="7"
+                  orient="auto"
+                >
+                  <path d="M0 0 L10 5 L0 10 z" fill="oklch(50% 0.16 250)" />
+                </marker>
+                <marker
+                  id="gray-arrow"
+                  viewBox="0 0 10 10"
+                  refX="9"
+                  refY="5"
+                  markerWidth="7"
+                  markerHeight="7"
+                  orient="auto"
+                >
+                  <path d="M0 0 L10 5 L0 10 z" fill="oklch(45% 0.012 260)" />
+                </marker>
+              </defs>
+              <rect
+                x="12"
+                y="18"
+                width="696"
+                height="242"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <text x="28" y="42" class="label">HOST MAC</text>
+              <rect
+                x="28"
+                y="60"
+                width="172"
+                height="76"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <text x="114" y="88" text-anchor="middle" class="label">
+                ~/dev / launcher
+              </text>
+              <text x="114" y="108" text-anchor="middle" class="label">
+                audit + policy
+              </text>
+              <rect
+                x="28"
+                y="166"
+                width="172"
+                height="62"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <text x="114" y="192" text-anchor="middle" class="label">
+                checkpoint
+              </text>
+              <text x="114" y="212" text-anchor="middle" class="label">
+                outside ~/dev
+              </text>
+              <path
+                d="M200 96 H300"
+                stroke="oklch(50% 0.16 250)"
+                stroke-width="2"
+                marker-end="url(#blue-arrow)"
+              />
+              <path
+                d="M200 196 H300"
+                stroke="oklch(45% 0.012 260)"
+                stroke-width="1.5"
+                marker-end="url(#gray-arrow)"
+              />
+              <rect
+                x="300"
+                y="60"
+                width="222"
+                height="168"
+                fill="oklch(94% 0.03 250)"
+                stroke="oklch(50% 0.16 250)"
+                stroke-width="2"
+              />
+              <text x="316" y="84" class="label blue-label">
+                PROTECTED SANDBOX PATH
+              </text>
+              <rect
+                x="318"
+                y="98"
+                width="186"
+                height="50"
+                fill="#fff"
+                stroke="oklch(50% 0.16 250)"
+                stroke-width="1.5"
+              />
+              <text
+                x="411"
+                y="120"
+                text-anchor="middle"
+                class="label blue-label"
+              >
+                one mounted repo
+              </text>
+              <text x="411" y="138" text-anchor="middle" class="label">
+                direct write-through
+              </text>
+              <path
+                d="M411 148 V174"
+                stroke="oklch(50% 0.16 250)"
+                stroke-width="2"
+                marker-end="url(#blue-arrow)"
+              />
+              <text
+                x="411"
+                y="198"
+                text-anchor="middle"
+                class="label blue-label"
+              >
+                Pi / OMP in VM
+              </text>
+              <path
+                d="M522 128 H610"
+                stroke="oklch(45% 0.012 260)"
+                stroke-width="1.5"
+                marker-end="url(#gray-arrow)"
+              />
+              <rect
+                x="610"
+                y="92"
+                width="78"
+                height="72"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <text x="649" y="118" text-anchor="middle" class="label">
+                host
+              </text>
+              <text x="649" y="138" text-anchor="middle" class="label">
+                Chrome
+              </text>
+              <text x="560" y="114" class="label">127.0.0.1</text>
+              <text x="560" y="132" class="label">loopback port</text>
+              <text x="300" y="248" class="label">
+                checkpoint first · no broad ~/dev mount · no host MCP
+              </text>
+            </svg>
+          </div>
+          <div class="legend" aria-label="Diagram legend">
+            <span class="blue-key"
+              ><i aria-hidden="true"></i> Blue marks the protected sandbox
+              path.</span
+            ><span
+              ><i aria-hidden="true"></i> Neutral lines are host-side setup or
+              deliberate browser access.</span
+            >
+          </div>
+          <figcaption>
+            <b>Figure 1.</b> One repository is the boundary. The host makes the
+            recovery copy before the sandbox is created or entered; Chrome
+            reaches a guest server only through an explicitly published loopback
+            port.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section id="workflow" aria-labelledby="workflow-heading">
+        <h2 id="workflow-heading">What changes in my workflow</h2>
+        <p>
+          The everyday command can remain familiar after activation, but the
+          launch path becomes explicit and fail-closed. The important difference
+          is not a new project manager; it is a checkpoint, a repository
+          boundary, and no automatic host fallback.
+        </p>
+        <table class="compare">
+          <caption class="small">
+            Before activation / after activation
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Before</th>
+              <th scope="col">After activation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Pi or OMP runs on the host.</td>
+              <td>
+                <code>pi</code> or <code>omp</code> routes to the current
+                repository's sandbox.
+              </td>
+            </tr>
+            <tr>
+              <td>Host process has the host filesystem context.</td>
+              <td>
+                The sandbox sees one direct-mounted repository, not all of
+                <code>~/dev</code>.
+              </td>
+            </tr>
+            <tr>
+              <td>Recovery depends on your existing Git and backup habits.</td>
+              <td>
+                A full repository checkpoint is made outside
+                <code>~/dev</code> before launch.
+              </td>
+            </tr>
+            <tr>
+              <td>Browser work uses normal host Chrome directly.</td>
+              <td>
+                Chrome stays on the host; guest servers are published
+                deliberately to <code>127.0.0.1</code>.
+              </td>
+            </tr>
+            <tr>
+              <td>Host authentication and sessions may already be present.</td>
+              <td>
+                Sandbox OAuth and agent state are separate. Nothing is copied
+                wholesale.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <h3>First use, after activation</h3>
+        <ol class="steps">
+          <li>
+            From the canonical <code>~/dev/agent-config</code> checkout, run
+            <code>agent-prepare</code>. It builds the host-controlled bundle
+            used for bootstrap.
+          </li>
+          <li>
+            In the standalone/main clone of the project, run
+            <code>agent-doctor</code>. Fix any failed prerequisite before
+            continuing.
+          </li>
+          <li>
+            Run <code>pi</code> or <code>omp</code>. The launcher verifies the
+            repository, audits links, creates the checkpoint, creates the
+            sandbox if needed, and installs pinned guest tooling and the
+            committed configuration bundle.
+          </li>
+          <li>
+            Complete the model login inside that sandbox if the chosen
+            authentication path is supported. This is not complete in the
+            current rollout.
+          </li>
+          <li>
+            Start a guest development server only when needed, then publish its
+            port with <code>agent-port</code> and open the loopback URL in
+            normal Chrome.
+          </li>
+        </ol>
+        <h3>Later use</h3>
+        <ol class="steps">
+          <li><code>cd</code> into the same standalone repository clone.</li>
+          <li>
+            Run <code>pi</code> or <code>omp</code>; the sandbox persists, but a
+            new checkpoint is still made before the launch path proceeds.
+          </li>
+          <li>
+            Use <code>agent-status</code> to inspect the sandbox and published
+            ports. Stop or unpublish deliberately when finished.
+          </li>
+        </ol>
+        <div class="callout warning">
+          <p>
+            <strong>Current rollout boundary.</strong> Shell wrappers are not
+            applied, so these sequences are documentation for the activated
+            state, not an instruction to assume the current shell already routes
+            them. Until activation and authentication are completed, use the
+            existing host workflow deliberately.
+          </p>
+        </div>
+      </section>
+
+      <section id="boundary" aria-labelledby="boundary-heading">
+        <h2 id="boundary-heading">Can the agent touch this?</h2>
+        <p>
+          Choose a real target to see the intended boundary. The answer is text,
+          not colour alone, and the buttons can be reached with Tab and
+          activated with Enter or Space.
+        </p>
+        <div class="boundary">
+          <fieldset>
+            <legend>Ask about a target</legend>
+            <div class="boundary-buttons">
+              <button type="button" data-boundary="repo" aria-pressed="true">
+                The mounted repository
+              </button>
+              <button type="button" data-boundary="dev">
+                A sibling under <code>~/dev</code>
+              </button>
+              <button type="button" data-boundary="home">
+                Host home and auth files
+              </button>
+              <button type="button" data-boundary="checkpoint">
+                A checkpoint outside <code>~/dev</code>
+              </button>
+              <button type="button" data-boundary="browser">
+                My personal Chrome profile
+              </button>
+              <button type="button" data-boundary="mcp">
+                A host-side MCP server
+              </button>
+            </div>
+          </fieldset>
+          <div class="boundary-answer" aria-live="polite">
+            <p>
+              <strong>Mounted repository:</strong> Yes. The current design is
+              direct write-through, so edits can change this repository; the
+              checkpoint and guards are the recovery boundary.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="commands" aria-labelledby="commands-heading">
+        <h2 id="commands-heading">Command reference</h2>
+        <p>
+          These names describe the thin launcher and shell helpers. They are
+          <strong>after activation</strong> unless noted otherwise. Run
+          repository-scoped commands from the standalone clone, not a Git
+          worktree.
+        </p>
+        <div class="command-block">
+          <div class="command-head">
+            <p class="command-label">Prepare and diagnose · after activation</p>
+            <button class="copy-button" type="button" data-copy="prepare-code">
+              Copy
+            </button>
+          </div>
+          <pre id="prepare-code"><code>agent-prepare
+agent-doctor</code></pre>
+          <p class="copy-status" aria-live="polite"></p>
+        </div>
+        <dl class="dl-grid">
+          <dt><code>agent-prepare</code></dt>
+          <dd>
+            Build the installed immutable bundle from the canonical
+            <code>~/dev/agent-config</code> checkout. The selected bundle paths
+            must be committed and clean.
+          </dd>
+          <dt><code>agent-doctor</code></dt>
+          <dd>
+            Check Docker Sandboxes, login diagnostics, SSH forwarding,
+            initialized network rules, zero MCP servers, bundle state, current
+            repository compatibility, and checkpoint storage.
+          </dd>
+        </dl>
+        <div class="command-block">
+          <div class="command-head">
+            <p class="command-label">Run an agent · after activation</p>
+            <button class="copy-button" type="button" data-copy="agents-code">
+              Copy
+            </button>
+          </div>
+          <pre id="agents-code"><code>cd ~/dev/my-project
+pi
+omp
+ompgo
+ompcodex</code></pre>
+          <p class="copy-status" aria-live="polite"></p>
+        </div>
+        <dl class="dl-grid">
+          <dt><code>pi</code>, <code>omp</code></dt>
+          <dd>
+            Run the corresponding guest agent in the sandbox for the current
+            repository.
+          </dd>
+          <dt><code>ompgo</code>, <code>ompcodex</code></dt>
+          <dd>
+            Keep the OMP overlay variants while routing the work through the
+            same sandbox path.
+          </dd>
+        </dl>
+        <div class="command-block">
+          <div class="command-head">
+            <p class="command-label">
+              Inspect and use the sandbox · after activation
+            </p>
+            <button
+              class="copy-button"
+              type="button"
+              data-copy="lifecycle-code"
+            >
+              Copy
+            </button>
+          </div>
+          <pre id="lifecycle-code"><code>agent-shell
+agent-status
+agent-checkpoints
+agent-port 3000
+agent-port 8080:3000
+agent-unport 3000
+agent-stop
+agent-reset</code></pre>
+          <p class="copy-status" aria-live="polite"></p>
+        </div>
+        <dl class="dl-grid">
+          <dt><code>agent-shell</code></dt>
+          <dd>Open a shell in the current repository's sandbox.</dd>
+          <dt><code>agent-status</code></dt>
+          <dd>
+            Show the derived sandbox, repository, bundle state, sandbox list,
+            and current ports.
+          </dd>
+          <dt><code>agent-checkpoints</code></dt>
+          <dd>
+            List valid checkpoints for the current repository, newest first.
+          </dd>
+          <dt><code>agent-port HOST</code></dt>
+          <dd>
+            Publish the same guest port on a host loopback TCP4 port, for
+            example <code>agent-port 3000</code>.
+          </dd>
+          <dt><code>agent-port HOST:GUEST</code></dt>
+          <dd>
+            Map different ports, for example <code>agent-port 8080:3000</code>.
+          </dd>
+          <dt><code>agent-unport</code></dt>
+          <dd>Remove the matching loopback publication.</dd>
+          <dt><code>agent-stop</code></dt>
+          <dd>Stop only the current repository's sandbox.</dd>
+          <dt><code>agent-reset</code></dt>
+          <dd>
+            Review mounts, processes, ports, and bootstrap metadata, then type
+            the exact sandbox name to remove only that sandbox. It is targeted;
+            it does not call broad <code>sbx reset</code>.
+          </dd>
+        </dl>
+        <div class="command-block">
+          <div class="command-head">
+            <p class="command-label">
+              Explicit host bypasses · after activation
+            </p>
+            <button class="copy-button" type="button" data-copy="host-code">
+              Copy
+            </button>
+          </div>
+          <pre id="host-code"><code>pi-host
+omp-host</code></pre>
+          <p class="copy-status" aria-live="polite"></p>
+        </div>
+        <p>
+          <code>pi-host</code> and <code>omp-host</code> intentionally run on
+          the host. They are explicit bypasses, not an automatic fallback if
+          sandbox setup fails. If you use one, know which filesystem and
+          credentials that process can reach.
+        </p>
+      </section>
+
+      <section id="web" aria-labelledby="web-heading">
+        <h2 id="web-heading">Web development and the browser</h2>
+        <p>
+          A guest development server should bind to <code>0.0.0.0</code> inside
+          the VM. The host does not see it until you deliberately publish a
+          port:
+        </p>
+        <div class="command-block">
+          <div class="command-head">
+            <p class="command-label">
+              Publish a guest server · after activation
+            </p>
+            <button class="copy-button" type="button" data-copy="port-code">
+              Copy
+            </button>
+          </div>
+          <pre id="port-code"><code>agent-port 3000
+# or, host 8080 to guest 3000
+agent-port 8080:3000</code></pre>
+          <p class="copy-status" aria-live="polite"></p>
+        </div>
+        <p>
+          Open <code>http://127.0.0.1:3000</code> (or the host port you
+          selected) in ordinary host Chrome. The mapping is loopback-only TCP4.
+          Remove it with <code>agent-unport</code> when finished. Nothing in the
+          repository should publish a port automatically.
+        </p>
+        <div class="callout">
+          <p>
+            <strong>Browser boundary.</strong> Normal Chrome is the human test
+            browser. Never relay the personal browser, profile, cookies, or
+            1Password extension into the sandbox. In-VM Playwright Chromium is a
+            later evaluation, not active functionality in this rollout.
+          </p>
+        </div>
+      </section>
+
+      <section id="credentials" aria-labelledby="credentials-heading">
+        <h2 id="credentials-heading">Credentials, OAuth, and 1Password</h2>
+        <p>
+          Authentication is its own boundary. A token obtained inside a
+          persistent repository sandbox persists there and is visible to
+          processes that can read the sandbox's agent state while it is active.
+          Treat that sandbox as a separate login boundary.
+        </p>
+        <ul>
+          <li>
+            Do not copy host Pi or OMP auth directories into the guest, and do
+            not import the personal browser profile.
+          </li>
+          <li>
+            If local OAuth is chosen, expect one login per persistent repository
+            sandbox. The current Pi/OMP sandbox authentication has not been
+            completed.
+          </li>
+          <li>
+            Later, use project-scoped <code>sbx</code> and 1Password secret
+            handling with destination-bound references where supported. Keep
+            real values out of argv, shell history, temporary files,
+            repositories, images, and broad global sandbox environment.
+          </li>
+          <li>
+            Do not mount or sign into the personal 1Password vault or use its
+            browser extension. If a service account is ever used, keep it
+            dedicated, read-only, project-scoped, and revocable.
+          </li>
+          <li>
+            SSH agent forwarding remains disabled. The current smoke test found
+            zero sandbox MCP servers; host-side stdio or gateway MCP remains out
+            of bounds.
+          </li>
+        </ul>
+        <div class="callout warning">
+          <p>
+            <strong>Isolation is not secrecy.</strong> An agent can inspect any
+            plaintext secret deliberately made available to its sandbox or
+            target process, and unrestricted egress can exfiltrate accessible
+            material. The sandbox reduces filesystem/process reach; it is not an
+            exfiltration guarantee.
+          </p>
+        </div>
+      </section>
+
+      <section id="checkpoints" aria-labelledby="checkpoints-heading">
+        <h2 id="checkpoints-heading">Checkpoints and recovery</h2>
+        <p>
+          Before a sandbox is created or entered, the checkpoint engine walks
+          the full repository, including <code>.git</code>, ignored files, and
+          untracked files. On the Mac's APFS volume, the copy uses copy-on-write
+          cloning: it is initially space-efficient while retaining a separate
+          directory tree. The default retention is the newest eight valid
+          checkpoints.
+        </p>
+        <p>
+          Checkpoints live under
+          <code>~/Library/Application Support/agent-sandbox/checkpoints</code>,
+          outside <code>~/dev</code>, with private directory and metadata
+          permissions. The engine records the repository root, Git head, file
+          count, byte count, fingerprint, and whether the copy used clone mode.
+          It audits hard links: if a file has more links than are present inside
+          the repository, launch is refused because the link could reach an
+          external inode.
+        </p>
+        <div class="callout good">
+          <p>
+            <strong>Protects:</strong> accidental edits, deletion, sandbox
+            removal, and recovery of the repository tree as it existed at a
+            checkpoint, including local ignored and untracked state.
+          </p>
+          <p>
+            <strong>Does not protect:</strong> disk failure, theft, corruption
+            of the same disk or volume, or data changed after a checkpoint that
+            was never followed by another one. The owner has no Time Machine and
+            does not plan to use it; same-disk checkpoints are therefore not
+            off-device backup.
+          </p>
+        </div>
+        <div class="command-block">
+          <div class="command-head">
+            <p class="command-label">List checkpoints · after activation</p>
+            <button
+              class="copy-button"
+              type="button"
+              data-copy="checkpoint-code"
+            >
+              Copy
+            </button>
+          </div>
+          <pre id="checkpoint-code"><code>cd ~/dev/my-project
+agent-checkpoints</code></pre>
+          <p class="copy-status" aria-live="polite"></p>
+        </div>
+        <h3>Recover into a new sibling directory</h3>
+        <p>
+          Recovery is a manual copy from a chosen checkpoint's
+          <code>repository/</code> directory into a new sibling directory. Do
+          not overwrite the live repository in place. Review the recovered tree,
+          compare Git state, and decide what to bring back with ordinary Git or
+          file operations.
+        </p>
+        <ol class="steps">
+          <li>
+            Run <code>agent-checkpoints</code> and choose the checkpoint by
+            timestamp and Git head.
+          </li>
+          <li>
+            Copy its <code>repository/</code> directory to a new sibling outside
+            the checkpoint directory, such as
+            <code>~/dev/my-project-recovered</code>.
+          </li>
+          <li>
+            Inspect status, ignored files, and local configuration before using
+            it. Keep the original repository untouched until the recovery is
+            understood.
+          </li>
+        </ol>
+      </section>
+
+      <section id="limits" aria-labelledby="limits-heading">
+        <h2 id="limits-heading">Limitations to keep in view</h2>
+        <table class="compare limitations">
+          <caption class="small">
+            Accepted limits and current gaps
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Boundary</th>
+              <th scope="col">What it means</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Same-disk only</td>
+              <td>
+                APFS copy-on-write checkpoints do not cover disk failure, theft,
+                or corruption.
+              </td>
+            </tr>
+            <tr>
+              <td>Repository is writable</td>
+              <td>
+                Direct mode lets the agent modify the mounted repository; review
+                changes and use checkpoints.
+              </td>
+            </tr>
+            <tr>
+              <td>Worktrees refused</td>
+              <td>
+                The launcher requires a standalone/main clone whose Git common
+                directory stays inside that repository.
+              </td>
+            </tr>
+            <tr>
+              <td>Only under <code>~/dev</code></td>
+              <td>
+                Repositories outside that root, and <code>~/dev</code> itself,
+                are refused. Never mount all of <code>~/dev</code>.
+              </td>
+            </tr>
+            <tr>
+              <td>First launch slower</td>
+              <td>
+                It may download pinned guest Pi/OMP binaries and install the
+                committed bundle.
+              </td>
+            </tr>
+            <tr>
+              <td>Separate state/auth</td>
+              <td>
+                Each persistent repository sandbox has its own sessions, caches,
+                and any local OAuth state.
+              </td>
+            </tr>
+            <tr>
+              <td>Unrestricted egress</td>
+              <td>
+                Network reach is not an exfiltration barrier; do not promise
+                narrow egress until it is configured and verified.
+              </td>
+            </tr>
+            <tr>
+              <td>Host-code trap</td>
+              <td>
+                Files or hooks modified through the mount can later execute with
+                host permissions if you run them on the host.
+              </td>
+            </tr>
+            <tr>
+              <td>Wrapper bypasses</td>
+              <td>
+                Direct binary paths, <code>command pi</code>, or scripts can
+                bypass shell wrappers; wrappers are adherence, not a security
+                boundary.
+              </td>
+            </tr>
+            <tr>
+              <td>Early-access sbx</td>
+              <td>
+                Docker Sandboxes and custom secret/kit interfaces may change;
+                rerun the contract suite before upgrades.
+              </td>
+            </tr>
+            <tr>
+              <td>No host MCP</td>
+              <td>
+                Sandboxed Pi/OMP must not reach host stdio MCP or a host
+                gateway.
+              </td>
+            </tr>
+            <tr>
+              <td>No broad mount</td>
+              <td>
+                The trial uses one repository per sandbox, not a shared
+                <code>agent-dev</code> sandbox over all projects.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="troubleshooting" aria-labelledby="troubleshooting-heading">
+        <h2 id="troubleshooting-heading">Troubleshooting and rollback</h2>
+        <table class="compare">
+          <caption class="small">
+            Messages to recognise
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Message or symptom</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>repository is outside ... ~/dev</code></td>
+              <td>
+                Change into a canonical standalone repository strictly under
+                <code>~/dev</code>. Do not work around this by broadening the
+                mount.
+              </td>
+            </tr>
+            <tr>
+              <td><code>Git worktrees are not supported</code></td>
+              <td>
+                Use the standalone/main clone. The current direct launcher does
+                not support a linked worktree.
+              </td>
+            </tr>
+            <tr>
+              <td><code>checkpoint failed; refusing to start</code></td>
+              <td>
+                Do not use a host bypass automatically. Read the checkpoint
+                error, inspect hard links and checkpoint storage, then retry
+                only after the cause is understood.
+              </td>
+            </tr>
+            <tr>
+              <td>Checkpoint base is on a different filesystem</td>
+              <td>
+                Put the checkpoint base on the same APFS volume as the
+                repository; the engine deliberately refuses a silent full-copy
+                fallback.
+              </td>
+            </tr>
+            <tr>
+              <td><code>bundle is missing; run agent-sandbox prepare</code></td>
+              <td>
+                From canonical <code>~/dev/agent-config</code>, run
+                <code>agent-prepare</code> after the bundle paths are committed
+                and clean. Cleanup commands such as status, stop, and reset do
+                not require the bundle.
+              </td>
+            </tr>
+            <tr>
+              <td>Doctor reports SSH, MCP, policy, or login failure</td>
+              <td>
+                Fix the reported Docker Sandboxes prerequisite. SSH forwarding
+                must be <code>false</code>; MCP count must be zero for this
+                trial; network policy must report initialized rules.
+              </td>
+            </tr>
+            <tr>
+              <td>Browser cannot connect</td>
+              <td>
+                Confirm the guest server binds <code>0.0.0.0</code>, publish
+                with <code>agent-port</code>, use <code>127.0.0.1</code> in
+                Chrome, and check <code>agent-status</code> for collisions or
+                mappings.
+              </td>
+            </tr>
+            <tr>
+              <td>OAuth is missing in the sandbox</td>
+              <td>
+                Log in inside that sandbox through the verified future flow. Do
+                not copy a host auth directory or personal browser state.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <h3>Remove the trial without a broad reset</h3>
+        <ol class="steps">
+          <li>
+            Disable only the shell shims in the dotfiles source; do not silently
+            redirect them to host execution.
+          </li>
+          <li>
+            Apply only the relevant dotfiles targets, refresh shell command
+            hashing, and verify <code>type -a pi omp ompgo ompcodex</code>.
+          </li>
+          <li>
+            For a repository sandbox you want gone, run
+            <code>agent-status</code>, review mounts/processes/ports, then run
+            <code>agent-reset</code> and type the exact sandbox name. It removes
+            only that sandbox; it does not delete the mounted host repository or
+            its checkpoints.
+          </li>
+          <li>
+            Revoke any sandbox-scoped credentials as a separate explicit step.
+            Do not use broad <code>sbx reset</code> as a shortcut.
+          </li>
+        </ol>
+        <div class="callout warning">
+          <p>
+            <strong>Automatic checkpoint status.</strong> The checkpoint
+            addition is currently uncommitted and not fully integrated or
+            tested. Do not treat the design described here as active until that
+            work is reviewed, committed, applied, and its tests pass.
+          </p>
+        </div>
+      </section>
+
+      <section id="glossary" aria-labelledby="glossary-heading">
+        <h2 id="glossary-heading">Glossary</h2>
+        <dl class="dl-grid">
+          <dt>Host</dt>
+          <dd>
+            The owner’s Mac and its normal filesystem, Chrome, launcher, and
+            explicit host commands.
+          </dd>
+          <dt>Sandbox / VM</dt>
+          <dd>
+            The Docker-managed isolated environment where Pi or OMP runs for one
+            repository.
+          </dd>
+          <dt>Direct mount</dt>
+          <dd>
+            A read-write view of the selected host repository inside the
+            sandbox; edits write through to the host repository.
+          </dd>
+          <dt>Checkpoint</dt>
+          <dd>
+            A full repository copy, including local Git and ignored/untracked
+            state, stored outside <code>~/dev</code> for recovery.
+          </dd>
+          <dt>Loopback port</dt>
+          <dd>
+            A host publication bound to <code>127.0.0.1</code>, allowing host
+            Chrome to reach a guest server without publishing it to the network.
+          </dd>
+          <dt>OAuth</dt>
+          <dd>
+            A login flow that issues a token; in this design its persisted token
+            belongs to the sandbox where the login occurred.
+          </dd>
+          <dt>MCP</dt>
+          <dd>
+            Model Context Protocol tooling. This trial allows no host-side MCP
+            servers in the sandbox path.
+          </dd>
+        </dl>
+      </section>
+    </main>
+    <script>
+      (function () {
+        var answers = {
+          repo: "Mounted repository: Yes. The current design is direct write-through, so edits can change this repository; the checkpoint and guards are the recovery boundary.",
+          dev: "A sibling under ~/dev: No. Only one repository root is mounted into this sandbox; never mount all of ~/dev.",
+          home: "Host home and auth files: No. Host $HOME, personal browser state, and complete Pi/OMP auth directories are not copied or mounted.",
+          checkpoint:
+            "Checkpoint outside ~/dev: No. It is host-side recovery material outside the sandbox path; recovery is a deliberate manual copy into a new directory.",
+          browser:
+            "Personal Chrome profile: No. Human testing stays in normal host Chrome through a loopback port; personal cookies and the 1Password extension never enter the sandbox.",
+          mcp: "Host-side MCP server: No. The current contract requires zero sandbox MCP servers and forbids host stdio or gateway execution.",
+        };
+        var buttons = document.querySelectorAll("[data-boundary]");
+        var answer = document.querySelector(".boundary-answer");
+        buttons.forEach(function (button) {
+          button.addEventListener("click", function () {
+            buttons.forEach(function (item) {
+              item.setAttribute("aria-pressed", "false");
+            });
+            button.setAttribute("aria-pressed", "true");
+            answer.querySelector("p").textContent =
+              answers[button.getAttribute("data-boundary")];
+          });
+        });
+        var copyButtons = document.querySelectorAll("[data-copy]");
+        copyButtons.forEach(function (button) {
+          button.addEventListener("click", function () {
+            var block = document.querySelector(
+              "#" + button.getAttribute("data-copy"),
+            );
+            var status = button
+              .closest(".command-block")
+              .querySelector(".copy-status");
+            var text = block.textContent;
+            if (!navigator.clipboard) {
+              status.textContent =
+                "Copy unavailable; select the command text manually.";
+              return;
+            }
+            navigator.clipboard
+              .writeText(text)
+              .then(function () {
+                status.textContent = "Copied.";
+                button.textContent = "Copied";
+                window.setTimeout(function () {
+                  button.textContent = "Copy";
+                }, 1600);
+              })
+              .catch(function () {
+                status.textContent =
+                  "Copy unavailable; select the command text manually.";
+              });
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

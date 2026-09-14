@@ -12,10 +12,8 @@ modelRoles:
   smol: openai-codex/gpt-5.6-luna:low
   tiny: openai-codex/gpt-5.6-luna:low
   commit: openai-codex/gpt-5.6-luna:low
-enabledModels:
-  []
-disabledProviders:
-  []
+enabledModels: []
+disabledProviders: []
 task:
   batch: true
   enableEffort: false
@@ -73,8 +71,7 @@ statusLine:
     - session_name
   contextLine: annotated
   showHookStatus: true
-  segmentOptions:
-    {}
+  segmentOptions: {}
 startup:
   quiet: true
 autoResume: false
