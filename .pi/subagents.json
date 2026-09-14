@@ -13,7 +13,7 @@
   "fleetView": true,
   "agentMentions": "model",
   "rememberAgents": true,
-  "widgetMode": "background",
+  "widgetMode": "all",
   "outputTranscript": true,
   "worktreeIsolation": true,
   "workflowsEnabled": false,
@@ -21,5 +21,5 @@
   "reportUsage": false,
   "showCost": false,
   "showModel": true,
-  "viewerMarkdown": "assistant"
+  "viewerMarkdown": "all"
 }

@@ -11,7 +11,7 @@
   "theme": "kohra",
   "quietStartup": true,
   "showLastPrompt": false,
-  "hideThinkingBlock": true,
+  "hideThinkingBlock": false,
   "compaction": {
     "enabled": true,
     "reserveTokens": 49152,
@@ -96,11 +96,9 @@
     "npm:pi-token-speed",
     "npm:pi-mcp-adapter",
     "git:github.com/elpapi42/pi-observational-memory",
-    "npm:pi-quiet-activity",
     "npm:@plannotator/pi-extension",
     "npm:pi-simplify",
-    "npm:pi-memory",
-    "npm:pi-tool-display"
+    "npm:pi-memory"
   ],
   "lastChangelogVersion": "0.85.1",
   "tuiMode": "fullscreen"

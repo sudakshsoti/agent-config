@@ -13,6 +13,9 @@ node_modules/
 # next to the source the first time a hook fires.
 __pycache__/
 
+# Pi project-local package installs are machine-local build products.
+.pi/npm/
+
 # OMP takes a lock next to the *resolved* config path, so once
 # ~/.omp/agent/config.yml is symlinked here (install.sh step 3e) every write
 # drops an empty omp/config.yml.lock into the checkout.

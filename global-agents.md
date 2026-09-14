@@ -42,6 +42,10 @@ Use bounded, specialised support for lookup, exploration, transcription and othe
 
 Reserve stronger models for architecture, security, design judgement, implementation decisions and difficult verification. A child should not recursively delegate a bounded lookup unless that is necessary for a distinct question.
 
+## Delegated work visibility
+
+When acting as a delegated agent in a live UI, emit brief phase updates before substantial work (for example, “inspecting”, “implementing”, and “verifying”). Report the action or result only; do not expose private chain-of-thought or internal deliberation.
+
 ## Maintaining these instructions
 
 Add a rule here when the same correction or mistake is likely to recur across projects.
