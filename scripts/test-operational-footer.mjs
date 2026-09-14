@@ -7,7 +7,21 @@ import { resolve } from "node:path";
 import vm from "node:vm";
 
 const require = createRequire(import.meta.url);
-const tui = require("@earendil-works/pi-tui");
+let tui;
+try {
+  tui = require("@earendil-works/pi-tui");
+} catch (error) {
+  // The extension imports this peer from the repo's node_modules, a local
+  // build product restored by `npm ci`. Without it there is nothing to test,
+  // so report the standard skip code -- but only for this exact module, so a
+  // broken install still surfaces as a real failure.
+  const unavailable =
+    error?.code === "MODULE_NOT_FOUND" &&
+    /'@earendil-works\/pi-tui'/.test(error.message);
+  if (!unavailable) throw error;
+  console.error("SKIP: @earendil-works/pi-tui is not installed (run `npm ci`)");
+  process.exit(77);
+}
 const sourcePath = resolve(
   process.argv[2] ??
     new URL("../pi/extensions/operational-footer/index.js", import.meta.url)

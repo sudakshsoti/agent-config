@@ -36,6 +36,33 @@ PI_FILES = (
     "pi/extensions/operational-footer/index.js",
 )
 
+# A pre-commit hook exports these; an inherited GIT_DIR would redirect
+# rev-parse (and therefore the linked-worktree guard) at the outer repository
+# instead of the disposable checkout.
+GIT_REPO_SELECTOR_VARS = ("GIT_DIR", "GIT_INDEX_FILE", "GIT_WORK_TREE")
+
+
+def seed_repo(destination):
+    """Populate a disposable checkout with everything install.sh links."""
+    destination.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(ROOT / "install.sh", destination / "install.sh")
+    for name in ("alpha", "beta", "gamma"):
+        skill = destination / "skills" / name
+        skill.mkdir(parents=True)
+        (skill / "SKILL.md").write_text(
+            f"---\nname: {name}\ndescription: Test skill.\n---\n",
+            encoding="utf-8",
+        )
+    (destination / "global-agents.md").write_text("shared\n", encoding="utf-8")
+    for relative in OMP_FILES + PI_FILES:
+        path = destination / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("fixture\n", encoding="utf-8")
+    # A plain install must never fetch this source.
+    (destination / "plugins.txt").write_text(
+        "external example/should-never-fetch\n", encoding="utf-8"
+    )
+
 
 def remove_tree(path):
     """Remove test state and report cleanup failures as assertion failures."""
@@ -72,30 +99,53 @@ def links_under(directory):
     return found
 
 
-class InstallerTest(unittest.TestCase):
+class DisposableInstallCase(unittest.TestCase):
+    """Shared install.sh runner over a disposable HOME.
+
+    The environment always drops the Git variables a pre-commit hook exports,
+    and keeps Git from reading the operator's global/system config. Unless
+    real_git is set, a PATH stub stands in for Git so that an accidental fetch
+    or repository config write fails loudly instead of reaching the network.
+    """
+
+    # Supplied by each subclass's setUp: the disposable HOME, the checkout
+    # under test, and the directory holding the stub git used when real_git is
+    # false.
+    test_home: Path
+    repo: Path
+    bin: Path
+
+    def install_environment(self, real_git):
+        environment = dict(os.environ)
+        environment["HOME"] = str(self.test_home)
+        for name in GIT_REPO_SELECTOR_VARS:
+            environment.pop(name, None)
+        environment["GIT_CONFIG_NOSYSTEM"] = "1"
+        environment["GIT_CONFIG_GLOBAL"] = os.devnull
+        if not real_git:
+            environment["PATH"] = str(self.bin) + os.pathsep + environment["PATH"]
+        return environment
+
+    def install(self, *arguments, repo=None, real_git=False):
+        checkout = repo or self.repo
+        return subprocess.run(
+            ["bash", str(checkout / "install.sh"), *arguments],
+            cwd=checkout,
+            env=self.install_environment(real_git),
+            text=True,
+            capture_output=True,
+            timeout=10,
+            check=False,
+        )
+
+
+class InstallerTest(DisposableInstallCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.directory = Path(self.temporary.name)
         self.repo = self.directory / "checkout"
-        self.repo.mkdir()
-        shutil.copyfile(ROOT / "install.sh", self.repo / "install.sh")
-        for name in ("alpha", "beta", "gamma"):
-            skill = self.repo / "skills" / name
-            skill.mkdir(parents=True)
-            (skill / "SKILL.md").write_text(
-                f"---\nname: {name}\ndescription: Test skill.\n---\n",
-                encoding="utf-8",
-            )
-        (self.repo / "global-agents.md").write_text("shared\n", encoding="utf-8")
-        for relative in OMP_FILES + PI_FILES:
-            path = self.repo / relative
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text("fixture\n", encoding="utf-8")
-        # A plain install must never fetch this source.
-        (self.repo / "plugins.txt").write_text(
-            "external example/should-never-fetch\n", encoding="utf-8"
-        )
+        seed_repo(self.repo)
         self.test_home = self.directory / "home"
         self.test_home.mkdir()
         for relative in (".omp/agent", ".pi/agent"):
@@ -107,21 +157,6 @@ class InstallerTest(unittest.TestCase):
         stub = self.bin / "git"
         stub.write_text("#!/bin/sh\nexit 93\n", encoding="utf-8")
         stub.chmod(0o755)
-
-    def install(self, *arguments, repo=None):
-        checkout = repo or self.repo
-        environment = dict(os.environ)
-        environment["HOME"] = str(self.test_home)
-        environment["PATH"] = str(self.bin) + os.pathsep + environment["PATH"]
-        return subprocess.run(
-            ["bash", str(checkout / "install.sh"), *arguments],
-            cwd=checkout,
-            env=environment,
-            text=True,
-            capture_output=True,
-            timeout=10,
-            check=False,
-        )
 
     def assert_refused_without_changes(self, *arguments, repo=None):
         before = snapshot(self.directory)
@@ -434,6 +469,120 @@ class InstallerTest(unittest.TestCase):
             (self.test_home / ".agents/skills/alpha").resolve(),
             (ephemeral / "skills/alpha").resolve(),
         )
+
+
+class LinkedWorktreeTest(DisposableInstallCase):
+    """Refusal for a real `git worktree add` tree, and primary-checkout success.
+
+    The linked worktree lives at <tmp>/linked-checkout — deliberately not
+    matching install.sh's */worktrees/* path patterns — so only the structural
+    rev-parse guard can refuse it. Nothing here reaches the network: every run
+    passes --no-external or --skills-only.
+    """
+
+    def setUp(self):
+        if shutil.which("git") is None:
+            self.skipTest("git is required for the linked-worktree fixture")
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.directory = Path(self.temporary.name)
+        self.primary = self.directory / "primary-checkout"
+        seed_repo(self.primary)
+        self.test_home = self.directory / "home"
+        self.test_home.mkdir()
+        for relative in (".omp/agent", ".pi/agent"):
+            (self.test_home / relative).mkdir(parents=True)
+
+        self.git("init", "-q", cwd=self.primary)
+        self.git("add", "-A", cwd=self.primary)
+        self.git(
+            "-c", "user.name=Installer Test",
+            "-c", "user.email=installer@example.com",
+            "-c", "commit.gpgsign=false",
+            "commit", "-qm", "fixture",
+            cwd=self.primary,
+        )
+        self.linked = self.directory / "linked-checkout"
+        self.git(
+            "worktree", "add", "-q", "-b", "feature", str(self.linked),
+            cwd=self.primary,
+        )
+        self.common_dir = Path(
+            self.git(
+                "rev-parse", "--path-format=absolute", "--git-common-dir",
+                cwd=self.linked,
+            ).stdout.strip()
+        )
+        # Only the structural guard can fire: neither path matches the patterns
+        # that the pre-existing path guard rejects.
+        for path in (self.primary, self.linked):
+            self.assertNotIn("/worktrees/", str(path))
+        self.assertNotEqual(
+            self.git(
+                "rev-parse", "--path-format=absolute", "--git-dir", cwd=self.linked
+            ).stdout.strip(),
+            str(self.common_dir),
+        )
+
+    def git(self, *arguments, cwd):
+        """Run real Git in the fixture, never the PATH stub."""
+        result = subprocess.run(
+            ["git", "-C", str(cwd), *arguments],
+            env=self.install_environment(real_git=True),
+            text=True,
+            capture_output=True,
+            timeout=30,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return result
+
+    def assert_worktree_refused_without_changes(self, *arguments):
+        home_before = snapshot(self.test_home)
+        config_before = (self.common_dir / "config").read_bytes()
+        result = self.install(*arguments, repo=self.linked, real_git=True)
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("linked worktree", result.stdout + result.stderr)
+        self.assertEqual(snapshot(self.test_home), home_before, "HOME changed")
+        self.assertEqual(
+            (self.common_dir / "config").read_bytes(),
+            config_before,
+            "the shared .git/config changed",
+        )
+        return result
+
+    def test_full_selective_and_prune_refusals_change_nothing(self):
+        home_before = snapshot(self.test_home)
+        config_before = (self.common_dir / "config").read_bytes()
+        for arguments in (
+            ("--no-external",),
+            ("--skills-only=alpha",),
+            ("--no-external", "--prune"),
+        ):
+            with self.subTest(arguments=arguments):
+                self.assert_worktree_refused_without_changes(*arguments)
+        # Byte-identical across the whole sequence, not merely run by run.
+        self.assertEqual(snapshot(self.test_home), home_before)
+        self.assertEqual((self.common_dir / "config").read_bytes(), config_before)
+
+    def test_force_installs_from_a_linked_worktree(self):
+        result = self.install(
+            "--skills-only=alpha", "--force", repo=self.linked, real_git=True
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("linked worktree", result.stdout)
+        self.assertEqual(
+            (self.test_home / ".agents/skills/alpha").resolve(),
+            (self.linked / "skills/alpha").resolve(),
+        )
+
+    def test_primary_checkout_writes_core_hooks_path(self):
+        result = self.install("--no-external", repo=self.primary, real_git=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        hooks = self.git(
+            "config", "--local", "--get", "core.hooksPath", cwd=self.primary
+        )
+        self.assertEqual(hooks.stdout.strip(), ".githooks")
 
 
 if __name__ == "__main__":

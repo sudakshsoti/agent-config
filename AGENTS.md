@@ -34,9 +34,13 @@ pi-web-access's credential store, so only repo-owned keys are pushed.
   skills into `~/.agents/skills`, with no config writes and no external fetches.
 - `--no-external` skips the external git fetch; relinking still runs, so an
   offline re-run repairs links from what is already cloned.
-- `install.sh` refuses paths matching `*/.git/worktrees/*` or `*/worktrees/*`
-  unless `--force`, because symlinks bake in an absolute path that vanishes with
-  an ephemeral worktree.
+- `install.sh` refuses any checkout whose `rev-parse --git-dir` differs from
+  `rev-parse --git-common-dir` — a linked `git worktree add` tree — with exit 1
+  and `linked worktree` in the message, and also refuses paths matching
+  `*/.git/worktrees/*` or `*/worktrees/*`; Git older than 2.31 falls back to
+  plain rev-parse resolved against the checkout, and a Git failure falls back to
+  the path check alone. Both guards defer to `--force`, because symlinks bake in
+  an absolute path that vanishes with the worktree.
 
 ## Ownership
 

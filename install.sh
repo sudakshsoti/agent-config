@@ -151,6 +151,77 @@ case "$REPO" in
   ;;
 esac
 
+# Guard: a *linked* Git worktree (`git worktree add`) is refused structurally
+# rather than by path, because its location is arbitrary. Its git dir lives
+# under the primary checkout's .git/worktrees/, while its common git dir is that
+# primary .git — the two differ exactly when a checkout is linked. Symlinks bake
+# in this worktree's absolute path, so removing the worktree dangles every
+# installed link. Git older than 2.31 has no --path-format, so fall back to
+# plain rev-parse and resolve relative output against REPO. If Git cannot answer
+# at all (not a repository, or a PATH stub), keep the path-pattern behavior
+# above and carry on. --force overrides with a warning.
+# Run Git without ambient repository selectors. A shell hook or wrapper can set
+# GIT_DIR/GIT_INDEX_FILE/GIT_WORK_TREE for its own work; install.sh must always
+# inspect and update the checkout named by REPO instead.
+git_without_repo_selectors() {
+  (
+    unset GIT_DIR GIT_INDEX_FILE GIT_WORK_TREE
+    git "$@"
+  )
+}
+
+resolve_from_repo() { # resolve_from_repo <path> -> canonical absolute path
+  local path parent base
+  case "$1" in
+  /*) path="$1" ;;
+  *) path="$REPO/$1" ;;
+  esac
+  if [ -d "$path" ]; then
+    (cd "$path" && pwd -P)
+    return
+  fi
+  parent="$(dirname "$path")"
+  base="$(basename "$path")"
+  if ! parent="$(cd "$parent" && pwd -P)"; then
+    return 1
+  fi
+  printf '%s/%s' "$parent" "$base"
+}
+
+git_dirs() { # git_dirs -> "<git-dir>\n<common-git-dir>", non-zero if unknown
+  local dir common
+  if dir="$(git_without_repo_selectors -C "$REPO" rev-parse --path-format=absolute --git-dir 2>/dev/null)" &&
+    common="$(git_without_repo_selectors -C "$REPO" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)"; then
+    printf '%s\n%s\n' "$dir" "$common"
+    return 0
+  fi
+  dir="$(git_without_repo_selectors -C "$REPO" rev-parse --git-dir 2>/dev/null)" || return 1
+  common="$(git_without_repo_selectors -C "$REPO" rev-parse --git-common-dir 2>/dev/null)" || return 1
+  local resolved_dir resolved_common
+  resolved_dir="$(resolve_from_repo "$dir")" || return 1
+  resolved_common="$(resolve_from_repo "$common")" || return 1
+  printf '%s\n%s\n' "$resolved_dir" "$resolved_common"
+}
+
+if git_dirs_output="$(git_dirs)"; then
+  git_dir="${git_dirs_output%%$'\n'*}"
+  common_dir="${git_dirs_output#*$'\n'}"
+  if [ "$git_dir" != "$common_dir" ]; then
+    if [ "$FORCE" != "1" ]; then
+      echo "⛔ Refusing to install from a linked worktree:"
+      echo "     $REPO"
+      echo "   Its git dir ($git_dir) differs from the common git dir"
+      echo "   ($common_dir), so this checkout shares an object store with"
+      echo "   another working tree. Symlinks bake in this absolute path; if"
+      echo "   this worktree is removed, every installed link dangles. Run from"
+      echo "   the primary checkout instead, or pass --force if you really mean"
+      echo "   to point the global install here."
+      exit 1
+    fi
+    echo "⚠️  --force: installing from a linked worktree ($REPO)."
+  fi
+fi
+
 # Fetch external checkouts before linking skills.
 fetch_external_sources() {
   [ -f "$REPO/plugins.txt" ] || return
@@ -165,14 +236,14 @@ fetch_external_sources() {
     slug="${repo%/*}-${repo#*/}"
     clone="$VENDOR/$slug"
     if [ -d "$clone/.git" ]; then
-      if git -C "$clone" pull --ff-only --quiet 2>/dev/null; then
+      if git_without_repo_selectors -C "$clone" pull --ff-only --quiet 2>/dev/null; then
         echo "pulled  $repo (vendor/$slug)"
       else
         echo "⚠️  could not fast-forward vendor/$slug — using the checkout as-is"
       fi
     else
       mkdir -p "$VENDOR"
-      if git clone --depth 1 --quiet "https://github.com/$repo.git" "$clone" 2>/dev/null; then
+      if git_without_repo_selectors clone --depth 1 --quiet "https://github.com/$repo.git" "$clone" 2>/dev/null; then
         echo "cloned  $repo -> vendor/$slug"
       else
         echo "⚠️  FAILED to clone $repo"
@@ -520,8 +591,8 @@ fi
 #    the pre-commit lint arrives with a clone and works from a worktree (where
 #    .git is a file and has no hooks/ directory to write into). Relative on
 #    purpose — it resolves per checkout.
-if git -C "$REPO" rev-parse --git-dir >/dev/null 2>&1; then
-  git -C "$REPO" config core.hooksPath .githooks
+if git_without_repo_selectors -C "$REPO" rev-parse --git-dir >/dev/null 2>&1; then
+  git_without_repo_selectors -C "$REPO" config core.hooksPath .githooks
   echo "wired   core.hooksPath -> .githooks"
 fi
 
