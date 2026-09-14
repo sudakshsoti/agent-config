@@ -1,0 +1,19 @@
+# case: selective-none
+# pre-created harness dirs: (none)
+# vendor present: False
+# command: env -i HOME=<HOME> PATH=<stubs>:/opt/homebrew/bin:/usr/bin:/bin bash <REPO>/install.sh --skills-only=commit,vibe
+# exit: 0
+# checkout unchanged: True
+# git/claude stub calls: (none)
+# links: 2  files: 0
+
+## resulting HOME tree (sorted)
+dir   ~/.claude/
+dir   ~/.claude/skills/
+link  ~/.claude/skills/commit -> <REPO>/skills/commit
+link  ~/.claude/skills/vibe -> <REPO>/skills/vibe
+
+## install.sh output
+linked  commit
+linked  vibe
+selected skill links=2

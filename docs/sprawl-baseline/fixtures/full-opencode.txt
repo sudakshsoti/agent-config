@@ -1,0 +1,119 @@
+# case: full-opencode
+# pre-created harness dirs: .config/opencode
+# vendor present: False
+# command: env -i HOME=<HOME> PATH=<stubs>:/opt/homebrew/bin:/usr/bin:/bin bash <REPO>/install.sh --no-plugins
+# exit: 0
+# checkout unchanged: True
+# git/claude stub calls: stub <STUBS>/git -C <REPO> rev-parse --git-dir
+# links: 45  files: 1
+
+## resulting HOME tree (sorted)
+dir   ~/.claude/
+link  ~/.claude/CLAUDE.md -> <REPO>/global-agents.md
+dir   ~/.claude/agents/
+link  ~/.claude/agents/plan-critic.md -> <REPO>/agents/plan-critic.md
+link  ~/.claude/claude-powerline.json -> <REPO>/claude-powerline.json
+file  ~/.claude/settings.json sha256=74fb2f453f85b0d135222e695c5fd78e3df8de84bc19b455b9e5f7348574cbc3
+dir   ~/.claude/skills/
+link  ~/.claude/skills/backlog -> <REPO>/skills/backlog
+link  ~/.claude/skills/clinical-reasoning -> <REPO>/skills/clinical-reasoning
+link  ~/.claude/skills/codebase-memory -> <REPO>/skills/codebase-memory
+link  ~/.claude/skills/commit -> <REPO>/skills/commit
+link  ~/.claude/skills/design-grill -> <REPO>/skills/design-grill
+link  ~/.claude/skills/design-interface -> <REPO>/skills/design-interface
+link  ~/.claude/skills/design-strategy -> <REPO>/skills/design-strategy
+link  ~/.claude/skills/design-typography -> <REPO>/skills/design-typography
+link  ~/.claude/skills/design-visual-system -> <REPO>/skills/design-visual-system
+link  ~/.claude/skills/diagnosing-bugs -> <REPO>/skills/diagnosing-bugs
+link  ~/.claude/skills/execute-plan -> <REPO>/skills/execute-plan
+link  ~/.claude/skills/find-skills -> <REPO>/skills/find-skills
+link  ~/.claude/skills/frontend-artifact -> <REPO>/skills/frontend-artifact
+link  ~/.claude/skills/geopolitics -> <REPO>/skills/geopolitics
+link  ~/.claude/skills/grilling -> <REPO>/skills/grilling
+link  ~/.claude/skills/gtd -> <REPO>/skills/gtd
+link  ~/.claude/skills/handoff -> <REPO>/skills/handoff
+link  ~/.claude/skills/homelab-deploy -> <REPO>/skills/homelab-deploy
+link  ~/.claude/skills/humanizer -> <REPO>/skills/humanizer
+link  ~/.claude/skills/macos-design-guidelines -> <REPO>/skills/macos-design-guidelines
+link  ~/.claude/skills/maintainability-review -> <REPO>/skills/maintainability-review
+link  ~/.claude/skills/merge -> <REPO>/skills/merge
+link  ~/.claude/skills/n8n-deploy -> <REPO>/skills/n8n-deploy
+link  ~/.claude/skills/obsidian-markdown -> <REPO>/skills/obsidian-markdown
+link  ~/.claude/skills/peer-review -> <REPO>/skills/peer-review
+link  ~/.claude/skills/pr -> <REPO>/skills/pr
+link  ~/.claude/skills/push -> <REPO>/skills/push
+link  ~/.claude/skills/research -> <REPO>/skills/research
+link  ~/.claude/skills/rights-counsel -> <REPO>/skills/rights-counsel
+link  ~/.claude/skills/self-review -> <REPO>/skills/self-review
+link  ~/.claude/skills/shopping-research -> <REPO>/skills/shopping-research
+link  ~/.claude/skills/strategy-counsel -> <REPO>/skills/strategy-counsel
+link  ~/.claude/skills/update-branch-name -> <REPO>/skills/update-branch-name
+link  ~/.claude/skills/ux-writing -> <REPO>/skills/ux-writing
+link  ~/.claude/skills/vbc-design -> <REPO>/skills/vbc-design
+link  ~/.claude/skills/vedic-astrology -> <REPO>/skills/vedic-astrology
+link  ~/.claude/skills/vibe -> <REPO>/skills/vibe
+link  ~/.claude/skills/writing-editor -> <REPO>/skills/writing-editor
+dir   ~/.config/
+dir   ~/.config/omp/
+link  ~/.config/omp/codex-only-overlay.yml -> <REPO>/omp/overlays/codex-only-overlay.yml
+link  ~/.config/omp/go-overlay.yml -> <REPO>/omp/overlays/go-overlay.yml
+link  ~/.config/omp/search-keys.tpl -> <REPO>/omp/overlays/search-keys.tpl
+dir   ~/.config/opencode/
+link  ~/.config/opencode/AGENTS.md -> <REPO>/global-agents.md
+
+## install.sh output
+linked  backlog
+linked  clinical-reasoning
+linked  codebase-memory
+linked  commit
+linked  design-grill
+linked  design-interface
+linked  design-strategy
+linked  design-typography
+linked  design-visual-system
+linked  diagnosing-bugs
+linked  execute-plan
+linked  find-skills
+linked  frontend-artifact
+linked  geopolitics
+linked  grilling
+linked  gtd
+linked  handoff
+linked  homelab-deploy
+linked  humanizer
+linked  macos-design-guidelines
+linked  maintainability-review
+linked  merge
+linked  n8n-deploy
+linked  obsidian-markdown
+linked  peer-review
+linked  pr
+linked  push
+linked  research
+linked  rights-counsel
+linked  self-review
+linked  shopping-research
+linked  strategy-counsel
+linked  update-branch-name
+linked  ux-writing
+linked  vbc-design
+linked  vedic-astrology
+linked  vibe
+linked  writing-editor
+⚠️  SKIP external stablyai/orca — vendor/stablyai-orca is absent (re-run without --no-plugins)
+⚠️  SKIP external BexTuychiev/firecrawl-claude-code-skill — vendor/BexTuychiev-firecrawl-claude-code-skill is absent (re-run without --no-plugins)
+⚠️  SKIP external emilkowalski/skills — vendor/emilkowalski-skills is absent (re-run without --no-plugins)
+⚠️  SKIP external anthropics/claude-code — vendor/anthropics-claude-code is absent (re-run without --no-plugins)
+linked  plan-critic.md
+copied  settings.json
+linked  claude-powerline.json
+linked  CLAUDE.md
+linked  AGENTS.md
+⚠️  SKIP omp — no <HOME>/.omp/agent (OMP not installed). config.yml, lsp.yml, themes/ and agents/ not linked.
+linked  codex-only-overlay.yml
+linked  go-overlay.yml
+linked  search-keys.tpl
+⚠️  SKIP pi — no <HOME>/.pi/agent (pi not installed). settings.json, pi-fff.json, subagents.json, prompts/, themes/ and agents/ not linked.
+checked settings.json — permission posture is not permissive
+---
+linked=45 mirrored=0 skipped=4 copied=1 plugins=0 external=0 pruned=0

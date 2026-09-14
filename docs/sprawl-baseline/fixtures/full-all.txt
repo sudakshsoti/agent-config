@@ -1,0 +1,284 @@
+# case: full-all
+# pre-created harness dirs: .codex, .pi/agent, .omp/agent, .config/opencode
+# vendor present: False
+# command: env -i HOME=<HOME> PATH=<stubs>:/opt/homebrew/bin:/usr/bin:/bin bash <REPO>/install.sh --no-plugins
+# exit: 0
+# checkout unchanged: True
+# git/claude stub calls: stub <STUBS>/git -C <REPO> rev-parse --git-dir
+# links: 116  files: 4
+
+## resulting HOME tree (sorted)
+dir   ~/.agents/
+dir   ~/.agents/skills/
+link  ~/.agents/skills/backlog -> <REPO>/skills/backlog
+link  ~/.agents/skills/clinical-reasoning -> <REPO>/skills/clinical-reasoning
+link  ~/.agents/skills/codebase-memory -> <REPO>/skills/codebase-memory
+link  ~/.agents/skills/commit -> <REPO>/skills/commit
+link  ~/.agents/skills/design-grill -> <REPO>/skills/design-grill
+link  ~/.agents/skills/design-interface -> <REPO>/skills/design-interface
+link  ~/.agents/skills/design-strategy -> <REPO>/skills/design-strategy
+link  ~/.agents/skills/design-typography -> <REPO>/skills/design-typography
+link  ~/.agents/skills/design-visual-system -> <REPO>/skills/design-visual-system
+link  ~/.agents/skills/diagnosing-bugs -> <REPO>/skills/diagnosing-bugs
+link  ~/.agents/skills/execute-plan -> <REPO>/skills/execute-plan
+link  ~/.agents/skills/find-skills -> <REPO>/skills/find-skills
+link  ~/.agents/skills/frontend-artifact -> <REPO>/skills/frontend-artifact
+link  ~/.agents/skills/geopolitics -> <REPO>/skills/geopolitics
+link  ~/.agents/skills/grilling -> <REPO>/skills/grilling
+link  ~/.agents/skills/gtd -> <REPO>/skills/gtd
+link  ~/.agents/skills/handoff -> <REPO>/skills/handoff
+link  ~/.agents/skills/homelab-deploy -> <REPO>/skills/homelab-deploy
+link  ~/.agents/skills/humanizer -> <REPO>/skills/humanizer
+link  ~/.agents/skills/macos-design-guidelines -> <REPO>/skills/macos-design-guidelines
+link  ~/.agents/skills/maintainability-review -> <REPO>/skills/maintainability-review
+link  ~/.agents/skills/merge -> <REPO>/skills/merge
+link  ~/.agents/skills/n8n-deploy -> <REPO>/skills/n8n-deploy
+link  ~/.agents/skills/obsidian-markdown -> <REPO>/skills/obsidian-markdown
+link  ~/.agents/skills/peer-review -> <REPO>/skills/peer-review
+link  ~/.agents/skills/pr -> <REPO>/skills/pr
+link  ~/.agents/skills/push -> <REPO>/skills/push
+link  ~/.agents/skills/research -> <REPO>/skills/research
+link  ~/.agents/skills/rights-counsel -> <REPO>/skills/rights-counsel
+link  ~/.agents/skills/self-review -> <REPO>/skills/self-review
+link  ~/.agents/skills/shopping-research -> <REPO>/skills/shopping-research
+link  ~/.agents/skills/strategy-counsel -> <REPO>/skills/strategy-counsel
+link  ~/.agents/skills/update-branch-name -> <REPO>/skills/update-branch-name
+link  ~/.agents/skills/ux-writing -> <REPO>/skills/ux-writing
+link  ~/.agents/skills/vbc-design -> <REPO>/skills/vbc-design
+link  ~/.agents/skills/vedic-astrology -> <REPO>/skills/vedic-astrology
+link  ~/.agents/skills/vibe -> <REPO>/skills/vibe
+link  ~/.agents/skills/writing-editor -> <REPO>/skills/writing-editor
+dir   ~/.claude/
+link  ~/.claude/CLAUDE.md -> <REPO>/global-agents.md
+dir   ~/.claude/agents/
+link  ~/.claude/agents/plan-critic.md -> <REPO>/agents/plan-critic.md
+link  ~/.claude/claude-powerline.json -> <REPO>/claude-powerline.json
+file  ~/.claude/settings.json sha256=74fb2f453f85b0d135222e695c5fd78e3df8de84bc19b455b9e5f7348574cbc3
+dir   ~/.claude/skills/
+link  ~/.claude/skills/backlog -> <REPO>/skills/backlog
+link  ~/.claude/skills/clinical-reasoning -> <REPO>/skills/clinical-reasoning
+link  ~/.claude/skills/codebase-memory -> <REPO>/skills/codebase-memory
+link  ~/.claude/skills/commit -> <REPO>/skills/commit
+link  ~/.claude/skills/design-grill -> <REPO>/skills/design-grill
+link  ~/.claude/skills/design-interface -> <REPO>/skills/design-interface
+link  ~/.claude/skills/design-strategy -> <REPO>/skills/design-strategy
+link  ~/.claude/skills/design-typography -> <REPO>/skills/design-typography
+link  ~/.claude/skills/design-visual-system -> <REPO>/skills/design-visual-system
+link  ~/.claude/skills/diagnosing-bugs -> <REPO>/skills/diagnosing-bugs
+link  ~/.claude/skills/execute-plan -> <REPO>/skills/execute-plan
+link  ~/.claude/skills/find-skills -> <REPO>/skills/find-skills
+link  ~/.claude/skills/frontend-artifact -> <REPO>/skills/frontend-artifact
+link  ~/.claude/skills/geopolitics -> <REPO>/skills/geopolitics
+link  ~/.claude/skills/grilling -> <REPO>/skills/grilling
+link  ~/.claude/skills/gtd -> <REPO>/skills/gtd
+link  ~/.claude/skills/handoff -> <REPO>/skills/handoff
+link  ~/.claude/skills/homelab-deploy -> <REPO>/skills/homelab-deploy
+link  ~/.claude/skills/humanizer -> <REPO>/skills/humanizer
+link  ~/.claude/skills/macos-design-guidelines -> <REPO>/skills/macos-design-guidelines
+link  ~/.claude/skills/maintainability-review -> <REPO>/skills/maintainability-review
+link  ~/.claude/skills/merge -> <REPO>/skills/merge
+link  ~/.claude/skills/n8n-deploy -> <REPO>/skills/n8n-deploy
+link  ~/.claude/skills/obsidian-markdown -> <REPO>/skills/obsidian-markdown
+link  ~/.claude/skills/peer-review -> <REPO>/skills/peer-review
+link  ~/.claude/skills/pr -> <REPO>/skills/pr
+link  ~/.claude/skills/push -> <REPO>/skills/push
+link  ~/.claude/skills/research -> <REPO>/skills/research
+link  ~/.claude/skills/rights-counsel -> <REPO>/skills/rights-counsel
+link  ~/.claude/skills/self-review -> <REPO>/skills/self-review
+link  ~/.claude/skills/shopping-research -> <REPO>/skills/shopping-research
+link  ~/.claude/skills/strategy-counsel -> <REPO>/skills/strategy-counsel
+link  ~/.claude/skills/update-branch-name -> <REPO>/skills/update-branch-name
+link  ~/.claude/skills/ux-writing -> <REPO>/skills/ux-writing
+link  ~/.claude/skills/vbc-design -> <REPO>/skills/vbc-design
+link  ~/.claude/skills/vedic-astrology -> <REPO>/skills/vedic-astrology
+link  ~/.claude/skills/vibe -> <REPO>/skills/vibe
+link  ~/.claude/skills/writing-editor -> <REPO>/skills/writing-editor
+dir   ~/.codex/
+link  ~/.codex/AGENTS.md -> <REPO>/global-agents.md
+dir   ~/.codex/agents/
+link  ~/.codex/agents/docs-researcher.toml -> <REPO>/codex/agents/docs-researcher.toml
+file  ~/.codex/config.toml sha256=d5311a049157cfe3fb9df187050ed790848dfeb2ce849cde0b9e3d164310b74a
+dir   ~/.codex/prompts/
+link  ~/.codex/prompts/vibe.md -> <REPO>/codex/prompts/vibe.md
+dir   ~/.config/
+dir   ~/.config/omp/
+link  ~/.config/omp/codex-only-overlay.yml -> <REPO>/omp/overlays/codex-only-overlay.yml
+link  ~/.config/omp/go-overlay.yml -> <REPO>/omp/overlays/go-overlay.yml
+link  ~/.config/omp/search-keys.tpl -> <REPO>/omp/overlays/search-keys.tpl
+dir   ~/.config/opencode/
+link  ~/.config/opencode/AGENTS.md -> <REPO>/global-agents.md
+dir   ~/.omp/
+dir   ~/.omp/agent/
+link  ~/.omp/agent/AGENTS.md -> <REPO>/global-agents.md
+dir   ~/.omp/agent/agents/
+link  ~/.omp/agent/agents/adversary.md -> <REPO>/omp/agents/adversary.md
+link  ~/.omp/agent/config.yml -> <REPO>/omp/config.yml
+link  ~/.omp/agent/keybindings.yml -> <REPO>/omp/keybindings.yml
+link  ~/.omp/agent/lsp.yml -> <REPO>/omp/lsp.yml
+dir   ~/.omp/agent/themes/
+link  ~/.omp/agent/themes/dark-lunar-statusline.json -> <REPO>/omp/themes/dark-lunar-statusline.json
+link  ~/.omp/agent/themes/lunar-light-statusline.json -> <REPO>/omp/themes/lunar-light-statusline.json
+dir   ~/.pi/
+dir   ~/.pi/agent/
+link  ~/.pi/agent/AGENTS.md -> <REPO>/global-agents.md
+dir   ~/.pi/agent/agents/
+link  ~/.pi/agent/agents/Critic.md -> <REPO>/pi/agents/Critic.md
+link  ~/.pi/agent/agents/Explore.md -> <REPO>/pi/agents/Explore.md
+link  ~/.pi/agent/agents/Plan.md -> <REPO>/pi/agents/Plan.md
+link  ~/.pi/agent/agents/builder.md -> <REPO>/pi/agents/builder.md
+link  ~/.pi/agent/agents/code-worker.md -> <REPO>/pi/agents/code-worker.md
+link  ~/.pi/agent/agents/general-purpose.md -> <REPO>/pi/agents/general-purpose.md
+link  ~/.pi/agent/agents/public-scout.md -> <REPO>/pi/agents/public-scout.md
+link  ~/.pi/agent/agents/research.md -> <REPO>/pi/agents/research.md
+link  ~/.pi/agent/agents/reviewer.md -> <REPO>/pi/agents/reviewer.md
+link  ~/.pi/agent/agents/scout.md -> <REPO>/pi/agents/scout.md
+link  ~/.pi/agent/agents/workflow.md -> <REPO>/pi/agents/workflow.md
+dir   ~/.pi/agent/extensions/
+dir   ~/.pi/agent/extensions/catastrophe-guard/
+link  ~/.pi/agent/extensions/catastrophe-guard/index.js -> <REPO>/pi/extensions/catastrophe-guard/index.js
+dir   ~/.pi/agent/extensions/kohra-thinking-status/
+link  ~/.pi/agent/extensions/kohra-thinking-status/index.js -> <REPO>/pi/extensions/kohra-thinking-status/index.js
+dir   ~/.pi/agent/extensions/operational-footer/
+link  ~/.pi/agent/extensions/operational-footer/index.js -> <REPO>/pi/extensions/operational-footer/index.js
+dir   ~/.pi/agent/extensions/powerline-footer/
+link  ~/.pi/agent/extensions/powerline-footer/theme.json -> <REPO>/pi/extensions/powerline-footer/theme.json
+link  ~/.pi/agent/pi-fff.json -> <REPO>/pi/pi-fff.json
+dir   ~/.pi/agent/prompts/
+link  ~/.pi/agent/prompts/changes.md -> <REPO>/pi/prompts/changes.md
+link  ~/.pi/agent/prompts/vibe.md -> <REPO>/pi/prompts/vibe.md
+link  ~/.pi/agent/settings.json -> <REPO>/pi/settings.json
+link  ~/.pi/agent/subagents.json -> <REPO>/pi/subagents.json
+dir   ~/.pi/agent/themes/
+link  ~/.pi/agent/themes/irfan-sumi.json -> <REPO>/pi/themes/irfan-sumi.json
+link  ~/.pi/agent/themes/kohra.json -> <REPO>/pi/themes/kohra.json
+file  ~/.pi/agent/web-search.json sha256=228941ddaef7ae745dbaeea387d128981dfe14857d372fed7d3032ab2d5d825e
+file  ~/.pi/web-search.json sha256=228941ddaef7ae745dbaeea387d128981dfe14857d372fed7d3032ab2d5d825e
+
+## install.sh output
+linked  backlog
+linked  backlog (agents)
+linked  clinical-reasoning
+linked  clinical-reasoning (agents)
+linked  codebase-memory
+linked  codebase-memory (agents)
+linked  commit
+linked  commit (agents)
+linked  design-grill
+linked  design-grill (agents)
+linked  design-interface
+linked  design-interface (agents)
+linked  design-strategy
+linked  design-strategy (agents)
+linked  design-typography
+linked  design-typography (agents)
+linked  design-visual-system
+linked  design-visual-system (agents)
+linked  diagnosing-bugs
+linked  diagnosing-bugs (agents)
+linked  execute-plan
+linked  execute-plan (agents)
+linked  find-skills
+linked  find-skills (agents)
+linked  frontend-artifact
+linked  frontend-artifact (agents)
+linked  geopolitics
+linked  geopolitics (agents)
+linked  grilling
+linked  grilling (agents)
+linked  gtd
+linked  gtd (agents)
+linked  handoff
+linked  handoff (agents)
+linked  homelab-deploy
+linked  homelab-deploy (agents)
+linked  humanizer
+linked  humanizer (agents)
+linked  macos-design-guidelines
+linked  macos-design-guidelines (agents)
+linked  maintainability-review
+linked  maintainability-review (agents)
+linked  merge
+linked  merge (agents)
+linked  n8n-deploy
+linked  n8n-deploy (agents)
+linked  obsidian-markdown
+linked  obsidian-markdown (agents)
+linked  peer-review
+linked  peer-review (agents)
+linked  pr
+linked  pr (agents)
+linked  push
+linked  push (agents)
+linked  research
+linked  research (agents)
+linked  rights-counsel
+linked  rights-counsel (agents)
+linked  self-review
+linked  self-review (agents)
+linked  shopping-research
+linked  shopping-research (agents)
+linked  strategy-counsel
+linked  strategy-counsel (agents)
+linked  update-branch-name
+linked  update-branch-name (agents)
+linked  ux-writing
+linked  ux-writing (agents)
+linked  vbc-design
+linked  vbc-design (agents)
+linked  vedic-astrology
+linked  vedic-astrology (agents)
+linked  vibe
+linked  vibe (agents)
+linked  writing-editor
+linked  writing-editor (agents)
+⚠️  SKIP external stablyai/orca — vendor/stablyai-orca is absent (re-run without --no-plugins)
+⚠️  SKIP external BexTuychiev/firecrawl-claude-code-skill — vendor/BexTuychiev-firecrawl-claude-code-skill is absent (re-run without --no-plugins)
+⚠️  SKIP external emilkowalski/skills — vendor/emilkowalski-skills is absent (re-run without --no-plugins)
+⚠️  SKIP external anthropics/claude-code — vendor/anthropics-claude-code is absent (re-run without --no-plugins)
+linked  plan-critic.md
+copied  settings.json
+linked  claude-powerline.json
+linked  CLAUDE.md
+linked  AGENTS.md
+linked  AGENTS.md
+linked  AGENTS.md
+linked  AGENTS.md
+merged  codex/config.toml
+linked  docs-researcher.toml
+linked  vibe.md
+linked  config.yml
+linked  keybindings.yml
+linked  dark-lunar-statusline.json
+linked  lunar-light-statusline.json
+linked  codex-only-overlay.yml
+linked  go-overlay.yml
+linked  search-keys.tpl
+linked  lsp.yml
+linked  adversary.md
+linked  settings.json
+linked  pi-fff.json
+linked  subagents.json
+linked  changes.md
+linked  vibe.md
+linked  irfan-sumi.json
+linked  kohra.json
+linked  index.js
+linked  index.js
+linked  index.js
+linked  theme.json
+linked  Critic.md
+linked  Explore.md
+linked  Plan.md
+linked  builder.md
+linked  code-worker.md
+linked  general-purpose.md
+linked  public-scout.md
+linked  research.md
+linked  reviewer.md
+linked  scout.md
+linked  workflow.md
+merged  pi/web-search.json -> <HOME>/.pi/web-search.json
+merged  pi/web-search.json -> <HOME>/.pi/agent/web-search.json
+checked settings.json — permission posture is not permissive
+---
+linked=78 mirrored=38 skipped=4 copied=1 plugins=0 external=0 pruned=0
