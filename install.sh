@@ -5,13 +5,21 @@
 #
 # Three destinations, and nothing else:
 #
-#   Shared skills (source-only; one link serves OMP and Pi):
+#   Shared skills (source-only; one link serves every consumer):
 #     skills/<name>/         -> ~/.agents/skills/<name>
 #     vendor/<owner>-<repo>/* -> ~/.agents/skills/<name>   (external lines)
-#       The shared cross-agent skills root. OMP and Pi both discover it, so a
-#       skill is linked ONCE rather than once per harness. Do NOT also link
-#       into ~/.pi/agent/skills: a skill found in two roots is discovered twice
-#       and burns double its share of the skills context budget.
+#       The shared cross-agent skills root. OMP, Pi, Codex and OpenCode all
+#       discover it natively, so a skill is linked ONCE rather than once per
+#       harness. Filled — by a full install (repo-owned and external skills)
+#       or a selective `--skills-only` install alike — only when
+#       shared_root_consumers_present is true: at least one of ~/.codex,
+#       ~/.pi/agent, ~/.config/opencode or ~/.omp/agent exists. This repo does
+#       not write Codex or OpenCode config — their directories are checked
+#       read-only, purely to decide whether the shared root is worth filling.
+#       With no consumer present, ~/.agents is never created and --prune skips
+#       the shared root the same way. Do NOT also link into
+#       ~/.pi/agent/skills: a skill found in two roots is discovered twice and
+#       burns double its share of the skills context budget.
 #
 #   OMP configuration:
 #     omp/config.yml         -> ~/.omp/agent/config.yml
@@ -107,6 +115,20 @@ SKILLS_ROOT="$HOME/.agents/skills"
 OMP="$HOME/.omp/agent"
 OMP_OVERLAYS="$HOME/.config/omp"
 PI="$HOME/.pi/agent"
+
+# shared_root_consumers_present: true when some tool that reads the shared
+# ~/.agents/skills root is installed. Codex and OpenCode read that root
+# natively even though this repo no longer writes their config, so checking
+# for ~/.codex and ~/.config/opencode here decides only whether filling the
+# shared root is worthwhile — it must NOT reintroduce any Codex/OpenCode
+# config writes, and none are added below. Full installs (repo-owned and
+# external skills), selective (--skills-only) installs and --prune all gate
+# on this one predicate, so every consumer set produces identical shared-root
+# links regardless of mode.
+shared_root_consumers_present() {
+  [ -d "$HOME/.codex" ] || [ -d "$PI" ] || [ -d "$HOME/.config/opencode" ] || [ -d "$OMP" ]
+}
+
 PRUNE=0
 FORCE=0
 EXTERNAL=1
@@ -309,6 +331,13 @@ if [ "$SKILLS_ONLY" = "1" ]; then
     fi
   done
 
+  # Nothing reads the shared root: create no ~/.agents at all, rather than
+  # filling it for consumers that are not there.
+  if ! shared_root_consumers_present; then
+    echo "note: no shared-skill-root consumer present (~/.codex, ~/.pi/agent, ~/.config/opencode, ~/.omp/agent) — skipping ~/.agents/skills"
+    exit 0
+  fi
+
   # Check the root and every destination before creating a directory or
   # replacing a link, so a refusal never leaves a partial install.
   parent="$SKILLS_ROOT"
@@ -336,111 +365,118 @@ fi
 
 [ "$EXTERNAL" = "1" ] && fetch_external_sources
 
-mkdir -p "$SKILLS_ROOT"
+# Fill the shared root only when something reads it. Otherwise leave
+# ~/.agents untouched entirely — creating an empty root nobody consumes is
+# just clutter, and it would need pruning later for no benefit.
+if shared_root_consumers_present; then
+  mkdir -p "$SKILLS_ROOT"
 
-# 1. Repo-owned skills: every directory holding a SKILL.md.
-for dir in "$REPO"/skills/*/; do
-  [ -f "$dir/SKILL.md" ] || continue
-  name="$(basename "$dir")"
-  link_skill_into "${dir%/}" "$SKILLS_ROOT/$name"
-  ACTIVE_SKILLS="$ACTIVE_SKILLS$name "
-done
+  # 1. Repo-owned skills: every directory holding a SKILL.md.
+  for dir in "$REPO"/skills/*/; do
+    [ -f "$dir/SKILL.md" ] || continue
+    name="$(basename "$dir")"
+    link_skill_into "${dir%/}" "$SKILLS_ROOT/$name"
+    ACTIVE_SKILLS="$ACTIVE_SKILLS$name "
+  done
 
-# 2. External skill sources: `external <owner/repo>` lines in plugins.txt.
-#    Cloned into vendor/<owner>-<repo>/ (gitignored) and linked into the same
-#    shared root, so one link reaches OMP and Pi alike. Fetching honours
-#    --no-external; relinking always runs, so an offline re-run still repairs
-#    the links from what is already cloned.
-if [ -f "$REPO/plugins.txt" ]; then
-  while read -r kind arg rest; do
-    [ "$kind" = "external" ] || continue
-    case "$arg" in
-    */*) : ;;
-    *)
-      echo "⚠️  plugins.txt: external '$arg' is not owner/repo — skipped"
-      skipped=$((skipped + 1))
-      continue
-      ;;
-    esac
-    # `owner/repo[:subdir]` — the optional subdir pins which tree to read when a
-    # repo ships several, all with the same skill names.
-    repo="${arg%%:*}"
-    subdir=""
-    case "$arg" in *:*) subdir="${arg#*:}" ;; esac
-    slug="${repo%/*}-${repo#*/}"
-    clone="$VENDOR/$slug"
-
-    if [ ! -d "$clone" ]; then
-      echo "⚠️  SKIP external $repo — vendor/$slug is absent (re-run without --no-external)"
-      skipped=$((skipped + 1))
-      continue
-    fi
-
-    # An optional space-separated skill list after the source narrows what gets
-    # linked. Empty means every skill found — right for a small, curated repo,
-    # wrong for a grab bag whose extras are dead weight in the context budget.
-    want="$rest"
-    # Where the skill dirs live. An explicit subdir wins; otherwise skills/ if
-    # present, else the repo root. A repo that is itself one skill puts SKILL.md
-    # at the root, so that is checked separately below.
-    if [ -n "$subdir" ]; then
-      src_root="$clone/$subdir"
-    elif [ -d "$clone/skills" ]; then
-      src_root="$clone/skills"
-    else
-      src_root="$clone"
-    fi
-
-    # The skill's real name is its frontmatter `name:`, NOT its directory —
-    # a repo may ship skills/macos/ declaring `name: macos-design-guidelines`,
-    # and linking it as "macos" installs a skill whose directory and manifest
-    # disagree.
-    skill_name() { # skill_name <dir-with-SKILL.md>
-      local n
-      n="$(sed -n '/^---$/,/^---$/{s/^name:[[:space:]]*//p;}' "$1/SKILL.md" 2>/dev/null | head -1)"
-      n="${n%\"}"
-      n="${n#\"}"
-      n="${n%\'}"
-      n="${n#\'}"
-      [ -n "$n" ] || n="$(basename "$1")"
-      printf '%s' "$n"
-    }
-
-    link_skill() { # link_skill <dir>
-      local dir="$1" name
-      name="$(skill_name "$dir")"
-      if [ -n "$want" ] && ! printf '%s ' $want | grep -q "^$name \| $name "; then
-        return 1
-      fi
-      # A repo-owned skill always wins: same name, ours is the live one.
-      if [ -d "$REPO/skills/$name" ]; then
-        echo "⚠️  SKIP $name (external $repo) — shadowed by this repo's skills/$name"
+  # 2. External skill sources: `external <owner/repo>` lines in plugins.txt.
+  #    Cloned into vendor/<owner>-<repo>/ (gitignored) and linked into the same
+  #    shared root, so one link reaches OMP and Pi alike. Fetching honours
+  #    --no-external; relinking always runs, so an offline re-run still repairs
+  #    the links from what is already cloned.
+  if [ -f "$REPO/plugins.txt" ]; then
+    while read -r kind arg rest; do
+      [ "$kind" = "external" ] || continue
+      case "$arg" in
+      */*) : ;;
+      *)
+        echo "⚠️  plugins.txt: external '$arg' is not owner/repo — skipped"
         skipped=$((skipped + 1))
-        return 1
+        continue
+        ;;
+      esac
+      # `owner/repo[:subdir]` — the optional subdir pins which tree to read when a
+      # repo ships several, all with the same skill names.
+      repo="${arg%%:*}"
+      subdir=""
+      case "$arg" in *:*) subdir="${arg#*:}" ;; esac
+      slug="${repo%/*}-${repo#*/}"
+      clone="$VENDOR/$slug"
+
+      if [ ! -d "$clone" ]; then
+        echo "⚠️  SKIP external $repo — vendor/$slug is absent (re-run without --no-external)"
+        skipped=$((skipped + 1))
+        continue
       fi
-      link_skill_into "$dir" "$SKILLS_ROOT/$name"
-      ACTIVE_SKILLS="$ACTIVE_SKILLS$name "
-      return 0
-    }
 
-    found=0
-    if [ -f "$src_root/SKILL.md" ]; then
-      # Single-skill repo: SKILL.md sits at the root.
-      link_skill "$src_root" && found=$((found + 1))
-    else
-      for dir in "$src_root"/*/; do
-        [ -f "$dir/SKILL.md" ] || continue
-        link_skill "${dir%/}" && found=$((found + 1))
-      done
-    fi
+      # An optional space-separated skill list after the source narrows what gets
+      # linked. Empty means every skill found — right for a small, curated repo,
+      # wrong for a grab bag whose extras are dead weight in the context budget.
+      want="$rest"
+      # Where the skill dirs live. An explicit subdir wins; otherwise skills/ if
+      # present, else the repo root. A repo that is itself one skill puts SKILL.md
+      # at the root, so that is checked separately below.
+      if [ -n "$subdir" ]; then
+        src_root="$clone/$subdir"
+      elif [ -d "$clone/skills" ]; then
+        src_root="$clone/skills"
+      else
+        src_root="$clone"
+      fi
 
-    if [ "$found" = "0" ]; then
-      echo "⚠️  external $arg — no matching SKILL.md found under vendor/$slug${subdir:+/$subdir}"
-      skipped=$((skipped + 1))
-    else
-      external=$((external + 1))
-    fi
-  done <"$REPO/plugins.txt"
+      # The skill's real name is its frontmatter `name:`, NOT its directory —
+      # a repo may ship skills/macos/ declaring `name: macos-design-guidelines`,
+      # and linking it as "macos" installs a skill whose directory and manifest
+      # disagree.
+      skill_name() { # skill_name <dir-with-SKILL.md>
+        local n
+        n="$(sed -n '/^---$/,/^---$/{s/^name:[[:space:]]*//p;}' "$1/SKILL.md" 2>/dev/null | head -1)"
+        n="${n%\"}"
+        n="${n#\"}"
+        n="${n%\'}"
+        n="${n#\'}"
+        [ -n "$n" ] || n="$(basename "$1")"
+        printf '%s' "$n"
+      }
+
+      link_skill() { # link_skill <dir>
+        local dir="$1" name
+        name="$(skill_name "$dir")"
+        if [ -n "$want" ] && ! printf '%s ' $want | grep -q "^$name \| $name "; then
+          return 1
+        fi
+        # A repo-owned skill always wins: same name, ours is the live one.
+        if [ -d "$REPO/skills/$name" ]; then
+          echo "⚠️  SKIP $name (external $repo) — shadowed by this repo's skills/$name"
+          skipped=$((skipped + 1))
+          return 1
+        fi
+        link_skill_into "$dir" "$SKILLS_ROOT/$name"
+        ACTIVE_SKILLS="$ACTIVE_SKILLS$name "
+        return 0
+      }
+
+      found=0
+      if [ -f "$src_root/SKILL.md" ]; then
+        # Single-skill repo: SKILL.md sits at the root.
+        link_skill "$src_root" && found=$((found + 1))
+      else
+        for dir in "$src_root"/*/; do
+          [ -f "$dir/SKILL.md" ] || continue
+          link_skill "${dir%/}" && found=$((found + 1))
+        done
+      fi
+
+      if [ "$found" = "0" ]; then
+        echo "⚠️  external $arg — no matching SKILL.md found under vendor/$slug${subdir:+/$subdir}"
+        skipped=$((skipped + 1))
+      else
+        external=$((external + 1))
+      fi
+    done <"$REPO/plugins.txt"
+  fi
+else
+  echo "note: no shared-skill-root consumer present (~/.codex, ~/.pi/agent, ~/.config/opencode, ~/.omp/agent) — skipping ~/.agents/skills"
 fi
 
 # 3. global-agents.md: harness-neutral shared preferences, linked into each
@@ -598,35 +634,39 @@ fi
 
 # 7. Prune.
 if [ "$PRUNE" = "1" ]; then
-  # 7a. Shared root: links this repo no longer declares (skill deleted, or an
-  #     external allowlist narrowed). Real directories are left alone, so a
-  #     hand-installed skill is never deleted.
-  for link in "$SKILLS_ROOT"/*; do
-    [ -L "$link" ] || continue
-    case " $ACTIVE_SKILLS " in
-    *" $(basename "$link") "*) continue ;;
-    esac
-    case "$(readlink "$link")" in
-    "$REPO"/* | "$VENDOR"/*)
-      rm -f "$link"
-      echo "pruned  $(basename "$link") (not declared)"
-      pruned=$((pruned + 1))
-      ;;
-    esac
-  done
-  # 7b. Shared root: dangling links that point into this repo.
-  for link in "$SKILLS_ROOT"/*; do
-    [ -L "$link" ] || continue
-    case "$(readlink "$link")" in
-    "$REPO"/*)
-      if [ ! -e "$link" ]; then
+  # 7a/7b share the fill gate: a run that declined to fill the shared root
+  # does not prune it either.
+  if shared_root_consumers_present; then
+    # 7a. Shared root: links this repo no longer declares (skill deleted, or an
+    #     external allowlist narrowed). Real directories are left alone, so a
+    #     hand-installed skill is never deleted.
+    for link in "$SKILLS_ROOT"/*; do
+      [ -L "$link" ] || continue
+      case " $ACTIVE_SKILLS " in
+      *" $(basename "$link") "*) continue ;;
+      esac
+      case "$(readlink "$link")" in
+      "$REPO"/* | "$VENDOR"/*)
         rm -f "$link"
-        echo "pruned  $(basename "$link") (dangling)"
+        echo "pruned  $(basename "$link") (not declared)"
         pruned=$((pruned + 1))
-      fi
-      ;;
-    esac
-  done
+        ;;
+      esac
+    done
+    # 7b. Shared root: dangling links that point into this repo.
+    for link in "$SKILLS_ROOT"/*; do
+      [ -L "$link" ] || continue
+      case "$(readlink "$link")" in
+      "$REPO"/*)
+        if [ ! -e "$link" ]; then
+          rm -f "$link"
+          echo "pruned  $(basename "$link") (dangling)"
+          pruned=$((pruned + 1))
+        fi
+        ;;
+      esac
+    done
+  fi
 
   # 7c. Retired harness surfaces. This repo no longer installs anything for
   #     Claude, Codex or OpenCode, so clean up what an older version left

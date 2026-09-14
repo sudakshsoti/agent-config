@@ -10,7 +10,7 @@ harness-neutral preferences that install into OMP and Pi live in
 
 | Destination | Source | Delivery |
 | --- | --- | --- |
-| `~/.agents/skills/` | `skills/`, `vendor/` | symlink per skill; both OMP and Pi read this one root |
+| `~/.agents/skills/` | `skills/`, `vendor/` | symlink per skill; OMP and Pi (and Codex/OpenCode, if present) read this one root; filled only when one of those consumers exists |
 | `~/.omp/agent/` + `~/.config/omp/` | `omp/`, `global-agents.md` | symlink per file; OMP writes through the links |
 | `~/.pi/agent/` | `pi/`, `global-agents.md` | symlink per file; Pi writes through the links |
 
@@ -32,6 +32,11 @@ pi-web-access's credential store, so only repo-owned keys are pushed.
   alone with a warning.
 - `./install.sh --skills-only=name,other-name` links only the named repo-owned
   skills into `~/.agents/skills`, with no config writes and no external fetches.
+- Full, `--skills-only` and `--prune` runs share one predicate,
+  `shared_root_consumers_present`: `~/.agents/skills` is touched only when
+  `~/.omp/agent`, `~/.pi/agent`, `~/.codex` or `~/.config/opencode` exists.
+  With none, no `~/.agents` is created and the run prints a note. Codex and
+  OpenCode are presence checks only; nothing is configured for them.
 - `--no-external` skips the external git fetch; relinking still runs, so an
   offline re-run repairs links from what is already cloned.
 - `install.sh` refuses any checkout whose `rev-parse --git-dir` differs from
