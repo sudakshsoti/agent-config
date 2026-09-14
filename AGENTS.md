@@ -51,7 +51,7 @@ Secrets belong in dotfiles (1Password + age), never here.
 | `skills/`, `plugins.txt` | agent-config | source-only; no packaged artifact |
 | `global-agents.md` | agent-config | linked to `~/.omp/agent/AGENTS.md` and `~/.pi/agent/AGENTS.md` |
 | `omp/config.yml`, `lsp.yml`, `keybindings.yml`, `themes/`, `agents/`, `overlays/` | agent-config | OMP writes through links |
-| `pi/settings.json`, `subagents.json`, `pi-fff.json`, `keybindings.json`, `prompts/`, `themes/`, `extensions/`, `agents/` | agent-config | Pi writes through links |
+| `pi/settings.json`, `verbosity.json`, `subagents.json`, `pi-fff.json`, `keybindings.json`, `prompts/`, `themes/`, `extensions/`, `agents/` | agent-config | Pi writes through links |
 | `pi/web-search.json` | **shared** | merged; credentials and unmanaged keys stay machine-local |
 | `~/.omp/agent/mcp.json`, `~/.omp/agent/extensions/`, `~/.pi/agent/auth.json`, `~/.pi/agent/models-store.json`, `~/.pi/agent/sessions/`, `~/.pi/agent/npm/` | **neither** | credentials or runtime state; untracked |
 | `~/.local/bin/omp-*-overlay`, `~/.zshrc`, Brewfile, fonts | **dotfiles** | chezmoi |

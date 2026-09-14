@@ -27,6 +27,7 @@ OMP_FILES = (
 )
 PI_FILES = (
     "pi/settings.json",
+    "pi/verbosity.json",
     "pi/pi-fff.json",
     "pi/keybindings.json",
     "pi/subagents.json",

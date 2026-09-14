@@ -29,8 +29,10 @@ import importlib.util
 _spec = importlib.util.spec_from_file_location(
     "test_install_selected_skills", ROOT / "scripts" / "test-install-selected-skills.py"
 )
+if _spec is None or _spec.loader is None:
+    raise RuntimeError("could not load test-install-selected-skills.py")
 _install_test_module = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_install_test_module)  # type: ignore[union-attr]
+_spec.loader.exec_module(_install_test_module)
 
 import ownership_collisions as oc  # noqa: E402
 
@@ -99,6 +101,7 @@ class InstallOutputStaysWithinManagedDestinationsTest(unittest.TestCase):
             ".config/omp/go-overlay.yml",
             ".pi/agent/AGENTS.md",
             ".pi/agent/settings.json",
+            ".pi/agent/verbosity.json",
             ".pi/agent/pi-fff.json",
             ".pi/agent/keybindings.json",
             ".pi/agent/subagents.json",

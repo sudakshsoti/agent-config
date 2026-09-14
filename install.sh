@@ -531,11 +531,14 @@ fi
 # 5. Pi configuration. Same reasoning as OMP above: Pi rewrites settings.json
 #    itself and the write follows the symlink into the repo.
 if [ ! -d "$PI" ]; then
-  echo "⚠️  SKIP pi — no $PI (pi not installed). settings.json, pi-fff.json, keybindings.json, subagents.json, prompts/, themes/, extensions/ and agents/ not linked."
+  echo "⚠️  SKIP pi — no $PI (pi not installed). settings.json, verbosity.json, pi-fff.json, keybindings.json, subagents.json, prompts/, themes/, extensions/ and agents/ not linked."
 fi
 if [ -d "$PI" ] && [ -f "$REPO/pi/settings.json" ]; then
   mkdir -p "$PI"
   link_into "$REPO/pi/settings.json" "$PI/settings.json"
+fi
+if [ -d "$PI" ] && [ -f "$REPO/pi/verbosity.json" ]; then
+  link_into "$REPO/pi/verbosity.json" "$PI/verbosity.json"
 fi
 if [ -d "$PI" ] && [ -f "$REPO/pi/pi-fff.json" ]; then
   link_into "$REPO/pi/pi-fff.json" "$PI/pi-fff.json"

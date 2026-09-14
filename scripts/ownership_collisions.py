@@ -96,6 +96,7 @@ MANAGED_DESTINATIONS: tuple[ManagedDestination, ...] = (
     # Pi configuration under ~/.pi/agent.
     ManagedDestination("file", ".pi/agent/AGENTS.md"),
     ManagedDestination("file", ".pi/agent/settings.json"),
+    ManagedDestination("file", ".pi/agent/verbosity.json"),
     ManagedDestination("file", ".pi/agent/pi-fff.json"),
     ManagedDestination("file", ".pi/agent/keybindings.json"),
     ManagedDestination("file", ".pi/agent/subagents.json"),

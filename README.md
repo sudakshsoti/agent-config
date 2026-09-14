@@ -47,9 +47,10 @@ Three destinations, and nothing else.
 - `pi/settings.json` — Pi's default model, Ctrl+P model list, thinking level,
   theme and package list. Pi's per-job models live in `pi/agents/*.md`
   frontmatter; `pi/model-ladder.md` explains the tiers.
-- `pi/pi-fff.json`, `pi/keybindings.json`, `pi/subagents.json`, `pi/prompts/`,
-  `pi/themes/`, `pi/agents/`, `pi/extensions/` — each linked individually into
-  `~/.pi/agent/`. Extensions are linked file by file so local runtime data
+- `pi/verbosity.json`, `pi/pi-fff.json`, `pi/keybindings.json`,
+  `pi/subagents.json`, `pi/prompts/`, `pi/themes/`, `pi/agents/`,
+  `pi/extensions/` — each linked individually into `~/.pi/agent/`. Extensions
+  are linked file by file so local runtime data
   inside the directory survives.
 - `pi/web-search.json` — pi-web-access preferences. **Merged**, never linked,
   because the live file is also that extension's credential store.
