@@ -38,7 +38,7 @@ Copy [the skeleton](../skeletons/precision-software.html) and fill its `REPLACE`
 
 ## Reference notes
 
-Inspect [the selected reference and its annotations](../../screenshots/precision-software/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.
+Inspect [the selected reference and its annotations](../../screenshots/precision-software/notes.md). The primary image is a records table with the workspace sidebar; companion captures show a board of cards, a chart with a configuration panel, and a dialog over the app. Borrow the recorded relationships, not the reference's brand identity or exact values.
 
 ## Visible review criteria
 

@@ -38,7 +38,7 @@ Copy [the skeleton](../skeletons/editorial-modernist.html) and fill its `REPLACE
 
 ## Reference notes
 
-Inspect [the selected reference and its annotations](../../screenshots/editorial-modernist/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.
+Inspect [the selected reference and its annotations](../../screenshots/editorial-modernist/notes.md). The primary image is an article opening; two companion crops show a figure with its caption and a sidenote column. Borrow the recorded relationships, not the reference's brand identity or exact values.
 
 ## Visible review criteria
 

@@ -38,7 +38,7 @@ Copy [the skeleton](../skeletons/swiss-graphic.html) and fill its `REPLACE` slot
 
 ## Reference notes
 
-Inspect [the selected reference and its annotations](../../screenshots/swiss-graphic/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.
+Inspect [the selected reference and its annotations](../../screenshots/swiss-graphic/notes.md). The primary image is a labelled column beside a two-column list on one grid; companion crops show a heading over a row of cards, a four-column product grid with one accent, and a full-bleed colour block as a section. Borrow the recorded relationships, not the reference's brand identity or exact values.
 
 ## Visible review criteria
 

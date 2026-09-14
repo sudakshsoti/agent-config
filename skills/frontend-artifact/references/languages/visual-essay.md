@@ -38,7 +38,7 @@ Copy [the skeleton](../skeletons/visual-essay.html) and fill its `REPLACE` slots
 
 ## Reference notes
 
-Inspect [the selected reference and its annotations](../../screenshots/visual-essay/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.
+Inspect [the selected reference and its annotations](../../screenshots/visual-essay/notes.md). The primary image is a numbered section with prose and a chart in one measure; companion crops show a centred opening, an opening with a side column, and an interactive graphic that breaks out of the prose column. Borrow the recorded relationships, not the reference's brand identity or exact values.
 
 ## Visible review criteria
 

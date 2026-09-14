@@ -38,7 +38,7 @@ Copy [the skeleton](../skeletons/personal-software.html) and fill its `REPLACE` 
 
 ## Reference notes
 
-Inspect [the selected reference and its annotations](../../screenshots/personal-software/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.
+Inspect [the selected reference and its annotations](../../screenshots/personal-software/notes.md). The primary image is a home page laid out as a three-column index; a companion crop shows a writing index as rows with a year column. Borrow the recorded relationships, not the reference's brand identity or exact values.
 
 ## Visible review criteria
 

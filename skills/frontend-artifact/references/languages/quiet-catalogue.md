@@ -38,7 +38,7 @@ Copy [the skeleton](../skeletons/quiet-catalogue.html) and fill its `REPLACE` sl
 
 ## Reference notes
 
-Inspect [the selected reference and its annotations](../../screenshots/quiet-catalogue/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.
+Inspect [the selected reference and its annotations](../../screenshots/quiet-catalogue/notes.md). The primary image is a collection search with its filter row and results grid; companion crops show object cards with category tags, event cards with status marks, a search header with facet links over a masonry grid, and full-bleed dark tiles with overlaid captions. Borrow the recorded relationships, not the reference's brand identity or exact values.
 
 ## Visible review criteria
 

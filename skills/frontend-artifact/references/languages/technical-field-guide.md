@@ -38,7 +38,7 @@ Copy [the skeleton](../skeletons/technical-field-guide.html) and fill its `REPLA
 
 ## Reference notes
 
-Inspect [the selected reference and its annotations](../../screenshots/technical-field-guide/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.
+Inspect [the selected reference and its annotations](../../screenshots/technical-field-guide/notes.md). The primary image is a section with a figure and caption; two companion crops show an interactive figure with its controls and a chapter opening with centred illustrations. Borrow the recorded relationships, not the reference's brand identity or exact values.
 
 ## Visible review criteria
 

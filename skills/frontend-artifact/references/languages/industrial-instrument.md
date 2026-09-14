@@ -38,7 +38,7 @@ Copy [the skeleton](../skeletons/industrial-instrument.html) and fill its `REPLA
 
 ## Reference notes
 
-Inspect [the selected reference and its annotations](../../screenshots/industrial-instrument/notes.md). Borrow the recorded relationships, not the reference's brand identity or exact values.
+Inspect [the selected reference and its annotations](../../screenshots/industrial-instrument/notes.md). The primary image is a device guide opening with a line drawing over a two-column introduction; companion crops show a numbered index with outlined item cards, a table with one colour per row, a product grid, and a panel dashboard. Borrow the recorded relationships, not the reference's brand identity or exact values.
 
 ## Visible review criteria
 
