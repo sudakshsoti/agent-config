@@ -25,10 +25,8 @@ How the roles run depends on the harness:
 
 | Harness | Plan | Builder | Critic |
 | --- | --- | --- | --- |
-| Pi | `Plan` subagent in the foreground | `Builder` subagent | `Critic` subagent with images attached |
-| Claude Code | `Plan` agent | main session or a general-purpose agent | a fresh agent that reads the PNGs |
-| Codex | main session, written as a hand-off block before any edit | main session | `codex exec -i mobile.png -i desktop.png -i reference.png "<prompt>" </dev/null` |
-| omp, opencode | main session, sequentially | main session | a second non-interactive run with the images, stdin closed |
+| Pi | `Plan` subagent in the foreground | `builder` subagent | `Critic` subagent with images attached |
+| OMP | main session, sequentially | main session | a second non-interactive run with the images, stdin closed |
 
 When a role runs in the main session, still write its output in the role's shape before moving on. The Critic must run in a fresh context: a session reviewing its own build approves it. If no image-capable reviewer exists, report "Critic pass unavailable" and do not claim visual quality.
 

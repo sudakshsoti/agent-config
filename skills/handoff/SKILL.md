@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Session Handoff Skill
 
-Create structured documents that enable seamless continuity across Claude
+Create structured documents that enable seamless continuity across agent
 sessions.
 
 ## When to Use
@@ -97,11 +97,11 @@ that would take time to re-establish]
 
 ### Step 4: Write the File
 
-Write to: `.claude/handoffs/[YYYY-MM-DD]-[brief-description].md`
+Write to: `handoff/[YYYY-MM-DD]-[brief-description].md`
 
 Confirm location with user:
 
-> "I'll save this to `.claude/handoffs/[filename].md`. Want a different
+> "I'll save this to `handoff/[filename].md`. Want a different
 > location?"
 
 ## What to Capture
@@ -140,7 +140,7 @@ Confirm location with user:
 
 Before saving, verify:
 
-1. **Could a fresh Claude pick up from this?** — Enough context to continue?
+1. **Could a fresh agent pick up from this?** — Enough context to continue?
 2. **Are decisions traceable?** — Clear why things were decided?
 3. **Are next steps actionable?** — Know exactly what to do first?
 4. **Is code work clear?** — Know which files matter?

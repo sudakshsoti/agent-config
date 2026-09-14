@@ -6,7 +6,7 @@
 //   node audit.js <url-or-file> [--width 390 --height 844] [--compact] [--json]
 //
 // Requires the `playwright` module. It is resolved from the normal module path,
-// then from the shared Pi/Codex install (~/.pi/agent/npm/node_modules); pass
+// then from the shared Pi package tree (~/.pi/agent/npm/node_modules); pass
 // NODE_PATH to point elsewhere. The module's bundled Chromium is used; set
 // CHROMIUM_PATH to an installed browser executable when that build is absent.
 // Nothing is downloaded. Exit code 1 when any check FAILs. WARN never fails.

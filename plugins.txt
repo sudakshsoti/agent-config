@@ -1,100 +1,53 @@
-# plugins.txt — declarative plugin manifest, applied by install.sh.
+# plugins.txt — declarative third-party skill-source manifest, applied by install.sh.
 #
-# install.sh reads this and runs `claude plugin marketplace add` +
-# `claude plugin install` for each line, so a fresh machine reproduces the
-# plugin set. Both commands are idempotent (no-op if already present).
-#
-# We do NOT vendor plugin content — it's large, owned upstream, and
-# auto-updates from its marketplace. This file tracks only *which* plugins,
-# at floating (latest) versions. To reproduce an exact version, install the
-# tag by hand; this manifest intentionally tracks latest.
+# This file declares third-party SKILL sources only. There is no plugin or
+# marketplace directive any more: install.sh targets OMP and Pi, and neither has
+# a plugin CLI. Every source here is vendored by reference and linked into the
+# shared ~/.agents/skills root, so one link reaches both harnesses.
 #
 # Format (one directive per line; blank lines and #-comments ignored):
-#   marketplace <github-repo-or-url>     # `claude plugin marketplace add <src>`
-#   plugin      <name@marketplace>       # `claude plugin install <name@mkt>`
-# Marketplaces must be listed before the plugins that come from them.
-
-marketplace anthropics/claude-plugins-official
-marketplace anthropics/claude-plugins-community
-
-# superpowers is deliberately NOT installed. Its skills are vendored into
-# skills/ instead, because the plugin's SessionStart hook injects ~650 tokens
-# into every session and after every /clear, and Claude Code has no way to
-# disable one hook from a plugin. See docs/vendored-mattpocock-skills.md for
-# what replaced it.
-# plugin superpowers@claude-plugins-official
-# frontend-design moved off the plugin lane to `external` (2026-09-07) so Codex,
-# opencode and omp see it too — it ships one SKILL.md and nothing else, so the
-# plugin lane bought nothing. See the `external` line at the bottom of this file.
-# plugin frontend-design@claude-plugins-official
-# vercel is uninstalled for now — removed 2026-08-25 to trim the MCP list.
-# Re-enable this line and re-run install.sh to bring it back.
-# plugin vercel@claude-plugins-official
-plugin claude-code-setup@claude-plugins-official
-plugin figma@claude-plugins-official
-plugin pyright-lsp@claude-plugins-official
-plugin typescript-lsp@claude-plugins-official
-# humanizer is vendored into skills/humanizer instead of installed as a plugin,
-# so opencode and Codex see it too (they read ~/.claude/skills and
-# ~/.agents/skills but not Claude plugins) and there is only one copy in
-# Claude's skill list.
-# plugin humanizer@humanizer
-
-# baseline: my own design-process plugin (rules, heuristics, project-direction
-# workflow). Installed the same way as everyone else's plugins — GitHub
-# marketplace source, not vendored, not a local-directory marketplace. Editing
-# happens in that repo (~/dev/baseline); this just tracks the install here so
-# a fresh machine gets it without a separate clone or install.sh run. Claude
-# Code caches a snapshot at install time — `claude plugin marketplace update
-# baseline && claude plugin update baseline` after pushing a skill change.
-# baseline is disabled (2026-09-07). The design-process workflow wasn't earning
-# its keep; the grilling interview is the part worth keeping and lives in
-# skills/grilling. Re-enable both lines and flip "baseline@baseline" back to
-# true in ~/.claude/settings.json to bring it back.
-# marketplace sudakshsoti/baseline
-# plugin baseline@baseline
-
-# External skill sources — `external <owner/repo>`, applied by install.sh step 1c.
 #
-# NOT a plugin, and cannot be one: emilkowalski/skills ships no
-# .claude-plugin/marketplace.json, so `claude plugin marketplace add` fails
-# outright. Even if it did, a Claude plugin is visible to Claude alone —
-# Codex, opencode and omp read ~/.agents/skills and know nothing about
-# plugins. `external` covers both gaps: install.sh clones the repo to
-# vendor/<owner>-<repo>/ (gitignored) and symlinks each of its skills into
-# ~/.claude/skills AND ~/.agents/skills, exactly like a repo-owned skill.
+#   external <owner/repo>[:<subdir>] [skill ...]
 #
-# Vendored by reference, not copied — upstream files never enter this repo's
-# history, so they skip scripts/lint-skills.py and need no dist/<name>.zip.
-# Re-running install.sh fast-forwards each clone, so these track latest.
-# A repo-owned skills/<name> always shadows an external skill of the same name.
+# install.sh clones each source into vendor/<owner>-<repo>/ (gitignored) and
+# fast-forwards it on each run, so these track latest. The optional :<subdir>
+# pins which tree to read when a repo ships several copies. Naming individual
+# skills after the directive links only those — a bare repo links every skill it
+# ships, which consumes the shared context budget and is only right for a small,
+# curated collection. A repo-owned skills/<name> always shadows an external
+# skill of the same name.
 #
-# The other sources, migrated off `npx skills` (2026-09-07). They were
-# installed globally and tracked only in ~/.agents/.skill-lock.json, which is
-# machine-local and has no restore command — so a fresh machine got none of
-# them. Each line is pinned to exactly the skills that were in use at
-# migration time.
+# Vendored by reference, never copied: upstream files do not enter this repo's
+# history and are not linted by scripts/lint-skills.py.
+#
+# To disable a source, comment out its line and re-run `./install.sh --prune`,
+# which clears the links it left in ~/.agents/skills.
+
 external stablyai/orca orchestration computer-use
 external BexTuychiev/firecrawl-claude-code-skill firecrawl-web
-# The upstream repo also ships a Claude marketplace plugin, but this curated
-# allowlist intentionally mirrors only the useful engineering skills to every
-# harness through the shared ~/.agents/skills root. The two vocabulary skills
-# are dependencies of grill-with-docs and improve-codebase-architecture.
-# ask-matt is retained as a router; its less-used branches may name optional
-# Matt skills outside this allowlist rather than silently importing the whole
-# collection and consuming the shared context budget.
+
+# The upstream repo also ships a marketplace plugin, but this curated allowlist
+# intentionally mirrors only the useful engineering skills into the shared root.
+# The two vocabulary skills are dependencies of grill-with-docs and
+# improve-codebase-architecture. ask-matt is retained as a router; its less-used
+# branches may name optional Matt skills outside this allowlist rather than
+# silently importing the whole collection and consuming the shared context budget.
 external mattpocock/skills:skills/engineering setup-matt-pocock-skills ask-matt tdd code-review grill-with-docs improve-codebase-architecture domain-modeling codebase-design
-# emilkowalski/skills — all upstream skills, linked for every agent surface.
+
+# emilkowalski/skills — all upstream skills, linked into the shared root.
 external emilkowalski/skills
 
-# frontend-design, from its canonical home in the claude-code repo (identical
-# byte-for-byte to the copy in claude-plugins-official). It was `plugin
-# frontend-design@claude-plugins-official` until 2026-09-07; a plugin is
-# Claude-only, and this one is a single SKILL.md with no hooks, commands or
-# agents, so `external` gives the same skill to all four harnesses at no cost.
-# Uninstall the old plugin once per machine, or Claude lists the skill twice:
-#   claude plugin uninstall frontend-design@claude-plugins-official
-# Role is unchanged: marketing and brand pages only. Product, reference, utility,
-# dashboard, settings, and lookup-documentation surfaces follow the always-loaded
+# frontend-design, from its canonical home in the claude-code repo. It is a
+# single SKILL.md with no hooks, commands or agents, so a plain external source
+# gives the same skill to both harnesses at no cost.
+# Role: marketing and brand pages only. Product, reference, utility, dashboard,
+# settings, and lookup-documentation surfaces follow the always-loaded
 # interface-intent contract plus the active design skills as relevant.
 external anthropics/claude-code:plugins/frontend-design/skills frontend-design
+
+# superpowers is deliberately NOT installed. Its skills are vendored into
+# skills/ instead, because the upstream SessionStart hook injects ~650 tokens
+# into every session and there is no way to disable a single hook from it.
+#
+# humanizer and baseline are likewise vendored into skills/humanizer and
+# skills/grilling rather than referenced here, so there is only one live copy.

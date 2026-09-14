@@ -4,7 +4,7 @@ Three passes, in order: measure, then look, then ask a fresh reviewer. Each pass
 
 ## 1. Measure with audit.js
 
-Run [audit.js](audit.js) against the page at 390 × 844 and 1440 × 1000. Add `--compact` for personal-software, precision-software and industrial-instrument, and `--display` for swiss-graphic. It needs the `playwright` module (the shared Pi/Codex install at `~/.pi/agent/npm/node_modules` is tried after the normal module path); set `CHROMIUM_PATH` to an installed browser when the module's own build is missing.
+Run [audit.js](audit.js) against the page at 390 × 844 and 1440 × 1000. Add `--compact` for personal-software, precision-software and industrial-instrument, and `--display` for swiss-graphic. It needs the `playwright` module (the shared Pi package tree at `~/.pi/agent/npm/node_modules` is tried after the normal module path); set `CHROMIUM_PATH` to an installed browser when the module's own build is missing.
 
 ```sh
 node "$SKILL_ROOT/references/audit.js" http://127.0.0.1:8765/ --width 390 --height 844 | tee audit.txt
@@ -37,7 +37,7 @@ Fix every FAIL before capturing screenshots. A WARN may be kept when the content
 
 Use the browser commands in [browser.md](browser.md). Capture after fonts and content are ready. Inspect at 390 × 844 and 1440 × 1000 CSS pixels, plus 900 px when applying `design-visual-system`. Include a full-page view for long documents so the opening cannot hide weak later sections.
 
-Open every image you use as evidence. Codex uses `view_image` for local files. Pi can attach local images to a model whose catalogue reports image input support. Saving a screenshot, reading HTML or obtaining a DOM snapshot is not visual inspection. If image access is unavailable, report "Visual inspection unavailable", identify the missing capability and distinguish any DOM and interaction checks completed. Do not fabricate a visual pass.
+Open every image you use as evidence — attach the local file to a model whose catalogue reports image input support. Saving a screenshot, reading HTML or obtaining a DOM snapshot is not visual inspection. If image access is unavailable, report "Visual inspection unavailable", identify the missing capability and distinguish any DOM and interaction checks completed. Do not fabricate a visual pass.
 
 Open the language's `reference.png` beside the render. Its `notes.md` records measured relationships (body size, measure, heading ratio, margins); state two values you carried over and one you deliberately changed.
 

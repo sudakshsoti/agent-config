@@ -34,12 +34,12 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 - `description` is the discovery surface. If a skill isn't triggering, the fix
   is almost always a sharper `description`, not a longer body.
 - **Multi-line `description`s must use a block scalar (`|` or `>-`), never a
-  bare unquoted value.** Claude Code's YAML parser is lenient, but Codex's is
-  strict: an unquoted multi-line scalar containing a `:` (colon-space, e.g.
-  "engineering side: teaches…") parses as a nested mapping and the whole skill
-  fails to load (`mapping values are not allowed in this context`). The `|`
-  block scalar in the template above makes colons and quotes literal — keep it.
-  Single-line descriptions are also fine.
+  bare unquoted value.** A strict YAML parser treats an unquoted multi-line
+  scalar containing a `:` (colon-space, e.g. "engineering side: teaches…") as a
+  nested mapping, and the whole skill then fails to load
+  (`mapping values are not allowed in this context`). The `|` block scalar in
+  the template above makes colons and quotes literal — keep it. Single-line
+  descriptions are also fine.
 
 The list below covers the 40 repo-owned skills. Keep it synchronized with the
 actual `skills/*/SKILL.md` directories; `scripts/lint-skills.py` validates each
@@ -63,13 +63,13 @@ dashboard, settings, or lookup-documentation work.
 - `diagnosing-bugs` — Diagnosis loop for hard bugs and performance regressions: build a tight red-capable feedback loop, minimise, rank hypotheses, instrument, fix with a regression test.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
 - `frontend-artifact` — Standalone browser explainers, visual documents and small tools, with eight selectable visual languages, a starter skeleton and validated font pairing per language, measured references, a numeric audit (`references/audit.js`) and a fresh-context critic prompt. A named language approves its defaults; otherwise the agent recommends one and waits.
-- `vibe` — The interface workflow: quick tweak, shape first or risky change; Plan, Builder and Critic roles that run as subagents on Pi and Claude and sequentially on Codex, omp and opencode. `pi/prompts/vibe.md` and `codex/prompts/vibe.md` are thin wrappers that invoke it.
+- `vibe` — The interface workflow: quick tweak, shape first or risky change; Plan, Builder and Critic roles that run as subagents where the harness has them and sequentially otherwise. `pi/prompts/vibe.md` is a thin wrapper that invokes it.
 - `find-skills` — Discover and install agent skills when asked "is there a skill for X".
 - `geopolitics` — Opinionated analyst for wars, sanctions, trade, defence, elections, negotiations, and other statecraft between countries.
 - `grilling` — Interview the user relentlessly about a plan/decision, round by round over a design tree, until nothing is left unsettled.
 - `gtd` — Sudaksh's personal GTD system: capture, inbox processing, daily/weekly reviews, Todoist/calendar routing, overwhelm triage, email triage, and procrastination audits.
 - `handoff` — Structured session-handoff docs for continuity across sessions.
-- `harness-config-maintenance` — Safely change Claude, Codex, OMP, and Pi configuration while preserving ownership and secret boundaries.
+- `harness-config-maintenance` — Safely change OMP and Pi configuration while preserving ownership and secret boundaries.
 - `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, including the safe rclone-torbox recreate.
 - `humanizer` — Rewrite AI-sounding prose so it reads like a person, using Wikipedia's 35 "Signs of AI writing" patterns. Vendored from [blader/humanizer](https://github.com/blader/humanizer) (MIT). `/humanizer`.
 - `macos-design-guidelines` — Apply Apple Human Interface Guidelines when building Mac apps with SwiftUI or AppKit.
@@ -82,7 +82,7 @@ dashboard, settings, or lookup-documentation work.
 - `push` — Safe push — sets upstream, shows outgoing commits, `--force-with-lease`, warns on main. `/push`.
 - `research` — Investigate primary sources and record cited findings in a Markdown report.
 - `rights-counsel` — Indian consumer, EPF, and insurance rights analyst for advice, complaints, notices, and representations.
-- `self-review` — Self-review the plan you just proposed via the plan-critic subagent, then revise it. `/self-review`.
+- `self-review` — Critique your own plan against a fixed checklist, then revise it. `/self-review`.
 - `shopping-research` — Purchase advisor for buying in India: product comparisons, pricing, sellers, deals, and when to buy.
 - `skill-lifecycle` — Add, rename, retire, install, and audit repo-owned skills without stale inventory or orphan references.
 - `strategy-counsel` — Strategic advisor for power, influence, and negotiation inside organisations and in arm's-length dealings.

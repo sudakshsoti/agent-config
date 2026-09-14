@@ -10,7 +10,7 @@ The eight categories a maintainability review walks. Skip any that don't apply.
 - Magic numbers or strings repeated across files instead of named constants
 - Duplicate validation between frontend and backend that could share a schema (e.g. zod)
 
-## Over-engineering (the Claude-specific smell)
+## Over-engineering (the AI-assisted smell)
 
 - Abstraction built for a case that only happens once
 - A config/plugin system for something with one caller

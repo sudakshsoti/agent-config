@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # Maintainability Review
 
-Claude-written code tends to work on the first pass and still be a liability six months later: duplicated logic, abstractions built for a case that happens once, patterns that drift between files written in different sessions. This skill catches that class of problem — not bugs, not security holes, just human maintainability.
+AI-written code tends to work on the first pass and still be a liability six months later: duplicated logic, abstractions built for a case that happens once, patterns that drift between files written in different sessions. This skill catches that class of problem — not bugs, not security holes, just human maintainability.
 
 ## Pick a mode first
 

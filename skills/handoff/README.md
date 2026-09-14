@@ -1,11 +1,11 @@
 # Handoff
 
-Create structured session handoff documents for continuity across Claude
+Create structured session handoff documents for continuity across agent
 sessions.
 
 ## The Problem
 
-Claude sessions don't persist. When you end a session and start a new one, you
+Agent sessions don't persist. When you end a session and start a new one, you
 lose:
 
 - The decisions you made and why
@@ -37,7 +37,7 @@ future session needs to pick up where you left off:
 
 ## How It Works
 
-**Step 1:** Claude assesses the current session state
+**Step 1:** The agent assesses the current session state
 
 **Step 2:** Asks what you want to capture:
 
@@ -46,7 +46,7 @@ future session needs to pick up where you left off:
 
 **Step 3:** Generates a structured handoff document
 
-**Step 4:** Saves to `.claude/handoffs/[date]-[description].md`
+**Step 4:** Saves to `handoff/[date]-[description].md`
 
 ## Handoff Document Structure
 
@@ -98,7 +98,7 @@ When starting a new session:
 2. Say "Resume from this handoff" and paste or reference the file
 3. Use @ mention if supported
 
-The handoff lets Claude hit the ground running without lengthy re-explanation.
+The handoff lets a fresh session hit the ground running without lengthy re-explanation.
 
 ## Related: Compaction Hook
 

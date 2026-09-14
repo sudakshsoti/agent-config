@@ -68,16 +68,12 @@ scope, or when it can't produce evidence.
 Your judgment, per item: the cheapest worker that will get it right, using
 whichever lever your surface gives you.
 
-- **Claude Code** — the dispatch takes a model. `opus` is the default for
-  anything carrying judgment; `haiku` for items with none in them. There is no
-  middle tier worth routing to.
 - **OMP** — the `task` role already pins the worker (GPT-5.6-Luna at `xhigh`),
   so effort is the lever, not model: drop to `smol` for mechanical items.
-- **Codex** (`spawn_agent`) and **Grok** (subagents are on unless
-  `--no-subagents`) — set both model and reasoning effort when the surface
-  allows it. Use the configured lower-cost default for mechanical items and
-  bounded research; reserve stronger models and higher effort for architecture,
-  security and difficult implementation decisions.
+- **Pi** — per-job models are in each agent's frontmatter, and a dispatch can
+  override both model and thinking. Use the configured lower-cost default for
+  mechanical items and bounded research; reserve stronger models and higher
+  effort for architecture, security and difficult implementation decisions.
 
 If your surface won't let you set either per subagent, dispatch anyway. A fresh
 context scoped to one item is most of the win; the routing is the saving on top.

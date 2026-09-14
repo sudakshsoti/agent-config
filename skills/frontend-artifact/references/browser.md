@@ -1,6 +1,6 @@
 # Local browser and image inspection
 
-Prefer the project's already-working browser tooling. In this shared Codex/Pi setup, `pi-playwright` supplies Playwright and Chromium is already installed. No frontend framework is needed to render a plain HTML file.
+Prefer the project's already-working browser tooling. In this shared Pi setup, `pi-playwright` supplies Playwright and Chromium is already installed. No frontend framework is needed to render a plain HTML file.
 
 ## Existing CLI
 
@@ -34,8 +34,8 @@ If this executable or Chromium is absent, inspect the available project tooling 
 
 ## Actually inspect the pixels
 
-Codex: open each saved PNG using `view_image` with its absolute local path. For the selected language's reference, resolve `screenshots/<language>/reference.png` relative to this skill's root.
+Inspect each saved PNG directly — open it with the harness's file input or an image tool. For the selected language's reference, resolve `screenshots/<language>/reference.png` relative to this skill's root.
 
-Pi: its file input supports local image attachments. Verify image support in `pi --list-models`, then attach the image to the active conversation or use the CLI's `@/absolute/path/image.png` file input. In a non-interactive child run, include the image paths with the review prompt and close stdin. A text-only model or a tool that merely saves PNGs cannot perform visual review.
+Pi's file input supports local image attachments. Verify image support in `pi --list-models`, then attach the image to the active conversation or use the CLI's `@/absolute/path/image.png` file input. In a non-interactive child run, include the image paths with the review prompt and close stdin. A text-only model or a tool that merely saves PNGs cannot perform visual review. OMP reaches the same result with a non-interactive run that has the images attached and stdin closed.
 
 The implementation model can remain unchanged when a separate image-capable reviewer is needed. Preserve the current user's model settings; use per-run overrides when testing. Keep the reviewer brief tied to the artifact's job and selected profile, and provide the actual screenshots rather than a description of how the page should look.

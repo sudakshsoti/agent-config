@@ -11,11 +11,11 @@ The second is catalogue consistency: `skills/README.md` is the hand-written
 index of the source skills, and a skill added or renamed without an index
 edit (or an index entry whose directory is gone) is invisible drift.
 
-The sharpest frontmatter rule is the block scalar one. Claude Code's YAML
-parser is lenient; other harnesses are strict, and a bare unquoted multi-line
-`description` containing a colon-space parses as a nested mapping, so the
-whole skill fails to load with "mapping values are not allowed in this
-context".
+The sharpest frontmatter rule is the block scalar one. Some harness YAML
+parsers are lenient and others are strict; a bare unquoted multi-line
+`description` containing a colon-space parses as a nested mapping under a
+strict parser, so the whole skill fails to load with "mapping values are not
+allowed in this context".
 
 Stdlib only, deliberately: PyYAML is not a dependency of this repo and must
 not become one for a lint. Hence the small parser below, which handles exactly
@@ -156,7 +156,7 @@ def parse_frontmatter(text):
             continue
 
         # Plain (unquoted) scalar. Indented follow-on lines make it multi-line,
-        # which is the form that breaks Codex.
+        # which is the form that breaks a strict parser.
         parts = [stripped]
         multiline = False
         while i < len(fm) and _is_continuation(fm[i]):
@@ -177,6 +177,8 @@ def lint_skill(path, dirname):
     fields, body, error = parse_frontmatter(text)
     if error:
         return [error], []
+    if fields is None or body is None:  # unreachable: a missing result always sets error
+        return ["internal error: frontmatter parsed with no fields or body"], []
 
     name = fields.get("name")
     if name is None or name.style in ("empty", "mapping") or not (name.value or "").strip():
@@ -201,7 +203,7 @@ def lint_skill(path, dirname):
         if desc.multiline and desc.style == "plain":
             fails.append(
                 "multi-line description is a bare unquoted scalar — "
-                "use a block scalar (| or >-), or Codex fails to load the skill"
+                "use a block scalar (| or >-), or a strict parser fails to load the skill"
             )
         length = len(desc.value)
         if length > MAX_DESCRIPTION:

@@ -15,9 +15,8 @@ third-party skills remain vendored by reference through `plugins.txt`.
 2. Check `git status --short` and preserve unrelated work.
 3. Decide which lane owns the skill:
    - `skills/<name>/` for an editable repo-owned skill;
-   - `external` in `plugins.txt` for a selected third-party skill set that must
-     reach the shared agent root;
-   - `marketplace` plus `plugin` for a Claude-only plugin with more than skills.
+   - `external` in `plugins.txt` for a third-party skill set that must reach
+     the shared root.
 4. Do not copy third-party content into `skills/` without an explicit decision.
    Audit upstream instructions before installing anything.
 

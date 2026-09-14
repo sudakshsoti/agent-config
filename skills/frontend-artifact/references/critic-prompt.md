@@ -4,16 +4,11 @@ A reviewer with fresh context is harder on a page than the session that built it
 
 ## Run it
 
-Codex, from the artifact directory, after the screenshots and `audit.txt` exist:
+From the artifact directory, after the screenshots and `audit.txt` exist, start a fresh non-interactive run with the three images attached and the audit output pasted in. On Pi the `Critic` subagent is the natural carrier: it pins a model with image input and runs read-only. On OMP, run non-interactively with the images attached and stdin closed.
 
-```sh
-codex exec -i mobile.png -i desktop.png -i "$SKILL_ROOT/screenshots/$LANGUAGE/reference.png" \
-  "$(sed "s/{{LANGUAGE}}/$LANGUAGE/; s/{{JOB}}/$JOB/" "$SKILL_ROOT/references/critic-prompt.md" | sed -n '/^## Prompt/,$p')
+The prompt below is what you hand to that reviewer. Substitute `{{LANGUAGE}}`, `{{JOB}}` and `{{FEATURES}}` before sending it.
 
-$(cat audit.txt)" < /dev/null
-```
-
-Check `codex exec --help` for the image flag on the installed version; `-i` and `--image` are the documented forms. Pi attaches the same three images to a model with verified image input. Claude Code reads the PNGs directly in a subagent with the same prompt. If no image-capable reviewer is available, say "Critic pass unavailable" in the report; do not run the prompt text-only and call it a review.
+If no image-capable reviewer is available, say "Critic pass unavailable" in the report; do not run the prompt text-only and call it a review.
 
 Pass the language profile's three distinguishing features into the `{{FEATURES}}` slot, and the artifact's stated job into `{{JOB}}`.
 

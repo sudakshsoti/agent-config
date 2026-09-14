@@ -19,7 +19,7 @@ Use frontend-artifact. Recommend a language for this content and explain the fit
 
 The third request stops for confirmation. The first two approve the selected profile's visual defaults. Another workflow, including `vibe`, can pass the brief and selected language to this same entry point; it should not embed a copy of the profiles or ask for an already-confirmed choice.
 
-A non-interactive run (`codex exec`, `pi -p`, a subagent) cannot answer the confirmation gate. Name the language in the request. If the run must proceed without one, say so in the request ("pick the language yourself and record it as inferred"); the build then records the selection as `[inferred]` rather than `[stated]`.
+A non-interactive run (`pi -p`, `omp -p`, a subagent) cannot answer the confirmation gate. Name the language in the request. If the run must proceed without one, say so in the request ("pick the language yourself and record it as inferred"); the build then records the selection as `[inferred]` rather than `[stated]`.
 
 ## What the build uses
 
@@ -33,11 +33,11 @@ A non-interactive run (`codex exec`, `pi -p`, a subagent) cannot answer the conf
 
 ## Shared installation
 
-The canonical source is `skills/frontend-artifact/` in agent-config. The existing installer links repo skills into `~/.agents/skills`, which Codex and Pi both discover, and into the Claude skill root. Do not create a second copy in `~/.codex/skills` or a Pi-specific copy. After adding the skill, install from the durable canonical checkout, not an ephemeral worktree. Reload the harness session so its catalogue includes the new skill.
+The canonical source is `skills/frontend-artifact/` in agent-config. The installer links repo skills into `~/.agents/skills`, the single shared root that both OMP and Pi discover. Do not create a second copy in `~/.pi/agent/skills` or any harness-specific skills directory. After adding the skill, install from the durable canonical checkout, not an ephemeral worktree. Reload the harness session so its catalogue includes the new skill.
 
-For a focused installation without changing model settings or agent configuration, run `./install.sh --skills-only=frontend-artifact,design-interface,design-visual-system,design-typography` from that checkout. The selected-skill mode validates all targets first and refuses real non-symlink destinations; it does not fetch plugins, prune other links or merge configuration.
+For a focused installation without changing model settings or agent configuration, run `./install.sh --skills-only=frontend-artifact,design-interface,design-visual-system,design-typography` from that checkout. The selected-skill mode validates all targets first and refuses real non-symlink destinations; it does not fetch externals, prune other links or merge configuration.
 
-The skill intentionally depends on the adjacent `design-typography`, `design-interface` and `design-visual-system` skills in this repository. A ZIP contains this skill's own files only; users of an isolated upload must also provide those companions. It is not a standalone replacement for them.
+The skill intentionally depends on the adjacent `design-typography`, `design-interface` and `design-visual-system` skills in this repository, so install them together. Only this skill's own files live under `skills/frontend-artifact/`.
 
 ## Add a visual language
 
