@@ -93,14 +93,10 @@
     "npm:pi-markdown-preview",
     "npm:pi-playwright",
     "npm:@juicesharp/rpiv-todo",
-    "npm:@ff-labs/pi-fff",
     "npm:pi-token-speed",
-    "npm:pi-quiet-activity",
     "npm:pi-mcp-adapter",
     "git:github.com/elpapi42/pi-observational-memory",
-    "npm:pi-tool-display",
-    "npm:pi-verbosity-control",
-    "npm:pi-quiet-tools"
+    "npm:pi-quiet-activity"
   ],
   "lastChangelogVersion": "0.85.1",
   "tuiMode": "fullscreen"
