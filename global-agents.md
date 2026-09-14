@@ -72,6 +72,12 @@ Read the project's design decisions, existing tokens and nearest comparable scre
 
 `frontend-design` is for marketing and brand surfaces only. Reference, utility, dashboard, settings and lookup-documentation surfaces should prioritise the task, controls, data or reference content rather than a landing-page opening.
 
+Read the relevant available design skill before implementation; use `frontend-artifact` for standalone HTML artifacts. If the skill is unavailable, say so rather than claiming to have followed it. The artifact's purpose and real-world conventions take precedence over its starter skeleton; remove template blocks that do not serve the task.
+
+Match the real-world artifact, not a website template. Prescriptions, forms, checklists, trackers and reference sheets should begin with useful information or controls. Do not automatically add a hero, oversized headline, subtitle, introductory pitch, decorative emblem or welcome section. Each opening element must serve identification, navigation or the user's task; omit a visible title when it merely announces what the artifact already obviously is. Preserve appropriate accessible names and document structure without turning them into decorative headers.
+
+When feedback says something looks like a landing page, reconsider its structure and remove unnecessary framing before adjusting typography. Shrinking an unnecessary heading is not a fix. Apply these rules to desktop, mobile and print; at the narrowest target viewport, useful content must not be displaced by decorative framing.
+
 ## Personal voice
 
 Use my voice only when I explicitly ask for it or when the output is clearly meant to be sent or published under my name, such as an email, message, post, personal essay, bio or social copy.
