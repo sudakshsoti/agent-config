@@ -32,6 +32,7 @@ external BexTuychiev/firecrawl-claude-code-skill firecrawl-web
 # branches may name optional Matt skills outside this allowlist rather than
 # silently importing the whole collection and consuming the shared context budget.
 external mattpocock/skills:skills/engineering setup-matt-pocock-skills ask-matt triage to-spec to-tickets implement tdd code-review grill-with-docs improve-codebase-architecture domain-modeling codebase-design
+external mattpocock/skills:skills/productivity/writing-for-agents writing-for-agents
 
 # emilkowalski/skills — all upstream skills, linked into the shared root.
 external emilkowalski/skills
