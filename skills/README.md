@@ -75,8 +75,8 @@ dashboard, settings, or lookup-documentation work.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
 - `obsidian-markdown` — Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.
 - `peer-review` — Adversarial cross-lineage review of an engineering plan written by another agent. `/peer-review`.
-- `pi-specialist-delegation` — In Pi, choose specialist subagents, brief bounded work, and retain synthesis and verification responsibility.
-- `pi-workstreams` — In Pi, coordinate approved implementation streams with dependencies, exclusive edit ownership, blockers, and integration verification.
+- `specialist-delegation` — In Pi, choose specialist subagents, brief bounded work, and retain synthesis and verification responsibility.
+- `workstreams` — In Pi, coordinate approved implementation streams with dependencies, exclusive edit ownership, blockers, and integration verification.
 - `research` — Investigate primary sources and record cited findings in a Markdown report.
 - `rights-counsel` — Indian consumer, EPF, and insurance rights analyst for advice, complaints, notices, and representations.
 - `self-review` — Critique your own plan against a fixed checklist, then revise it. `/self-review`.
@@ -100,8 +100,8 @@ lookup-documentation work.
 
 ## Pi implementation coordination
 
-`pi-specialist-delegation` owns individual worker selection and handoffs;
-`pi-workstreams` uses it when multiple implementation streams need dependency
+`specialist-delegation` owns individual worker selection and handoffs;
+`workstreams` uses it when multiple implementation streams need dependency
 and integration management. Both are Pi-specific despite sharing the normal
 installation root. Neither changes agent permissions, model routing, or enables
 named workflow features. `execute-plan` remains the agent-agnostic checklist

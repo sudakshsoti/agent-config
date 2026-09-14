@@ -1,6 +1,6 @@
 ---
-name: pi-workstreams
-description: "Use in Pi when a larger approved implementation needs multiple workstreams with dependencies, exclusive edit ownership, blockers, and an integration gate. Uses pi-specialist-delegation for worker dispatch; not for trivial edits or a second execution loop over an execute-plan checklist."
+name: workstreams
+description: "Use in Pi when a larger approved implementation needs multiple workstreams with dependencies, exclusive edit ownership, blockers, and an integration gate. Uses specialist-delegation for worker dispatch; not for trivial edits or a second execution loop over an execute-plan checklist."
 compatibility: "Pi with the Agent subagent tool; no named workflow feature or external coordinator required."
 ---
 

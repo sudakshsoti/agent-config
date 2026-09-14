@@ -1,6 +1,6 @@
 ---
-name: pi-specialist-delegation
-description: "Use in Pi when deciding whether to delegate work, selecting specialist subagents, or preparing and verifying a worker handoff. Owns individual dispatches; use pi-workstreams for dependencies, edit ownership, and integration across multiple implementation streams."
+name: specialist-delegation
+description: "Use in Pi when deciding whether to delegate work, selecting specialist subagents, or preparing and verifying a worker handoff. Owns individual dispatches; use workstreams for dependencies, edit ownership, and integration across multiple implementation streams."
 compatibility: "Pi with the Agent subagent tool; check the live tool schema and available agent roles."
 ---
 

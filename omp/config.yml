@@ -146,8 +146,7 @@ skills:
     - schedule
 tools:
   approvalMode: yolo
-  approval:
-    eval: deny
+  approval: {}
 bash:
   patterns:
     - match: sudo *
