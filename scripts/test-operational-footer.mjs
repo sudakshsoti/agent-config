@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// check.sh: requires-npm
 
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";

@@ -109,7 +109,7 @@ Secrets belong in dotfiles (1Password + age), never here.
 - Pi's OpenCode Go/OpenRouter credentials are API keys in untracked `~/.pi/agent/auth.json`; `openai-codex` uses OAuth. Never add an `anthropic/*` subscription model to Pi: Anthropic rejects third-party subscription OAuth (`earendil-works/pi#3372`).
 - `~/.omp/stats.db` stopped recording around 2026-09-02 19:04; use live `model_perf` in `~/.omp/agent/agent.db` for served-model evidence.
 - Another process may push to the active feature branch between local commits. Fetch before pushing; if the remote advanced, preserve unrelated dirty files, rebase, then restore them.
-- `npm ci` restores the ignored `node_modules/` (it carries `pi-token-speed`, consumed by `pi/settings.json`). Never commit it.
+- `scripts/check.sh` bootstraps the ignored `node_modules/` (it carries `pi-token-speed`, consumed by `pi/settings.json`) by running `npm ci` when `node_modules/@earendil-works/pi-tui` is missing. Never commit it.
 
 ## Agent skills
 
