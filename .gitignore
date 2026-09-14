@@ -1,5 +1,8 @@
 .DS_Store
 
+# pi-quiet-tools stores local tool-output artifacts in the project workspace.
+.pi/quiet-tools/
+
 # IDE project state is machine-local.
 .idea/
 

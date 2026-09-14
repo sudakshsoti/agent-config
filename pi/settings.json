@@ -96,7 +96,11 @@
     "npm:pi-token-speed",
     "npm:pi-mcp-adapter",
     "git:github.com/elpapi42/pi-observational-memory",
-    "npm:pi-quiet-activity"
+    "npm:pi-quiet-activity",
+    "npm:@plannotator/pi-extension",
+    "npm:pi-simplify",
+    "npm:pi-memory",
+    "npm:pi-tool-display"
   ],
   "lastChangelogVersion": "0.85.1",
   "tuiMode": "fullscreen"
