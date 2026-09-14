@@ -16,8 +16,6 @@
 // measurements can be taken through `playwright-cli run-code` or a devtools
 // console.
 
-"use strict";
-
 // ---------------------------------------------------------------- page side
 function auditPage() {
   const BANNED_FAMILIES = [
