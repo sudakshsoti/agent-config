@@ -6,8 +6,8 @@ description: General-purpose agent for complex research, code search and multi-s
 tools: all
 extensions: true
 skills: true
-model: openai-codex/gpt-5.6-luna
-thinking: medium
+model: opencode-go/deepseek-v4.1-flash
+thinking: high
 prompt_mode: append
 ---
 

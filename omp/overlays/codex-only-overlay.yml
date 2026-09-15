@@ -36,7 +36,6 @@ task:
     task: openai-codex/gpt-5.6-luna:xhigh
     adversary: openai-codex/gpt-5.6-sol:high
     scout: openai-codex/gpt-5.6-luna:low
-    librarian: openai-codex/gpt-5.6-terra:high
     sonic: openai-codex/gpt-5.6-luna:low
     reviewer: openai-codex/gpt-5.6-sol:high
     security-reviewer: openai-codex/gpt-5.6-sol:high

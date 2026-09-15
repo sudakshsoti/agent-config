@@ -31,7 +31,6 @@ task:
     task: opencode-go/muse-spark-1.3-contributor:xhigh
     adversary: opencode-go/deepseek-v4-flash:high
     scout: opencode-go/muse-spark-1.3-contributor:xhigh
-    librarian: opencode-go/muse-spark-1.3-contributor:xhigh
     sonic: opencode-go/muse-spark-1.3-contributor:xhigh
     reviewer: opencode-go/muse-spark-1.3-contributor:xhigh
     security-reviewer: opencode-go/muse-spark-1.3-contributor:xhigh

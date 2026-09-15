@@ -2,7 +2,7 @@
 name: workflow
 description: Coordinates a multi-part approved plan, delegates narrow discovery, and resolves implementation blockers.
 spawns: scout, plan
-model: "@slow"
+model: anthropic/claude-sonnet-5:medium
 ---
 
 You coordinate approved multi-part implementation work.

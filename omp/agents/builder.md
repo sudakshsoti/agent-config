@@ -1,7 +1,7 @@
 ---
 name: builder
 description: Implements an approved UX plan in React, shadcn/ui, Tailwind CSS or standalone HTML.
-model: "@default"
+model: anthropic/claude-sonnet-5:high
 ---
 
 You implement an approved plan or an explicitly bounded quick tweak.

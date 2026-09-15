@@ -1,64 +1,72 @@
 modelRoles:
-  default: openai-codex/gpt-5.6-luna:high
-  plan: openai-codex/gpt-5.6-sol:high
-  slow: openai-codex/gpt-5.6-sol:medium
-  designer: openai-codex/gpt-5.6-sol:high
-  vision: openai-codex/gpt-5.6-sol:high
-  task: openai-codex/gpt-5.6-luna:medium
+  default: anthropic/claude-opus-5:medium
+  plan: anthropic/claude-opus-5:high
+  slow: anthropic/claude-opus-5:xhigh
+  designer: anthropic/claude-opus-5:high
+  vision: anthropic/claude-opus-5:high
+  task: anthropic/claude-sonnet-5:medium
   adversary: opencode-go/glm-5.3-flash:high
   reviewer: opencode-go/glm-5.3-flash:high
-  security-reviewer: openai-codex/gpt-5.6-sol:high
+  security-reviewer: anthropic/claude-opus-5:high
   advisor: opencode-go/glm-5.3-flash:high
-  smol: openai-codex/gpt-5.6-luna:low
-  tiny: openai-codex/gpt-5.6-luna:low
-  commit: openai-codex/gpt-5.6-luna:low
+  smol: opencode-go/glm-5.3-flash:low
+  tiny: opencode-go/glm-5.3-flash:low
+  commit: opencode-go/glm-5.3-flash:low
 enabledModels:
   []
 disabledProviders:
-  []
+  - openai-codex
 task:
   batch: true
   enableEffort: false
   eager: preferred
   enableLsp: true
+  maxEffort: high
   agentModelOverrides:
-    task: openai-codex/gpt-5.6-luna:medium
+    task: anthropic/claude-sonnet-5:medium
     scout: opencode-go/glm-5.3-flash:low
-    sonic: openai-codex/gpt-5.6-luna:low
+    sonic: opencode-go/deepseek-v4.1-flash:high
     adversary: opencode-go/glm-5.3-flash:high
     reviewer: opencode-go/glm-5.3-flash:high
-    security-reviewer: openai-codex/gpt-5.6-sol:high
+    security-reviewer: anthropic/claude-opus-5:high
     code-worker: opencode-go/deepseek-v4.1-flash:high
-    builder: openai-codex/gpt-5.6-sol:medium
-    plan: openai-codex/gpt-5.6-sol:high
-    critic: openai-codex/gpt-5.6-sol:high
-    workflow: openai-codex/gpt-5.6-sol:medium
+    builder: anthropic/claude-sonnet-5:high
+    plan: anthropic/claude-opus-5:high
+    critic: anthropic/claude-opus-5:medium
+    workflow: anthropic/claude-sonnet-5:medium
     research: opencode-go/muse-spark-1.3-contributor:high
 retry:
   enabled: true
   modelFallback: true
-  usageAwareFallback: false
-  usageReservePct: 15
+  usageAwareFallback: true
+  usageReservePct: 20
   usageReservePolicy: auto
   fallbackChains:
-    opencode-go/glm-5.3-flash:
-      - openai-codex/gpt-5.6-sol:medium
-      - opencode-go/deepseek-v4-flash:max
-    opencode-go/deepseek-v4-flash:
-      - openai-codex/gpt-5.6-luna:low
-    opencode-go/deepseek-v4.1-flash:
-      - openai-codex/gpt-5.6-luna:high
-    opencode-go/muse-spark-1.3-contributor:
-      - openai-codex/gpt-5.6-luna:low
-    smol:
-      - opencode-go/deepseek-v4-flash:low
-    tiny:
-      - opencode-go/deepseek-v4-flash:low
-    commit:
-      - opencode-go/deepseek-v4-flash:low
-    default:
+    anthropic/claude-opus-5:
+      - anthropic/claude-sonnet-5:high
       - opencode-go/glm-5.3-flash:high
-      - opencode-go/deepseek-v4-flash:high
+    anthropic/claude-sonnet-5:
+      - anthropic/claude-haiku-4-5:high
+      - opencode-go/deepseek-v4.1-flash:high
+    anthropic/claude-haiku-4-5:
+      - opencode-go/deepseek-v4.1-flash:high
+    opencode-go/glm-5.3-flash:
+      - opencode-go/deepseek-v4.1-flash:max
+      - anthropic/claude-sonnet-5:medium
+    opencode-go/deepseek-v4.1-flash:
+      - opencode-go/glm-5.3-flash:high
+      - anthropic/claude-sonnet-5:medium
+    opencode-go/muse-spark-1.3-contributor:
+      - opencode-go/glm-5.3-flash:high
+    smol:
+      - opencode-go/glm-5.3-flash:low
+    tiny:
+      - opencode-go/glm-5.3-flash:low
+    commit:
+      - opencode-go/glm-5.3-flash:low
+    default:
+      - anthropic/claude-sonnet-5:medium
+      - opencode-go/glm-5.3-flash:high
 symbolPreset: nerd
 theme:
   dark: dark-lunar-statusline
@@ -113,22 +121,18 @@ display:
   hideToolActivity: false
 defaultThinkingLevel: auto
 providers:
-  openai-codex:
-    codeMode: "off"
   autoThinkingModel: online
-  autoThinkingMaxEffort: xhigh
+  autoThinkingMaxEffort: high
   webSearchOrder:
     - firecrawl
     - tavily
     - exa
     - gemini
-    - codex
     - brave
   memoryModel: online
   tinyModel: online
 textVerbosity: medium
 tier:
-  openai: none
   subagent: inherit
 personality: default
 steeringMode: one-at-a-time

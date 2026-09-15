@@ -32,7 +32,8 @@ Three destinations, and nothing else.
 - `omp/config.yml` — OMP's baseline settings: model roles (`default` plus the
   per-task worker roles), thinking level, statusline and task options. This is
   the config OMP actually loads; the overlays below are layered on top of it per
-  invocation. Plain OMP uses only `openai-codex` and `opencode-go` providers.
+  invocation. Plain OMP runs Claude 5 models from `anthropic` plus `opencode-go`
+  for discovery and cross-lineage review; `openai-codex` is disabled.
   Symlinked to `~/.omp/agent/config.yml`, so `omp config set` and TUI toggles
   edit the repo copy directly — check `git diff` before committing. Only linked
   if `~/.omp/agent` exists.
@@ -42,9 +43,13 @@ Three destinations, and nothing else.
   `builder`, `code-worker`, `plan`, `critic`, `research` and `workflow` port
   Pi's roles, with models set in `task.agentModelOverrides`.
 - `omp/overlays/*` — model-role overlays symlinked into `~/.config/omp/`.
-  `ompgo` loads `go-overlay.yml`; `ompcodex` loads `codex-only-overlay.yml`.
-  Both shell functions use `omp --config` for one session without changing the
-  base config. `search-keys.tpl` is the 1Password template behind
+  `ompgo` loads `go-overlay.yml` for a flat-rate Go session. `ompcodex` loads
+  `codex-only-overlay.yml`; the base config disables `openai-codex`, but an
+  overlay *replaces* `disabledProviders` rather than merging, so that session
+  still reaches Codex while its credential lasts. Retiring it needs the
+  dotfiles-side wrapper removed too. Both shell functions use `omp --config`
+  for one session without changing the base config.
+  `search-keys.tpl` is the 1Password template behind
   `op inject -o ~/.omp/.env` — `op://` references only, never a literal key.
 - `pi/settings.json` — Pi's default model, Ctrl+P model list, thinking level,
   theme and package list. Pi's per-job models live in `pi/agents/*.md`
@@ -58,7 +63,10 @@ Three destinations, and nothing else.
   because the live file is also that extension's credential store.
 - `~/.omp/agent/mcp.json` and `~/.pi/agent/auth.json` are **not** tracked here,
   on purpose — see "Secrets policy" below before adding them.
-- `scripts/` — installer helpers and the repo's own checks. Not symlinked.
+- `scripts/` — installer helpers and the repo's own checks, including
+  `check-model-routing.py`, which fails the build on model-routing drift
+  between `omp/config.yml`, `omp/agents/`, `omp/overlays/` and Pi's config.
+  Not symlinked.
 
 ## Day-to-day
 

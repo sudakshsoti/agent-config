@@ -14,6 +14,8 @@ status=0
 
 python3 "$repo_root/scripts/lint-skills.py" "$repo_root" || status=1
 echo
+python3 "$repo_root/scripts/check-model-routing.py" "$repo_root" || status=1
+echo
 python3 "$repo_root/scripts/test-design-instructions.py" || status=1
 echo
 python3 "$repo_root/scripts/test-apply-web-search-config.py" || status=1

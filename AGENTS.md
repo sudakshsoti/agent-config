@@ -96,24 +96,43 @@ Secrets belong in dotfiles (1Password + age), never here.
 
   | Roles/settings | Value |
   | --- | --- |
-  | `default` role | `openai-codex/gpt-5.6-luna:high` |
-  | `task` role and agent | `openai-codex/gpt-5.6-luna:medium` |
-  | `plan`/`designer`/`vision` roles; `plan`/`critic` agents | `openai-codex/gpt-5.6-sol:high` |
-  | `security-reviewer` role and agent | `openai-codex/gpt-5.6-sol:high` |
-  | `slow` role; `workflow` agent | `openai-codex/gpt-5.6-sol:medium` |
-  | `builder` agent | `openai-codex/gpt-5.6-sol:medium` |
+  | `default` role | `anthropic/claude-opus-5:medium` |
+  | `plan`/`designer`/`vision` roles; `plan` agent | `anthropic/claude-opus-5:high` |
+  | `critic` agent | `anthropic/claude-opus-5:medium` |
+  | `slow` role | `anthropic/claude-opus-5:xhigh` (explicit escalation only) |
+  | `security-reviewer` role and agent | `anthropic/claude-opus-5:high` |
+  | `builder` agent | `anthropic/claude-sonnet-5:high` |
+  | `task` role and agent; `workflow` agent | `anthropic/claude-sonnet-5:medium` |
+  | `code-worker`/`sonic` agents | `opencode-go/deepseek-v4.1-flash:high` |
+  | `smol`/`tiny`/`commit` roles | `opencode-go/glm-5.3-flash:low` |
   | `adversary`/`reviewer`/`advisor` | `opencode-go/glm-5.3-flash:high` |
   | `scout` agent | `opencode-go/glm-5.3-flash:low` |
   | `research` agent | `opencode-go/muse-spark-1.3-contributor:high` |
-  | `code-worker` agent | `opencode-go/deepseek-v4.1-flash:high` |
-  | `usageAwareFallback` / `codeMode` | `false` / `"off"` |
+  | `disabledProviders` | `[openai-codex]` |
+  | `usageAwareFallback` / `usageReservePct` / policy | `true` / `20` / `auto` |
+  | `task.maxEffort` / `providers.autoThinkingMaxEffort` | `high` / `high` |
 
-  Agent models mirror the Pi ladder through `task.agentModelOverrides`, which
-  beats agent frontmatter; each overlay must override every agent too, or a
-  base `opencode-go` pin leaks into `ompcodex`. OMP's bundled `scout`,
-  `reviewer`, `security-reviewer`, `task` and `sonic` are kept, not shadowed:
-  `/review` depends on bundled `reviewer`. Pi `Explore`/`public-scout` map to
-  OMP `scout`, Pi `reviewer` to `adversary`, Pi `general-purpose` to `task`.
+  Agent models are set in `task.agentModelOverrides`, which beats agent
+  frontmatter; each overlay must override every agent too, or a base
+  `anthropic` pin leaks into `ompgo`. OMP's bundled `scout`, `reviewer`,
+  `security-reviewer`, `task` and `sonic` are kept, not shadowed: `/review`
+  depends on bundled `reviewer`. Pi `Explore`/`public-scout` map to OMP
+  `scout`, Pi `reviewer` to `adversary`, Pi `general-purpose` to `task`.
+  `adversary`/`reviewer`/`advisor` stay on GLM so a hostile pass is a second
+  lineage, not Claude reviewing Claude; `scout` stays on GLM to spend flat-rate
+  Go tokens on discovery instead of subscription allowance.
+  Claude load is deliberately bounded: `thinkingBudgets` maps `medium` to 8192
+  reasoning tokens against `high`'s 16384 and `xhigh`'s 32768, so the main
+  session (`default`) runs Opus 5 at `medium` and only the roles that judge
+  pixels or plan a screen pay `high`. Housekeeping roles (`smol`, `tiny`,
+  `commit`), mechanical agents (`sonic`) and bounded implementation
+  (`code-worker`) run on flat-rate Go instead of plan usage — spread across two
+  $60/month caps (GLM for housekeeping and discovery, DeepSeek for
+  implementation). `code-worker` must not run on `muse-spark-*-contributor`:
+  it edits private source and Meta trains on contributor prompts.
+  `retry.usageAwareFallback` preflights the coding-plan usage report and, at
+  20% remaining, shifts to the configured Go rung without asking; an unmapped
+  usage report fails open, so it is a backstop, not a guarantee.
 
   Overlays differ. `omp -p` from a persistent kernel needs closed stdin
   (`stdin=DEVNULL` or `</dev/null`) or it waits at `readPipedInput`.
@@ -121,17 +140,58 @@ Secrets belong in dotfiles (1Password + age), never here.
   `--config`, never add persistent apply/restore state. Thinking levels are
   model-specific: `glm-5.3-flash` and `kimi-k3` accept only low/high/max;
   `deepseek-v4-flash`/`v4.1-flash` accept low/high/max (minimal→low,
-  medium/xhigh→high). OpenAI models accept none/low/medium/high/xhigh/max;
-  `minimal` is not a real level anywhere. Evidence: `docs/research/`.
-- Routing rationale (2026-09-16, `docs/research/*-2026-09.md`): Luna is
-  within 5 points of Sol on the Coding Agent Index at 1/20 the Pro-plan
-  credit rate, but ranks 34-48 on every DesignArena board, so anything that
-  judges pixels (`builder`, `designer`, `plan`, `critic`, `vision`) runs on
-  Sol; Sol medium matches Sol xhigh there. `scout` reads private code, so it
-  stays off `muse-spark-*-contributor` (Meta trains on contributor prompts).
-  DeepSeek V4.1 Flash's $60 Go cap is a promo ending 2026-09-20 (then $15);
-  move `code-worker` to `openai-codex/gpt-5.6-luna:medium` if it throttles.
-  Astra is manual `/model` escalation only (2.5x Sol credits).
+  medium/xhigh→high). `claude-opus-5`/`claude-sonnet-5`/`claude-fable-5-1` use
+  adaptive thinking (default `high`) over low/medium/high/xhigh/max, and Opus 5
+  cannot disable thinking at xhigh/max. `claude-haiku-4-5` has no effort
+  parameter at all — it uses manual extended thinking, and OMP's `:low`
+  selector is accepted (probed). `minimal` is not a real level on the Go
+  models. Evidence: `docs/research/`.
+- Routing rationale (2026-09-16, `docs/research/*-2026-09.md`): the ladder ran
+  on `openai-codex` until that subscription was dropped over frontend quality —
+  Luna sits at DesignArena rank 48 overall (1242), the weakest routed model on
+  every board. Claude Opus 5 is rank 8 (1338), above GPT-5.6 Sol medium (1334),
+  and it wins DesignArena UI Components outright (#5, 1361, ahead of Fable 5.1
+  at #12), so it takes `default` and the roles that *decide* or *judge* visual
+  work (`plan`, `designer`, `vision`, `critic`). Claude
+  Fable 5.1 is rank 6 overall and #2 on LMArena WebDev, but on Max-class plans
+  Fable burns regular weekly limits at roughly double rate and is capped at 50%
+  of them before it needs usage credits — on Pro-class plans it is
+  credits-only from the first message. So Fable stays manual `/model`
+  escalation, never a role pin. Sonnet 5 ($2/$10, AA index 38 vs Opus 5's 51)
+  carries `task`, `workflow` and `builder`: `builder` implements a plan that
+  `plan`/`designer` already fixed, so Sonnet 5's weaker from-scratch design
+  standing (DesignArena task boards ranks 22-37) costs little, and it runs at
+  `high` effort to keep implementation accuracy. Haiku
+  4.5 is no longer pinned to a role: per-turn housekeeping (`smol`, `tiny`,
+  `commit`) went to GLM 5.3 Flash, and `code-worker`/`sonic` to DeepSeek V4.1
+  Flash (AA 40 vs Sonnet 5's 38), because flat-rate Go tokens are the cheaper
+  place for bounded, pre-decided work. Haiku stays a fallback rung only.
+  `scout` reads private code, so it stays off `muse-spark-*-contributor` (Meta
+  trains on contributor prompts). DeepSeek V4.1 Flash's $60 Go cap is a promo
+  ending 2026-09-20 (then $15, i.e. $3 per 5 hours); if `code-worker` throttles
+  after that, move it to `opencode-go/glm-5.3-flash:high` or back to
+  `anthropic/claude-sonnet-5:medium`.
+  Anthropic publishes no per-model weekly message counts, so subscription
+  burn rate per role is not predictable from primary docs.
+- `openai-codex` is in the base `disabledProviders`, so no role, chain or
+  `/model` pick in a **plain** session reaches the lapsing ChatGPT account.
+  An overlay **replaces** that list rather than merging into it: probed
+  2026-09-16, `omp -p --config omp/overlays/codex-only-overlay.yml` still ran
+  `openai-codex/gpt-5.6-terra`. So `ompcodex` keeps working for as long as the
+  credential does; retiring it needs the dotfiles-side `ompcodex` function and
+  `~/.local/bin/omp-*-overlay` entry to go, which is a cross-repo change this
+  repo does not make unilaterally.
+- `python3 scripts/check-model-routing.py` (in `check.sh` and the pre-commit
+  fast set) enforces the routing invariants, all of which failed silently
+  before: a repo-owned `omp/agents/*.md` `model:` — literal or `@role` — must
+  resolve to that agent's base `task.agentModelOverrides` value; every
+  override key must name a real agent (repo file or one of OMP's bundled
+  `task`/`scout`/`sonic`/`reviewer`/`security-reviewer`); every overlay must
+  re-pin every base role and agent key; every selector must parse as
+  `provider/model[:effort]` and must not name a provider the same file
+  disables; and no `pi/agents/*.md`, `pi/settings.json` or
+  `pi/web-search.json` entry may use `anthropic/*` or `openrouter/*`, which
+  Pi cannot reach. Tests: `scripts/test-check-model-routing.py`.
 - OMP rewrites `omp/config.yml` and removes comments while preserving values;
   keep rationale in `design/decisions.md` or here, never in that file. A bare
   `omp -p --model <id>` can hide failures behind fallback; probe with retry
@@ -147,19 +207,26 @@ Secrets belong in dotfiles (1Password + age), never here.
   `https://opencode.ai/zen/go/v1`. Plain OMP uses Muse Spark only for the
   `research` agent; `omp/overlays/go-overlay.yml` uses it more.
 - Pi has no OMP-style `modelRoles` or `fallbackChains`; per-job models are in
-  `pi/agents/*.md` frontmatter. Default is `openai-codex/gpt-5.6-luna`.
-  Routing: main → Luna high; builder → Sol medium; code-worker → DeepSeek V4.1
-  Flash high for precise routine work; scout/Explore → GLM 5.3 Flash low;
-  research → Muse Spark 1.3 high; workflow → Sol medium; Plan/Critic → Sol
-  high. Use Luna medium for sensitive or judgement-heavy discovery; Sol xhigh
-  is explicit escalation; Go is optional, not the default implementation budget.
+  `pi/agents/*.md` frontmatter. Pi runs entirely on OpenCode Go; default is
+  `opencode-go/deepseek-v4.1-flash` high. Routing: main, Plan, workflow,
+  code-worker and general-purpose → DeepSeek V4.1 Flash high; builder and
+  Critic → Kimi K3 high (DesignArena rank 1, but the lowest Go cap at $15/mo,
+  ~490 requests — fall back to DeepSeek, never to a Luna-class model);
+  scout/Explore → GLM 5.3 Flash low; reviewer → GLM 5.3 Flash high as the
+  second lineage; research and public-scout → Muse Spark 1.3 (public material
+  only). Full table and the Claude-restoration options: `pi/model-ladder.md`.
+- Pi cannot reach Claude. The Anthropic subscription rejects third-party
+  clients with HTTP 400 "Third-party apps now draw from your extra usage"
+  (`earendil-works/pi#3372`) and the stored OpenRouter key answers HTTP 401
+  "User not found". OMP is the Claude harness; Pi is the flat-rate harness.
+  Restoring a Pi path needs extra usage credits or a live OpenRouter key, both
+  machine-local spend. Probes:
+  `docs/research/harness-provider-access-2026-09.md`.
 - Pi `enabledModels` is the Ctrl+P cycle list, not an access restriction. It
   deduplicates by provider/model ID, retaining the first effort preset; use
   `/thinking` or explicit agent thinking overrides instead of duplicate entries.
   OpenCode Go/OpenRouter credentials are API keys in untracked
-  `~/.pi/agent/auth.json`; `openai-codex` uses OAuth. Never add an
-  `anthropic/*` subscription model to Pi: Anthropic rejects third-party
-  subscription OAuth (`earendil-works/pi#3372`).
+  `~/.pi/agent/auth.json`; `openai-codex` and `anthropic` use OAuth.
 - Fetch before pushing. If another process advanced the branch, preserve
   unrelated dirty files, rebase, then restore them.
 - `scripts/check.sh` bootstraps ignored `node_modules/` with `npm ci` when

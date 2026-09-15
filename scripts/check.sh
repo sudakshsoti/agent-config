@@ -113,6 +113,7 @@ fi
 # scripts/test-* naming rule.
 run "lint-skills.py" python3 "$repo_root/scripts/lint-skills.py" "$repo_root"
 run "check-manifest.py" python3 "$repo_root/scripts/check-manifest.py" "$repo_root"
+run "check-model-routing.py" python3 "$repo_root/scripts/check-model-routing.py" "$repo_root"
 
 npm_dependency_available=false
 [[ -d "$pi_tui_marker" ]] && npm_dependency_available=true

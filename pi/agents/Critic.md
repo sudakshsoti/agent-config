@@ -4,7 +4,7 @@ display_name: Critic
 color: orange
 tools: read, grep, find
 extensions: false
-model: openai-codex/gpt-5.6-sol
+model: opencode-go/kimi-k3
 thinking: high
 max_turns: 15
 prompt_mode: append

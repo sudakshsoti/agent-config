@@ -1,7 +1,7 @@
 ---
 name: code-worker
 description: Implements precisely scoped, low-risk code changes and runs narrow verification. Use for routine fixes, tests and mechanical refactors after the parent has made the design decisions.
-model: "@task"
+model: opencode-go/deepseek-v4.1-flash:high
 ---
 
 # Code worker

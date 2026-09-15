@@ -36,11 +36,16 @@ Keep these distinctions intact:
   routing rule.
 - Use the least expensive suitable tier for bounded discovery and reserve the
   stronger tiers for architecture, security, and difficult bugs.
-- `openai-codex/*` and `opencode-go/*` are **provider IDs**, not harnesses. They
-  stay in OMP and Pi routing long after any standalone Codex or OpenCode
-  installation was retired. Never strip them while "removing Codex".
-- Do not add Anthropic subscription models to Pi; its authentication path is
-  incompatible with third-party subscription OAuth in this setup.
+- `anthropic/*`, `openai-codex/*` and `opencode-go/*` are **provider IDs**, not
+  harnesses. A provider ID stays valid long after any standalone Codex or
+  OpenCode installation was retired; never strip one while "removing Codex".
+  Remove a provider from routing only when its *subscription or credential* is
+  gone, and then disable it explicitly rather than leaving it reachable by
+  fallback.
+- OMP is the Claude harness: `anthropic/*` works there on the subscription.
+  Pi cannot use it — the subscription bills third-party clients against an
+  "extra usage" balance, so `anthropic/*` in Pi fails at request time. Do not
+  route a Pi agent onto `anthropic/*` without first proving access with a probe.
 - Do not encode a fallback or routing decision in only one harness when the
   behavior is intended to be shared. Update the relevant source and document
   intentional differences.
@@ -109,10 +114,17 @@ Keep these distinctions intact:
 Use focused checks first:
 
 ```bash
+python3 scripts/check-model-routing.py
 python3 scripts/test-install-selected-skills.py
 python3 scripts/test-apply-web-search-config.py
 python3 scripts/test-design-instructions.py
 ```
+
+Any model-routing edit — a role, an agent override, an overlay, an agent
+`model:` frontmatter key — MUST end with `check-model-routing.py`. It catches
+frontmatter that no longer resolves to its override, override keys naming a
+dead agent, overlay coverage holes, malformed selectors, and Claude pins in
+Pi. None of those fail at runtime in a way you would notice.
 
 For skill, installer, or cross-harness changes, finish with:
 

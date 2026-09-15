@@ -4,7 +4,7 @@ display_name: Plan
 color: purple
 tools: read, grep, find
 extensions: false
-model: openai-codex/gpt-5.6-sol
+model: opencode-go/deepseek-v4.1-flash
 thinking: high
 max_turns: 15
 prompt_mode: append

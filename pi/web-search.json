@@ -1,5 +1,5 @@
 {
   "provider": "auto",
-  "summaryModel": "openai-codex/gpt-5.6-luna",
+  "summaryModel": "opencode-go/deepseek-v4.1-flash",
   "workflow": "auto-summary"
 }

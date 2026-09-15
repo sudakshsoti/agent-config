@@ -3,8 +3,8 @@ description: Coordinates a multi-part approved plan, delegates narrow discovery,
 display_name: Workflow
 color: blue
 tools: all
-model: openai-codex/gpt-5.6-sol
-thinking: medium
+model: opencode-go/deepseek-v4.1-flash
+thinking: high
 max_turns: 25
 allowed_subagents: Plan, Explore, scout, public-scout
 prompt_mode: append
