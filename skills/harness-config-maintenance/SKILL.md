@@ -112,7 +112,6 @@ Use focused checks first:
 python3 scripts/test-install-selected-skills.py
 python3 scripts/test-apply-web-search-config.py
 python3 scripts/test-design-instructions.py
-node scripts/test-catastrophe-guard.mjs
 ```
 
 For skill, installer, or cross-harness changes, finish with:

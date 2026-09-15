@@ -17,24 +17,6 @@
     "reserveTokens": 49152,
     "keepRecentTokens": 32768
   },
-  "observational-memory": {
-    "observeAfterTokens": 10000,
-    "reflectAfterTokens": 20000,
-    "compactAfterTokens": 81000,
-    "compactAfterTokensMode": "ratio",
-    "compactAfterTokensRatio": 0.68,
-    "observationsPoolMaxTokens": 20000,
-    "observationsPoolTargetTokens": 10000,
-    "agentMaxTurns": 16,
-    "model": {
-      "provider": "opencode-go",
-      "id": "muse-spark-1.3-contributor",
-      "thinking": "low"
-    },
-    "showWorkerNotifications": true,
-    "passive": false,
-    "debugLog": false
-  },
   "tokenSpeed": {
     "colors": {
       "slow": "#E19796",
@@ -81,9 +63,6 @@
       }
     ]
   },
-  "extensions": [
-    "-extensions/catastrophe-guard/index.js"
-  ],
   "packages": [
     "npm:@tintinweb/pi-subagents@0.19.0",
     "npm:@juicesharp/rpiv-ask-user-question@2.6.0",
@@ -95,7 +74,6 @@
     "npm:@juicesharp/rpiv-todo",
     "npm:pi-token-speed",
     "npm:pi-mcp-adapter",
-    "git:github.com/elpapi42/pi-observational-memory",
     "npm:@plannotator/pi-extension",
     "npm:pi-simplify",
     "npm:pi-memory"
