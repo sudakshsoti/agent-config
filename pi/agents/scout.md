@@ -4,7 +4,7 @@ display_name: scout
 color: cyan
 tools: read, grep, find, bash
 model: opencode-go/muse-spark-1.3-contributor
-thinking: minimal
+thinking: xhigh
 max_turns: 15
 ---
 

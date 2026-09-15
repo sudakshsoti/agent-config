@@ -1,37 +1,48 @@
 # Pi model ladder
 
-Prioritise ChatGPT/Codex quota for sustained work.
-Keep OpenCode Go for occasional, bounded work rather than default implementation.
-These are starting defaults, not measured quota savings on this repository.
+Use OpenCode Go aggressively for bounded discovery, routine implementation and
+first-pass review. Reserve Codex for sustained implementation, visual judgement,
+or difficult architecture and security decisions.
 
 | Task / agent | Provider and model | Effort |
 | --- | --- | --- |
 | Main session; `builder` implementing an approved UI plan | `openai-codex/gpt-5.6-luna` | high |
-| `code-worker` precisely scoped routine fixes, tests and mechanical refactors | `opencode-go/deepseek-v4.1-flash` | high |
-| `scout` and `Explore` bounded read-only discovery | `opencode-go/muse-spark-1.3-contributor` | minimal |
-| `research` primary-source investigation and cited reports | `opencode-go/muse-spark-1.3-contributor` | high |
+| `code-worker` precisely scoped routine fixes, tests and mechanical refactors | `opencode-go/muse-spark-1.3-contributor` | xhigh |
+| `scout`, `Explore` and private codebase discovery | `opencode-go/muse-spark-1.3-contributor` | xhigh |
+| `research` primary-source investigation and cited reports | `opencode-go/muse-spark-1.3-contributor` | xhigh |
 | unnamed `general-purpose` fallback | `openai-codex/gpt-5.6-luna` | medium |
 | `workflow` coordinating multi-part implementation | `openai-codex/gpt-5.6-sol` | medium |
 | `Plan` and `Critic` planning and visual review | `openai-codex/gpt-5.6-sol` | high |
-| `reviewer` adversarial review of plans and diffs on a second lineage | `opencode-go/glm-5.3-flash` | high |
+| `reviewer` adversarial review of plans and diffs on a second model lineage | `opencode-go/muse-spark-1.3-contributor` | xhigh |
 | Difficult bugs, architecture or security-sensitive decisions | Explicit `openai-codex/gpt-5.6-sol` override | xhigh |
 | Optional `public-scout`, public/disposable material only | `opencode-go/muse-spark-1.3-contributor` | minimal |
 
-Use Luna medium for discovery that needs stronger judgement or involves sensitive code.
-Use Muse minimal for bounded, low-stakes read-only discovery.
-Use Sol medium when implementation still requires substantial technical decisions.
+Use Muse xhigh for bounded work where a deeper pass improves completeness:
+repository exploration, routine code-worker changes, cited research and
+first-pass review. Keep public disposable lookups minimal.
+Use Luna for the main implementation session and builder. Use Sol for visual
+critique, workflow coordination and difficult architecture or security work.
+Keep at least one independent review path when the implementation itself runs
+on Muse.
 Escalate repeated failed approaches instead of allowing an extended retry loop.
 GLM 5.3 Flash exposes only low, high and max thinking; medium silently runs as high.
-DeepSeek V4.1 Flash exposes only high and max thinking, so it is not used for minimal-effort scouting.
-Model overrides on agent calls take precedence over agent defaults; these files do not implement automatic escalation or quota-based routing.
+DeepSeek V4.1 Flash exposes only high and max thinking, so it is not used for
+minimal-effort scouting.
+Model overrides on agent calls take precedence over agent defaults; these files
+do not implement automatic escalation or quota-based routing.
 
 ## Scoped models
 
-`settings.json` sets `enabledModels` to Luna high, DeepSeek V4.1 Flash high, Sol high and Muse Spark 1.3 minimal, in that order.
-This is the Ctrl+P quick-switch list, not an access restriction or an agent-routing table.
-Pi deduplicates scoped entries by provider/model ID; multiple effort presets for the same model do not create multiple cycle entries.
-Use `/thinking` to change effort, or set it explicitly on an agent call.
-Terra and authenticated Go models remain selectable through `/model` or explicit agent overrides.
+`settings.json` sets `enabledModels` to Luna high, DeepSeek V4.1 Flash high,
+Sol high and Muse Spark 1.3 xhigh, in that order.
+This is the Ctrl+P quick-switch list, not an access restriction or an
+agent-routing table.
+Pi deduplicates scoped entries by provider/model ID; multiple effort presets for
+the same model do not create multiple cycle entries.
+Use `/thinking` to lower effort for disposable work, or set it explicitly on an
+agent call.
+Terra and authenticated Go models remain selectable through `/model` or explicit
+agent overrides.
 
 `~/.pi/agent/settings.json` and the files in `~/.pi/agent/agents/` link to this repository's Pi configuration.
 No installation or copy step is needed for edits to existing linked files.

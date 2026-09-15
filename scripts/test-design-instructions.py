@@ -23,7 +23,7 @@ def main() -> int:
     interface = ROOT / "skills/design-interface/SKILL.md"
     visual = ROOT / "skills/design-visual-system/SKILL.md"
     typography = ROOT / "skills/design-typography/SKILL.md"
-    artifact = ROOT / "skills/frontend-artifact/SKILL.md"
+    artifact = ROOT / "skills/_archive/frontend-artifact/SKILL.md"
     plugins = ROOT / "plugins.txt"
     skills_readme = ROOT / "skills/README.md"
     cases = ROOT / "tests/design-intent-cases.md"

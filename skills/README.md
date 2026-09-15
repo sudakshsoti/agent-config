@@ -41,15 +41,16 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
   the template above makes colons and quotes literal — keep it. Single-line
   descriptions are also fine.
 
-The list below covers the 36 repo-owned skills. Keep it synchronized with the
-actual `skills/*/SKILL.md` directories; `scripts/lint-skills.py` validates each
-skill's frontmatter and fails when this list and the source tree disagree.
+The list below covers the 35 repo-owned skills that are active. Keep it
+synchronized with the actual `skills/*/SKILL.md` directories;
+`scripts/lint-skills.py` validates each skill's frontmatter and fails when this
+list and the source tree disagree.
 The active design set is `design-interface`, `design-visual-system`, and
 `design-typography`; they classify surface intent before applying hierarchy.
-`frontend-artifact` reuses them for standalone browser artifacts with eight
-selectable visual languages and rendered review. `frontend-design` remains an
-external marketing/brand skill, not the route for product, reference, utility,
-dashboard, settings, or lookup-documentation work.
+`frontend-artifact` is deprecated and retained under `skills/_archive/` for
+possible restoration. `frontend-design` remains an external marketing/brand
+skill, not the route for product, reference, utility, dashboard, settings, or
+lookup-documentation work.
 
 - `backlog` — Run any project's backlog in Linear like a PM: capture, triage, grooming, acceptance criteria, and milestone/session planning (batch Ready issues into equal-effort, one-sitting Linear Milestones).
 - `clinical-reasoning` — Clinical decision support for clinicians in India: diagnostics, differentials, labs, imaging, drug interactions, prescribing, and escalation.
@@ -61,7 +62,6 @@ dashboard, settings, or lookup-documentation work.
 - `design-visual-system` — Define product UI art direction, colour, hierarchy, responsive layout, and CSS tokens.
 - `diagnosing-bugs` — Diagnosis loop for hard bugs and performance regressions: build a tight red-capable feedback loop, minimise, rank hypotheses, instrument, fix with a regression test.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
-- `frontend-artifact` — Standalone browser explainers, visual documents and small tools, with eight selectable visual languages, a starter skeleton and validated font pairing per language, measured references, a numeric audit (`references/audit.js`) and a fresh-context critic prompt. A named language approves its defaults; otherwise the agent recommends one and waits.
 - `vibe` — The interface workflow: quick tweak, shape first or risky change; Plan, Builder and Critic roles that run as subagents where the harness has them and sequentially otherwise. `pi/prompts/vibe.md` is a thin wrapper that invokes it.
 - `find-skills` — Discover and install agent skills when asked "is there a skill for X".
 - `geopolitics` — Opinionated analyst for wars, sanctions, trade, defence, elections, negotiations, and other statecraft between countries.
@@ -90,9 +90,9 @@ dashboard, settings, or lookup-documentation work.
 
 The retired design-pipeline skills (`app-ui`, `brand-studio`, `design-brief`,
 `design-foil`, `design-review`, `frontend-craft`, `interface-composition`,
-`nightjar`, and `typography-craft`) are recoverable from Git history by their
-path, `skills/<name>/`. Nothing is kept on disk for them: an uninstalled skill
-left in the tree still counts as catalogue drift.
+`nightjar`, and `typography-craft`) and the deprecated `frontend-artifact` skill
+are retained under `skills/_archive/` for possible restoration. Archive
+directories are not installed or counted by the catalogue linter.
 `design-interface`, `design-visual-system`, and `design-typography` are active
 repo-owned skills. `frontend-design` is an external marketing and brand skill,
 not the route for product, reference, utility, dashboard, settings, or
