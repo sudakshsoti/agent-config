@@ -6,7 +6,7 @@ tools: all
 extensions: true
 skills: true
 model: opencode-go/muse-spark-1.3-contributor
-thinking: xhigh
+thinking: high
 max_turns: 15
 run_in_background: true
 prompt_mode: append

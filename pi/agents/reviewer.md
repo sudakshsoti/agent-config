@@ -3,8 +3,8 @@ description: Read-only adversarial reviewer for plans and diffs on a second mode
 display_name: Reviewer
 color: red
 tools: read, grep, find, bash
-model: opencode-go/muse-spark-1.3-contributor
-thinking: xhigh
+model: opencode-go/glm-5.3-flash
+thinking: high
 max_turns: 15
 prompt_mode: append
 ---

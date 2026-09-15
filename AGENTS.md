@@ -96,12 +96,14 @@ Secrets belong in dotfiles (1Password + age), never here.
 
   | Roles/settings | Value |
   | --- | --- |
-  | `default` role; `builder` agent | `openai-codex/gpt-5.6-luna:high` |
+  | `default` role | `openai-codex/gpt-5.6-luna:high` |
   | `task` role and agent | `openai-codex/gpt-5.6-luna:medium` |
   | `plan`/`designer`/`vision` roles; `plan`/`critic` agents | `openai-codex/gpt-5.6-sol:high` |
+  | `security-reviewer` role and agent | `openai-codex/gpt-5.6-sol:high` |
   | `slow` role; `workflow` agent | `openai-codex/gpt-5.6-sol:medium` |
-  | `adversary`/`reviewer`/`security-reviewer`/`advisor` | `opencode-go/glm-5.3-flash:high` |
-  | `scout` agent | `opencode-go/muse-spark-1.3-contributor:minimal` |
+  | `builder` agent | `openai-codex/gpt-5.6-sol:medium` |
+  | `adversary`/`reviewer`/`advisor` | `opencode-go/glm-5.3-flash:high` |
+  | `scout` agent | `opencode-go/glm-5.3-flash:low` |
   | `research` agent | `opencode-go/muse-spark-1.3-contributor:high` |
   | `code-worker` agent | `opencode-go/deepseek-v4.1-flash:high` |
   | `usageAwareFallback` / `codeMode` | `false` / `"off"` |
@@ -117,8 +119,19 @@ Secrets belong in dotfiles (1Password + age), never here.
   (`stdin=DEVNULL` or `</dev/null`) or it waits at `readPipedInput`.
 - `omp` is the binary, not a restoring wrapper; pass overlays per session with
   `--config`, never add persistent apply/restore state. Thinking levels are
-  model-specific: `deepseek-v4-flash`, `glm-5.3-flash`, and `kimi-k3` expose
-  only low/high/max; `medium` silently runs as high.
+  model-specific: `glm-5.3-flash` and `kimi-k3` accept only low/high/max;
+  `deepseek-v4-flash`/`v4.1-flash` accept low/high/max (minimal→low,
+  medium/xhigh→high). OpenAI models accept none/low/medium/high/xhigh/max;
+  `minimal` is not a real level anywhere. Evidence: `docs/research/`.
+- Routing rationale (2026-09-16, `docs/research/*-2026-09.md`): Luna is
+  within 5 points of Sol on the Coding Agent Index at 1/20 the Pro-plan
+  credit rate, but ranks 34-48 on every DesignArena board, so anything that
+  judges pixels (`builder`, `designer`, `plan`, `critic`, `vision`) runs on
+  Sol; Sol medium matches Sol xhigh there. `scout` reads private code, so it
+  stays off `muse-spark-*-contributor` (Meta trains on contributor prompts).
+  DeepSeek V4.1 Flash's $60 Go cap is a promo ending 2026-09-20 (then $15);
+  move `code-worker` to `openai-codex/gpt-5.6-luna:medium` if it throttles.
+  Astra is manual `/model` escalation only (2.5x Sol credits).
 - OMP rewrites `omp/config.yml` and removes comments while preserving values;
   keep rationale in `design/decisions.md` or here, never in that file. A bare
   `omp -p --model <id>` can hide failures behind fallback; probe with retry
@@ -132,14 +145,14 @@ Secrets belong in dotfiles (1Password + age), never here.
 - Muse Spark requires `/v1/responses` and omp ≥18.1.6; installed omp is 18.1.21.
   Pi's catalogue uses `api: openai-responses` at
   `https://opencode.ai/zen/go/v1`. Plain OMP uses Muse Spark only for the
-  `scout` and `research` agents; `omp/overlays/go-overlay.yml` uses it more.
+  `research` agent; `omp/overlays/go-overlay.yml` uses it more.
 - Pi has no OMP-style `modelRoles` or `fallbackChains`; per-job models are in
   `pi/agents/*.md` frontmatter. Default is `openai-codex/gpt-5.6-luna`.
-  Routing: main/builder → Luna high; code-worker → DeepSeek V4.1 Flash high
-  for precise routine work; scout/Explore → Muse Spark 1.3 minimal; research →
-  Muse Spark 1.3 high; workflow → Sol medium; Plan/Critic → Sol high. Use Luna
-  medium for sensitive or judgement-heavy discovery; Sol xhigh is explicit
-  escalation; Go is optional, not the default implementation budget.
+  Routing: main → Luna high; builder → Sol medium; code-worker → DeepSeek V4.1
+  Flash high for precise routine work; scout/Explore → GLM 5.3 Flash low;
+  research → Muse Spark 1.3 high; workflow → Sol medium; Plan/Critic → Sol
+  high. Use Luna medium for sensitive or judgement-heavy discovery; Sol xhigh
+  is explicit escalation; Go is optional, not the default implementation budget.
 - Pi `enabledModels` is the Ctrl+P cycle list, not an access restriction. It
   deduplicates by provider/model ID, retaining the first effort preset; use
   `/thinking` or explicit agent thinking overrides instead of duplicate entries.
