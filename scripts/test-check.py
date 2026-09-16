@@ -105,6 +105,7 @@ def disposable_copy(*, include_dirty: bool):
         write(scripts / "lint-skills.py", "raise SystemExit(0)\n")
         write(scripts / "check-manifest.py", "raise SystemExit(0)\n")
         write(scripts / "check-model-routing.py", "raise SystemExit(0)\n")
+        write(scripts / "build-dist.py", "raise SystemExit(0)\n")
         write(scripts / "test-aa-pass.py", PASS_STUB)
         write(scripts / "test-ab-skip.sh", SKIP_STUB)
         write(scripts / "test-ac-fail.py", FAIL_STUB)
@@ -165,6 +166,7 @@ class CheckShSelfTest(unittest.TestCase):
         self.assertEqual(rows.get("lint-skills.py"), "ok", result.stdout)
         self.assertEqual(rows.get("check-manifest.py"), "ok", result.stdout)
         self.assertEqual(rows.get("check-model-routing.py"), "ok", result.stdout)
+        self.assertEqual(rows.get("build-dist.py"), "ok", result.stdout)
         self.assertEqual(rows.get("test-aa-pass.py"), "ok", result.stdout)
         self.assertEqual(rows.get("test-ab-skip.sh"), "SKIP", result.stdout)
         self.assertEqual(rows.get("test-ac-fail.py"), "FAIL", result.stdout)
@@ -172,7 +174,7 @@ class CheckShSelfTest(unittest.TestCase):
         self.assertEqual(rows.get("test-ae-continue.mjs"), "ok", result.stdout)
         self.assertEqual(rows.get("git-status-unchanged"), "ok", result.stdout)
         self.assertIn("unsupported extension", result.stdout)
-        self.assertEqual(totals, ("6", "2", "1"), result.stdout)
+        self.assertEqual(totals, ("7", "2", "1"), result.stdout)
         self.assertNotEqual(result.returncode, 0)
 
         # The .mjs stub is discovered after the failures and still ran.
@@ -199,7 +201,7 @@ class CheckShSelfTest(unittest.TestCase):
         rows, totals = parse(result.stdout)
         self.assertEqual(rows.get("git-status-unchanged"), "FAIL", result.stdout)
         self.assertIn("working tree changed", result.stdout)
-        self.assertEqual(totals, ("6", "3", "1"), result.stdout)
+        self.assertEqual(totals, ("7", "3", "1"), result.stdout)
         self.assertNotEqual(result.returncode, 0)
 
         # The planted artifact is what the guard noticed.
@@ -264,6 +266,7 @@ def npm_bootstrap_fixture(tmp: Path):
     write(scripts / "lint-skills.py", "raise SystemExit(0)\n")
     write(scripts / "check-manifest.py", "raise SystemExit(0)\n")
     write(scripts / "check-model-routing.py", "raise SystemExit(0)\n")
+    write(scripts / "build-dist.py", "raise SystemExit(0)\n")
     write(
         scripts / "test-zz-requires-npm.mjs",
         '// check.sh: requires-npm\nconsole.log("ran");\n',

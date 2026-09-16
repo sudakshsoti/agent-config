@@ -1,0 +1,27 @@
+# distribution.txt — repo-owned skills packaged for upload to claude.ai.
+#
+# One skill name per line (blank lines and #-comments ignored). Each listed
+# skills/<name>/ is built into dist/<name>.zip by scripts/build-dist.py; a zip
+# for a skill no longer listed is deleted. The pre-commit hook rebuilds from the
+# staged tree and stages dist/, and check.sh fails when a zip is stale.
+#
+# Only list skills that work without a local harness: no Pi/OMP subagents, no
+# repo files, no dependency on an unlisted skill. `research` and `design-grill`
+# are left out for exactly those reasons.
+
+clinical-reasoning
+design-interface
+design-strategy
+design-typography
+design-visual-system
+geopolitics
+gtd
+humanizer
+obsidian-markdown
+rights-counsel
+shopping-research
+strategy-counsel
+ux-writing
+vbc-design
+vedic-astrology
+writing-editor

@@ -48,7 +48,8 @@ Secrets belong in dotfiles (1Password + age), never here.
 
 | Path | Owner | Notes |
 | --- | --- | --- |
-| `skills/`, `plugins.txt` | agent-config | source-only; no packaged artifact |
+| `skills/`, `plugins.txt` | agent-config | source; only `distribution.txt` skills are also packaged |
+| `distribution.txt`, `dist/*.zip` | agent-config | list of claude.ai skills; zips are generated, never hand-edited |
 | `global-agents.md` | agent-config | linked to `~/.omp/agent/AGENTS.md` and `~/.pi/agent/AGENTS.md` |
 | `omp/config.yml`, `lsp.yml`, `keybindings.yml`, `themes/`, `agents/`, `overlays/` | agent-config | OMP writes through links |
 | `pi/settings.json`, `verbosity.json`, `subagents.json`, `pi-fff.json`, `keybindings.json`, `prompts/`, `themes/`, `extensions/`, `agents/` | agent-config | Pi writes through links |
@@ -71,6 +72,13 @@ Secrets belong in dotfiles (1Password + age), never here.
   repo-owned skills. `python3 scripts/check-manifest.py` (run by `check.sh`)
   rejects malformed `plugins.txt` lines and duplicate external allowlisting;
   `scripts/manifest.py` is the shared parser.
+- `distribution.txt` lists the skills shipped to claude.ai as `dist/<name>.zip`
+  by `scripts/build-dist.py`. The packaged `SKILL.md` drops frontmatter keys
+  claude.ai rejects (e.g. `disable-model-invocation`) and is validated against
+  the upload rules. The pre-commit hook rebuilds from the staged tree and stages
+  `dist/`; `check.sh` runs `--check`. List only skills that work without a
+  local harness: `research` and `design-grill` are excluded because they rely
+  on Pi/OMP subagents, repo files or an unshipped skill.
 - `scripts/ownership_collisions.py` (tested by `check.sh`) detects chezmoi
   entries claiming install destinations.
 - `python3 scripts/audit-local.py [--home DIR] [--dotfiles DIR] [--json]` is an

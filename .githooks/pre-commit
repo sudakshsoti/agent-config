@@ -17,11 +17,20 @@ echo
 python3 "$repo_root/scripts/check-model-routing.py" "$repo_root" || status=1
 echo
 python3 "$repo_root/scripts/test-apply-web-search-config.py" || status=1
+echo
+# Rebuild claude.ai zips from the staged tree and stage them into this commit,
+# so dist/ always matches the skills being committed.
+if python3 "$repo_root/scripts/build-dist.py" "$repo_root" --from-index; then
+  git -C "$repo_root" add -A -- dist || status=1
+else
+  status=1
+fi
 
 if [[ $status -ne 0 ]]; then
   echo
   echo "pre-commit: refusing the commit."
   echo "  frontmatter FAIL   -> fix skills/<name>/SKILL.md (see skills/README.md)"
+  echo "  build-dist FAIL    -> fix the skill or distribution.txt"
   echo "  full suite         -> ./scripts/check.sh"
   echo "  bypass             -> git commit --no-verify"
 fi

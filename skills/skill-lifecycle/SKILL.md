@@ -46,8 +46,10 @@ catalogue ambiguous.
 
 ## Install
 
-A repo-owned skill is delivered as source under `skills/<name>/`; there is no
-packaged artifact to keep in sync. One symlink is written into the shared
+A repo-owned skill is delivered as source under `skills/<name>/`. A skill listed
+in `distribution.txt` is also packaged as `dist/<name>.zip` for claude.ai; when
+renaming or retiring one, update that list too (the pre-commit hook rebuilds and
+removes zips, and `python3 scripts/build-dist.py --check` reports drift). One symlink is written into the shared
 `~/.agents/skills` root, and OMP and Pi both read it from there:
 
 ```bash
