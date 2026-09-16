@@ -4,7 +4,7 @@ display_name: Plan
 color: purple
 tools: read, grep, find
 extensions: false
-model: opencode-go/deepseek-v4.1-flash
+model: opencode-go/muse-spark-1.3-contributor
 thinking: high
 max_turns: 15
 prompt_mode: append

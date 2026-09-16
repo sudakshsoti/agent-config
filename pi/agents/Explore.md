@@ -3,8 +3,8 @@ description: Fast read-only explorer for private codebases. Finds relevant files
 display_name: Explore
 color: cyan
 tools: read, grep, find, bash
-model: opencode-go/glm-5.3-flash
-thinking: low
+model: opencode-go/muse-spark-1.3-contributor
+thinking: minimal
 max_turns: 15
 prompt_mode: append
 ---

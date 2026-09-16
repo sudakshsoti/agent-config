@@ -6,7 +6,7 @@ description: General-purpose agent for complex research, code search and multi-s
 tools: all
 extensions: true
 skills: true
-model: opencode-go/deepseek-v4.1-flash
+model: opencode-go/muse-spark-1.3-contributor
 thinking: high
 prompt_mode: append
 ---

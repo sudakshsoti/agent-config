@@ -3,7 +3,7 @@ description: Coordinates a multi-part approved plan, delegates narrow discovery,
 display_name: Workflow
 color: blue
 tools: all
-model: opencode-go/deepseek-v4.1-flash
+model: opencode-go/muse-spark-1.3-contributor
 thinking: high
 max_turns: 25
 allowed_subagents: Plan, Explore, scout, public-scout

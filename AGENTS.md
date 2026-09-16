@@ -167,7 +167,9 @@ Secrets belong in dotfiles (1Password + age), never here.
   Flash (AA 40 vs Sonnet 5's 38), because flat-rate Go tokens are the cheaper
   place for bounded, pre-decided work. Haiku stays a fallback rung only.
   `scout` reads private code, so it stays off `muse-spark-*-contributor` (Meta
-  trains on contributor prompts). DeepSeek V4.1 Flash's $60 Go cap is a promo
+  trains on contributor prompts); in Pi this restriction is lifted only for
+  user-approved disposable personal work — never private material (see
+  `pi/model-ladder.md`). DeepSeek V4.1 Flash's $60 Go cap is a promo
   ending 2026-09-20 (then $15, i.e. $3 per 5 hours); if `code-worker` throttles
   after that, move it to `opencode-go/glm-5.3-flash:high` or back to
   `anthropic/claude-sonnet-5:medium`.
@@ -175,12 +177,9 @@ Secrets belong in dotfiles (1Password + age), never here.
   burn rate per role is not predictable from primary docs.
 - `openai-codex` is in the base `disabledProviders`, so no role, chain or
   `/model` pick in a **plain** session reaches the lapsing ChatGPT account.
-  An overlay **replaces** that list rather than merging into it: probed
-  2026-09-16, `omp -p --config omp/overlays/codex-only-overlay.yml` still ran
-  `openai-codex/gpt-5.6-terra`. So `ompcodex` keeps working for as long as the
-  credential does; retiring it needs the dotfiles-side `ompcodex` function and
-  `~/.local/bin/omp-*-overlay` entry to go, which is a cross-repo change this
-  repo does not make unilaterally.
+  The overlays in `omp/overlays/` were removed on 2026-09-16 — they had applied
+  only via manual `--config`, and no `ompcodex`/`ompgo` launcher functions exist
+  in the shell config or dotfiles.
 - `python3 scripts/check-model-routing.py` (in `check.sh` and the pre-commit
   fast set) enforces the routing invariants, all of which failed silently
   before: a repo-owned `omp/agents/*.md` `model:` — literal or `@role` — must
@@ -205,16 +204,19 @@ Secrets belong in dotfiles (1Password + age), never here.
 - Muse Spark requires `/v1/responses` and omp ≥18.1.6; installed omp is 18.1.21.
   Pi's catalogue uses `api: openai-responses` at
   `https://opencode.ai/zen/go/v1`. Plain OMP uses Muse Spark only for the
-  `research` agent; `omp/overlays/go-overlay.yml` uses it more.
+  `research` agent, where the base config routes it.
 - Pi has no OMP-style `modelRoles` or `fallbackChains`; per-job models are in
   `pi/agents/*.md` frontmatter. Pi runs entirely on OpenCode Go; default is
-  `opencode-go/deepseek-v4.1-flash` high. Routing: main, Plan, workflow,
-  code-worker and general-purpose → DeepSeek V4.1 Flash high; builder and
-  Critic → Kimi K3 high (DesignArena rank 1, but the lowest Go cap at $15/mo,
-  ~490 requests — fall back to DeepSeek, never to a Luna-class model);
-  scout/Explore → GLM 5.3 Flash low; reviewer → GLM 5.3 Flash high as the
-  second lineage; research and public-scout → Muse Spark 1.3 (public material
-  only). Full table and the Claude-restoration options: `pi/model-ladder.md`.
+  `opencode-go/muse-spark-1.3-contributor` xhigh. Routing: main and builder →
+  Muse Spark 1.3 Contributor xhigh; Plan, workflow, code-worker and
+  general-purpose → Muse Spark high; scout/Explore → Muse Spark minimal;
+  reviewer and Critic → GLM 5.3 Flash high (second lineage); research and
+  public-scout → Muse Spark (public or user-approved disposable material only);
+  Kimi K3 not routed (scarcest Go cap, user cost decision); DeepSeek V4.1 Flash
+  is the manual throttle fallback via Ctrl+P. Muse is Meta's training-eligible
+  tier: any session touching private or sensitive material must be rerouted to
+  GLM/DeepSeek. Full table and the Claude-restoration options:
+  `pi/model-ladder.md`.
 - Pi cannot reach Claude. The Anthropic subscription rejects third-party
   clients with HTTP 400 "Third-party apps now draw from your extra usage"
   (`earendil-works/pi#3372`) and the stored OpenRouter key answers HTTP 401
@@ -225,8 +227,9 @@ Secrets belong in dotfiles (1Password + age), never here.
 - Pi `enabledModels` is the Ctrl+P cycle list, not an access restriction. It
   deduplicates by provider/model ID, retaining the first effort preset; use
   `/thinking` or explicit agent thinking overrides instead of duplicate entries.
-  OpenCode Go/OpenRouter credentials are API keys in untracked
-  `~/.pi/agent/auth.json`; `openai-codex` and `anthropic` use OAuth.
+  The only credential in untracked `~/.pi/agent/auth.json` is the
+  `opencode-go` API key; the `openai-codex` and `anthropic` OAuth credentials
+  and the OpenRouter key were removed on 2026-09-16.
 - Fetch before pushing. If another process advanced the branch, preserve
   unrelated dirty files, rebase, then restore them.
 - `scripts/check.sh` bootstraps ignored `node_modules/` with `npm ci` when

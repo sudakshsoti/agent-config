@@ -4,7 +4,7 @@ display_name: Critic
 color: orange
 tools: read, grep, find
 extensions: false
-model: opencode-go/kimi-k3
+model: opencode-go/glm-5.3-flash
 thinking: high
 max_turns: 15
 prompt_mode: append

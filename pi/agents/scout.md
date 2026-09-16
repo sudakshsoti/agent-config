@@ -3,8 +3,8 @@ description: Fast read-only scout. Locates files, answers "where does X live", c
 display_name: scout
 color: cyan
 tools: read, grep, find, bash
-model: opencode-go/glm-5.3-flash
-thinking: low
+model: opencode-go/muse-spark-1.3-contributor
+thinking: minimal
 max_turns: 15
 ---
 
