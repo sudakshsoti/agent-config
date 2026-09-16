@@ -68,6 +68,22 @@ Put repository facts and commands in the repository root `AGENTS.md`.
 
 Put directory-specific rules in the nearest nested instruction file or the mechanism supported by that tool.
 
+## Plans
+
+Present every plan so I can approve or reject it by reading only plain English. I am a UX designer who codes by feel: a plan written as snippets and file paths gives me nothing to judge, so I either approve it blindly or stall on it. Consequences I can picture are what I can actually decide on.
+
+Open with what will be different for the person using this once it is built, in one or two sentences.
+
+Start each step with one ordinary-language line naming the change and what I would see differently on screen or in the flow. Put file names, functions and code after that line as supporting detail, and define any unavoidable technical term in the same sentence.
+
+For interface and interaction work, say what appears, what it replaces, when it happens, and how it behaves while it is happening. This is the part I judge, so give it the most room.
+
+Name every flow, default, state or piece of copy the plan changes that I did not ask about, and say what each becomes.
+
+End with the choices that are mine: each open decision stated as a choice, what picking it rules out, and which steps would be hard to undo. Ask these before starting the work.
+
+This applies to plan mode, to proposals written in chat, and to any plan file or issue written for my approval, at every size of change.
+
 ## Interface design
 
 Design runs in this order: brief, research, direction, build, render. Skipping a step produces the generic page.

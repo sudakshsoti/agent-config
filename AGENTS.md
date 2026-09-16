@@ -67,7 +67,7 @@ Secrets belong in dotfiles (1Password + age), never here.
   neither `claude` nor `anthropic`. Multi-line descriptions require `|` or `>-`;
   an unquoted colon-space can parse as a nested mapping and break loading.
 - `python3 scripts/lint-skills.py` enforces these rules and synchronizes the
-  `skills/README.md` list, including its sentence stating the count of 36
+  `skills/README.md` list, including its sentence stating the count of 35
   repo-owned skills. `python3 scripts/check-manifest.py` (run by `check.sh`)
   rejects malformed `plugins.txt` lines and duplicate external allowlisting;
   `scripts/manifest.py` is the shared parser.

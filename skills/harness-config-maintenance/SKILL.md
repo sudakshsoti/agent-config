@@ -117,7 +117,6 @@ Use focused checks first:
 python3 scripts/check-model-routing.py
 python3 scripts/test-install-selected-skills.py
 python3 scripts/test-apply-web-search-config.py
-python3 scripts/test-design-instructions.py
 ```
 
 Any model-routing edit — a role, an agent override, an overlay, an agent

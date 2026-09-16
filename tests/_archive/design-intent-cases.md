@@ -1,6 +1,11 @@
 # Design intent contract cases
 
-These cases are acceptance fixtures for instruction routing, not live model tests.
+Archived 2026-09-16. These were acceptance fixtures for the design-instruction
+contract test (`scripts/test-design-instructions.py`), written when instruction
+adherence was a Codex problem. Codex is no longer routed and the test is gone;
+the design skills the cases describe are still live. Kept as a worked record of
+the expected surface classification, not as a check anything runs.
+
 Each expected result describes the structure the agent should propose.
 
 ## Case: cheatsheet
