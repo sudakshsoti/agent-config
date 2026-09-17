@@ -111,11 +111,11 @@ Secrets belong in dotfiles (1Password + age), never here.
   | `security-reviewer` role and agent | `anthropic/claude-opus-5:high` |
   | `builder` agent | `anthropic/claude-sonnet-5:high` |
   | `task` role and agent; `workflow` agent | `anthropic/claude-sonnet-5:medium` |
-  | `code-worker`/`sonic` agents | `opencode-go/deepseek-v4.1-flash:high` |
+  | `code-worker`/`sonic` agents | `muse-code/muse-spark-1.3-contributor:high` / `:low` |
   | `smol`/`tiny`/`commit` roles | `opencode-go/glm-5.3-flash:low` |
   | `adversary`/`reviewer`/`advisor` | `opencode-go/glm-5.3-flash:high` |
   | `scout` agent | `opencode-go/glm-5.3-flash:low` |
-  | `research` agent | `opencode-go/muse-spark-1.3-contributor:high` |
+  | `research` agent | `muse-code/muse-spark-1.3-contributor:high` |
   | `disabledProviders` | `[openai-codex]` |
   | `usageAwareFallback` / `usageReservePct` / policy | `true` / `20` / `auto` |
   | `task.maxEffort` / `providers.autoThinkingMaxEffort` | `high` / `high` |
@@ -133,11 +133,19 @@ Secrets belong in dotfiles (1Password + age), never here.
   reasoning tokens against `high`'s 16384 and `xhigh`'s 32768, so the main
   session (`default`) runs Opus 5 at `medium` and only the roles that judge
   pixels or plan a screen pay `high`. Housekeeping roles (`smol`, `tiny`,
-  `commit`), mechanical agents (`sonic`) and bounded implementation
-  (`code-worker`) run on flat-rate Go instead of plan usage — spread across two
-  $60/month caps (GLM for housekeeping and discovery, DeepSeek for
-  implementation). `code-worker` must not run on `muse-spark-*-contributor`:
-  it edits private source and Meta trains on contributor prompts.
+  `commit`), discovery (`scout`) and the `adversary`/`reviewer`/`advisor` pass
+  run on flat-rate Go ($60/month GLM cap) instead of plan usage, while
+  mechanical agents (`sonic`) and bounded implementation (`code-worker`) run on
+  the $5/month Muse Code Everyday Usage subscription. The split is deliberate:
+  Muse and Go are separate quota pools, so exhausting one never stalls commits,
+  discovery or review. `code-worker`, `sonic` and `research` on
+  `muse-spark-*-contributor` means Meta may train on their prompts, including
+  repository source; the earlier prohibition was lifted by user decision on
+  2026-09-18 (evidence and scope:
+  `docs/research/muse-code-subscription-2026-09.md`). Route a session that
+  touches client or sensitive material away from those agents, or pin
+  `muse-code/muse-spark-1.3` (standard tier, not trained on, ~12.5x the quota
+  burn).
   `retry.usageAwareFallback` preflights the coding-plan usage report and, at
   20% remaining, shifts to the configured Go rung without asking; an unmapped
   usage report fails open, so it is a backstop, not a guarantee.
@@ -153,7 +161,8 @@ Secrets belong in dotfiles (1Password + age), never here.
   cannot disable thinking at xhigh/max. `claude-haiku-4-5` has no effort
   parameter at all — it uses manual extended thinking, and OMP's `:low`
   selector is accepted (probed). `minimal` is not a real level on the Go
-  models. Evidence: `docs/research/`.
+  models. `muse-spark-1.3-contributor` accepts minimal through xhigh (no
+  `max`); standard `muse-spark-1.3` adds `max`. Evidence: `docs/research/`.
 - Routing rationale (2026-09-16, `docs/research/*-2026-09.md`): the ladder ran
   on `openai-codex` until that subscription was dropped over frontend quality —
   Luna sits at DesignArena rank 48 overall (1242), the weakest routed model on
@@ -171,16 +180,14 @@ Secrets belong in dotfiles (1Password + age), never here.
   standing (DesignArena task boards ranks 22-37) costs little, and it runs at
   `high` effort to keep implementation accuracy. Haiku
   4.5 is no longer pinned to a role: per-turn housekeeping (`smol`, `tiny`,
-  `commit`) went to GLM 5.3 Flash, and `code-worker`/`sonic` to DeepSeek V4.1
-  Flash (AA 40 vs Sonnet 5's 38), because flat-rate Go tokens are the cheaper
-  place for bounded, pre-decided work. Haiku stays a fallback rung only.
-  `scout` reads private code, so it stays off `muse-spark-*-contributor` (Meta
-  trains on contributor prompts); in Pi this restriction is lifted only for
-  user-approved disposable personal work — never private material (see
-  `pi/model-ladder.md`). DeepSeek V4.1 Flash's $60 Go cap is a promo
-  ending 2026-09-20 (then $15, i.e. $3 per 5 hours); if `code-worker` throttles
-  after that, move it to `opencode-go/glm-5.3-flash:high` or back to
-  `anthropic/claude-sonnet-5:medium`.
+  `commit`) went to GLM 5.3 Flash, and `code-worker`/`sonic` to Muse Spark 1.3
+  Contributor (AA 48 vs DeepSeek V4.1 Flash's 40 and Sonnet 5's 38), because
+  pre-decided work belongs on the cheapest adequate quota. Haiku stays a
+  fallback rung only. `scout` stays on GLM: it is the highest-frequency agent
+  and Go's flat rate absorbs discovery without touching either subscription.
+  DeepSeek V4.1 Flash's $60 Go cap is a promo ending 2026-09-20 (then $15,
+  i.e. $3 per 5 hours), which is why `code-worker` left it on 2026-09-18; it
+  remains the second rung under Muse and the manual throttle fallback.
   Anthropic publishes no per-model weekly message counts, so subscription
   burn rate per role is not predictable from primary docs.
 - `openai-codex` is in the base `disabledProviders`, so no role, chain or
@@ -209,10 +216,17 @@ Secrets belong in dotfiles (1Password + age), never here.
   model id and can build an invalid gateway id. OMP loads `~/.omp/.env` at
   startup and existing process variables win; after `op inject`, restart OMP.
   `omp token <provider>` shows the key actually used.
-- Muse Spark requires `/v1/responses` and omp ≥18.1.6; installed omp is 18.1.21.
-  Pi's catalogue uses `api: openai-responses` at
-  `https://opencode.ai/zen/go/v1`. Plain OMP uses Muse Spark only for the
-  `research` agent, where the base config routes it.
+- Muse Spark requires `/v1/responses` and omp ≥18.1.6; installed omp is 18.2.3.
+  Two providers serve it and they meter separately: `muse-code` is the
+  OAuth-logged Muse Code subscription ($5/month Everyday Usage, 5-hour and
+  weekly windows, both visible in `omp usage -p muse-code`), and `opencode-go`
+  serves it over `https://opencode.ai/zen/go/v1` against the shared Go cap.
+  Plain OMP routes `code-worker`, `sonic` and `research` to `muse-code`; no
+  role or agent uses `opencode-go/muse-spark-*` any more. The Muse window is
+  cost-weighted, not prompt-counted: a full `code-worker`-shaped turn (two
+  edits plus test runs) measured under 1% of the 5-hour window on the
+  contributor tier, while a one-token standard-tier prompt measured 1%
+  (`docs/research/muse-code-subscription-2026-09.md`).
 - Pi has no OMP-style `modelRoles` or `fallbackChains`; per-job models are in
   `pi/agents/*.md` frontmatter. Pi runs entirely on OpenCode Go; default is
   `opencode-go/muse-spark-1.3-contributor` xhigh. Routing: main and builder →
