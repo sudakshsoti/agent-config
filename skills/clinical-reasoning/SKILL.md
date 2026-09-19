@@ -14,9 +14,13 @@ Treat the user as a clinician. Clinical terminology is free to use. **No disclai
 "consult your doctor", no hedging** — this is a clinician's tool and a disclaimer is
 noise in it.
 
-The full reference is [`references/clinical-framework.md`](references/clinical-framework.md),
-15 sections. Cite section numbers (§N) as you reason, so any recommendation can be traced
-back to the rule that produced it. Do not restate the framework in the reply; cite it.
+The reference is three files. [`references/clinical-framework.md`](references/clinical-framework.md)
+holds §1-13 and §15 — reasoning protocol, labs, red flags, interactions, breastfeeding,
+temporal tracking, Indian reference, postpartum, geriatrics, imaging, cost tiers, response
+templates, search triggers. [`references/mental-health.md`](references/mental-health.md) holds
+§14. [`references/longitudinal-care.md`](references/longitudinal-care.md) holds §16. Cite
+section numbers (§N) as you reason, so any recommendation can be traced back to the rule that
+produced it. Do not restate the framework in the reply; cite it.
 
 ## What to produce
 
@@ -70,6 +74,9 @@ triggers in §15 rather than memory.
 - Renal or hepatic impairment: trigger dose-adjustment review per §4.5 and §10.5.
 - Seasonal context matters in NCR — dengue July to November, AQI-driven respiratory
   disease November to February, heat illness April to June (§8.4).
+- Teleconsultation is a prescribing constraint, not just a modality: Schedule X and NDPS
+  molecules cannot be prescribed online at all, and psychiatry has its own List A/B split
+  (§14.11.1). Check it before recommending a drug to a patient you have not seen in person.
 
 ## Psychiatric cases
 
@@ -86,13 +93,41 @@ Hold two instincts together; neither alone is good psychiatry.
   abnormal situation. Medication buys the runway; it cannot manufacture meaning. Name
   those limits plainly. Detail in §14.7.
 
-Screening tools (PHQ-9, GAD-7), the primary-care versus psychiatry referral line, Indian
-access realities and psychiatry brand names are §14.1–14.5.
+Three checks are not optional on a psychiatric case:
 
-**Boundary with `dbt`.** This skill covers assessment, screening, formulation and
-medication. Once the answer is a therapy modality — DBT skills training, diary cards,
+1. **Clear the organic differential before the label** (§14.8) — the baseline screen, the
+   iatrogenic sweep, STOP-BANG where relevant, and 4AT for any acute confusion in an older
+   patient. B12, thyroid and anaemia are high prior-probability in India, not ritual tests.
+2. **Pass the bipolar gate before any antidepressant** (§14.8.3) — MDQ and HCL-32 are weak
+   in primary care; the six clinical features decide. Two or more present means no
+   antidepressant monotherapy.
+3. **Attach the monitoring calendar to the prescription** (§14.10) — metabolic grid for
+   antipsychotics, ANC and troponin clock for clozapine, trough schedule for lithium,
+   sodium for SSRIs in the elderly. State the next due date.
+
+On follow-up, run the review visit in §14.9.4 rather than asking how they feel: rescore
+(response ≥50% reduction, remission PHQ-9 <5), apply the week-4 rule, check function as well
+as symptoms, and name the decision — continue, optimise, switch, augment or taper. Tapers
+are hyperbolic and months long (§14.9.5); distinguish withdrawal from relapse explicitly.
+
+Screening instruments beyond PHQ-9/GAD-7 are tabulated in §14.2.1 with cut-offs and Hindi
+availability — use HMSE rather than MMSE in India, and cite cut-offs rather than reproducing
+copyrighted item text. Indian statutory constraints that bear on treatment — teleprescribing
+lists, Schedule H1 registers, MHCA 2017 §5/§14/§23/§95 — are §14.11.
+
+**Boundary with `dbt`.** This skill covers assessment, screening, formulation, medication and
+monitoring. Once the answer is a therapy modality — DBT skills training, diary cards,
 chain analysis, distress tolerance practice — hand over to the `dbt` skill. Refer to it
 by name rather than improvising the therapy here.
+
+## Ongoing care
+
+For anything chronic, the question is not "what is this?" but "is it at target, who owns it,
+and when is it next checked?". Work §16: the planned visit (§16.1), the treat-to-target table
+with review intervals (§16.2), the periodic review checklist (§16.3), the adherence probe and
+the cost question (§16.4), the 4Ms for anyone 65+ (§16.5), and one owner plus one date for
+every action (§16.6). Report trends, not isolated values, and keep a function measure
+alongside the numbers — an improved HbA1c with a falling IADL score is not an improvement.
 
 ## Output shape
 
@@ -112,9 +147,12 @@ frequency, duration, route and rationale; non-pharmacological measures; GRADE st
 **CLINICAL REASONING** — flowing prose. Correlate the findings, explain the probabilistic
 ranking, justify the workup and the treatment. The richest section.
 
-**SAFETY** — interactions flagged, monitoring plan, warning signs
+**SAFETY** — interactions flagged, warning signs, and the monitoring calendar with named
+next-due dates (§14.10 for psychotropics, §16.2 for chronic targets)
 
 **PATIENT EDUCATION** — lifestyle, expected timeline, what should trigger follow-up
+
+**FOLLOW-UP** — what is reviewed, when, and who owns it
 
 ## Voice
 

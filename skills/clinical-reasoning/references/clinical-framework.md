@@ -13,6 +13,8 @@ Review all provided information: symptoms, duration, severity, progression, labs
 **Step 2 -- Clinical Reasoning**
 List differential diagnoses, most likely first. Explain reasoning for each. Consider demographics, risk factors, presentation patterns, seasonal context (dengue Jul-Nov, AQI respiratory Nov-Feb NCR, heat illness Apr-Jun).
 
+**Diagnostic time-out before committing.** State three answers explicitly: what else could this be (name two alternatives), what must not be missed (the lethal or reversible one), and what does not fit (the finding the leading diagnosis fails to explain). If nothing fails to fit, the differential was anchored rather than reasoned. Cognitive factors drive roughly three-quarters of diagnostic errors and premature closure is the commonest.
+
 **Step 3 -- Diagnostic Workup**
 Suggest investigations. Prioritise by: urgency, availability in India, cost-effectiveness. Explain what each test confirms or rules out. Reference Indian lab chains when relevant (Thyrocare, SRL, Dr. Lal PathLabs). Use investigation cost tiers (Section 12) to contextualise recommendations.
 
@@ -321,6 +323,7 @@ For any active medication start, stop, dose change, or taper step:
 - 3-4 week buffer between completing one taper and starting the next
 - Track taper phases with absolute dates, not relative
 - Distinguish withdrawal symptoms from relapse/recurrence
+- **Taper hyperbolically, not linearly.** Receptor occupancy is hyperbolic in dose, so equal milligram steps are not equal effect steps: reduce by 10-25% of the *current* dose per step and slow further at the bottom of the range, where liquid or compounded doses are often needed below the smallest tablet. Pace by symptoms, patient-led, over months rather than weeks. Linear "halve it, then stop" schedules are deprecated (Horowitz & Taylor 2019; Maudsley Deprescribing Guidelines 2024). Psychiatric specifics in §14.9.5.
 
 **Taper documentation format**:
 - Phase [N] ([date]): [old dose] → [new dose]. Expected effects: [list]. Duration: [weeks].
@@ -470,7 +473,7 @@ For postpartum patients, track these domains ranked by clinical urgency:
 3. **Thyroid**: postpartum thyroiditis window (first 12 months). Recheck TSH if fatigue, mood changes, weight gain.
 4. **Endometriosis/gynae**: annual review with imaging. Serial CA-125 if prior elevated. TVS if transabdominal USG incomplete.
 5. **Metabolic**: weight trajectory, LFTs if prior NAFLD, lipids
-6. **Mood**: screen for postpartum depression/anxiety. Red flag: suicidal ideation, thoughts of harming infant.
+6. **Mood**: EPDS at 6 weeks and again if symptoms emerge — ≥10 screens positive, ≥13 is specific, and **item 10 positive requires same-day assessment**. Red flag: suicidal ideation, thoughts of harming infant.
 7. **Nutrition**: calcium, vitamin D, iron, protein adequacy if breastfeeding. Minimum ~1800 kcal/day.
 8. **Pelvic floor/core**: assess before returning to exercise. Refer physio if diastasis >2 finger widths.
 9. **Contraception**: endometriosis-aware choices (hormonal may be protective against recurrence)
@@ -656,7 +659,7 @@ Structure: Current med list reconciliation → Interaction check (Section 4, inc
 
 ### Template D: Chronic Management Review
 Use for: quarterly check-ins, "how is Dad's regimen looking?", ongoing condition management
-Structure: Days since last changes → Current status assessment → Medication reconciliation → Outstanding lab gaps → Upcoming milestones or decision points → Adjusted plan if needed
+Structure: Days since last changes → Medication reconciliation including OTC/Ayurvedic → Each condition against its target and review interval (Section 16.2) → Trend, not just latest value → Outstanding lab and screening gaps → Adherence and cost probe (Section 16.4) → Function → Deprescribing review if 5+ medications → Adjusted plan with one owner and one date per action (Section 16.3)
 
 ### Template E: Quick Clinical Question
 Use for: "is X safe with Y?", "what's the dose of Z?", factual lookups
@@ -666,108 +669,12 @@ Structure: Direct answer → Brief rationale → Caveats if any. No full workup 
 
 ## 14. Mental Health Assessment Framework
 
-### 14.1 When to Apply
-
-Trigger this framework when:
-- Patient presents with mood symptoms (low mood, anxiety, irritability, sleep disruption, anhedonia)
-- Caregiver/family member reports behavioural changes
-- Psychiatric medication is being managed (starts, dose changes, tapers)
-- Screening is indicated (postpartum, chronic pain, elderly with new cognitive complaints)
-
-### 14.2 Screening Tools
-
-**PHQ-9** (depression): Score 0-27. Mild 5-9, Moderate 10-14, Moderately severe 15-19, Severe 20-27.
-- Score ≥10: warrants treatment discussion (pharmacotherapy or therapy or both)
-- Score ≥15: strong indication for pharmacotherapy
-- Question 9 (suicidal ideation) positive at any score: escalate immediately
-
-**GAD-7** (anxiety): Score 0-21. Mild 5-9, Moderate 10-14, Severe 15-21.
-- Score ≥10: warrants treatment discussion
-
-**PHQ-2** (ultra-brief depression screen): 2 questions. Score ≥3 → administer full PHQ-9.
-
-### 14.3 Primary Care vs Psychiatry Referral
-
-**Manage in primary care:**
-- Mild-moderate depression (PHQ-9 10-14) without suicidality, first episode
-- Generalised anxiety without panic attacks or OCD features
-- Adjustment disorders with identifiable stressor
-- SSRI initiation for straightforward cases
-
-**Refer to psychiatry:**
-- Suicidal ideation (active or passive with plan)
-- Psychotic features (hallucinations, delusions, paranoia)
-- Bipolar features (even suspected: irritability + decreased sleep + grandiosity + pressured speech)
-- Treatment-resistant depression (failed 2 adequate SSRI trials)
-- Complex polypharmacy involving psychiatric medications
-- Substance use disorder co-occurring
-- Personality disorder features affecting treatment
-- Medication taper for psychiatric drugs (coordinate, don't solo)
-
-### 14.4 Indian Psychiatry Access Realities
-
-- Psychiatrist density: ~0.3 per 100,000 population. Long wait times outside metros.
-- Metros (Delhi/NCR, Mumbai, Bangalore, Chennai): reasonable access, ₹800-2,500 per consultation
-- Tier 2-3 cities: limited availability, telepsychiatry is often the practical option
-- Telepsychiatry platforms: Amaha, MindPeers, Practo (psychiatry filter), Tele-MANAS (government, free)
-- Stigma remains significant: frame recommendations with sensitivity to family dynamics
-- Government DMHP (District Mental Health Programme) clinics: free, but overburdened
-
-### 14.5 Psychiatric Medication Quick Reference (Indian Brands)
-
-| Class | Generic | Brand | Starting Dose | Notes |
-|-------|---------|-------|---------------|-------|
-| SSRI | Escitalopram | Nexito, Stalopam | 5-10mg | First-line for depression and anxiety. Lowest interaction profile. |
-| SSRI | Sertraline | Daxid, Serlift | 25-50mg | Preferred in cardiac patients, postpartum. |
-| SNRI | Duloxetine | Duzela, Cymbalta | 20-30mg | Dual benefit if comorbid neuropathic pain. |
-| SNRI | Venlafaxine XR | Venlor XR | 37.5mg | BP monitoring needed, dose-dependent. |
-| Anxiolytic | Clonazepam | Lonazep | 0.25-0.5mg | Short-term only (<4 weeks). Dependence risk. |
-| Mood stabiliser | Lithium | Intalith CR | 300mg BD | Requires levels, thyroid, renal monitoring. |
-| Atypical antipsychotic | Olanzapine | Oleanz, Olanex | 2.5-5mg | Metabolic side effects. Weight gain. |
-| Sleep | Melatonin | Meloset | 3mg | First-line for insomnia before escalating. |
-| Sleep | Zolpidem | Zolfresh | 5mg | Short-term only. Falls risk in elderly. |
-
-### 14.6 Pharmacokinetic Engineering (Psychiatric Drugs)
-
-Treat psychiatric dosing as precision engineering, not trial-and-error.
-
-**Half-lives and steady state**: a drug reaches steady state in ~5 half-lives — judge response only after that at an adequate dose. Escitalopram/sertraline ~1 week to steady state; assess response at 4-6 weeks, not days. Fluoxetine is the outlier — parent t½ 1-3 days but active norfluoxetine 7-15 days, so it self-tapers on stopping and washes out slowly (relevant before an MAOI switch). Don't call "non-response" before 4-6 weeks at therapeutic dose.
-
-**CYP450 phenotype** — the engine of inter-individual dosing variance:
-- CYP2D6 substrates: paroxetine, fluoxetine, venlafaxine, TCAs, risperidone, aripiprazole, atomoxetine. Poor metabolisers (~1-7%, varies in South Asians) overshoot and toxify; ultra-rapid metabolisers under-respond at standard doses.
-- CYP2C19 substrates: escitalopram, citalopram, sertraline, TCAs. PMs run higher levels — FDA caps citalopram at 20mg in CYP2C19 PMs and with strong inhibitors (QT prolongation).
-- Inhibitor traps: fluoxetine and paroxetine are strong 2D6 inhibitors that raise their own and co-administered substrate levels (e.g. adding to risperidone → EPS; with tamoxifen → blocks activation, avoid). Fluvoxamine is a strong 1A2/2C19 inhibitor (clozapine levels rocket).
-
-**Titration and switching**: start low to clear the early activation/anxiety/GI bump, then up-titrate to an adequate dose — under-dosing masquerades as treatment failure. Cross-taper when switching (down-titrate the old while up-titrating the new) except dangerous pairs. Never co-administer an MAOI with an SSRI/SNRI/TCA — serotonin syndrome; wash out 2 weeks (5 weeks after fluoxetine) in either direction.
-
-**Therapeutic drug monitoring** — where plasma levels genuinely steer dosing:
-- Lithium: 0.6-0.8 mmol/L maintenance, 0.8-1.0 acute mania; 12h trough, recheck 5 days after any dose change; toxic >1.5. Baseline + periodic TSH, creatinine/eGFR, calcium. NSAIDs, ACEi/ARB, thiazides and dehydration raise levels.
-- Clozapine: 350-600 ng/mL target; mandatory ANC monitoring (agranulocytosis); smoking induces 1A2 (cessation spikes levels); titrate slowly (myocarditis, seizures, ileus).
-- Valproate: 50-100 µg/mL; LFTs, ammonia, platelets; teratogen — avoid in women of childbearing potential.
-
-**Augmentation before polypharmacy**: for inadequate SSRI response, optimise the dose first, then *augment rationally* — lithium, low-dose atypical (aripiprazole 2-5mg), or T3 — or switch class (SNRI, mirtazapine, bupropion). Rational stacking with a mechanistic rationale beats blind accumulation.
-
-**Discontinuation kinetics**: short-half-life agents (paroxetine, venlafaxine) cause the worst discontinuation syndrome — taper over weeks to months, hyperbolically at the low end (the last few mg occupy a disproportionate share of receptor occupancy, so equal dose steps are not equal effect steps). Benzodiazepines: always taper, never stop abruptly (seizure risk).
-
-### 14.7 Holistic Formulation (Biopsychosocial-Existential)
-
-A diagnosis is a label; a formulation is an understanding. Build the formulation before reaching for the prescription pad.
-
-**The 4 Ps grid** — populate biological / psychological / social rows against each column:
-
-| | Predisposing | Precipitating | Perpetuating | Protective |
-|---|---|---|---|---|
-| What it asks | Why this person is vulnerable | What triggered it now | What keeps it going | What to mobilise |
-
-Biological (genetics, illness, substances), psychological (cognitive style, attachment, trauma), social (work, finances, relationships, housing). The perpetuating column is where treatment usually has the most leverage.
-
-**Measurement-based care**: anchor with PHQ-9/GAD-7 at baseline and each review; titrate to remission (PHQ-9 <5), not merely "better". Track function, sleep and side-effect burden alongside the score.
-
-**The existential layer**: much suffering is not pathology — grief, meaninglessness, moral injury, burnout, a life misaligned with values. Symptoms are signal: ask what the symptom is responding to before deciding it is a disease. Medication can buy the runway — lift the floor enough that a person can do the work — but meaning, relationships and agency are what they fly toward, and pharmacology cannot manufacture them. Name the limits of the prescription honestly.
-
-**When to medicate, when not**: clear indication (moderate-severe, melancholic, psychotic, bipolar, active suicidality, functional collapse) → medicate without hesitation; under-treatment is its own harm. Mild or situational distress with an identifiable cause → therapy, behavioural activation, sleep/exercise/social scaffolding first; don't medicalise a proportionate response to an abnormal situation.
-
-**Indian context**: the family is often the treatment unit — engage caregivers, and work with (not against) stigma. Sleep deprivation, work and financial stress, and joint-family dynamics are frequently the real perpetuating factors; access constraints (§14.4) shape what is actually deliverable.
+Moved to [`mental-health.md`](mental-health.md): when to apply (§14.1), screening
+instruments with cut-offs (§14.2), referral thresholds (§14.3), Indian access
+realities (§14.4), brand and teleprescribing table (§14.5), pharmacokinetic
+engineering (§14.6), biopsychosocial-existential formulation (§14.7), diagnostic
+discipline before the label (§14.8), longitudinal psychiatric care (§14.9),
+monitoring calendars (§14.10), Indian regulatory constraints (§14.11).
 
 ## 15. Clinical Search Triggers
 
@@ -786,3 +693,10 @@ When to search the web for clinical queries (beyond the generic search protocol)
 - Basic pharmacology (mechanism, half-life) for common drugs
 - Clinical features of common conditions
 - Lab reference ranges (use standard values unless population-specific needed)
+
+## 16. Longitudinal and Chronic Care
+
+Moved to [`longitudinal-care.md`](longitudinal-care.md): the planned visit (§16.1),
+treat-to-target reference with review intervals (§16.2), the periodic review
+(§16.3), adherence and cost (§16.4), the 4Ms for older adults (§16.5), transitions
+and ownership (§16.6), function as an outcome (§16.7).
