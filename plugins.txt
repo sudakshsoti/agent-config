@@ -45,6 +45,20 @@ external emilkowalski/skills
 # interface-intent contract plus the active design skills as relevant.
 external anthropics/claude-code:plugins/frontend-design/skills frontend-design
 
+# jakubkrehel/skills (interfaces.dev) — allowlisted to the three upstream skills
+# that carry `disable-model-invocation: true`, so they are user-invoked only and
+# add nothing to the always-loaded skill list. The six `better-*` skills are
+# deliberately excluded: they are model-invocable, would add ~250 tokens of
+# descriptions to every session, and would compete for routing with
+# design-typography, design-visual-system, design-interface and ux-writing,
+# which already own those topics. Their genuinely new material (concentric
+# radius, icon stroke/RTL rules, APCA thresholds, Radix ramp model, autocomplete
+# and inputmode tables, aria-disabled discipline) belongs folded into those
+# local skills, where skill bodies cost nothing until the skill is invoked.
+# `variant` is also excluded: it duplicates emilkowalski's `prototype`, which is
+# already installed and better specified.
+external jakubkrehel/skills break explain-interface interface-review
+
 # superpowers is deliberately NOT installed. Its skills are vendored into
 # skills/ instead, because the upstream SessionStart hook injects ~650 tokens
 # into every session and there is no way to disable a single hook from it.

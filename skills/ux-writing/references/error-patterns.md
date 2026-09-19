@@ -4,6 +4,10 @@ Detailed patterns for the four error message types. All errors should explain th
 
 General pattern: `[What failed]. [Why/context]. [What to do].`
 
+## Tone
+
+Errors are calm and plain with zero playfulness and no empathy move. Do not acknowledge frustration, apologize, or soften the message — state the problem and the fix.
+
 ## Validation Errors (Inline)
 
 - Show as user completes field or on blur
@@ -58,3 +62,8 @@ General pattern: `[What failed]. [Why/context]. [What to do].`
 - Robotic tone ("An error has occurred")
 - Dead ends (error with no recovery path)
 - Vague causes ("Something went wrong")
+- "We" — it invites ambiguity about who failed and reads as deflection: "Unable to load content", not "We're having trouble loading this content"
+
+## Prevent, Don't Just Reword
+
+Show hints before the mistake, not after — a password rule stated up front beats a rejection message. When the same error keeps firing for users, redesign the interaction so the error cannot happen; rewording the message again is not a fix.

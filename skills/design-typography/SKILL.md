@@ -45,6 +45,18 @@ Keep kerning enabled with `font-kerning: normal`. Kerning adjusts specific glyph
 
 **Proof.** Inspect the rendered system at the project's actual breakpoints and, where applicable, 390px and 1440px. At the narrowest viewport, compare title height with the first useful unit. Reject a title treatment that causes the task content to miss the surface-intent viewport target. Check 200% browser zoom or operating-system text scaling, longest translated strings, fallback rendering, narrow and wide measures, and font-loading transitions. Completion requires no clipped, overlapping, or horizontally overflowing text; intentional line breaks must survive the target widths.
 
+## Screen sizing and role numbers
+
+**Size floors.** Long-form body text starts at 16px; move off it only for a reason you can name, such as a narrow measure, a small-running face, or a dense professional tool. UI text can go smaller: 14px is a working floor for inputs and menus, 13px for captions, and text rarely drops below 12px regardless of role. Inputs stay at 16px on mobile regardless of the desktop size, because iOS Safari zooms the whole page around a focused input rendering below 16px.
+
+**Weight floors.** Below 18px, hold weight at 400 or heavier; a lighter weight only survives at display sizes. Weights under 300 are display-only starting at 28px, and read as missing rather than elegant at text sizes below that.
+
+**Role scale.** A starting scale for product interfaces, pairing each role's size with its line-height and weight so the role is one decision instead of three: Display 36px/1.1/600, Title 24px/1.2/600, Heading 18px/1.3/600, Body 16px/1.5/400, Caption 13px/1.4/400.
+
+Emphasis inside a role is one weight step up (for example 400 to 500), never a size change; a fragment that both bolds and grows has left its role rather than emphasised it.
+
+`references/screen-mechanics.md` carries the mechanics: text-box trimming, both iOS input-zoom fixes with their scale recipe, animatable underlines, selection styling, wrapping, bidi, and size naming. `references/tailwind-v4-mapping.md` maps every typographic declaration to its Tailwind v4 utility.
+
 ## Print and editorial
 
 **Decisions.** Set the page format, binding edge, trim, reading distance, production method, and real copy volume before choosing a grid. Copy fitting starts with measure, leading, paragraph treatment, and hierarchy, not point-size reduction. Build columns, margins, folios, running matter, notes, tables, captions, and display settings as related reading roles; use a baseline system when it improves multi-column rhythm and break it deliberately for display type where expression requires it. Set hyphenation language by language, and inspect rags, line endings, widows, orphans, headings stranded from their text, and awkward word-space expansion; use optical margins and hanging punctuation where the composition benefits. Account for ink gain, paper colour and absorbency, press process, and small-reproduction limits. Embed licensed fonts in the PDF and retain fonts suitable for the output workflow.

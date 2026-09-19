@@ -114,6 +114,12 @@ Think in type systems, not fonts; in OKLCH and perceptual uniformity, not isolat
 hex values; and in optical rhythm, not raw geometric alignment. Ship production
 CSS to support the decision.
 
+`references/` holds the concrete values behind these checks: `surfaces-and-icons.md`
+for radius, shadow-as-border and icon mechanics, `colour-systems.md` for ramp
+formation, token grammar and APCA/WCAG thresholds, `layout-mechanics.md` for
+spacing and adaptivity measurements, and `motion-values.md` for the numeric
+overrides to the vendored `animate` and `emil-design-eng` skills.
+
 **Type:** pairing logic, hierarchy architecture, optical-size selection, weight
 progression and tracking at size. Use OpenType features by code (`liga`, `kern`,
 `onum`, `tnum`, `ss01`-`ss20`, `calt`, `frac`, `case`, `cv01`-`cv99`) and variable

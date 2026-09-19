@@ -163,14 +163,14 @@ Use this checklist to evaluate UX text quality. Rate each criterion 0-10.
 
 **Text**: "An error occurred while processing your request. Please try again."
 
-**Concise**: 6/10 — Wordy, could be "We couldn't process your request. Try again."
+**Concise**: 6/10 — Wordy, could be "Unable to process your request. Try again."
 **Purposeful**: 4/10 — Doesn't help user fix the problem or explain what happened
 **Conversational**: 5/10 — Somewhat robotic, "an error occurred" is system-speak
 **Clear**: 5/10 — Vague, doesn't specify what error or why
 
 **Overall**: 5/10 — Adequate but needs significant improvement
 
-**Improved**: "We couldn't save your changes. Check your connection and try again."
+**Improved**: "Unable to save your changes. Check your connection and try again."
 
 **Concise**: 9/10 — Brief, direct, no wasted words
 **Purposeful**: 8/10 — Suggests likely cause (connection) and next step

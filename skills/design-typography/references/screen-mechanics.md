@@ -1,0 +1,15 @@
+# Screen mechanics
+
+Detail behind the numbers in `../SKILL.md`, "Screen sizing and role numbers".
+
+**Text-box trimming.** Fonts reserve space above and below the glyphs, which is why text sits visibly off-centre in badges and buttons. `text-box: trim-both cap alphabetic` trims to the cap height and the baseline. Ship it as progressive enhancement: support starts at Chromium 133 and Safari 18.2, and an unsupported browser simply keeps the default leading rather than breaking.
+
+**iOS input zoom.** Safari zooms the page when a focused input's computed size falls below 16px; treat this as an accessibility behaviour to design around, not a bug to defeat with a viewport meta hack. Two fixes exist and change the design differently, so the choice is a design decision, not a technical default: size the input up on mobile and drop to the design size at the `sm` breakpoint (`text-base sm:text-sm`); or hold `font-size` at 16px and render the intended size with `transform: scale()`, widening the input by the inverse of the scale and dividing `line-height` by the same factor so the intended leading survives. A 13px field rendered this way scales 13/16 = 0.8125: `w-[calc(100%/0.8125)] scale-[0.8125] text-base leading-[calc(1.125/0.8125)]`, transform-origin pinned to the leading edge. The scale shrinks the whole box, glyphs and any background or border together, so let a wrapper element draw the field's surface and hit area and keep the scaled input itself transparent.
+
+**Underlines and selection.** Colour is the only part of a real `text-decoration` underline that animates reliably; anything else that needs to animate, such as thickness, offset, or a dash pattern, needs a separate element positioned under the text instead of `text-decoration` itself. `::target-text` styles the phrase a same-page link scrolls to; the Custom Highlight API styles arbitrary ranges, such as search matches, without wrapping them in markup.
+
+**Wrapping.** `text-wrap: balance` and `text-wrap: pretty` belong on headings and short descriptions. Skip both in long-form text: browsers ignore `balance` past a few lines, and evening out a full paragraph wastes width and works against reading rhythm rather than for it.
+
+**Bidi and mixed direction.** A paragraph of three or more lines aligns to its own script even inside an interface set to the opposite direction; a one- or two-line snippet still follows the surrounding UI's direction. Never manually reorder digits inside right-to-left text: the Unicode bidi algorithm already keeps numbers in reading order, and fighting it breaks values such as phone numbers. Wrap a mixed-direction value, such as a name next to a number, in `<bdi>` where adjacent right-to-left text would otherwise disturb it.
+
+**Semantic size names.** Solo, default scale names such as `text-sm` are fine given clear usage rules. On a team, name sizes for their use instead of their value, `text-body-sm` rather than `text-sm`, so the rule survives someone who was not in the room when it was set.

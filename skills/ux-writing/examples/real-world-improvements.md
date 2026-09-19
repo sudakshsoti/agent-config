@@ -19,13 +19,13 @@ This document shows actual UX text transformations with scoring against the four
 
 ### After
 
-"We couldn't process your payment. Check your card details and try again."
+"Unable to process your payment. Check your card details and try again."
 
 **Analysis:**
 
 - **Purposeful**: 9/10 — Provides specific next action
 - **Concise**: 9/10 — 11 words, direct instruction
-- **Conversational**: 9/10 — Natural language ("we couldn't")
+- **Conversational**: 9/10 — Natural, plain phrasing, no deflecting "we"
 - **Clear**: 9/10 — Specific problem and solution
 
 **Overall**: 9/10 — Excellent
@@ -231,7 +231,7 @@ Use a mix of letters, numbers, and symbols"
 
 ## Common Patterns Across These Improvements
 
-1. **Lead with specifics, not generics** — "We couldn't process your payment" vs "An error occurred"
+1. **Lead with specifics, not generics** — "Unable to process your payment" vs "An error occurred"
 2. **Show user benefit before system need** — "Find coffee shops" before "access location"
 3. **Use contractions** — "You're" feels human, "You are" feels robotic
 4. **Break dense text into scannable chunks** — Two short lines beat one long sentence

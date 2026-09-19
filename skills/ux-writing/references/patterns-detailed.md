@@ -132,6 +132,8 @@ Acts as instruction for one task
 
 ### Contextual Links
 
+Where two "Learn more" links appear on one page, suffix each with its object ("Learn more about exports", "Learn more about billing") — a bare "Learn more" breaks down once there is more than one on the page.
+
 **TAPP Transit**:
 
 - "Learn about fare options"
@@ -195,7 +197,7 @@ Acts as instruction for one task
 
 **TAPP Transit**:
 **Title**: "Service temporarily unavailable"
-**Body**: "We're updating our systems and will be back online in about 15 minutes. Your saved trips and passes are safe."
+**Body**: "Systems are updating and will be back online in about 15 minutes. Your saved trips and passes are safe."
 **Action**: "Check status"
 
 **'appee**:
@@ -375,6 +377,8 @@ Acts as instruction for one task
 ## Controls
 
 ### Toggle Switches
+
+Name a toggle for what happens when it is on, not what it prevents. "Send read receipts" lets users infer the off state; "Don't send read receipts" turns the toggle into a double negative.
 
 **TAPP Transit**:
 

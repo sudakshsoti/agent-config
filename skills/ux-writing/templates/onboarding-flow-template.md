@@ -9,6 +9,7 @@ Use this template to design clear, encouraging onboarding experiences that help 
 3. **Optional whenever possible** — Let users skip and explore
 4. **Celebrate small wins** — Acknowledge each completed step
 5. **Be concise** — Users want to start using the product, not read about it
+6. **Fix the vocabulary** — "Get started" to enter, one of "Continue" or "Next" held for the whole flow to advance, "Done" to finish. Never alternate synonyms; it makes users wonder whether the buttons do different things
 
 ## Core Flow Structure
 

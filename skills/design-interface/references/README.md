@@ -4,7 +4,7 @@ Evidence-backed detail that supports `../SKILL.md`: measured target-size thresho
 
 Not for: a component library, a set of ready-made field styles, theme values, or any recipe presented as the correct look. Those belong in a project's `design/decisions.md`, not here.
 
-Naming: kebab-case, one topic per file, for example `touch-target-minimums.md` or `error-copy-worked-examples.md`.
+Naming: kebab-case, one topic per file, for example `touch-target-minimums.md`, `error-copy-worked-examples.md`, `target-size-exceptions.md`, or `form-attributes.md`.
 
 Every file must carry its evidence: a measurement, a citation, or a named real project case. An assertion with no evidence attached does not belong here — raise it as an open question in `../SKILL.md` instead.
 

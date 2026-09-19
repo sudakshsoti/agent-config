@@ -13,8 +13,8 @@ Voice stays constant; tone adapts to the user's situation. Use these matrices to
 
 **Frustrated** (errors, failures, blockers)
 
-- Empathetic and solution-focused
-- Acknowledge the problem without blame
+- Calm and plain, zero playfulness, no empathy move
+- State the problem without blame
 - Provide clear recovery path
 - Example: "Payment failed. Your card was declined. Try a different payment method."
 
@@ -48,11 +48,12 @@ Voice stays constant; tone adapts to the user's situation. Use these matrices to
 
 ## Tone Adaptation by Content Type
 
-**Error messages**: Empathetic, reassuring, solution-focused
+**Error messages**: Calm, plain, solution-focused
 
 - Never blame user
 - Explain what happened
 - Provide clear next step
+- No "we" — it reads as deflection ("Unable to load content", not "We're having trouble loading this content")
 
 **Success messages**: Positive, specific, encouraging
 

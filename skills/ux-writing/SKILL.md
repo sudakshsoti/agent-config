@@ -48,6 +48,8 @@ Every piece of UX text should be:
 - Avoid jargon, idioms, and technical terms
 - Use consistent terminology throughout
 - Choose meaningful, specific verbs
+- Never assemble a sentence from fragments around a variable ("You have " + n + " new messages") — word order changes per language. Use one templated string with proper pluralization
+- Match the input device: "tap" on touch, "click" with a pointer, "select" when both are possible
 
 **Conversational Tone**
 
@@ -81,11 +83,12 @@ Apply these common patterns for interface elements.
 - **Pattern**: `[Verb] [object]`
 - **Examples**: "Save changes", "Delete account", "View details"
 - **Avoid**: Generic labels like "OK", "Submit", "Click here"
+- **Confirmation dialogs**: the button repeats the consequence, so the dialog is answerable without reading the body — "Delete this project?" pairs with `Delete project` / `Cancel`, never a bare "Yes" and "No" on a consequential action
 
 ### Error Messages
 
 - **Purpose**: Explain problem and provide solution
-- **Format**: Empathetic, clear, actionable
+- **Format**: Calm, plain, actionable — zero playfulness, no empathy phrasing
 - **Pattern**: `[What failed]. [Why/context]. [What to do].`
 - **Never**: technical codes ("Error 403"), blame ("invalid input"), robotic tone, dead ends, or vague causes ("Something went wrong")
 
@@ -111,6 +114,7 @@ Four error types — validation (inline), system (modal/banner), blocking (full-
 - **Instructions**: Verb-first, explain why information is needed
 - **Placeholder**: Use sparingly, only for standard inputs like "name@example.com"
 - **Helper text**: Static, on-demand, or automatic based on importance
+- **Toggles**: label for the ON state ("Send read receipts", not "Don't send read receipts") — a negative label makes the off state a double negative
 
 ### Notifications
 
@@ -156,6 +160,8 @@ Voice is the consistent personality of the product. Establish voice using:
 - **Do/Don't examples**: Concrete examples showing voice in action
 
 See references/voice-chart-template.md for creating a voice chart.
+
+Use possessives sparingly ("Favorites" beats "Your Favorites") and hold one perspective throughout a flow.
 
 ### Tone (Adaptive to Context)
 
@@ -249,6 +255,16 @@ Hit research-backed targets for length and reading level — e.g. buttons 2–4 
 - Robotic, corporate tone
 - Relying on color alone for meaning
 - Writing inaccessible link text ("Click here")
+
+## Reporting
+
+When auditing copy, report findings with a fixed scaffold:
+
+- **Severity**: `HIGH` misleads the user or hides how to recover from an error; `MEDIUM` breaks voice, terminology, or capitalization consistency; `LOW` is isolated wording polish.
+- **Findings table**: one row per root cause, listing every location it appears in — `Severity | Location | Before | After | Why` (`Location` is `path/to/file:line`; `Why` names the principle and the user impact).
+- **Verdict**: `Block` when any `HIGH` finding remains, `Approve` otherwise, leaving the rest in the table as work to do. Never `Approve` coverage you did not inspect.
+- **No findings**: state "No actionable writing findings" rather than inventing polish-level nitpicks.
+
 
 ## Quick Reference
 

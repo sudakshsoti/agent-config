@@ -74,6 +74,7 @@ Screen readers announce content linearly, reading:
 - ❌ Poor: "Read more" (about what?)
 - ✅ Good: "Learn about our privacy policy"
 - ✅ Good: "View pricing details"
+- ✅ Good: Link straight to the referenced setting ("Notification settings"), not the prose path ("Go to Settings > Notifications > Email")
 
 **Form Fields**
 
@@ -309,6 +310,10 @@ Provide multiple ways to perceive important information:
 - Simple grammar reduces translation errors
 - Common words have clearer equivalents
 
+### Don't Assemble Sentences From Fragments
+
+Never build a sentence from fragments around a variable (`"You have " + n + " new messages"`) — word order changes per language and breaks in translation. Use one full templated string with proper pluralization per locale (`"You have {n, plural, one {1 new message} other {# new messages}}"`).
+
 ### Avoid Culturally-Specific References
 
 - ❌ "Home run" (baseball reference)
@@ -349,7 +354,7 @@ Users experiencing stress, frustration, or urgency have reduced cognitive capaci
 - **Be immediately clear**: State the problem upfront
 - **Provide quick recovery**: One-step solution when possible
 - **Avoid blame**: Never use judgmental language
-- **Stay calm**: Reassuring tone without being condescending
+- **Stay calm and plain**: No empathy move, no exclamation, no condescension
 
 ### Time-Sensitive Actions
 

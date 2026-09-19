@@ -61,7 +61,7 @@ Use this template to write clear, actionable error messages that help users reco
 
 ```
 **Title**: Service temporarily unavailable
-**Body**: We're updating our systems and will be back in about 15 minutes. Your data is safe.
+**Body**: Systems are updating and will be back in about 15 minutes. Your data is safe.
 **Button**: Check status
 ```
 
@@ -72,21 +72,21 @@ Use this template to write clear, actionable error messages that help users reco
 Before finalizing an error message, verify:
 
 - [ ] **Avoids blame** — No "invalid," "illegal," "wrong," "error"
-- [ ] **Empathetic tone** — Acknowledge user frustration
+- [ ] **Calm and plain** — Zero playfulness, no empathy move
 - [ ] **Specific problem** — Not generic "something went wrong"
 - [ ] **Clear recovery** — Tell user exactly what to do
 - [ ] **Front-loaded** — Most important info first
-- [ ] **Active voice** — "We couldn't save" not "changes could not be saved"
+- [ ] **No "we"** — "Unable to save" not "We couldn't save" or "changes could not be saved"
 - [ ] **Human language** — Not system codes or technical jargon
 
 ## Voice Variations by Context
 
 ### High-Stakes Error (Payment, Security, Data Loss)
 
-**Tone**: Serious, clear, reassuring
+**Tone**: Serious, calm, plain — no empathy move, no exclamation
 
 ```
-We couldn't process your payment. Your card wasn't charged. Check your card details and try again.
+Unable to process your payment. Your card wasn't charged. Check your card details and try again.
 ```
 
 ### Low-Stakes Error (Optional Feature, Nice-to-Have)
@@ -108,7 +108,7 @@ Profile photo must be under 5MB. Try a smaller file or compress your image.
 ## Common Mistakes to Avoid
 
 ❌ **Vague**: "An error occurred"
-✅ **Specific**: "We couldn't save your changes"
+✅ **Specific**: "Unable to save your changes"
 
 ❌ **Blaming**: "Invalid email address"
 ✅ **Guiding**: "Email must include @"
@@ -120,7 +120,7 @@ Profile photo must be under 5MB. Try a smaller file or compress your image.
 ✅ **Actionable**: "Upload failed. Check your file size and try again."
 
 ❌ **Passive**: "Your request could not be processed"
-✅ **Active**: "We couldn't process your request"
+✅ **Direct**: "Unable to process your request"
 
 ## Quick Fill Template
 
