@@ -163,6 +163,15 @@ Secrets belong in dotfiles (1Password + age), never here.
   selector is accepted (probed). `minimal` is not a real level on the Go
   models. `muse-spark-1.3-contributor` accepts minimal through xhigh (no
   `max`); standard `muse-spark-1.3` adds `max`. Evidence: `docs/research/`.
+- On the homelab box the omp binary self-updates: an `omp-update.timer` user
+  unit runs `omp update` (stable channel) daily at 04:30 ± 30min jitter. The
+  unit is machine state and belongs to neither repo — it lives only in
+  `~/.config/systemd/user/`, so this list documents the behaviour, not the
+  file. Consequences: never pin an omp version in these docs, and if a routing
+  or thinking-level probe suddenly disagrees with a note here, check
+  `journalctl --user -u omp-update.service` for a version bump before assuming
+  the note was wrong. Pause it with
+  `systemctl --user disable --now omp-update.timer`.
 - Routing rationale (2026-09-16, `docs/research/*-2026-09.md`): the ladder ran
   on `openai-codex` until that subscription was dropped over frontend quality —
   Luna sits at DesignArena rank 48 overall (1242), the weakest routed model on
@@ -216,7 +225,8 @@ Secrets belong in dotfiles (1Password + age), never here.
   model id and can build an invalid gateway id. OMP loads `~/.omp/.env` at
   startup and existing process variables win; after `op inject`, restart OMP.
   `omp token <provider>` shows the key actually used.
-- Muse Spark requires `/v1/responses` and omp ≥18.1.6; installed omp is 18.2.3.
+- Muse Spark requires `/v1/responses` and omp ≥18.1.6; check the installed
+  build with `omp --version` rather than trusting a version pinned in docs.
   Two providers serve it and they meter separately: `muse-code` is the
   OAuth-logged Muse Code subscription ($5/month Everyday Usage, 5-hour and
   weekly windows, both visible in `omp usage -p muse-code`), and `opencode-go`
