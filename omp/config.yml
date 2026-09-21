@@ -150,6 +150,7 @@ snapcompact:
 bashInterceptor:
   enabled: false
 skills:
+  enableClaudeUser: false
   ignoredSkills:
     - artifact-*
     - claude-in-chrome

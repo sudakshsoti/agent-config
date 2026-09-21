@@ -257,6 +257,45 @@ class InstallerTest(DisposableInstallCase):
         self.assertFalse((self.test_home / ".agents").exists())
         self.assertIn("no shared-skill-root consumer", full.stdout)
 
+    def test_claude_skills_root_is_filled_only_when_claude_exists(self):
+        # Claude Code does not read ~/.agents/skills, so it gets its own link
+        # per declared skill -- but only when ~/.claude is already there. The
+        # installer must never create the directory itself.
+        no_claude = self.install("--no-external")
+        self.assertEqual(no_claude.returncode, 0, no_claude.stdout + no_claude.stderr)
+        self.assertFalse((self.test_home / ".claude").exists())
+
+        (self.test_home / ".claude").mkdir()
+        with_claude = self.install("--no-external")
+        self.assertEqual(
+            with_claude.returncode, 0, with_claude.stdout + with_claude.stderr
+        )
+        claude_skills = self.test_home / ".claude/skills"
+        for name in ("alpha", "beta", "gamma"):
+            self.assertEqual(
+                os.readlink(claude_skills / name), str(self.repo / "skills" / name)
+            )
+        # Both roots carry the same set: one link each, never one root only.
+        self.assertEqual(
+            sorted(p.name for p in claude_skills.iterdir()),
+            sorted(p.name for p in (self.test_home / ".agents/skills").iterdir()),
+        )
+
+    def test_claude_skills_root_is_filled_without_a_shared_root_consumer(self):
+        # ~/.claude alone is enough: the two destinations gate independently,
+        # so a Claude-only machine still gets a complete set and no ~/.agents.
+        remove_tree(self.test_home)
+        self.test_home.mkdir()
+        (self.test_home / ".claude").mkdir()
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse((self.test_home / ".agents").exists())
+        for name in ("alpha", "beta", "gamma"):
+            self.assertEqual(
+                os.readlink(self.test_home / ".claude/skills" / name),
+                str(self.repo / "skills" / name),
+            )
+
     # Every consumer set that shared_root_consumers_present checks, mapped to
     # the home-relative directories that make it true. "none" and "all" are
     # the extremes; the other four isolate one consumer at a time.
@@ -465,6 +504,10 @@ class InstallerTest(DisposableInstallCase):
         marked = home / ".codex/skills/legacy"
         marked.mkdir(parents=True)
         (marked / ".agent-config-managed").touch()
+        # Stale: a repo-owned skill link this repo no longer declares. It lives
+        # in the live ~/.claude/skills root, so it is pruned by the
+        # not-declared rule rather than the retired-harness one.
+        (home / ".claude/skills/ghost").symlink_to(self.repo / "skills/deleted-skill")
         # Not ours: a hand-made link elsewhere, real files, and a real directory.
         (home / ".claude/skills/local").symlink_to("/somewhere/else")
         (home / ".claude/settings.json").write_text("mine\n", encoding="utf-8")
@@ -480,7 +523,7 @@ class InstallerTest(DisposableInstallCase):
         self.assertIn("retired harness link", result.stdout)
         self.assertNotIn("(dangling)", result.stdout)
 
-        for relative in (".claude/CLAUDE.md", ".claude/skills/alpha",
+        for relative in (".claude/CLAUDE.md",
                          ".claude/agents/plan-critic.md", ".codex/AGENTS.md",
                          ".codex/prompts/vibe.md", ".config/opencode/AGENTS.md",
                          ".codex/skills/legacy"):
@@ -499,6 +542,14 @@ class InstallerTest(DisposableInstallCase):
         self.assertEqual(
             os.readlink(home / ".claude/skills/local"), "/somewhere/else"
         )
+        # ~/.claude/skills is a live destination, not a retired one: a declared
+        # skill is (re)linked there by the same run that prunes the retired
+        # surfaces, and an undeclared repo-owned link is pruned instead.
+        self.assertEqual(
+            os.readlink(home / ".claude/skills/alpha"),
+            str(self.repo / "skills/alpha"),
+        )
+        self.assertFalse((home / ".claude/skills/ghost").is_symlink())
         # The shared root was still populated by the same run.
         self.assertTrue((home / ".agents/skills/alpha").is_symlink())
 

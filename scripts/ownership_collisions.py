@@ -26,9 +26,12 @@ Dropped from the original spec, and why:
     merge) doesn't exist any more: `codex/config.toml` was deleted from this
     repo and Codex is out of scope. There is no Codex-only exemption to
     carry forward.
-  - The `~/.claude/*` and `~/.config/opencode/*` destinations from the old
-    inventory table are gone; `install.sh` writes to exactly three roots now
-    (see MANAGED_DESTINATIONS below), plus the `pi/web-search.json` shared
+  - The `~/.config/opencode/*` destinations from the old inventory table are
+    gone. `~/.claude/skills` is a live destination again (Claude Code does not
+    read the shared `~/.agents` root, so it gets its own link per skill), but
+    the rest of `~/.claude` — `CLAUDE.md`, `settings.json`, `agents/` — stays
+    out of scope and hand-managed. `install.sh` writes to exactly four roots
+    now (see MANAGED_DESTINATIONS below), plus the `pi/web-search.json` shared
     merge.
   - `ownership.tsv` and `docs/ownership.md` never landed on `main`, so this
     module does not read them; it hardcodes the destination list from
@@ -83,6 +86,10 @@ MANAGED_DESTINATIONS: tuple[ManagedDestination, ...] = (
     # Shared skills root: skills/<name>/ and vendor external skills, one
     # symlinked directory per skill name.
     ManagedDestination("tree", ".agents/skills", note="shared skills root"),
+    # Claude Code's own skills root. Claude Code does not read the shared root,
+    # so install.sh links the same set a second time here (only when ~/.claude
+    # already exists). Same directory-per-skill shape as the shared root.
+    ManagedDestination("tree", ".claude/skills", note="Claude Code skills root"),
     # OMP configuration under ~/.omp/agent.
     ManagedDestination("file", ".omp/agent/AGENTS.md"),
     ManagedDestination("file", ".omp/agent/config.yml"),

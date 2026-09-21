@@ -2,8 +2,9 @@
 #
 # install.sh — wire this repo into ~/.omp/agent and ~/.pi/agent, and link
 #              repo-owned and external skills into the shared ~/.agents/skills
+#              and into ~/.claude/skills for Claude Code
 #
-# Three destinations, and nothing else:
+# Four destinations, and nothing else:
 #
 #   Shared skills (source-only; one link serves every consumer):
 #     skills/<name>/         -> ~/.agents/skills/<name>
@@ -20,6 +21,22 @@
 #       the shared root the same way. Do NOT also link into
 #       ~/.pi/agent/skills: a skill found in two roots is discovered twice and
 #       burns double its share of the skills context budget.
+#
+#   Claude Code skills:
+#     skills/<name>/         -> ~/.claude/skills/<name>
+#     vendor/<owner>-<repo>/* -> ~/.claude/skills/<name>   (external lines)
+#       The one harness that does NOT read the shared ~/.agents root, so it
+#       needs its own link per skill — the same set, linked twice. Filled only
+#       when ~/.claude already exists; this never creates the directory, so a
+#       machine without Claude Code installed stays untouched.
+#
+#       This is the single exception to the "link a skill once" rule above, and
+#       it is safe only because no *other* harness reads ~/.claude/skills:
+#       omp/config.yml pins `skills.enableClaudeUser: false` for exactly this
+#       reason. If that pin is removed, OMP scans both roots, every skill is
+#       discovered twice, and the skills context budget is spent twice over.
+#       Claude Code reads ~/.claude/skills and nothing else, so the two roots
+#       stay disjoint per consumer.
 #
 #   OMP configuration:
 #     omp/config.yml         -> ~/.omp/agent/config.yml
@@ -79,6 +96,10 @@
 #     global-agents.md       -> ~/.pi/agent/AGENTS.md
 #
 # Deliberately NOT tracked or linked (machine-local by design):
+#   ~/.claude/CLAUDE.md, ~/.claude/settings.json — the operator's own files.
+#     This repo installs Claude Code *skills* only; its instruction file and
+#     settings stay hand-managed. `global-agents.md` reaches Claude Code by an
+#     `@` include from ~/.claude/CLAUDE.md, written by hand, not by this script.
 #   ~/.omp/agent/mcp.json — see the "Secrets policy" section of README.md.
 #   ~/.omp/agent/extensions/ — written and overwritten by the tool that owns it.
 #   ~/.pi/agent/auth.json — OAuth tokens and provider API keys.
@@ -112,6 +133,8 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENDOR="$REPO/vendor"
 SKILLS_ROOT="$HOME/.agents/skills"
+CLAUDE="$HOME/.claude"
+CLAUDE_SKILLS="$CLAUDE/skills"
 OMP="$HOME/.omp/agent"
 OMP_OVERLAYS="$HOME/.config/omp"
 PI="$HOME/.pi/agent"
@@ -277,6 +300,10 @@ fetch_external_sources() {
 MARKER=".agent-config-managed"
 linked=0 skipped=0 pruned=0 external=0
 ACTIVE_SKILLS=" "
+# name<TAB>source-dir per declared skill, recorded during enumeration so the
+# same set can be linked into more than one root. Enumeration is independent of
+# whether either root is filled, so the two destinations gate separately.
+SKILL_SOURCES=""
 
 link_into() { # link_into <source> <dest-link>
   local src="$1" link="$2" name
@@ -311,6 +338,11 @@ link_skill_into() { # link_skill_into <source-dir> <dest-link>
     fi
   fi
   link_into "$src" "$dest"
+}
+
+record_skill() { # record_skill <name> <source-dir>
+  ACTIVE_SKILLS="$ACTIVE_SKILLS$1 "
+  SKILL_SOURCES="$SKILL_SOURCES$1"$'\t'"$2"$'\n'
 }
 
 if [ "$SKILLS_ONLY" = "1" ]; then
@@ -365,18 +397,27 @@ fi
 
 [ "$EXTERNAL" = "1" ] && fetch_external_sources
 
-# Fill the shared root only when something reads it. Otherwise leave
-# ~/.agents untouched entirely — creating an empty root nobody consumes is
-# just clutter, and it would need pruning later for no benefit.
-if shared_root_consumers_present; then
-  mkdir -p "$SKILLS_ROOT"
+# Which roots get filled. The shared root is filled only when something reads
+# it; ~/.claude/skills only when Claude Code is already installed. Neither
+# directory is created speculatively. Skill *enumeration* below runs whenever
+# either root is in play, so the two destinations gate independently and a
+# machine with only one of them still gets a complete, correct set.
+FILL_SHARED=0
+if shared_root_consumers_present; then FILL_SHARED=1; fi
+FILL_CLAUDE=0
+if [ -d "$CLAUDE" ]; then FILL_CLAUDE=1; fi
+
+if [ "$FILL_SHARED" = "1" ] || [ "$FILL_CLAUDE" = "1" ]; then
+  if [ "$FILL_SHARED" = "1" ]; then mkdir -p "$SKILLS_ROOT"; fi
 
   # 1. Repo-owned skills: every directory holding a SKILL.md.
   for dir in "$REPO"/skills/*/; do
     [ -f "$dir/SKILL.md" ] || continue
     name="$(basename "$dir")"
-    link_skill_into "${dir%/}" "$SKILLS_ROOT/$name"
-    ACTIVE_SKILLS="$ACTIVE_SKILLS$name "
+    record_skill "$name" "${dir%/}"
+    if [ "$FILL_SHARED" = "1" ]; then
+      link_skill_into "${dir%/}" "$SKILLS_ROOT/$name"
+    fi
   done
 
   # 2. External skill sources: `external <owner/repo>` lines in plugins.txt.
@@ -451,8 +492,10 @@ if shared_root_consumers_present; then
           skipped=$((skipped + 1))
           return 1
         fi
-        link_skill_into "$dir" "$SKILLS_ROOT/$name"
-        ACTIVE_SKILLS="$ACTIVE_SKILLS$name "
+        record_skill "$name" "$dir"
+        if [ "$FILL_SHARED" = "1" ]; then
+          link_skill_into "$dir" "$SKILLS_ROOT/$name"
+        fi
         return 0
       }
 
@@ -476,7 +519,26 @@ if shared_root_consumers_present; then
     done <"$REPO/plugins.txt"
   fi
 else
-  echo "note: no shared-skill-root consumer present (~/.codex, ~/.pi/agent, ~/.config/opencode, ~/.omp/agent) — skipping ~/.agents/skills"
+  echo "note: no shared-skill-root consumer present (~/.codex, ~/.pi/agent, ~/.config/opencode, ~/.omp/agent) and no ~/.claude — skipping ~/.agents/skills and ~/.claude/skills"
+fi
+
+if [ "$FILL_SHARED" != "1" ] && [ "$FILL_CLAUDE" = "1" ]; then
+  echo "note: no shared-skill-root consumer present — filling ~/.claude/skills only"
+fi
+
+# 2b. Claude Code: the one harness that does not read ~/.agents/skills, so the
+#     same declared set is linked a second time into ~/.claude/skills. Safe
+#     only while omp/config.yml pins skills.enableClaudeUser false — see this
+#     file's header. Real directories already there (Paseo's own skills, any
+#     hand-installed one) are left alone by link_skill_into.
+if [ "$FILL_CLAUDE" = "1" ]; then
+  mkdir -p "$CLAUDE_SKILLS"
+  while IFS=$'\t' read -r name src; do
+    [ -n "$name" ] || continue
+    link_skill_into "$src" "$CLAUDE_SKILLS/$name"
+  done <<<"$SKILL_SOURCES"
+else
+  echo "⚠️  SKIP claude — no $CLAUDE (Claude Code not installed). skills/ not linked."
 fi
 
 # 3. global-agents.md: harness-neutral shared preferences, linked into each
@@ -671,8 +733,42 @@ if [ "$PRUNE" = "1" ]; then
     done
   fi
 
-  # 7c. Retired harness surfaces. This repo no longer installs anything for
-  #     Claude, Codex or OpenCode, so clean up what an older version left
+  # 7c. Claude Code skills root: same two rules as the shared root above —
+  #     drop links this repo no longer declares, then dangling links that point
+  #     into this checkout. Only symlinks into this repo or vendor/ are ever
+  #     removed, so Paseo's real skill directories and any hand-installed or
+  #     hand-linked skill survive untouched.
+  if [ "$FILL_CLAUDE" = "1" ] && [ -d "$CLAUDE_SKILLS" ]; then
+    for link in "$CLAUDE_SKILLS"/*; do
+      [ -L "$link" ] || continue
+      case " $ACTIVE_SKILLS " in
+      *" $(basename "$link") "*) continue ;;
+      esac
+      case "$(readlink "$link")" in
+      "$REPO"/* | "$VENDOR"/*)
+        rm -f "$link"
+        echo "pruned  $(basename "$link") (not declared)"
+        pruned=$((pruned + 1))
+        ;;
+      esac
+    done
+    for link in "$CLAUDE_SKILLS"/*; do
+      [ -L "$link" ] || continue
+      case "$(readlink "$link")" in
+      "$REPO"/*)
+        if [ ! -e "$link" ]; then
+          rm -f "$link"
+          echo "pruned  $(basename "$link") (dangling)"
+          pruned=$((pruned + 1))
+        fi
+        ;;
+      esac
+    done
+  fi
+
+  # 7d. Retired harness surfaces. This repo still installs Claude Code skills,
+  #     but nothing else for Claude, and nothing at all for Codex or
+  #     OpenCode — so clean up what an older version left
   #     behind — but only entries that provably belong to this repo: symlinks
   #     pointing into this checkout (or its vendor/), and copies carrying our
   #     own ownership marker. Anything else is the operator's and is left
@@ -711,7 +807,9 @@ if [ "$PRUNE" = "1" ]; then
   prune_retired_link "$HOME/.codex/AGENTS.md" --warn-real
   prune_retired_link "$HOME/.config/opencode/AGENTS.md" --warn-real
 
-  for link in "$HOME"/.claude/skills/* "$HOME"/.claude/agents/*; do
+  # ~/.claude/skills is a live destination again and is pruned by 7c above;
+  # only ~/.claude/agents stays retired (this repo declares no Claude agents).
+  for link in "$HOME"/.claude/agents/*; do
     [ -L "$link" ] || continue
     prune_retired_link "$link"
   done

@@ -10,6 +10,7 @@ This file applies to this checkout. Shared, harness-neutral preferences live in
 | Destination | Source | Delivery |
 | --- | --- | --- |
 | `~/.agents/skills/` | `skills/`, `vendor/` | one symlink per skill; filled only when a shared-root consumer exists |
+| `~/.claude/skills/` | `skills/`, `vendor/` | one symlink per skill; filled only when `~/.claude` already exists |
 | `~/.omp/agent/` + `~/.config/omp/` | `omp/`, `global-agents.md` | one symlink per file; OMP writes through links |
 | `~/.pi/agent/` | `pi/`, `global-agents.md` | one symlink per file; Pi writes through links |
 
@@ -20,6 +21,20 @@ pi-web-access's credential store, so only repo-owned keys are pushed.
   `~/.pi/agent/skills` or skills are discovered twice and consume double the
   context budget. Codex and OpenCode read this shared root natively; this repo
   only checks their directories and writes no config for them.
+- **Claude Code is the one exception**, because it does not read the shared
+  root at all: the same declared set is linked a second time into
+  `~/.claude/skills`. That is not double discovery, because no harness reads
+  both roots — but it only stays true while `omp/config.yml` pins
+  `skills.enableClaudeUser: false`. OMP scans `~/.claude/skills` by default;
+  drop that pin and every skill is discovered twice in OMP. The pin is the
+  load-bearing half of this arrangement, not a stylistic preference.
+  `install.sh` never creates `~/.claude`, so a machine without Claude Code is
+  untouched. Only skills are installed there — `~/.claude/CLAUDE.md`,
+  `settings.json` and `agents/` stay hand-managed and out of scope, and
+  `--prune` still treats `~/.claude/agents` as a retired surface.
+- `--skills-only` fills the shared root **only**, never `~/.claude/skills`;
+  it is a shared-root operation by definition. A selective run therefore does
+  not keep Claude Code in sync — use a full `./install.sh` for that.
 - Edits are live through symlinks; there is no sync step. OMP and Pi can rewrite
   linked config in this checkout. **Check `git diff` before committing** after
   interactive setting changes; `pi/settings.json` and `omp/config.yml` are the
