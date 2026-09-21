@@ -100,7 +100,11 @@
 #     This repo installs Claude Code *skills* only; its instruction file and
 #     settings stay hand-managed. `global-agents.md` reaches Claude Code by an
 #     `@` include from ~/.claude/CLAUDE.md, written by hand, not by this script.
-#   ~/.omp/agent/mcp.json — see the "Secrets policy" section of README.md.
+#     The statusline scripts those settings point at are snapshotted (copied) to
+#     snapshots/claude/ — tracked for their content, still not installed here.
+#   ~/.omp/agent/mcp.json — never linked; see the "Secrets policy" section of
+#     README.md. It is snapshotted (copied) to snapshots/omp/mcp.json by
+#     scripts/snapshot-machine-config.sh, which is not part of this installer.
 #   ~/.omp/agent/extensions/ — written and overwritten by the tool that owns it.
 #   ~/.pi/agent/auth.json — OAuth tokens and provider API keys.
 #   ~/.pi/agent/models-store.json — a refetchable provider catalog cache.

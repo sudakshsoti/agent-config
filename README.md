@@ -61,8 +61,13 @@ Three destinations, and nothing else.
   inside the directory survives.
 - `pi/web-search.json` — pi-web-access preferences. **Merged**, never linked,
   because the live file is also that extension's credential store.
-- `~/.omp/agent/mcp.json` and `~/.pi/agent/auth.json` are **not** tracked here,
-  on purpose — see "Secrets policy" below before adding them.
+- `~/.pi/agent/auth.json` is **not** tracked here, on purpose — see "Secrets
+  policy" below before adding anything like it.
+- `snapshots/` — machine-local harness config **copied**, never linked:
+  `~/.omp/agent/mcp.json`, Claude Code's user-scope `mcpServers`, and the
+  `~/.claude` statusline scripts and their claude-powerline theme. A copy is
+  what keeps the mcp.json leak path closed. Refresh with
+  `./scripts/snapshot-machine-config.sh`; see `snapshots/README.md`.
 - `scripts/` — installer helpers and the repo's own checks, including
   `check-model-routing.py`, which fails the build on model-routing drift
   between `omp/config.yml`, `omp/agents/`, `omp/overlays/` and Pi's config.
@@ -75,6 +80,7 @@ Three destinations, and nothing else.
 ./install.sh --prune     # after deleting one — also clears dead links
 ./install.sh --no-external  # skip the external git fetch (offline)
 ./scripts/check.sh       # run the repo's tests
+./scripts/snapshot-machine-config.sh  # after changing an MCP server or the statusline
 ```
 
 Everything is **symlinked**, so editing a skill, agent, prompt or setting in
@@ -95,12 +101,21 @@ auth store in a `SKILL.md` or any tracked file.
 These stay machine-local and untracked. Do not "helpfully" add them:
 
 - **`~/.omp/agent/mcp.json` is a live leak path with no guard.** OMP writes that
-  file itself, and `omp/` is symlinked, so an `omp mcp add` for a server that
-  takes an inline `env` API key would write a real credential straight into a
-  git-tracked working tree. Its contents also do not transfer between machines:
-  the Todoist entry points at a `credentialId` in OMP's own local credential
-  store, and the Linear header shells out to a locally-authenticated
+  file itself, so if `omp/` held a symlink to it, an `omp mcp add` for a server
+  that takes an inline `env` API key would write a real credential straight into
+  a git-tracked working tree. Its contents also do not transfer between
+  machines: the Todoist entry points at a `credentialId` in OMP's own local
+  credential store, and the Linear header shells out to a locally-authenticated
   `linear auth token`.
+
+  It is **snapshotted** to `snapshots/omp/mcp.json` — copied, not linked. That
+  is the distinction that matters: a copy is inert, so nothing OMP writes
+  reaches the tree on its own, and `scripts/snapshot-machine-config.sh` refuses
+  any file carrying an `env`, `headers` or token-shaped value under
+  `mcpServers`. Never symlink this file. Claude Code's `mcpServers` are
+  snapshotted the same way and for a second reason: they live inside
+  `~/.claude.json` next to `userID`, `machineID` and `oauthAccount`, so the file
+  itself can never be tracked.
 - **`~/.pi/agent/auth.json`** holds OAuth tokens and provider API keys.
 - **`~/.pi/agent/models-store.json`** is a refetchable provider catalog cache.
 - **`~/.omp/agent/extensions/`** is written and overwritten by the tool that
