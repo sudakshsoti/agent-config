@@ -180,12 +180,13 @@ Secrets belong in dotfiles (1Password + age), never here.
   `max`); standard `muse-spark-1.3` adds `max`. Evidence: `docs/research/`.
 - On the homelab box the omp binary self-updates: an `omp-update.timer` user
   unit runs `omp update` (stable channel) daily at 04:30 ± 30min jitter. The
-  unit is machine state and belongs to neither repo — it lives only in
-  `~/.config/systemd/user/`, so this list documents the behaviour, not the
-  file. Consequences: never pin an omp version in these docs, and if a routing
-  or thinking-level probe suddenly disagrees with a note here, check
-  `journalctl --user -u omp-update.service` for a version bump before assuming
-  the note was wrong. Pause it with
+  unit is **machine state owned by dotfiles**
+  (`dot_config/systemd/user/omp-update.{service,timer}`, Linux-gated in
+  `.chezmoiignore`); this list documents the behaviour, not the file, and the
+  Macs deliberately have no such job. Consequences: never pin an omp version in
+  these docs, and if a routing or thinking-level probe suddenly disagrees with a
+  note here, check `journalctl --user -u omp-update.service` for a version bump
+  before assuming the note was wrong. Pause it with
   `systemctl --user disable --now omp-update.timer`.
 - Routing rationale (2026-09-16, `docs/research/*-2026-09.md`): the ladder ran
   on `openai-codex` until that subscription was dropped over frontend quality —
