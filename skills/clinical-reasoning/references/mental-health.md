@@ -493,7 +493,192 @@ their own registers; NDPS prescriptions follow the narcotic prescription rules
 - **§95**: unmodified ECT is prohibited outright; ECT in a minor requires the guardian's consent **and** prior State Mental Health Authority permission.
 - **§106**: do not prescribe or certify outside your field.
 
-## 14.12 Boundary with Therapy
+## 14.12 Anxiety Disorders — Panic, Agoraphobia and the Depression Mislabel
+
+### 14.12.1 Suspecting an Anxiety Disorder Behind a Depression Label
+
+A depression that will not remit is not automatically a pharmacology problem. Five
+triggers should prompt a diagnostic re-look rather than another switch or
+augmentation:
+
+- A chronic somatic symptom (palpitations, breathlessness, dizziness, GI upset)
+  that never remits across adequate antidepressant trials
+- The anxiety symptom predates the mood symptom in the timeline, not the reverse
+- Body-first presentation with no cognitive content the patient can name — asked
+  what the thought is during a bad episode, the answer is "no thoughts", not a
+  catastrophic belief
+- A situational rather than diurnal pattern — worse in specific places or
+  circumstances, not worse at a particular time of day
+- Symptom worse in unstructured time (weekends, holidays) and better when work or
+  routine imposes structure and distraction
+
+**A depression that has not remitted across two adequate trials (§14.9.2) should
+have the diagnosis re-examined before the drug is changed again** — augmenting or
+switching for the third time treats the label, not the patient, if the label was
+wrong.
+
+### 14.12.2 Panic Attack and Panic Disorder
+
+A **panic attack** is an abrupt surge of intense fear or discomfort peaking within
+minutes, with four or more of: palpitations/pounding heart; sweating; trembling;
+shortness of breath or smothering; choking sensation; chest pain; nausea or
+abdominal distress; dizziness/unsteadiness/faintness; chills or heat sensations;
+paraesthesias; derealisation or depersonalisation; fear of losing control or
+going crazy; fear of dying. An **expected** attack has an obvious situational cue
+(a phobic trigger); an **unexpected** attack has none — it is the unexpected ones
+that anchor a panic disorder diagnosis.
+
+**Panic disorder** = recurrent unexpected panic attacks, **plus** one month or
+more of persistent worry about further attacks or their consequences, or a
+significant maladaptive change in behaviour because of them (the avoidance).
+The attack alone is not the disorder; the disorder is the attack plus what the
+patient now does to prevent the next one.
+
+Do not confuse a discrete panic attack with the chronic low-grade somatic
+anxiety it is routinely mistaken for on both sides of the desk: a patient
+describing "always tense, always on edge" with a background hum of palpitations
+and forgetfulness is not thereby having panic attacks — ask for the discrete
+peaks separately, and expect them to be rare ("once or twice, years ago") even
+in an agoraphobia that has been active for over a decade. The peaks establish
+the diagnosis; their rarity does not disprove it.
+
+### 14.12.3 Agoraphobia
+
+Fear or avoidance in **two or more** of five situation clusters, where the fear
+concerns escape being difficult or help being unavailable if panic-like or
+incapacitating symptoms occur, present for **six months or more**, with the
+situations avoided, endured with intense dread, or requiring a companion:
+
+| Situation cluster | Example | Endorsed? |
+|---|---|---|
+| Public transport | Bus, train, flight, cab alone | |
+| Open spaces | Car parks, marketplaces, bridges, long drives | |
+| Enclosed spaces | Shops, cinema halls, lifts, queues that cannot be left | |
+| Crowds or queues | Malls, weddings, waiting lines | |
+| Outside the home alone | Any errand, commute, or full day away from home unaccompanied | |
+
+This is a five-minute table, not a specialist instrument — the whole point is
+that it is quick to run and in an undiagnosed case nobody ran it. Two or more
+endorsed at six months or longer is agoraphobia; screen it in the same visit as
+the panic-attack history, because the two are asked about together or neither
+gets asked about at all.
+
+### 14.12.4 The Panic-to-Avoidance Sequence
+
+The developmental model that explains why this becomes a chronic, unremitting
+condition rather than a self-limiting one:
+
+**index panic attack → anticipatory anxiety about recurrence → avoidance of
+situations where an attack would be intolerable or inescapable → avoidance
+relieves the anticipatory distress and is therefore reinforced → the avoidance
+becomes the disorder and outlives the attacks that started it.**
+
+A patient can present a decade or more after the index attack with the attacks
+themselves nearly extinct ("once or twice, years ago") while the avoidance
+built around them has only grown — more situations added, more of life
+rearranged. **Once avoidance is the maintaining mechanism, no dose of any drug
+treats it**; the drug can quiet the physiology while the avoidance keeps the
+disorder alive underneath.
+
+### 14.12.5 Safety Behaviours
+
+A safety behaviour is anything the patient does to prevent a feared outcome
+that never disconfirms the fear because the outcome was never going to happen.
+Common ones: the PRN benzodiazepine kept "just in case"; the always-present
+companion; the seat near the exit; the carried water bottle; repeated phone
+checks; a mentally mapped route home; an always-available escape car or driver.
+
+Each one preserves the belief that survival was conditional on the behaviour —
+"I only got through it because I had the tablet/my wife/the exit seat" — which
+blocks exactly the disconfirming learning that exposure depends on. **A PRN
+benzodiazepine prescribed for agoraphobic anxiety is not a neutral bridge; it is
+an active maintaining factor**, reinforced every time it is taken in response to
+symptoms rather than on a schedule.
+
+For a patient already benzodiazepine-dependent from PRN use (five or more
+consecutive days is enough to raise rebound risk on stopping), abrupt
+withdrawal is unsafe and untimed tapering mid-crisis is counterproductive. The
+practical resolution: **convert PRN dosing to a fixed low dose at set clock
+times**, decoupling the tablet from the symptom rather than letting fear
+trigger the dose; log every dose taken; taper only later, under a prescriber,
+never mid-exposure and never abruptly after consecutive daily use.
+
+### 14.12.6 Treatment
+
+**Pharmacotherapy, first-line**: SSRI — sertraline (Daxid, Serlift) or
+escitalopram (Nexito, Stalopam) are the usual Indian choices (§14.5).
+Venlafaxine XR (Venlor XR) has good evidence specifically in panic disorder and
+is a reasonable first-line alternative, not a fallback.
+
+**Panic patients are exquisitely sensitive to initial activation. Start at half
+the usual starting dose or lower, and warn the patient in advance that early
+jitteriness, if it occurs, is expected and transient.** An unwarned activation
+surge in a panic-prone patient reads to them as proof the illness is worsening,
+and is a common, avoidable cause of abandoning a drug that would otherwise have
+worked.
+
+Medication reduces attack frequency and anticipatory anxiety. It does **not**
+treat avoidance. Exposure-based CBT — graded in-vivo exposure to avoided
+situations, interoceptive exposure to the feared bodily sensations themselves,
+and systematic dropping of safety behaviours (§14.12.5) — is a required
+treatment component for agoraphobia, not an adjunct to consider later.
+**Combined pharmacotherapy plus exposure-based CBT beats either alone for
+agoraphobia specifically.**
+
+Benzodiazepines: short-term use only. There is evidence they impair the
+extinction learning that exposure work relies on — a patient doing graded
+exposure while on a standing (not just occasional) benzodiazepine may be doing
+the exercises without being able to bank the learning.
+
+### 14.12.7 Screening Blind Spot
+
+**GAD-7 and PHQ-9 do not detect panic disorder or agoraphobia.** GAD-7 asks
+about worry, not about avoidance or discrete panic peaks; an agoraphobic
+patient whose life has already been rearranged around avoidance can score low
+precisely because the avoidance is working and the situations that would
+provoke anxiety are no longer being entered.
+
+The single question that catches it, and the one to add as a standing item in
+any psychiatric review where a somatic symptom has not remitted:
+
+**"Are there places or situations you avoid, or can only face if someone comes
+with you?"**
+
+Once identified, the Panic Disorder Severity Scale (PDSS) is the instrument for
+tracking severity and response, in the same role PHQ-9/GAD-7 play for
+depression and generalised anxiety (§14.9.1).
+
+### 14.12.8 Indian Context
+
+Exposure-based CBT is available in most metros (private, typically ₹1,500-4,000
+per session, 12-20 sessions for a full agoraphobia protocol) but scarce outside
+them; tier 2-3 access mirrors the general psychiatry shortfall (§14.4) and is
+often worse, since exposure therapy needs a trained CBT therapist, not just a
+psychiatrist. The practical reality is that most Indian psychiatric care for
+this presentation is pharmacotherapy-only by default — a referral for
+exposure-based work has to be made explicitly, by name, or it does not happen;
+"therapy would help" without naming the modality and the referral path is not a
+referral (§14.13).
+
+Teleprescribing constraints (§14.11.1) apply as for any psychiatric drug here:
+SSRIs and venlafaxine are List A/List B depending on the specific molecule;
+clonazepam is List A but restricted to a live video consult with Schedule H1
+obligations documented; propranolol is List B, tele-follow-up only.
+
+### 14.12.9 The Misdiagnosis Pattern
+
+The pattern that lets this run for a decade or more is consistent enough to
+name in general terms: a somatic anxiety symptom emerging in adolescence or
+early adulthood; sequential antidepressants escalated to ceiling doses across
+years, each one a reasonable choice in isolation; each subsequent clinician
+inheriting the prior diagnosis and prescription rather than re-taking the
+history from the index event forward; and avoidance never asked about, because
+no instrument in routine use asks about it (§14.12.7).
+
+**When a symptom has survived every adequate trial, re-take the history rather
+than escalate the dose — and ask specifically about avoidance.**
+
+## 14.13 Boundary with Therapy
 
 This section covers assessment, screening, formulation, medication and monitoring.
 Once the answer is a therapy modality — DBT skills training, diary cards, chain

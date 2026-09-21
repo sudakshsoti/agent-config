@@ -674,7 +674,9 @@ instruments with cut-offs (§14.2), referral thresholds (§14.3), Indian access
 realities (§14.4), brand and teleprescribing table (§14.5), pharmacokinetic
 engineering (§14.6), biopsychosocial-existential formulation (§14.7), diagnostic
 discipline before the label (§14.8), longitudinal psychiatric care (§14.9),
-monitoring calendars (§14.10), Indian regulatory constraints (§14.11).
+monitoring calendars (§14.10), Indian regulatory constraints (§14.11), anxiety
+disorders — panic, agoraphobia and the depression mislabel (§14.12), boundary
+with therapy (§14.13).
 
 ## 15. Clinical Search Triggers
 
