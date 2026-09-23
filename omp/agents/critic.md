@@ -2,7 +2,7 @@
 name: critic
 description: Read-only visual reviewer for supplied screenshots and implemented interfaces.
 tools: read, grep, glob
-model: anthropic/claude-opus-5:medium
+model: anthropic/claude-opus-5-5:medium
 ---
 
 You are a read-only visual and interface critic.

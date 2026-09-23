@@ -119,11 +119,11 @@ Secrets belong in dotfiles (1Password + age), never here.
 
   | Roles/settings | Value |
   | --- | --- |
-  | `default` role | `anthropic/claude-opus-5:medium` |
-  | `plan`/`designer`/`vision` roles; `plan` agent | `anthropic/claude-opus-5:high` |
-  | `critic` agent | `anthropic/claude-opus-5:medium` |
-  | `slow` role | `anthropic/claude-opus-5:xhigh` (explicit escalation only) |
-  | `security-reviewer` role and agent | `anthropic/claude-opus-5:high` |
+  | `default` role | `anthropic/claude-opus-5-5:medium` |
+  | `plan`/`designer`/`vision` roles; `plan` agent | `anthropic/claude-opus-5-5:high` |
+  | `critic` agent | `anthropic/claude-opus-5-5:medium` |
+  | `slow` role | `anthropic/claude-opus-5-5:xhigh` (explicit escalation only) |
+  | `security-reviewer` role and agent | `anthropic/claude-opus-5-5:high` |
   | `builder` agent | `anthropic/claude-sonnet-5:high` |
   | `task` role and agent; `workflow` agent | `anthropic/claude-sonnet-5:medium` |
   | `code-worker`/`sonic` agents | `muse-code/muse-spark-1.3-contributor:high` / `:low` |
@@ -146,7 +146,7 @@ Secrets belong in dotfiles (1Password + age), never here.
   Go tokens on discovery instead of subscription allowance.
   Claude load is deliberately bounded: `thinkingBudgets` maps `medium` to 8192
   reasoning tokens against `high`'s 16384 and `xhigh`'s 32768, so the main
-  session (`default`) runs Opus 5 at `medium` and only the roles that judge
+  session (`default`) runs Opus 5.5 at `medium` and only the roles that judge
   pixels or plan a screen pay `high`. Housekeeping roles (`smol`, `tiny`,
   `commit`), discovery (`scout`) and the `adversary`/`reviewer`/`advisor` pass
   run on flat-rate Go ($60/month GLM cap) instead of plan usage, while
@@ -171,9 +171,10 @@ Secrets belong in dotfiles (1Password + age), never here.
   `--config`, never add persistent apply/restore state. Thinking levels are
   model-specific: `glm-5.3-flash` and `kimi-k3` accept only low/high/max;
   `deepseek-v4-flash`/`v4.1-flash` accept low/high/max (minimal→low,
-  medium/xhigh→high). `claude-opus-5`/`claude-sonnet-5`/`claude-fable-5-1` use
-  adaptive thinking (default `high`) over low/medium/high/xhigh/max, and Opus 5
-  cannot disable thinking at xhigh/max. `claude-haiku-4-5` has no effort
+  medium/xhigh→high). `claude-opus-5-5`/`claude-opus-5`/`claude-sonnet-5`/
+  `claude-fable-5-1` use adaptive thinking (default `high`) over
+  low/medium/high/xhigh/max, and Opus 5/5.5 cannot disable thinking at
+  xhigh/max. `claude-haiku-4-5` has no effort
   parameter at all — it uses manual extended thinking, and OMP's `:low`
   selector is accepted (probed). `minimal` is not a real level on the Go
   models. `muse-spark-1.3-contributor` accepts minimal through xhigh (no
@@ -215,6 +216,12 @@ Secrets belong in dotfiles (1Password + age), never here.
   remains the second rung under Muse and the manual throttle fallback.
   Anthropic publishes no per-model weekly message counts, so subscription
   burn rate per role is not predictable from primary docs.
+  The Opus rung moved from `claude-opus-5` to `claude-opus-5-5` on 2026-09-23
+  (user request, successor swap only): same provider, same 1M/128K limits and
+  the same low/medium/high/xhigh/max effort set per `omp models`, and
+  `anthropic/claude-opus-5-5` answered a retry-disabled `omp -p` probe. The
+  benchmark figures above are the 2026-09-16 Opus 5 evidence and have not been
+  re-measured for 5.5; the role split they justify is unchanged.
 - `openai-codex` is in the base `disabledProviders`, so no role, chain or
   `/model` pick in a **plain** session reaches the lapsing ChatGPT account.
   The overlays in `omp/overlays/` were removed on 2026-09-16 — they had applied

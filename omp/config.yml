@@ -1,13 +1,13 @@
 modelRoles:
-  default: anthropic/claude-opus-5:medium
-  plan: anthropic/claude-opus-5:high
-  slow: anthropic/claude-opus-5:xhigh
-  designer: anthropic/claude-opus-5:high
-  vision: anthropic/claude-opus-5:high
+  default: anthropic/claude-opus-5-5:medium
+  plan: anthropic/claude-opus-5-5:high
+  slow: anthropic/claude-opus-5-5:xhigh
+  designer: anthropic/claude-opus-5-5:high
+  vision: anthropic/claude-opus-5-5:high
   task: anthropic/claude-sonnet-5:medium
   adversary: opencode-go/glm-5.3-flash:high
   reviewer: opencode-go/glm-5.3-flash:high
-  security-reviewer: anthropic/claude-opus-5:high
+  security-reviewer: anthropic/claude-opus-5-5:high
   advisor: opencode-go/glm-5.3-flash:high
   smol: opencode-go/glm-5.3-flash:low
   tiny: opencode-go/glm-5.3-flash:low
@@ -28,11 +28,11 @@ task:
     sonic: muse-code/muse-spark-1.3-contributor:low
     adversary: opencode-go/glm-5.3-flash:high
     reviewer: opencode-go/glm-5.3-flash:high
-    security-reviewer: anthropic/claude-opus-5:high
+    security-reviewer: anthropic/claude-opus-5-5:high
     code-worker: muse-code/muse-spark-1.3-contributor:high
     builder: anthropic/claude-sonnet-5:high
-    plan: anthropic/claude-opus-5:high
-    critic: anthropic/claude-opus-5:medium
+    plan: anthropic/claude-opus-5-5:high
+    critic: anthropic/claude-opus-5-5:medium
     workflow: anthropic/claude-sonnet-5:medium
     research: muse-code/muse-spark-1.3-contributor:high
 retry:
@@ -42,7 +42,7 @@ retry:
   usageReservePct: 20
   usageReservePolicy: auto
   fallbackChains:
-    anthropic/claude-opus-5:
+    anthropic/claude-opus-5-5:
       - anthropic/claude-sonnet-5:high
       - opencode-go/glm-5.3-flash:high
     anthropic/claude-sonnet-5:
