@@ -12,6 +12,7 @@ modelRoles:
   smol: opencode-go/glm-5.3-flash:low
   tiny: opencode-go/glm-5.3-flash:low
   commit: opencode-go/glm-5.3-flash:low
+  web: web/firecrawl
 enabledModels:
   []
 disabledProviders:
@@ -68,6 +69,30 @@ retry:
     default:
       - anthropic/claude-sonnet-5:medium
       - opencode-go/glm-5.3-flash:high
+    web:
+      - web/tavily
+      - web/exa
+      - google/gemini-2.5-flash
+      - web/brave
+      - web/parallel
+      - web/perplexity
+      - anthropic/claude-haiku-4-5
+      - xai/grok-4.5
+      - xai-oauth/grok-4.5
+      - web/zai
+      - web/tinyfish
+      - web/jina
+      - web/kagi
+      - web/kimi
+      - web/synthetic
+      - web/ollama
+      - web/searxng
+      - web/startpage
+      - web/duckduckgo
+      - web/ecosia
+      - web/google
+      - web/mojeek
+      - web/public
 symbolPreset: nerd
 theme:
   dark: dark-lunar-statusline
@@ -124,12 +149,6 @@ defaultThinkingLevel: auto
 providers:
   autoThinkingModel: online
   autoThinkingMaxEffort: high
-  webSearchOrder:
-    - firecrawl
-    - tavily
-    - exa
-    - gemini
-    - brave
   memoryModel: online
   tinyModel: online
 textVerbosity: medium
