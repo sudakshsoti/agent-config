@@ -10,27 +10,8 @@ Apply project instructions to project work and these shared preferences only whe
 
 When instructions conflict, prefer the safer interpretation and surface the conflict instead of silently choosing one.
 
-## Safe change boundaries
-
-Do not modify unrelated files, generated files, secrets, credentials or machine-local configuration as part of a task.
-
-Do not add dependencies, change public behaviour, delete data, deploy or weaken a security control without making the impact clear first.
-
-If a requested change requires one of these actions, state it before doing it and keep the change as narrow as possible.
-
-## Verification
-
-After changing code or configuration, run the narrowest relevant formatter, linter, type check and test that covers the change.
-
-If a check fails, fix the cause or report the command and relevant output.
-
-Do not claim that a change works unless an appropriate check was run or the remaining uncertainty is clearly stated.
 
 ## Ambiguity and escalation
-
-If two reasonable interpretations would produce materially different results, ask one focused question before acting.
-
-Do not guess about authorship, privacy, destructive actions, production impact or requirements that are not stated.
 
 When a task grows beyond its original scope, state the new boundary before continuing.
 
@@ -54,12 +35,6 @@ Keep each rule concrete, short and testable.
 
 Remove rules that are stale, duplicated, project-specific or no longer useful.
 
-## Guidance is not enforcement
-
-Treat this file as behavioural guidance, not as a security or permission boundary.
-
-Use project hooks, permissions, CI checks and deployment controls for rules that must be enforced mechanically.
-
 ## Scoped guidance
 
 Keep cross-project preferences here.
@@ -67,38 +42,6 @@ Keep cross-project preferences here.
 Put repository facts and commands in the repository root `AGENTS.md`.
 
 Put directory-specific rules in the nearest nested instruction file or the mechanism supported by that tool.
-
-## Plans
-
-Present every plan so I can approve or reject it by reading only plain English. I am a UX designer who codes by feel: a plan written as snippets and file paths gives me nothing to judge, so I either approve it blindly or stall on it. Consequences I can picture are what I can actually decide on.
-
-Open with what will be different for the person using this once it is built, in one or two sentences.
-
-Start each step with one ordinary-language line naming the change and what I would see differently on screen or in the flow. Put file names, functions and code after that line as supporting detail, and define any unavoidable technical term in the same sentence.
-
-For interface and interaction work, say what appears, what it replaces, when it happens, and how it behaves while it is happening. This is the part I judge, so give it the most room.
-
-Name every flow, default, state or piece of copy the plan changes that I did not ask about, and say what each becomes.
-
-End with the choices that are mine: each open decision stated as a choice, what picking it rules out, and which steps would be hard to undo. Ask these before starting the work.
-
-This applies to plan mode, to proposals written in chat, and to any plan file or issue written for my approval, at every size of change.
-
-## Interface design
-
-Design runs in this order: brief, research, direction, build, render. Skipping a step produces the generic page.
-
-**Brief.** Classify the surface by its primary job: marketing/brand, reference/documentation, task utility, dashboard/data, settings/form or content/editorial. Classify the requested surface, not the product: a tool's landing page is marketing/brand; a fashion house's docs are reference/documentation. State subject, audience, the surface's single job, use frequency, scan-versus-read mode and narrowest target viewport. If subject or audience is open, propose one and confirm.
-
-**Research.** Learn the domain before styling it, as a senior UX and brand designer would. Read the project's design decisions, tokens and nearest comparable screen; name applicable `[stated]` project decisions and surface conflicts instead of silently overriding them. Then study the subject's world: the real users and their scene (device, light, interruptions, return frequency); the artefacts, instruments and software they already use for this job and the conventions they will expect; the domain's vocabulary, notation, publications and identity traditions. Unfamiliar domain: search primary sources and look at real examples. Supplied reference (product, URL, screenshot): inspect it and decompose it into attributes to adopt or decline rather than cloning it. Record findings in a few lines; every visual choice cites them.
-
-**Direction.** Before markup, one sentence: subject, audience, job and the one thing a template would not do. Derive palette, type, layout and one signature element from the researched world: its materials, instruments, print and screen traditions. Name the category's default look and its predictable opposite; both are the rut. If the aesthetic is guessable from the category alone, revise. A look pinned by the brief wins. Spend boldness in the signature element, discipline everywhere else; structure encodes information (numbering for real sequences, dividers at real boundaries, labels that add a fact).
-
-**Opening.** The first viewport does the surface's job. Marketing/brand may open with positioning; every other class opens with the task's first control, entry or state, matching the real-world artefact (prescription, checklist, field guide, instrument panel) rather than a website template. Each opening element serves identification, navigation or the task; a visible title earns space only when it orients beyond what the shell already says. Keep accessible names and document structure. "Looks like a landing page" means remove the framing block; shrinking its heading is not a fix. Hold this at the narrowest target viewport.
-
-**Skills.** `frontend-design` is for marketing and brand surfaces only. Every other class: `design-interface` for arrangement and states, then `design-visual-system` for direction and tokens, `design-typography` when type leads, `ux-writing` for copy. Standalone HTML uses the same skills: semantic HTML, plain CSS, minimal JavaScript, no framework; Google Fonts allowed since a single file cannot self-host. Read the skill before implementing; if unavailable, say so.
-
-**Render.** Done means the rendered result was inspected: build fully, inspect once at the narrowest viewport and a desktop width, fix in one batch, confirm with at most one more round. Report views inspected and what remains; source alone does not establish visual quality.
 
 ## Personal voice
 
