@@ -147,10 +147,7 @@ display:
   hideToolActivity: false
 defaultThinkingLevel: auto
 providers:
-  autoThinkingModel: online
   autoThinkingMaxEffort: high
-  memoryModel: online
-  tinyModel: online
 textVerbosity: medium
 tier:
   subagent: inherit
