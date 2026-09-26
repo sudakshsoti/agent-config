@@ -41,7 +41,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
   the template above makes colons and quotes literal — keep it. Single-line
   descriptions are also fine.
 
-The list below covers the 36 repo-owned skills that are active. Keep it
+The list below covers the 35 repo-owned skills that are active. Keep it
 synchronized with the actual `skills/*/SKILL.md` directories;
 `scripts/lint-skills.py` validates each skill's frontmatter and fails when this
 list and the source tree disagree.
@@ -70,7 +70,6 @@ lookup-documentation work.
 - `harness-config-maintenance` — Safely change OMP and Pi configuration while preserving ownership and secret boundaries.
 - `homelab-deploy` — RIGID homelab procedure: the deploy ritual for `/opt/stacks`, with three modes — generic stack change, the rclone-torbox safe recreate, and the n8n sqlite3 workflow dance.
 - `humanizer` — Rewrite AI-sounding prose so it reads like a person, using Wikipedia's 35 "Signs of AI writing" patterns. Vendored from [blader/humanizer](https://github.com/blader/humanizer) (MIT). `/humanizer`.
-- `macos-design-guidelines` — Apply Apple Human Interface Guidelines when building Mac apps with SwiftUI or AppKit.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
 - `merge` — Merge the current branch's PR once checks pass, using the repo's allowed method, then sync the base branch. User-invoked; `/merge` in OMP via `omp/commands/`.
 - `obsidian-markdown` — Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.
