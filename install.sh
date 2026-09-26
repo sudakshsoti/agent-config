@@ -129,6 +129,11 @@
 #
 # Idempotent; safe to re-run. Run once after cloning on a new machine.
 #
+# Work machine: when chezmoi (owned by ~/dev/dotfiles) reports .machine=work,
+# steps 3-5b are skipped and only skills are linked. OMP and Pi config routes
+# prompts, repository source included, to OpenCode Go and Muse Code, and
+# employer code may only reach the employer's sanctioned vendor.
+#
 #   ./install.sh                     # link skills, OMP config and Pi config
 #   ./install.sh --prune             # also clear managed links that are gone
 #   ./install.sh --no-external       # skip the external git fetch (offline)
@@ -145,6 +150,21 @@ CLAUDE_SKILLS="$CLAUDE/skills"
 OMP="$HOME/.omp/agent"
 OMP_OVERLAYS="$HOME/.config/omp"
 PI="$HOME/.pi/agent"
+
+# machine_profile: the chezmoi `.machine` value (personal, work or server), or
+# nothing when chezmoi is absent or has no profile. Dotfiles owns the profile;
+# this repo only reads it. Unknown installs as before, so the gate needs
+# dotfiles applied first, which the dotfiles README's order guarantees.
+machine_profile() {
+  command -v chezmoi >/dev/null 2>&1 || return 0
+  chezmoi data --format json 2>/dev/null |
+    python3 -c 'import json, sys
+try:
+    print(json.load(sys.stdin).get("machine", ""))
+except Exception:
+    pass' 2>/dev/null || true
+}
+MACHINE="$(machine_profile)"
 
 # shared_root_consumers_present: true when some tool that reads the shared
 # ~/.agents/skills root is installed. Codex and OpenCode read that root
@@ -548,158 +568,164 @@ else
   echo "⚠️  SKIP claude — no $CLAUDE (Claude Code not installed). skills/ not linked."
 fi
 
-# 3. global-agents.md: harness-neutral shared preferences, linked into each
-#    installed harness's user-level instruction path so one edit reaches both.
-#    Named global-agents.md in the repo because this checkout's own root
-#    AGENTS.md already owns that name.
-[ -d "$OMP" ] && link_into "$REPO/global-agents.md" "$OMP/AGENTS.md"
-[ -d "$PI" ] && link_into "$REPO/global-agents.md" "$PI/AGENTS.md"
+# Steps 3-5b link harness config, and never on the work machine: see the
+# header. Skills above are already linked there.
+if [ "$MACHINE" = "work" ]; then
+  echo "⚠️  SKIP omp + pi config — chezmoi says this is the work machine. Their model routing reaches providers work code must not; skills only."
+else
+  # 3. global-agents.md: harness-neutral shared preferences, linked into each
+  #    installed harness's user-level instruction path so one edit reaches both.
+  #    Named global-agents.md in the repo because this checkout's own root
+  #    AGENTS.md already owns that name.
+  [ -d "$OMP" ] && link_into "$REPO/global-agents.md" "$OMP/AGENTS.md"
+  [ -d "$PI" ] && link_into "$REPO/global-agents.md" "$PI/AGENTS.md"
 
-# 4. OMP configuration. Only run when OMP is installed; say so out loud, since
-#    a silent no-op makes `./install.sh && readlink ~/.omp/agent/config.yml`
-#    look like it passed on a machine that never got the links.
-if [ ! -d "$OMP" ]; then
-  echo "⚠️  SKIP omp — no $OMP (OMP not installed). config.yml, keybindings.yml, lsp.yml, themes/, agents/ and commands/ not linked."
-fi
-
-if [ -d "$OMP" ] && [ -f "$REPO/omp/config.yml" ]; then
-  mkdir -p "$OMP"
-  link_into "$REPO/omp/config.yml" "$OMP/config.yml"
-fi
-if [ -d "$OMP" ] && [ -f "$REPO/omp/keybindings.yml" ]; then
-  link_into "$REPO/omp/keybindings.yml" "$OMP/keybindings.yml"
-fi
-if [ -d "$OMP" ] && [ -f "$REPO/omp/lsp.yml" ]; then
-  link_into "$REPO/omp/lsp.yml" "$OMP/lsp.yml"
-fi
-if [ -d "$OMP" ] && [ -d "$REPO/omp/themes" ]; then
-  mkdir -p "$OMP/themes"
-  for theme_file in "$REPO"/omp/themes/*.json; do
-    [ -f "$theme_file" ] || continue
-    link_into "$theme_file" "$OMP/themes/$(basename "$theme_file")"
-  done
-fi
-if [ -d "$OMP" ] && [ -d "$REPO/omp/agents" ]; then
-  mkdir -p "$OMP/agents"
-  for a in "$REPO"/omp/agents/*.md; do
-    [ -f "$a" ] || continue
-    link_into "$a" "$OMP/agents/$(basename "$a")"
-  done
-fi
-if [ -d "$OMP" ] && [ -d "$REPO/omp/commands" ]; then
-  mkdir -p "$OMP/commands"
-  for c in "$REPO"/omp/commands/*.md; do
-    [ -f "$c" ] || continue
-    link_into "$c" "$OMP/commands/$(basename "$c")"
-  done
-fi
-
-# 4b. OMP overlays: linked individually so ~/.config/omp/.active-overlay, which
-#     is runtime state written by the overlay scripts, is never touched.
-if [ -d "$REPO/omp/overlays" ]; then
-  mkdir -p "$OMP_OVERLAYS"
-  for overlay in "$REPO"/omp/overlays/*; do
-    [ -f "$overlay" ] || continue
-    link_into "$overlay" "$OMP_OVERLAYS/$(basename "$overlay")"
-  done
-fi
-
-# 5. Pi configuration. Same reasoning as OMP above: Pi rewrites settings.json
-#    itself and the write follows the symlink into the repo.
-if [ ! -d "$PI" ]; then
-  echo "⚠️  SKIP pi — no $PI (pi not installed). settings.json, verbosity.json, pi-fff.json, keybindings.json, subagents.json, prompts/, themes/, extensions/ and agents/ not linked."
-fi
-if [ -d "$PI" ] && [ -f "$REPO/pi/settings.json" ]; then
-  mkdir -p "$PI"
-  link_into "$REPO/pi/settings.json" "$PI/settings.json"
-fi
-if [ -d "$PI" ] && [ -f "$REPO/pi/verbosity.json" ]; then
-  link_into "$REPO/pi/verbosity.json" "$PI/verbosity.json"
-fi
-if [ -d "$PI" ] && [ -f "$REPO/pi/pi-fff.json" ]; then
-  link_into "$REPO/pi/pi-fff.json" "$PI/pi-fff.json"
-fi
-# pi keybindings: overrides only — every action Pi does not name here keeps its
-# default chord.
-if [ -d "$PI" ] && [ -f "$REPO/pi/keybindings.json" ]; then
-  link_into "$REPO/pi/keybindings.json" "$PI/keybindings.json"
-fi
-if [ -d "$PI" ] && [ -f "$REPO/pi/subagents.json" ]; then
-  link_into "$REPO/pi/subagents.json" "$PI/subagents.json"
-fi
-if [ -d "$PI" ] && [ -d "$REPO/pi/prompts" ]; then
-  mkdir -p "$PI/prompts"
-  for prompt_file in "$REPO"/pi/prompts/*.md; do
-    [ -f "$prompt_file" ] || continue
-    link_into "$prompt_file" "$PI/prompts/$(basename "$prompt_file")"
-  done
-fi
-if [ -d "$PI" ] && [ -d "$REPO/pi/themes" ]; then
-  mkdir -p "$PI/themes"
-  for theme_file in "$REPO"/pi/themes/*.json; do
-    [ -f "$theme_file" ] || continue
-    link_into "$theme_file" "$PI/themes/$(basename "$theme_file")"
-  done
-fi
-# Pi extensions and their theme overrides: linked file by file so local runtime
-# data within ~/.pi/agent/extensions survives installation. A directory may
-# contain an index.js/index.ts extension, a theme.json, or both.
-if [ -d "$PI" ] && [ -d "$REPO/pi/extensions" ]; then
-  mkdir -p "$PI/extensions"
-  for extension_dir in "$REPO"/pi/extensions/*; do
-    [ -d "$extension_dir" ] || continue
-    target_dir="$PI/extensions/$(basename "$extension_dir")"
-    # Reclaim a legacy directory symlink from the pre-file-by-file layout. The
-    # files inside it are already this repo's files, so dropping the link loses
-    # nothing. A link pointing anywhere else is hand-made: never clobber it.
-    if [ -L "$target_dir" ]; then
-      if [ "$(readlink "$target_dir")" = "$extension_dir" ]; then
-        rm -f "$target_dir"
-        echo "reclaim $(basename "$extension_dir") — replaced legacy directory symlink"
-      else
-        echo "⚠️  SKIP $(basename "$extension_dir") — $target_dir is a symlink to $(readlink "$target_dir")."
-        skipped=$((skipped + 1))
-        continue
-      fi
-    fi
-    mkdir -p "$target_dir"
-    for extension_file in "$extension_dir"/index.js "$extension_dir"/index.ts "$extension_dir"/theme.json; do
-      [ -f "$extension_file" ] || continue
-      link_into "$extension_file" "$target_dir/$(basename "$extension_file")"
-    done
-  done
-fi
-# pi subagents: custom agent definitions read by @tintinweb/pi-subagents.
-if [ -d "$PI" ] && [ -d "$REPO/pi/agents" ]; then
-  mkdir -p "$PI/agents"
-  for a in "$REPO"/pi/agents/*.md; do
-    [ -f "$a" ] || continue
-    link_into "$a" "$PI/agents/$(basename "$a")"
-  done
-fi
-
-# 5b. pi web-search preferences: merged, never symlinked, because this one file
-#     is also pi-web-access's credential store — keys written there by the
-#     extension must not follow a link back into the repo. Only repo-owned
-#     preferences are pushed; credentials and unmanaged settings survive.
-#
-#     pi-web-access honors PI_CODING_AGENT_DIR, then XDG_CONFIG_HOME. Without
-#     either override, 0.23.0 reads ~/.pi/web-search.json and 0.29.0 reads
-#     ~/.pi/agent/web-search.json, so write both default paths during migration.
-if [ -d "$PI" ] && [ -f "$REPO/pi/web-search.json" ]; then
-  if [ -n "${PI_CODING_AGENT_DIR:-}" ]; then
-    web_search_configs=("$PI_CODING_AGENT_DIR/web-search.json")
-  elif [ -n "${XDG_CONFIG_HOME:-}" ]; then
-    web_search_configs=("$XDG_CONFIG_HOME/pi/web-search.json")
-  else
-    web_search_configs=("$HOME/.pi/web-search.json" "$PI/web-search.json")
+  # 4. OMP configuration. Only run when OMP is installed; say so out loud, since
+  #    a silent no-op makes `./install.sh && readlink ~/.omp/agent/config.yml`
+  #    look like it passed on a machine that never got the links.
+  if [ ! -d "$OMP" ]; then
+    echo "⚠️  SKIP omp — no $OMP (OMP not installed). config.yml, keybindings.yml, lsp.yml, themes/, agents/ and commands/ not linked."
   fi
 
-  for web_search_config in "${web_search_configs[@]}"; do
-    python3 "$REPO/scripts/apply-web-search-config.py" \
-      "$REPO/pi/web-search.json" "$web_search_config"
-    echo "merged  pi/web-search.json -> $web_search_config"
-  done
+  if [ -d "$OMP" ] && [ -f "$REPO/omp/config.yml" ]; then
+    mkdir -p "$OMP"
+    link_into "$REPO/omp/config.yml" "$OMP/config.yml"
+  fi
+  if [ -d "$OMP" ] && [ -f "$REPO/omp/keybindings.yml" ]; then
+    link_into "$REPO/omp/keybindings.yml" "$OMP/keybindings.yml"
+  fi
+  if [ -d "$OMP" ] && [ -f "$REPO/omp/lsp.yml" ]; then
+    link_into "$REPO/omp/lsp.yml" "$OMP/lsp.yml"
+  fi
+  if [ -d "$OMP" ] && [ -d "$REPO/omp/themes" ]; then
+    mkdir -p "$OMP/themes"
+    for theme_file in "$REPO"/omp/themes/*.json; do
+      [ -f "$theme_file" ] || continue
+      link_into "$theme_file" "$OMP/themes/$(basename "$theme_file")"
+    done
+  fi
+  if [ -d "$OMP" ] && [ -d "$REPO/omp/agents" ]; then
+    mkdir -p "$OMP/agents"
+    for a in "$REPO"/omp/agents/*.md; do
+      [ -f "$a" ] || continue
+      link_into "$a" "$OMP/agents/$(basename "$a")"
+    done
+  fi
+  if [ -d "$OMP" ] && [ -d "$REPO/omp/commands" ]; then
+    mkdir -p "$OMP/commands"
+    for c in "$REPO"/omp/commands/*.md; do
+      [ -f "$c" ] || continue
+      link_into "$c" "$OMP/commands/$(basename "$c")"
+    done
+  fi
+
+  # 4b. OMP overlays: linked individually so ~/.config/omp/.active-overlay, which
+  #     is runtime state written by the overlay scripts, is never touched.
+  if [ -d "$REPO/omp/overlays" ]; then
+    mkdir -p "$OMP_OVERLAYS"
+    for overlay in "$REPO"/omp/overlays/*; do
+      [ -f "$overlay" ] || continue
+      link_into "$overlay" "$OMP_OVERLAYS/$(basename "$overlay")"
+    done
+  fi
+
+  # 5. Pi configuration. Same reasoning as OMP above: Pi rewrites settings.json
+  #    itself and the write follows the symlink into the repo.
+  if [ ! -d "$PI" ]; then
+    echo "⚠️  SKIP pi — no $PI (pi not installed). settings.json, verbosity.json, pi-fff.json, keybindings.json, subagents.json, prompts/, themes/, extensions/ and agents/ not linked."
+  fi
+  if [ -d "$PI" ] && [ -f "$REPO/pi/settings.json" ]; then
+    mkdir -p "$PI"
+    link_into "$REPO/pi/settings.json" "$PI/settings.json"
+  fi
+  if [ -d "$PI" ] && [ -f "$REPO/pi/verbosity.json" ]; then
+    link_into "$REPO/pi/verbosity.json" "$PI/verbosity.json"
+  fi
+  if [ -d "$PI" ] && [ -f "$REPO/pi/pi-fff.json" ]; then
+    link_into "$REPO/pi/pi-fff.json" "$PI/pi-fff.json"
+  fi
+  # pi keybindings: overrides only — every action Pi does not name here keeps its
+  # default chord.
+  if [ -d "$PI" ] && [ -f "$REPO/pi/keybindings.json" ]; then
+    link_into "$REPO/pi/keybindings.json" "$PI/keybindings.json"
+  fi
+  if [ -d "$PI" ] && [ -f "$REPO/pi/subagents.json" ]; then
+    link_into "$REPO/pi/subagents.json" "$PI/subagents.json"
+  fi
+  if [ -d "$PI" ] && [ -d "$REPO/pi/prompts" ]; then
+    mkdir -p "$PI/prompts"
+    for prompt_file in "$REPO"/pi/prompts/*.md; do
+      [ -f "$prompt_file" ] || continue
+      link_into "$prompt_file" "$PI/prompts/$(basename "$prompt_file")"
+    done
+  fi
+  if [ -d "$PI" ] && [ -d "$REPO/pi/themes" ]; then
+    mkdir -p "$PI/themes"
+    for theme_file in "$REPO"/pi/themes/*.json; do
+      [ -f "$theme_file" ] || continue
+      link_into "$theme_file" "$PI/themes/$(basename "$theme_file")"
+    done
+  fi
+  # Pi extensions and their theme overrides: linked file by file so local runtime
+  # data within ~/.pi/agent/extensions survives installation. A directory may
+  # contain an index.js/index.ts extension, a theme.json, or both.
+  if [ -d "$PI" ] && [ -d "$REPO/pi/extensions" ]; then
+    mkdir -p "$PI/extensions"
+    for extension_dir in "$REPO"/pi/extensions/*; do
+      [ -d "$extension_dir" ] || continue
+      target_dir="$PI/extensions/$(basename "$extension_dir")"
+      # Reclaim a legacy directory symlink from the pre-file-by-file layout. The
+      # files inside it are already this repo's files, so dropping the link loses
+      # nothing. A link pointing anywhere else is hand-made: never clobber it.
+      if [ -L "$target_dir" ]; then
+        if [ "$(readlink "$target_dir")" = "$extension_dir" ]; then
+          rm -f "$target_dir"
+          echo "reclaim $(basename "$extension_dir") — replaced legacy directory symlink"
+        else
+          echo "⚠️  SKIP $(basename "$extension_dir") — $target_dir is a symlink to $(readlink "$target_dir")."
+          skipped=$((skipped + 1))
+          continue
+        fi
+      fi
+      mkdir -p "$target_dir"
+      for extension_file in "$extension_dir"/index.js "$extension_dir"/index.ts "$extension_dir"/theme.json; do
+        [ -f "$extension_file" ] || continue
+        link_into "$extension_file" "$target_dir/$(basename "$extension_file")"
+      done
+    done
+  fi
+  # pi subagents: custom agent definitions read by @tintinweb/pi-subagents.
+  if [ -d "$PI" ] && [ -d "$REPO/pi/agents" ]; then
+    mkdir -p "$PI/agents"
+    for a in "$REPO"/pi/agents/*.md; do
+      [ -f "$a" ] || continue
+      link_into "$a" "$PI/agents/$(basename "$a")"
+    done
+  fi
+
+  # 5b. pi web-search preferences: merged, never symlinked, because this one file
+  #     is also pi-web-access's credential store — keys written there by the
+  #     extension must not follow a link back into the repo. Only repo-owned
+  #     preferences are pushed; credentials and unmanaged settings survive.
+  #
+  #     pi-web-access honors PI_CODING_AGENT_DIR, then XDG_CONFIG_HOME. Without
+  #     either override, 0.23.0 reads ~/.pi/web-search.json and 0.29.0 reads
+  #     ~/.pi/agent/web-search.json, so write both default paths during migration.
+  if [ -d "$PI" ] && [ -f "$REPO/pi/web-search.json" ]; then
+    if [ -n "${PI_CODING_AGENT_DIR:-}" ]; then
+      web_search_configs=("$PI_CODING_AGENT_DIR/web-search.json")
+    elif [ -n "${XDG_CONFIG_HOME:-}" ]; then
+      web_search_configs=("$XDG_CONFIG_HOME/pi/web-search.json")
+    else
+      web_search_configs=("$HOME/.pi/web-search.json" "$PI/web-search.json")
+    fi
+
+    for web_search_config in "${web_search_configs[@]}"; do
+      python3 "$REPO/scripts/apply-web-search-config.py" \
+        "$REPO/pi/web-search.json" "$web_search_config"
+      echo "merged  pi/web-search.json -> $web_search_config"
+    done
+  fi
 fi
 
 # 6. Git hooks: point git at the tracked .githooks/ instead of .git/hooks, so

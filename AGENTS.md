@@ -35,6 +35,15 @@ pi-web-access's credential store, so only repo-owned keys are pushed.
 - `--skills-only` fills the shared root **only**, never `~/.claude/skills`;
   it is a shared-root operation by definition. A selective run therefore does
   not keep Claude Code in sync — use a full `./install.sh` for that.
+- **Work machine gate.** When `chezmoi data` reports `.machine` = `work`,
+  install links skills only and skips every OMP and Pi config step
+  (`global-agents.md`, `omp/`, overlays, `pi/`, `web-search.json`). Their model
+  routing sends prompts and repository source to OpenCode Go and Muse Code,
+  and employer code may only reach the employer's sanctioned vendor. Dotfiles
+  owns the profile; this repo only reads it. With no chezmoi or no profile the
+  machine counts as unknown and installs as before, so apply dotfiles first.
+  Claude.ai connectors (Gmail, Todoist, Notion) belong to the claude.ai account,
+  not this repo, and are not gated here.
 - Edits are live through symlinks; there is no sync step. OMP and Pi can rewrite
   linked config in this checkout. **Check `git diff` before committing** after
   interactive setting changes; `pi/settings.json` and `omp/config.yml` are the
