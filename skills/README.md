@@ -41,7 +41,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
   the template above makes colons and quotes literal — keep it. Single-line
   descriptions are also fine.
 
-The list below covers the 39 repo-owned skills that are active. Keep it
+The list below covers the 36 repo-owned skills that are active. Keep it
 synchronized with the actual `skills/*/SKILL.md` directories;
 `scripts/lint-skills.py` validates each skill's frontmatter and fails when this
 list and the source tree disagree.
@@ -61,12 +61,10 @@ lookup-documentation work.
 - `design-strategy` — Industry-agnostic product and UX strategy, positioning, workflow critique, and decision logs.
 - `design-typography` — Choose typefaces, pairings, hierarchy, scales, OpenType features, and font loading.
 - `design-visual-system` — Define product UI art direction, colour, hierarchy, responsive layout, and CSS tokens.
-- `diagnosing-bugs` — Diagnosis loop for hard bugs and performance regressions: build a tight red-capable feedback loop, minimise, rank hypotheses, instrument, fix with a regression test.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
 - `vibe` — The interface workflow: quick tweak, shape first or risky change; Plan, Builder and Critic roles that run as subagents where the harness has them and sequentially otherwise. `pi/prompts/vibe.md` is a thin wrapper that invokes it.
 - `find-skills` — Discover and install agent skills when asked "is there a skill for X".
 - `geopolitics` — Opinionated analyst for wars, sanctions, trade, defence, elections, negotiations, and other statecraft between countries.
-- `grilling` — Interview the user relentlessly about a plan/decision, round by round over a design tree, until nothing is left unsettled.
 - `gtd` — Sudaksh's personal GTD system: capture, inbox processing, daily/weekly reviews, Todoist/calendar routing, overwhelm triage, email triage, and procrastination audits.
 - `handoff` — Structured session-handoff docs for continuity across sessions.
 - `harness-config-maintenance` — Safely change OMP and Pi configuration while preserving ownership and secret boundaries.
@@ -79,7 +77,6 @@ lookup-documentation work.
 - `peer-review` — Adversarial cross-lineage review of an engineering plan written by another agent. `/peer-review`.
 - `pr` — Branch, commit, push, and open a GitHub PR, or report the open one. User-invoked; `/pr` in OMP via `omp/commands/`.
 - `push` — Push the current branch: fetch, autostash-rebase when behind, never force unless asked. User-invoked; `/push` in OMP via `omp/commands/`.
-- `research` — Investigate primary sources and record cited findings in a Markdown report.
 - `rights-counsel` — Indian consumer, EPF, and insurance rights analyst for advice, complaints, notices, and representations.
 - `self-review` — Critique your own plan against a fixed checklist, then revise it. `/self-review`.
 - `shopping-research` — Purchase advisor for buying in India: product comparisons, pricing, sellers, deals, and when to buy.
@@ -128,7 +125,7 @@ cd ~/dev/agent-config && ./install.sh
 link a single skill by hand instead:
 
 ```bash
-ln -s "$PWD/skills/research" ~/.agents/skills/research
+ln -s "$PWD/skills/humanizer" ~/.agents/skills/humanizer
 ```
 
 Link the skill directory itself, never a copy: a real directory at that path is

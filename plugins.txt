@@ -31,8 +31,9 @@ external BexTuychiev/firecrawl-claude-code-skill firecrawl-web
 # improve-codebase-architecture. ask-matt is retained as a router; its less-used
 # branches may name optional Matt skills outside this allowlist rather than
 # silently importing the whole collection and consuming the shared context budget.
-external mattpocock/skills:skills/engineering setup-matt-pocock-skills ask-matt triage to-spec to-tickets implement tdd code-review grill-with-docs improve-codebase-architecture domain-modeling codebase-design
+external mattpocock/skills:skills/engineering setup-matt-pocock-skills ask-matt triage to-spec to-tickets implement tdd code-review grill-with-docs improve-codebase-architecture domain-modeling codebase-design diagnosing-bugs research
 external mattpocock/skills:skills/productivity/writing-for-agents writing-for-agents
+external mattpocock/skills:skills/productivity/grilling grilling
 
 # emilkowalski/skills — all upstream skills, linked into the shared root.
 external emilkowalski/skills
@@ -63,5 +64,7 @@ external jakubkrehel/skills break explain-interface interface-review
 # skills/ instead, because the upstream SessionStart hook injects ~650 tokens
 # into every session and there is no way to disable a single hook from it.
 #
-# humanizer and baseline are likewise vendored into skills/humanizer and
-# skills/grilling rather than referenced here, so there is only one live copy.
+# humanizer is likewise vendored into skills/humanizer rather than referenced
+# here, so there is only one live copy. grilling is referenced from mattpocock
+# above, because grill-with-docs and design-grill call it through the Skill tool
+# and upstream keeps it model-invocable.
