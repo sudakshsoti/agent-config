@@ -195,6 +195,36 @@ class InstallerTest(DisposableInstallCase):
 
         self.assertEqual(links_under(self.test_home), expected)
 
+    def stub_chezmoi_machine(self, machine):
+        stub = self.bin / "chezmoi"
+        stub.write_text(
+            f"#!/bin/sh\nprintf '%s' '{{\"machine\": \"{machine}\"}}'\n",
+            encoding="utf-8",
+        )
+        stub.chmod(0o755)
+
+    def test_work_machine_links_skills_but_no_omp_or_pi_config(self):
+        self.stub_chezmoi_machine("work")
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("SKIP omp + pi config", result.stdout)
+        self.assert_no_retired_harness_paths()
+
+        expected = {
+            f".agents/skills/{name}": str(self.repo / "skills" / name)
+            for name in ("alpha", "beta", "gamma")
+        }
+        self.assertEqual(links_under(self.test_home), expected)
+
+    def test_personal_machine_still_links_omp_and_pi_config(self):
+        self.stub_chezmoi_machine("personal")
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn("SKIP omp + pi config", result.stdout)
+        links = links_under(self.test_home)
+        self.assertEqual(links[".omp/agent/config.yml"], str(self.repo / "omp/config.yml"))
+        self.assertEqual(links[".pi/agent/settings.json"], str(self.repo / "pi/settings.json"))
+
     def test_selective_and_full_install_agree_on_the_shared_root(self):
         selected = self.install("--skills-only=alpha,beta,gamma")
         self.assertEqual(selected.returncode, 0, selected.stdout + selected.stderr)
