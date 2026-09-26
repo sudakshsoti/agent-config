@@ -61,6 +61,9 @@
 #     omp/agents/*.md        -> ~/.omp/agent/agents/*.md
 #       `adversary` is the cross-lineage plan reviewer; it pins
 #       `model: "@adversary"`, so it follows the role in omp/config.yml.
+#     omp/commands/*.md      -> ~/.omp/agent/commands/*.md
+#       One-line `/name` wrappers that load the same-named user-invoked skill,
+#       so `/pr` works without the `/skill:` prefix. The skill stays the source.
 #     omp/overlays/*         -> ~/.config/omp/*
 #       Model-role overlays read by ~/.local/bin/omp-*-overlay and the
 #       ompgo/ompcodex zsh wrappers. Linked file by file so .active-overlay —
@@ -556,7 +559,7 @@ fi
 #    a silent no-op makes `./install.sh && readlink ~/.omp/agent/config.yml`
 #    look like it passed on a machine that never got the links.
 if [ ! -d "$OMP" ]; then
-  echo "⚠️  SKIP omp — no $OMP (OMP not installed). config.yml, keybindings.yml, lsp.yml, themes/ and agents/ not linked."
+  echo "⚠️  SKIP omp — no $OMP (OMP not installed). config.yml, keybindings.yml, lsp.yml, themes/, agents/ and commands/ not linked."
 fi
 
 if [ -d "$OMP" ] && [ -f "$REPO/omp/config.yml" ]; then
@@ -581,6 +584,13 @@ if [ -d "$OMP" ] && [ -d "$REPO/omp/agents" ]; then
   for a in "$REPO"/omp/agents/*.md; do
     [ -f "$a" ] || continue
     link_into "$a" "$OMP/agents/$(basename "$a")"
+  done
+fi
+if [ -d "$OMP" ] && [ -d "$REPO/omp/commands" ]; then
+  mkdir -p "$OMP/commands"
+  for c in "$REPO"/omp/commands/*.md; do
+    [ -f "$c" ] || continue
+    link_into "$c" "$OMP/commands/$(basename "$c")"
   done
 fi
 

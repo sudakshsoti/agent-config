@@ -66,7 +66,7 @@ Secrets belong in dotfiles (1Password + age), never here.
 | `skills/`, `plugins.txt` | agent-config | source; only `distribution.txt` skills are also packaged |
 | `distribution.txt`, `dist/*.zip` | agent-config | list of claude.ai skills; zips are generated, never hand-edited |
 | `global-agents.md` | agent-config | linked to `~/.omp/agent/AGENTS.md` and `~/.pi/agent/AGENTS.md` |
-| `omp/config.yml`, `lsp.yml`, `keybindings.yml`, `themes/`, `agents/`, `overlays/` | agent-config | OMP writes through links |
+| `omp/config.yml`, `lsp.yml`, `keybindings.yml`, `themes/`, `agents/`, `commands/`, `overlays/` | agent-config | OMP writes through links; `commands/*.md` are `/name` wrappers over same-named skills |
 | `pi/settings.json`, `verbosity.json`, `subagents.json`, `pi-fff.json`, `keybindings.json`, `prompts/`, `themes/`, `extensions/`, `agents/` | agent-config | Pi writes through links |
 | `pi/web-search.json` | **shared** | merged; credentials and unmanaged keys stay machine-local |
 | `~/.omp/agent/mcp.json`, `~/.omp/agent/extensions/`, `~/.pi/agent/auth.json`, `~/.pi/agent/models-store.json`, `~/.pi/agent/sessions/`, `~/.pi/agent/npm/` | **neither** | credentials or runtime state; untracked |
@@ -83,7 +83,7 @@ Secrets belong in dotfiles (1Password + age), never here.
   neither `claude` nor `anthropic`. Multi-line descriptions require `|` or `>-`;
   an unquoted colon-space can parse as a nested mapping and break loading.
 - `python3 scripts/lint-skills.py` enforces these rules and synchronizes the
-  `skills/README.md` list, including its sentence stating the count of 35
+  `skills/README.md` list, including its sentence stating the count of 39
   repo-owned skills. `python3 scripts/check-manifest.py` (run by `check.sh`)
   rejects malformed `plugins.txt` lines and duplicate external allowlisting;
   `scripts/manifest.py` is the shared parser.

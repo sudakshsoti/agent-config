@@ -41,7 +41,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
   the template above makes colons and quotes literal — keep it. Single-line
   descriptions are also fine.
 
-The list below covers the 35 repo-owned skills that are active. Keep it
+The list below covers the 39 repo-owned skills that are active. Keep it
 synchronized with the actual `skills/*/SKILL.md` directories;
 `scripts/lint-skills.py` validates each skill's frontmatter and fails when this
 list and the source tree disagree.
@@ -55,6 +55,7 @@ lookup-documentation work.
 - `backlog` — Run any project's backlog in Linear like a PM: capture, triage, grooming, acceptance criteria, and milestone/session planning (batch Ready issues into equal-effort, one-sitting Linear Milestones).
 - `clinical-reasoning` — Clinical decision support for clinicians in India: diagnostics, differentials, labs, imaging, drug interactions, prescribing, and escalation.
 - `codebase-memory` — Query a codebase knowledge graph for architecture, callers, dependencies, dead code, and impact analysis.
+- `commit-push` — Commit the current task's changes in the repo's log style, leaving unrelated files unstaged, then push. User-invoked; `/commit-push` in OMP via `omp/commands/`.
 - `design-grill` — Interview through visual and behavioural interface decisions while recording agreed design decisions.
 - `design-interface` — Design and review controls, forms, lists, dashboards, settings, documentation, and non-happy-path states.
 - `design-strategy` — Industry-agnostic product and UX strategy, positioning, workflow critique, and decision logs.
@@ -73,8 +74,11 @@ lookup-documentation work.
 - `humanizer` — Rewrite AI-sounding prose so it reads like a person, using Wikipedia's 35 "Signs of AI writing" patterns. Vendored from [blader/humanizer](https://github.com/blader/humanizer) (MIT). `/humanizer`.
 - `macos-design-guidelines` — Apply Apple Human Interface Guidelines when building Mac apps with SwiftUI or AppKit.
 - `maintainability-review` — Review web/frontend code for long-term maintainability (DRY, over-engineering, drift). diff/audit/triage modes. `/maintainability-review`.
+- `merge` — Merge the current branch's PR once checks pass, using the repo's allowed method, then sync the base branch. User-invoked; `/merge` in OMP via `omp/commands/`.
 - `obsidian-markdown` — Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.
 - `peer-review` — Adversarial cross-lineage review of an engineering plan written by another agent. `/peer-review`.
+- `pr` — Branch, commit, push, and open a GitHub PR, or report the open one. User-invoked; `/pr` in OMP via `omp/commands/`.
+- `push` — Push the current branch: fetch, autostash-rebase when behind, never force unless asked. User-invoked; `/push` in OMP via `omp/commands/`.
 - `research` — Investigate primary sources and record cited findings in a Markdown report.
 - `rights-counsel` — Indian consumer, EPF, and insurance rights analyst for advice, complaints, notices, and representations.
 - `self-review` — Critique your own plan against a fixed checklist, then revise it. `/self-review`.
