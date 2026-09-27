@@ -41,8 +41,10 @@ tracker.
 
 ## Final message
 
-Your final message is exactly this JSON object and nothing else, no prose and
-no code fence:
+When you are finished, first write this JSON object to `{{RESULT_FILE}}` (it
+sits outside the repository; writing it is how the runner knows you are done,
+so write it once and last). Then send the same object as your final message:
+exactly the JSON and nothing else, no prose and no code fence:
 
 {"status":"done|partial|blocked","files":[],"unmet_criteria":[],
  "checks":{"typecheck":"","build":"","lint":"","browser":""},
