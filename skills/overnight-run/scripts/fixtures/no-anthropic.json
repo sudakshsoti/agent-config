@@ -1,0 +1,12 @@
+{
+  "generatedAt": 1790533120264,
+  "reports": [],
+  "accountsWithoutUsage": [
+    {
+      "provider": "anthropic",
+      "type": "oauth",
+      "email": "user@example.com"
+    }
+  ],
+  "disabledCredentials": []
+}

@@ -1,0 +1,65 @@
+{
+  "generatedAt": 1790533120264,
+  "reports": [
+    {
+      "provider": "anthropic",
+      "fetchedAt": 1790533120264,
+      "limits": [
+        {
+          "id": "anthropic:5h",
+          "label": "anthropic:5h",
+          "scope": {
+            "provider": "anthropic",
+            "windowId": "5h",
+            "shared": true
+          },
+          "window": {
+            "id": "5h",
+            "label": "5h",
+            "durationMs": 18000000,
+            "resetsAt": 1790536720264
+          },
+          "amount": {
+            "used": 75,
+            "limit": 100,
+            "remaining": 25,
+            "usedFraction": 0.75,
+            "remainingFraction": 0.25,
+            "unit": "percent"
+          },
+          "status": "ok"
+        },
+        {
+          "id": "anthropic:7d",
+          "label": "anthropic:7d",
+          "scope": {
+            "provider": "anthropic",
+            "windowId": "7d",
+            "shared": true
+          },
+          "window": {
+            "id": "7d",
+            "label": "7d",
+            "durationMs": 604800000,
+            "resetsAt": 1790792320264
+          },
+          "amount": {
+            "used": 65,
+            "limit": 100,
+            "remaining": 35,
+            "usedFraction": 0.65,
+            "remainingFraction": 0.35,
+            "unit": "percent"
+          },
+          "status": "ok"
+        }
+      ],
+      "metadata": {
+        "email": "user@example.com",
+        "orgId": "org-fixture"
+      }
+    }
+  ],
+  "accountsWithoutUsage": [],
+  "disabledCredentials": []
+}

@@ -1,0 +1,89 @@
+{
+  "generatedAt": 1790533120264,
+  "reports": [
+    {
+      "provider": "anthropic",
+      "fetchedAt": 1790533120264,
+      "limits": [
+        {
+          "id": "anthropic:5h",
+          "label": "anthropic:5h",
+          "scope": {
+            "provider": "anthropic",
+            "windowId": "5h",
+            "shared": true
+          },
+          "window": {
+            "id": "5h",
+            "label": "5h",
+            "durationMs": 18000000,
+            "resetsAt": 1790536720264
+          },
+          "amount": {
+            "used": 7,
+            "limit": 100,
+            "remaining": 93,
+            "usedFraction": 0.07,
+            "remainingFraction": 0.9299999999999999,
+            "unit": "percent"
+          },
+          "status": "ok"
+        },
+        {
+          "id": "anthropic:7d",
+          "label": "anthropic:7d",
+          "scope": {
+            "provider": "anthropic",
+            "windowId": "7d",
+            "shared": true
+          },
+          "window": {
+            "id": "7d",
+            "label": "7d",
+            "durationMs": 604800000,
+            "resetsAt": 1790792320264
+          },
+          "amount": {
+            "used": 20,
+            "limit": 100,
+            "remaining": 80,
+            "usedFraction": 0.2,
+            "remainingFraction": 0.8,
+            "unit": "percent"
+          },
+          "status": "ok"
+        },
+        {
+          "id": "anthropic:7d:fable",
+          "label": "anthropic:7d:fable",
+          "scope": {
+            "provider": "anthropic",
+            "windowId": "7d",
+            "tier": "fable"
+          },
+          "window": {
+            "id": "7d",
+            "label": "7d",
+            "durationMs": 604800000,
+            "resetsAt": 1790792320264
+          },
+          "amount": {
+            "used": 0,
+            "limit": 100,
+            "remaining": 100,
+            "usedFraction": 0.0,
+            "remainingFraction": 1.0,
+            "unit": "percent"
+          },
+          "status": "ok"
+        }
+      ],
+      "metadata": {
+        "email": "user@example.com",
+        "orgId": "org-fixture"
+      }
+    }
+  ],
+  "accountsWithoutUsage": [],
+  "disabledCredentials": []
+}
