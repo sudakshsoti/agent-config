@@ -133,7 +133,7 @@ Secrets belong in dotfiles (1Password + age), never here.
   | `critic` agent | `anthropic/claude-opus-5-5:medium` |
   | `slow` role | `anthropic/claude-opus-5-5:xhigh` (explicit escalation only) |
   | `security-reviewer` role and agent | `anthropic/claude-opus-5-5:high` |
-  | `builder` agent | `anthropic/claude-sonnet-5:high` |
+  | `builder` agent | `anthropic/claude-sonnet-5:medium` |
   | `task` role and agent; `workflow` agent | `anthropic/claude-sonnet-5:medium` |
   | `code-worker`/`sonic` agents | `muse-code/muse-spark-1.3-contributor:high` / `:low` |
   | `smol`/`tiny`/`commit` roles | `opencode-go/glm-5.3-flash:low` |
@@ -212,8 +212,9 @@ Secrets belong in dotfiles (1Password + age), never here.
   escalation, never a role pin. Sonnet 5 ($2/$10, AA index 38 vs Opus 5's 51)
   carries `task`, `workflow` and `builder`: `builder` implements a plan that
   `plan`/`designer` already fixed, so Sonnet 5's weaker from-scratch design
-  standing (DesignArena task boards ranks 22-37) costs little, and it runs at
-  `high` effort to keep implementation accuracy. Haiku
+  standing (DesignArena task boards ranks 22-37) costs little. It ran at
+  `high` effort until 2026-09-28, when it dropped to `medium` (user decision)
+  alongside `task` and `workflow`. Haiku
   4.5 is no longer pinned to a role: per-turn housekeeping (`smol`, `tiny`,
   `commit`) went to GLM 5.3 Flash, and `code-worker`/`sonic` to Muse Spark 1.3
   Contributor (AA 48 vs DeepSeek V4.1 Flash's 40 and Sonnet 5's 38), because
