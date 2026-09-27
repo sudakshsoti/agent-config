@@ -15,7 +15,9 @@
 # Exit codes (stdout carries a value only on 10; stderr carries the reading):
 #   0   go
 #   10  sleep — stdout: seconds until the 5h resetsAt + RESET_GRACE_SECS
-#   20  stop — a weekly window is at or over SEVEN_DAY_STOP_PCT
+#   20  stop — a weekly window is over pace (used − elapsed > PACE_MARGIN_PCT
+#       once PACE_MIN_ELAPSED_PCT% of the window has elapsed) or at/over
+#       SEVEN_DAY_STOP_PCT
 #   30  unknown — omp missing, a command failed, no anthropic report, or a
 #       required window absent; the loop may continue only while
 #       tickets-this-run < FALLBACK_MAX_TICKETS
@@ -32,7 +34,9 @@
 set -euo pipefail
 
 FIVE_HOUR_SLEEP_PCT="${FIVE_HOUR_SLEEP_PCT:-70}"
-SEVEN_DAY_STOP_PCT="${SEVEN_DAY_STOP_PCT:-60}"
+SEVEN_DAY_STOP_PCT="${SEVEN_DAY_STOP_PCT:-90}"
+PACE_MARGIN_PCT="${PACE_MARGIN_PCT:-15}"
+PACE_MIN_ELAPSED_PCT="${PACE_MIN_ELAPSED_PCT:-5}"
 FALLBACK_MAX_TICKETS="${FALLBACK_MAX_TICKETS:-4}"
 RESET_GRACE_SECS=120
 USAGE_FETCH_WAIT_SECS="${USAGE_FETCH_WAIT_SECS:-90}"
@@ -81,6 +85,8 @@ gate_main() {
     --arg model "$model" \
     --argjson sleep "$FIVE_HOUR_SLEEP_PCT" \
     --argjson stop "$SEVEN_DAY_STOP_PCT" \
+    --argjson margin "$PACE_MARGIN_PCT" \
+    --argjson min_elapsed "$PACE_MIN_ELAPSED_PCT" \
     --argjson now "$now_ms" \
     --argjson grace "$RESET_GRACE_SECS" '
     # Several anthropic accounts: judge each window by its busiest account.
@@ -92,6 +98,26 @@ gate_main() {
         then " (resets " + (.window.resetsAt / 1000 | floor | strflocaltime("%a %H:%M")) + ")"
         else "" end;
       def tier: .scope.tier // (.id | split(":") | .[2]);
+      # Weekly window length: durationMs is authoritative; a 7d window
+      # without one is a full week in ms.
+      def week_len: (.window.durationMs
+        // (if .window.id == "7d" then 604800000 else null end));
+      # Percent of the window elapsed at $now, clamped to [0, 100];
+      # null when resetsAt (or a usable length) is missing.
+      def elapsed($now): (.window.resetsAt | type) as $rt | week_len as $l
+        | if $rt != "number" or ($l | type) != "number" or $l <= 0 then null
+          else (((($now - (.window.resetsAt - $l)) / $l | [., 0] | max) | [., 1] | min) * 100)
+          end;
+      def fmt1: .*10 | round / 10 | tostring;
+      def pace_over($now; $margin; $min): elapsed($now) as $e
+        | if ($e | type) != "number" or $e < $min then false
+          else (.amount.used - $e > $margin) end;
+      def weekly_reading($now): elapsed($now) as $e
+        | .id + " " + pct
+          + (if ($e | type) == "number" then " (elapsed " + ($e | fmt1) + "%)" else "" end)
+          + at;
+      def pace_reason($margin): .elapsed as $e | (.used - $e) as $d
+        | "\(.id) \(.used)% vs \($e | fmt1)% elapsed (\(if $d >= 0 then "+" else "" end)\($d | fmt1) > \($margin))";
       ([.reports[]? | select(.provider == "anthropic")] | length) as $reports
     | lim("anthropic:5h") as $five
     | lim("anthropic:7d") as $seven
@@ -105,10 +131,22 @@ gate_main() {
       elif $five == null then {code: 30, why: "anthropic:5h window absent"}
       elif $seven == null then {code: 30, why: "anthropic:7d window absent"}
       else
-        ([$five, $seven] + $scoped | map(.id + " " + pct + at) | join(" · ")) as $reading
-        | ([$seven] + $scoped | map(select(.amount.used >= $stop)) | map(.id)) as $over
-        | if ($over | length) > 0 then
-            {code: 20, why: ("weekly over " + ($stop | tostring) + "%: " + ($over | join(", "))), reading: $reading}
+        ([$five | .id + " " + pct + at]
+          + ([$seven] + $scoped | map(weekly_reading($now))) | join(" · ")) as $reading
+        | ([$seven] + $scoped | map(. as $w | ($w | elapsed($now)) as $e
+            | {id: $w.id, used: $w.amount.used, elapsed: $e,
+               hard: ($w.amount.used >= $stop),
+               pace: ($w | pace_over($now; $margin; $min_elapsed))})) as $weekly
+        | ([ $weekly[] | select(.hard) | .id ]) as $hard_ids
+        | ([ $weekly[] | select(.pace and (.hard | not)) | pace_reason($margin) ]) as $pace_hits
+        | if ($hard_ids | length) > 0 and ($pace_hits | length) > 0 then
+            {code: 20,
+             why: ("weekly over " + ($stop | tostring) + "%: " + ($hard_ids | join(", "))
+                   + "; over pace: " + ($pace_hits | join("; "))), reading: $reading}
+          elif ($hard_ids | length) > 0 then
+            {code: 20, why: ("weekly over " + ($stop | tostring) + "%: " + ($hard_ids | join(", "))), reading: $reading}
+          elif ($pace_hits | length) > 0 then
+            {code: 20, why: ("over pace: " + ($pace_hits | join("; "))), reading: $reading}
           elif $five.amount.used >= $sleep then
             if ($five.window.resetsAt | type) != "number" then
               {code: 30, why: "anthropic:5h has no resetsAt", reading: $reading}

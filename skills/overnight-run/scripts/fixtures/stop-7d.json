@@ -44,11 +44,35 @@
             "resetsAt": 1790792320264
           },
           "amount": {
-            "used": 65,
+            "used": 80,
             "limit": 100,
-            "remaining": 35,
-            "usedFraction": 0.65,
-            "remainingFraction": 0.35,
+            "remaining": 20,
+            "usedFraction": 0.8,
+            "remainingFraction": 0.2,
+            "unit": "percent"
+          },
+          "status": "ok"
+        },
+        {
+          "id": "anthropic:7d:fable",
+          "label": "anthropic:7d:fable",
+          "scope": {
+            "provider": "anthropic",
+            "windowId": "7d",
+            "tier": "fable"
+          },
+          "window": {
+            "id": "7d",
+            "label": "7d",
+            "durationMs": 604800000,
+            "resetsAt": 1790792320264
+          },
+          "amount": {
+            "used": 0,
+            "limit": 100,
+            "remaining": 100,
+            "usedFraction": 0.0,
+            "remainingFraction": 1.0,
             "unit": "percent"
           },
           "status": "ok"

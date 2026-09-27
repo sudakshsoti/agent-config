@@ -39,12 +39,40 @@ expect() {
 expect 0 "" "all windows under threshold" go.json
 expect 10 3720 "5h over threshold sleeps until reset + 120 s" sleep-5h.json
 FIVE_HOUR_SLEEP_PCT=76 expect 0 "" "5h below a raised threshold goes" sleep-5h.json
-expect 20 "" "7d over threshold stops, even with 5h also over" stop-7d.json
-expect 20 "" "model-scoped 7d over threshold stops its family" stop-model-7d.json --model anthropic/claude-opus-5-5
+expect 20 "" "7d over pace stops, even with 5h also over" stop-7d.json
+expect 20 "" "model-scoped 7d over pace stops its family" stop-model-7d.json --model anthropic/claude-opus-5-5
 expect 0 "" "model-scoped 7d of another family is ignored" stop-model-7d.json --model claude-sonnet-5
 expect 20 "" "unknown family gates every model-scoped 7d" stop-model-7d.json
+expect 0 "" "late-week 7d at 60% with 90% elapsed goes" pace-go-late-7d.json
+expect 20 "" "day-1 7d at 40% with 10% elapsed stops" pace-stop-early-7d.json
+expect 0 "" "near-start 7d at 10% with 1% elapsed goes (floor)" pace-guard-start-7d.json
+expect 20 "" "late-week 7d at 92% stops on the ceiling" pace-hard-cap-late-7d.json
+expect 20 "" "scoped 7d over pace stops its family while global is on pace" pace-stop-model-7d.json --model anthropic/claude-opus-5-5
+expect 20 "" "unknown family gates an over-pace scoped 7d" pace-stop-model-7d.json
+expect 0 "" "weekly window without resetsAt at 70% goes" pace-no-reset-7d.json
+expect 20 "" "weekly window without resetsAt at 95% stops" pace-no-reset-hard-7d.json
+expect 20 "" "borderline pace stops at the default margin" pace-margin-borderline-7d.json
+PACE_MARGIN_PCT=25 expect 0 "" "raised margin lets the borderline case go" pace-margin-borderline-7d.json
 expect 30 "" "no anthropic report is unknown" no-anthropic.json
 expect 30 "" "missing 5h window is unknown" missing-5h.json
+
+# The stop reason must name the rule that fired.
+err="$(USAGE_GATE_JSON="$fixtures/pace-stop-early-7d.json" "$gate" 2>&1 >/dev/null || true)"
+case "$err" in
+*elapsed*) echo "  ok    pace stop names the elapsed rule" ;;
+*)
+  echo "  FAIL  pace stop names the elapsed rule: '$err'"
+  fails=$((fails + 1))
+  ;;
+esac
+err="$(USAGE_GATE_JSON="$fixtures/pace-hard-cap-late-7d.json" "$gate" 2>&1 >/dev/null || true)"
+case "$err" in
+*"weekly over 90%"*) echo "  ok    ceiling stop names the 90% rule" ;;
+*)
+  echo "  FAIL  ceiling stop names the 90% rule: '$err'"
+  fails=$((fails + 1))
+  ;;
+esac
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT

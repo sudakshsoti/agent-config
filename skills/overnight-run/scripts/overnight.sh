@@ -793,7 +793,7 @@ if ((dry_run)); then
   echo "  skills      $implement_skill · $code_review_skill"
   echo "  build gate  $(jq -r '[.checks | to_entries[] | select(.key != "test") | "\(.key): \(if .value == "" then "n/a" else .value end)"] | join(" · ")' "$plan")"
   echo "  limits      deadline $(date -r "$deadline" '+%a %H:%M' 2>/dev/null || date -d "@$deadline" '+%a %H:%M'), $((TICKET_TIMEOUT_SECS / 60))m per ticket, max tickets $([[ "$max_tickets" == 0 ]] && echo unlimited || echo "$max_tickets")"
-  echo "  thresholds  5h sleep ≥${FIVE_HOUR_SLEEP_PCT}% · 7d stop ≥${SEVEN_DAY_STOP_PCT}% · unknown-gate cap ${FALLBACK_MAX_TICKETS} tickets"
+  echo "  thresholds  5h sleep ≥${FIVE_HOUR_SLEEP_PCT}% · 7d pace +${PACE_MARGIN_PCT}% over elapsed (past ${PACE_MIN_ELAPSED_PCT}%) or ≥${SEVEN_DAY_STOP_PCT}% · unknown-gate cap ${FALLBACK_MAX_TICKETS} tickets"
   echo "  account     $account"
   echo "  gate        exit $gate_code — $gate_reading${gate_secs:+ (sleep ${gate_secs}s)}"
   git check-ignore -q "$dir/state.json" || echo "  note        $dir/ is not git-ignored yet; a real run adds it to .git/info/exclude"

@@ -20,11 +20,11 @@
             "resetsAt": 1790536720264
           },
           "amount": {
-            "used": 10,
+            "used": 7,
             "limit": 100,
-            "remaining": 90,
-            "usedFraction": 0.1,
-            "remainingFraction": 0.9,
+            "remaining": 93,
+            "usedFraction": 0.07,
+            "remainingFraction": 0.9299999999999999,
             "unit": "percent"
           },
           "status": "ok"
@@ -41,38 +41,14 @@
             "id": "7d",
             "label": "7d",
             "durationMs": 604800000,
-            "resetsAt": 1790792320264
+            "resetsAt": 1790593600264
           },
           "amount": {
-            "used": 20,
+            "used": 60,
             "limit": 100,
-            "remaining": 80,
-            "usedFraction": 0.2,
-            "remainingFraction": 0.8,
-            "unit": "percent"
-          },
-          "status": "ok"
-        },
-        {
-          "id": "anthropic:7d:opus",
-          "label": "anthropic:7d:opus",
-          "scope": {
-            "provider": "anthropic",
-            "windowId": "7d",
-            "tier": "opus"
-          },
-          "window": {
-            "id": "7d",
-            "label": "7d",
-            "durationMs": 604800000,
-            "resetsAt": 1790792320264
-          },
-          "amount": {
-            "used": 80,
-            "limit": 100,
-            "remaining": 20,
-            "usedFraction": 0.8,
-            "remainingFraction": 0.2,
+            "remaining": 40,
+            "usedFraction": 0.6,
+            "remainingFraction": 0.4,
             "unit": "percent"
           },
           "status": "ok"
@@ -89,7 +65,7 @@
             "id": "7d",
             "label": "7d",
             "durationMs": 604800000,
-            "resetsAt": 1790792320264
+            "resetsAt": 1790593600264
           },
           "amount": {
             "used": 0,

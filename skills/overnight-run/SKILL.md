@@ -85,7 +85,7 @@ Keep tracker access read-only for the whole run: `gh issue list/view` and
    exits 30, say so: the run then stops after `FALLBACK_MAX_TICKETS` (4)
    tickets.
 8. **Confirm once.** Show one summary: the ordered queue, the worker command,
-   the thresholds (5h sleep at 70%, 7d stop at 60%), the caps (45 min per
+   the thresholds (5h sleep at 70%; 7d stop when 15+ points over elapsed pace past 5% elapsed, or at 90%), the caps (45 min per
    ticket, max tickets, fallback cap), the deadline (default 07:00), and the
    git policy below for the chosen mode. Wait for one explicit yes.
 9. **Launch and exit.**
