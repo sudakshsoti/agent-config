@@ -3,7 +3,7 @@ onboarding = false
 [keys]
 prefix = "ctrl+a"
 
-# Single letter after the prefix. Free in the defaults: a d f i m t u y.
+# Single letter after the prefix. Still unbound: a i m.
 new_worktree = "prefix+t"
 new_workspace = "prefix+s"
 settings = "prefix+shift+s"   # moved off prefix+s, which new_workspace now takes
