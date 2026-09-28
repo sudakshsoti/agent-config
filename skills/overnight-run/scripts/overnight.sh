@@ -638,6 +638,7 @@ drop_worktree() {
   cd "$root"
   if [[ -d "$wt" ]]; then
     if [[ -n "$label" && -n "$(git -C "$wt" status --porcelain 2>/dev/null)" ]]; then
+      (cd "$wt" && purge_protected "$(protected_hits)")
       git -C "$wt" stash push -u -q -m "overnight #$n $label"
       log "stashed #$n $label work as 'overnight #$n $label'"
     fi
@@ -1070,6 +1071,7 @@ if ((resume)); then
   if [[ -n "$(git status --porcelain)" ]]; then
     current="$(sget '.current // empty')"
     [[ -n "$current" ]] || die "dirty tree and no interrupted ticket in state.json; clean it by hand"
+    purge_protected "$(protected_hits)" # protected files never reach a stash
     git stash push -u -q -m "overnight #$current interrupted"
     log "stashed interrupted #$current work as 'overnight #$current interrupted'"
   fi

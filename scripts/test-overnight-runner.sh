@@ -416,6 +416,21 @@ case_resume_no_model() {
   check "resume: no model anywhere is refused, naming worker_model" '[[ $RC != 0 ]] && grep -q "worker_model" "$C/run.err"'
 }
 
+case_resume_interrupted() {
+  mk_case resume_interrupted
+  for n in 1 2; do issue "$n" "T$n" "Body"; done
+  plan '[1,2]' "$MODEL"
+  run_runner --max-tickets 1
+  # An interrupted #2 left work behind, including a protected file.
+  local s="$R/.scratch/overnight/state.json"
+  jq '.current = 2' "$s" >"$s.tmp" && mv "$s.tmp" "$s"
+  echo half >"$R/half.txt"
+  echo SECRET=1 >"$R/.env"
+  run_runner --resume
+  check "resume: interrupted work is stashed without protected files" \
+    '[[ $RC == 0 ]] && git -C "$R" stash list | grep -q "overnight #2 interrupted" && idx="$(git -C "$R" stash list | grep -n "overnight #2 interrupted" | cut -d: -f1)" && files="$(git -C "$R" ls-tree -r --name-only "stash@{$((idx - 1))}^3")" && grep -qx half.txt <<<"$files" && ! grep -qx .env <<<"$files"'
+}
+
 case_notify() {
   mk_case notify
   issue 1 "T1" "Body"
@@ -435,7 +450,7 @@ case_notify() {
 
 cases=(retry_success retry_exhausted dependent_order blocked protected protected_allowed
   protected_override red_tests commit_refused setup_failure matrix resume_old_state
-  resume_no_model notify)
+  resume_no_model resume_interrupted notify)
 for c in "${cases[@]}"; do
   (
     "case_$c"
