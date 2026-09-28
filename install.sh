@@ -74,6 +74,13 @@
 #       Harness-neutral shared preferences, linked so one edit reaches every
 #       installed harness. None of these tools rewrite the file.
 #
+#   Herdr configuration:
+#     herdr/config.toml      -> ~/.config/herdr/config.toml
+#       Herdr keybindings, including plugin-action bindings. Herdr rewrites the
+#       file from its settings UI; the write follows the link. Applied only when
+#       ~/.config/herdr exists. herdr/plugins.txt (`<owner/repo> <ref>` per line) is
+#       installed with `herdr plugin install` unless --no-external.
+#
 #   Pi configuration:
 #     pi/settings.json       -> ~/.pi/agent/settings.json
 #       Pi's default model, Ctrl+P model list, thinking level, theme and
@@ -725,6 +732,34 @@ else
         "$REPO/pi/web-search.json" "$web_search_config"
       echo "merged  pi/web-search.json -> $web_search_config"
     done
+  fi
+
+  # 5c. Herdr (agent multiplexer). herdr/config.toml carries keybindings and
+  #     plugin-action bindings only; herdr rewrites it from its settings UI and
+  #     the write follows the link into the repo. Plugins are declared in
+  #     herdr/plugins.txt as `<owner/repo> <ref>` and installed by herdr itself,
+  #     which builds them from source (network + toolchain), so --no-external
+  #     skips that half. Plugin state under ~/.config/herdr/plugins is untracked.
+  if [ -d "$HOME/.config/herdr" ]; then
+    link_into "$REPO/herdr/config.toml" "$HOME/.config/herdr/config.toml"
+    if [ "$EXTERNAL" = "1" ] && [ -f "$REPO/herdr/plugins.txt" ] && command -v herdr >/dev/null 2>&1; then
+      herdr_installed="$(herdr plugin list 2>/dev/null || true)"
+      while read -r plugin_repo plugin_ref _; do
+        case "$plugin_repo" in "" | \#*) continue ;; esac
+        case "$herdr_installed" in
+        *"github:$plugin_repo@$plugin_ref"*) continue ;;
+        esac
+        if herdr plugin install "$plugin_repo" --ref "$plugin_ref" --yes >/dev/null 2>&1; then
+          echo "plugin  $plugin_repo@$plugin_ref"
+          external=$((external + 1))
+        else
+          echo "⚠️  herdr plugin $plugin_repo@$plugin_ref failed to install (needs network and a build toolchain); re-run to retry."
+          skipped=$((skipped + 1))
+        fi
+      done <"$REPO/herdr/plugins.txt"
+    fi
+  else
+    echo "⚠️  SKIP herdr — no ~/.config/herdr (herdr not run yet). herdr/config.toml and herdr/plugins.txt not applied."
   fi
 fi
 

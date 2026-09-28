@@ -13,6 +13,7 @@ This file applies to this checkout. Shared, harness-neutral preferences live in
 | `~/.claude/skills/` | `skills/`, `vendor/` | one symlink per skill; filled only when `~/.claude` already exists |
 | `~/.omp/agent/` + `~/.config/omp/` | `omp/`, `global-agents.md` | one symlink per file; OMP writes through links |
 | `~/.pi/agent/` | `pi/`, `global-agents.md` | one symlink per file; Pi writes through links |
+| `~/.config/herdr/config.toml` | `herdr/config.toml` | one symlink; herdr writes through it; only when `~/.config/herdr` exists. `herdr/plugins.txt` entries go through `herdr plugin install` (skipped by `--no-external`) |
 
 `pi/web-search.json` is the one **merge**, not a link: it is also
 pi-web-access's credential store, so only repo-owned keys are pushed.
@@ -77,6 +78,7 @@ Secrets belong in dotfiles (1Password + age), never here.
 | `global-agents.md` | agent-config | linked to `~/.omp/agent/AGENTS.md` and `~/.pi/agent/AGENTS.md` |
 | `omp/config.yml`, `lsp.yml`, `keybindings.yml`, `themes/`, `agents/`, `commands/`, `overlays/` | agent-config | OMP writes through links; `commands/*.md` are `/name` wrappers over same-named skills |
 | `pi/settings.json`, `verbosity.json`, `subagents.json`, `pi-fff.json`, `keybindings.json`, `prompts/`, `themes/`, `extensions/`, `agents/` | agent-config | Pi writes through links |
+| `herdr/config.toml`, `herdr/plugins.txt` | agent-config | keybindings and pinned plugins; plugin state under `~/.config/herdr/plugins/` is untracked |
 | `pi/web-search.json` | **shared** | merged; credentials and unmanaged keys stay machine-local |
 | `~/.omp/agent/mcp.json`, `~/.omp/agent/extensions/`, `~/.pi/agent/auth.json`, `~/.pi/agent/models-store.json`, `~/.pi/agent/sessions/`, `~/.pi/agent/npm/` | **neither** | credentials or runtime state; untracked |
 | `~/.local/bin/omp-*-overlay`, `~/.zshrc`, Brewfile, fonts | **dotfiles** | chezmoi |

@@ -59,6 +59,9 @@ def seed_repo(destination):
         path = destination / relative
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("fixture\n", encoding="utf-8")
+    (destination / "herdr").mkdir()
+    (destination / "herdr/config.toml").write_text("fixture\n", encoding="utf-8")
+    (destination / "herdr/plugins.txt").write_text("example/plugin v1\n", encoding="utf-8")
     # A plain install must never fetch this source.
     (destination / "plugins.txt").write_text(
         "external example/should-never-fetch\n", encoding="utf-8"
@@ -194,6 +197,33 @@ class InstallerTest(DisposableInstallCase):
             expected[f".pi/agent/{relative[len('pi/') :]}"] = str(self.repo / relative)
 
         self.assertEqual(links_under(self.test_home), expected)
+
+    def test_herdr_config_links_only_when_herdr_dir_exists_and_never_installs_plugins_offline(self):
+        herdr_stub = self.bin / "herdr"
+        called = self.directory / "herdr-called"
+        herdr_stub.write_text(f"#!/bin/sh\ntouch '{called}'\nexit 1\n", encoding="utf-8")
+        herdr_stub.chmod(0o755)
+
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("SKIP herdr", result.stdout)
+        self.assertFalse((self.test_home / ".config/herdr").exists())
+
+        (self.test_home / ".config/herdr").mkdir(parents=True)
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(
+            links_under(self.test_home)[".config/herdr/config.toml"],
+            str(self.repo / "herdr/config.toml"),
+        )
+        self.assertFalse(called.exists(), "--no-external must not run herdr plugin install")
+
+    def test_work_machine_skips_herdr_config(self):
+        (self.test_home / ".config/herdr").mkdir(parents=True)
+        self.stub_chezmoi_machine("work")
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn(".config/herdr/config.toml", links_under(self.test_home))
 
     def stub_chezmoi_machine(self, machine):
         stub = self.bin / "chezmoi"

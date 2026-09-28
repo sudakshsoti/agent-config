@@ -110,6 +110,7 @@ MANAGED_DESTINATIONS: tuple[ManagedDestination, ...] = (
     ManagedDestination("glob", ".pi/agent/prompts", ("*.md",)),
     ManagedDestination("glob", ".pi/agent/themes", ("*.json",)),
     ManagedDestination("glob", ".pi/agent/agents", ("*.md",)),
+    ManagedDestination("file", ".config/herdr/config.toml"),
     ManagedDestination(
         "nested_glob",
         ".pi/agent/extensions",

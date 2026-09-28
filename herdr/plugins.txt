@@ -1,0 +1,2 @@
+# Herdr plugins installed by install.sh: <owner/repo> <ref>. Pin a tag or commit.
+thanhdat77/herdr-navigator v0.3.3
