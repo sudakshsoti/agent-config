@@ -9,6 +9,18 @@ else, then commits or stashes your working tree itself.
 Implement exactly one ticket: **#{{N}} — {{TITLE}}**. Read it, including
 comments, with `gh issue view {{N}} --comments`.
 
+## Done when
+
+{{DONE_WHEN}}
+
+## Steps
+
+0. Get your bearings before implementing:
+   - If `{{HANDOFF}}` is not `none`, read that file. This is a retry: the
+     working tree already holds the previous attempt's changes. Continue from
+     them; do not start over.
+   - Run `git log --oneline -10` to see what earlier tickets did.
+   - Run the checks once for a baseline (see step 3).
 1. Read the implement skill at `{{IMPLEMENT_SKILL}}` and follow it, with two
    overrides:
    - its closing commit step belongs to the runner: leave every change
@@ -19,7 +31,8 @@ comments, with `gh issue view {{N}} --comments`.
 2. Follow the repository's `AGENTS.md`/`CLAUDE.md` rules throughout.
 3. Run the checks and fix what they report. Tests: `{{TEST}}`. Typecheck:
    `{{TYPECHECK}}`. Build: `{{BUILD}}`. Lint: `{{LINT}}`. The runner re-runs
-   typecheck, build and lint after you finish; red means the ticket fails.
+   typecheck, build, lint and the tests after you finish; red means the
+   ticket fails.
 4. If the ticket changes UI, check the affected routes in a browser and list
    them in `routes_to_check`.
 5. Review your own diff against the ticket with the code-review skill at
@@ -34,6 +47,9 @@ tracker.
   commit; you make no commits, pushes, stashes, resets, checkouts or branches.
 - GitHub and the tracker: read-only. You post no comments, labels, closes or
   PRs.
+- Protected paths are off-limits: env files (`.env*`), keys (`*.pem`,
+  `*.key`, SSH private keys), CI workflows (`.github/workflows/`) and git
+  internals (`.git/`). A change there fails the ticket.
 - Work in this one session: no subagents, deploys or publishing.
 - Scope is the ticket's acceptance criteria. When something outside them is
   needed (missing information, a failing precondition, a design decision),

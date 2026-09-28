@@ -7,10 +7,11 @@
 # tab) with caffeinate.
 #
 #   overnight.sh [--dry-run] [--deadline HH:MM] [--max-tickets N]
-#                [--worker claude|omp] [--visible] [--pr-per-ticket] [--resume]
+#                [--worker claude|omp] [--visible|--headless] [--pr-per-ticket] [--resume]
 #
-# --visible        omp worker only, inside herdr: each worker runs as the
-#                  interactive omp TUI in its own herdr tab, closed when it ends.
+# --visible        default for an omp worker inside herdr (--headless opts out):
+#                  each worker runs as the interactive omp TUI in its own herdr
+#                  tab, closed when it ends.
 # --pr-per-ticket  each ticket runs in its own worktree (<repo>-overnight/<N>)
 #                  on ticket/<N>-<slug>, stacked on the previous passed ticket
 #                  (the first on origin/main). A pass is committed, pushed and
@@ -21,10 +22,14 @@
 # plan.json (written by the preflight):
 #   {"branch": "overnight/YYYY-MM-DD", "queue": [12, 14],
 #    "waived": [[14, 9]],             # [issue, blocker] edges to ignore
+#    "worker_model": "opencode-go/deepseek-v4.1-flash:high",
 #    "checks": {"typecheck": "...", "build": "...", "lint": "...", "test": "..."},
 #    "setup": "npm ci"}                # --pr-per-ticket only; "" or absent = none
-# "" means the repo has no such command. test goes to the worker only; the
-# build gate is typecheck + build + lint.
+# "" means the repo has no such command. The build gate after each worker is
+# typecheck + build + lint + test; the tree-health check after a stash skips
+# test. OVERNIGHT_WORKER_MODEL overrides worker_model. The usage gate reads the
+# quota of the model's provider (the prefix before "/"); a claude worker takes
+# no model, or an anthropic one.
 #
 # Outputs, all under .scratch/overnight/ (git-ignored via .git/info/exclude):
 #   state.json     queue, done, failed, skipped, SHAs, stash refs, usage
@@ -49,18 +54,29 @@ CHECK_TIMEOUT_SECS="${OVERNIGHT_CHECK_TIMEOUT_SECS:-1200}"   # per build-gate co
 KILL_GRACE_SECS="${OVERNIGHT_KILL_GRACE_SECS:-30}"           # TERM, then KILL
 CLAUDE_MAX_TURNS=200 # passed only while `claude --help` lists --max-turns
 CLAUDE_PERMISSION_MODE="${OVERNIGHT_CLAUDE_PERMISSION_MODE:-auto}"
-WORKER_MODEL="${OVERNIGHT_WORKER_MODEL:-}"                             # empty = the harness default
+WORKER_MODEL="${OVERNIGHT_WORKER_MODEL:-}"                             # overrides plan.json worker_model
 RATE_LIMIT_BACKOFF_SECS="${OVERNIGHT_RATE_LIMIT_BACKOFF_SECS:-1800}" # limit the gate cannot see
 MAX_REQUEUES=3                                                       # per ticket, then the run stops
+MAX_RETRIES=1                                                        # per ticket, temporary failures only
 PR_BASE="${OVERNIGHT_PR_BASE:-main}"                                 # --pr-per-ticket stack root
 VISIBLE_IDLE_SECS=60 # --visible: quiet time after a terminal turn that counts as finished
 LIMIT_RE="You('|’)ve hit your .* limit|Request rejected \(429\)"
+# Repo-relative paths a worker may never change: env files, keys, CI workflows,
+# git internals. id_*.pub stays allowed.
+PROTECTED_RE="${OVERNIGHT_PROTECTED_RE:-(^|/)\.env(\.|\$)|\.pem\$|\.key\$|(^|/)id_(rsa|ed25519|ecdsa|dsa)(\$|[^.]|\.[^p])|(^|/)\.git/|^\.github/workflows/}"
 
 die() {
   echo "overnight: $*" >&2
   exit 1
 }
 log() { printf '%s  %s\n' "$(date '+%H:%M:%S')" "$*"; }
+
+# notify <title> <msg> — macOS notification; never fails the run.
+notify() {
+  if [[ "${OVERNIGHT_NOTIFY:-1}" == 0 ]] || ! command -v osascript >/dev/null 2>&1; then return 0; fi
+  osascript -e 'on run argv' -e 'display notification (item 2 of argv) with title (item 1 of argv)' \
+    -e 'end run' "$1" "$2" >/dev/null 2>&1 || true
+}
 
 # --- arguments -------------------------------------------------------------
 
@@ -69,13 +85,14 @@ resume=0
 deadline_hm="07:00"
 max_tickets=0
 worker=""
-visible=0
+visible= # empty = auto: on for an omp worker inside herdr
 pr_mode=0
 while (($#)); do
   case "$1" in
   --dry-run) dry_run=1 ;;
   --resume) resume=1 ;;
   --visible) visible=1 ;;
+  --headless) visible=0 ;;
   --pr-per-ticket) pr_mode=1 ;;
   --deadline)
     deadline_hm="${2:?--deadline needs HH:MM}"
@@ -142,19 +159,45 @@ deadline_epoch() {
   echo "$t"
 }
 
+# resolve_model — sets model (what the gate filters on), model_arg (what the
+# worker is passed) and provider (whose quota the gate reads).
+# Precedence: OVERNIGHT_WORKER_MODEL, plan worker_model, then on --resume the state.
 resolve_model() {
-  if [[ -n "$WORKER_MODEL" ]]; then
-    echo "$WORKER_MODEL"
-  elif [[ "$worker" == claude ]]; then
-    jq -r '.model // empty' "$HOME/.claude/settings.json" 2>/dev/null || true
+  model_arg="$WORKER_MODEL"
+  [[ -n "$model_arg" ]] || model_arg="$(jq -r '.worker_model // ""' "$plan")"
+  if [[ -z "$model_arg" ]] && ((resume)); then
+    model_arg="$(sget '.model_arg // (if .worker == "omp" then .model else "" end) // ""')"
+  fi
+  if [[ "$worker" == omp ]]; then
+    [[ -n "$model_arg" ]] ||
+      die "omp worker needs a model: set worker_model in plan.json or OVERNIGHT_WORKER_MODEL"
+    [[ "$model_arg" =~ ^[^/]+/. ]] ||
+      die "omp worker model '$model_arg' needs provider/model form (e.g. opencode-go/deepseek-v4.1-flash:high)"
+    model="$model_arg"
+    provider="${model_arg%%/*}"
   else
-    omp config get modelRoles --json 2>/dev/null | jq -r '.value.default // empty' 2>/dev/null || true
+    if [[ "$model_arg" == */* && "${model_arg%%/*}" != anthropic ]]; then
+      die "worker claude cannot run model '$model_arg' (provider ${model_arg%%/*}): use --worker omp, or an anthropic model"
+    fi
+    provider=anthropic
+    if [[ -n "$model_arg" ]]; then
+      model="$model_arg"
+    else
+      # Only the gate's --model tier filter uses this; claude is not passed it.
+      model="$(jq -r '.model // empty' "$HOME/.claude/settings.json" 2>/dev/null || true)"
+    fi
   fi
 }
 
-# The gate reads omp's Anthropic login. A claude worker must be on the same
-# org, or the reading describes somebody else's quota.
+# The Anthropic gate reads omp's Anthropic login. A claude worker must be on the
+# same org, or the reading describes somebody else's quota.
 account_check() {
+  if [[ "$provider" != anthropic ]]; then
+    # The org-mismatch downgrade does not apply: omp authenticates this provider
+    # itself, and a claude worker cannot use it (refused at startup).
+    echo "match: omp reads its own $provider login"
+    return
+  fi
   if [[ "$worker" == omp ]]; then
     echo "match: omp worker uses omp's own Anthropic login"
     return
@@ -179,7 +222,7 @@ gate() {
   local errf
   errf="$(mktemp)"
   gate_code=0
-  gate_secs="$(bash "$here/usage-gate.sh" ${model:+--model "$model"} 2>"$errf")" || gate_code=$?
+  gate_secs="$(bash "$here/usage-gate.sh" --provider "$provider" ${model:+--model "$model"} 2>"$errf")" || gate_code=$?
   gate_reading="$(tail -n 1 "$errf")"
   rm -f "$errf"
   if [[ "$account" == mismatch* && "$gate_code" != 30 ]]; then
@@ -297,21 +340,72 @@ run_with_timeout() {
   return "$rc"
 }
 
-# build_gate <label> — runs typecheck, build, lint; sets gate_failures.
+# build_gate <label> <full|static> — typecheck, build, lint, plus test in full
+# mode (when checks.test is set). Sets gate_failures (display text), gate_red_keys
+# (names of the red checks) and gate_red_log (log of the first red one).
 build_gate() {
-  local label="$1" key cmd timed_out=0
-  gate_failures=""
-  for key in typecheck build lint; do
+  local label="$1" mode="$2" key cmd log rc timed_out=0
+  local keys=(typecheck build lint)
+  if [[ "$mode" == full ]]; then keys+=(test); fi
+  gate_failures="" gate_red_keys="" gate_red_log=""
+  for key in "${keys[@]}"; do
     cmd="$(jq -r --arg k "$key" '.checks[$k] // ""' "$plan")"
     [[ -n "$cmd" ]] || continue
-    if ! run_with_timeout "$CHECK_TIMEOUT_SECS" "$dir/logs/$label-$key.log" "$dir/logs/$label-$key.log" \
-      bash -c "$cmd"; then
-      gate_failures="${gate_failures:+$gate_failures, }$key"
-    elif ((timed_out)); then
-      gate_failures="${gate_failures:+$gate_failures, }$key (timeout)"
+    log="$dir/logs/$label-$key.log"
+    rc=0
+    run_with_timeout "$CHECK_TIMEOUT_SECS" "$log" "$log" bash -c "$cmd" || rc=$?
+    if ((timed_out || rc != 0)); then
+      gate_failures="${gate_failures:+$gate_failures, }$key$( ((timed_out)) && echo ' (timeout)' || true)"
+      gate_red_keys="${gate_red_keys:+$gate_red_keys }$key"
+      [[ -n "$gate_red_log" ]] || gate_red_log="$log"
     fi
   done
   [[ -z "$gate_failures" ]]
+}
+
+# changed_paths — every changed path, tracked and untracked, one per line; a
+# rename or copy lists both its paths.
+changed_paths() {
+  local entry
+  while IFS= read -r -d '' entry; do
+    printf '%s\n' "${entry:3}"
+    if [[ "${entry:0:2}" == *[RC]* ]]; then
+      IFS= read -r -d '' entry && printf '%s\n' "$entry"
+    fi
+  done < <(git status --porcelain -z --untracked-files=all)
+}
+
+# protected_hits — the changed paths that match PROTECTED_RE.
+protected_hits() { changed_paths | grep -E -e "$PROTECTED_RE" || true; }
+
+# purge_protected <paths, one per line> — restore tracked ones from HEAD (index
+# and tree) and delete the rest, so they never reach a patch, stash or commit.
+purge_protected() {
+  local p
+  while IFS= read -r p; do
+    [[ -n "$p" ]] || continue
+    if git cat-file -e "HEAD:$p" 2>/dev/null; then
+      git checkout -q HEAD -- "$p"
+    else
+      git rm -q --cached -f --ignore-unmatch -- "$p" >/dev/null 2>&1 || true
+      rm -rf -- "$p"
+    fi
+  done <<<"$1"
+}
+
+# acceptance_criteria — stdin: an issue body. Prints the bullet, numbered and
+# checklist lines under the first heading (or bold-only line) that matches
+# "acceptance criteria" or "done when", up to the next heading.
+acceptance_criteria() {
+  awk '
+    { sub(/\r$/, "") }
+    /^[ ]*#+[ \t]/ || /^[ ]*(\*\*|__)[^*_]+(\*\*|__):?[ \t]*$/ {
+      if (on) exit
+      if (tolower($0) ~ /acceptance criteria|done when/) on = 1
+      next
+    }
+    on && /^[ \t]*([-*+]|[0-9]+[.)])[ \t]+/ { print }
+  '
 }
 
 ensure_ignored() {
@@ -372,10 +466,14 @@ settle_and_pick() {
   fi
 }
 
+# render_brief <n> <title> <result-file> <handoff-path|none>
 render_brief() {
-  local n="$1" title="$2"
-  OB_N="$n" OB_TITLE="$title" OB_RESULT_FILE="$3" OB_IMPLEMENT_SKILL="$implement_skill" \
-    OB_CODE_REVIEW_SKILL="$code_review_skill" \
+  local n="$1" title="$2" done_when
+  done_when="$(gh issue view "$n" --json body --jq .body 2>/dev/null | acceptance_criteria || true)"
+  [[ -n "$done_when" ]] ||
+    done_when="The ticket states no separate acceptance criteria; treat the ticket's own wording as the criteria."
+  OB_N="$n" OB_TITLE="$title" OB_RESULT_FILE="$3" OB_HANDOFF="$4" OB_DONE_WHEN="$done_when" \
+    OB_IMPLEMENT_SKILL="$implement_skill" OB_CODE_REVIEW_SKILL="$code_review_skill" \
     OB_TYPECHECK="$(jq -r '.checks.typecheck // "" | if . == "" then "n/a" else . end' "$plan")" \
     OB_BUILD="$(jq -r '.checks.build // "" | if . == "" then "n/a" else . end' "$plan")" \
     OB_LINT="$(jq -r '.checks.lint // "" | if . == "" then "n/a" else . end' "$plan")" \
@@ -395,7 +493,11 @@ worker_cmd() {
   else
     worker_argv=(omp -p --mode json --auto-approve --max-time "$((TICKET_TIMEOUT_SECS / 60))m" --no-session)
   fi
-  if [[ -n "$WORKER_MODEL" ]]; then worker_argv+=(--model "$WORKER_MODEL"); fi
+  if [[ "$worker" == omp && -n "$model_arg" ]]; then
+    worker_argv+=(--model "$model_arg")
+  elif [[ -n "$model_arg" ]]; then
+    worker_argv+=(--model "${model_arg#anthropic/}")
+  fi
   if ((visible)); then worker_argv+=("@$1"); else worker_argv+=("$(cat "$1")"); fi
 }
 
@@ -433,7 +535,7 @@ write_report() {
     def cell: tostring | gsub("\\|"; "/") | gsub("\n"; " ");
     . as $s
     | "# Overnight run \(.date)", "",
-      "- \(if .pr_mode then "Draft PR per ticket, stacked from `\(.pr_base)`" else "Branch `\(.branch)`" end), worker `\(.worker)`\(if .visible then " (visible)" else "" end), model \(.model // "" | if . == "" then "harness default" else "`\(.)`" end)",
+      "- \(if .pr_mode then "Draft PR per ticket, stacked from `\(.pr_base)`" else "Branch `\(.branch)`" end), worker `\(.worker)`\(if .visible then " (visible)" else "" end), model \(.model // "" | if . == "" then "harness default" else "`\(.)`" end), gated provider `\(.provider // "anthropic")`",
       "- Started \(.started_at | hm), ended \(.ended_at // now | floor | hm), deadline \(.deadline | hm)",
       "- Stop reason: **\(.stop_reason // "still running")**",
       "- Account check: \(.account)", "",
@@ -441,19 +543,27 @@ write_report() {
       "- Planned: \(.planned | map("#\(.)") | join(", "))",
       "- Actual: \(.order | map("#\(.)") | join(", "))", "",
       "## Tickets", "",
-      "| # | Title | Status | SHA / PR | Duration | Unmet criteria |", "| --- | --- | --- | --- | --- | --- |",
+      "| # | Title | Status | SHA / PR | Duration | Unmet criteria | Attempts |", "| --- | --- | --- | --- | --- | --- | --- |",
       (.planned[] as $n
         | ([$s.done[] | select(.n == $n)] | first) as $d
         | ([$s.failed[] | select(.n == $n)] | first) as $f
         | ([$s.skipped[] | select(.n == $n)] | first) as $k
+        | (((.retries // {})[$n | tostring] // 0) + 1) as $att
         | "| #\($n) | \($s | title($n) | cell) | "
-          + (if $d then "done | `\($d.sha)`\(if $d.pr then " [PR](\($d.pr))" elif $d.branch then " `\($d.branch)` (no PR)" else "" end) | \($d.secs | dur) | \($d.unmet | map(tostring) | join("; ") | cell)"
-             elif $f then "failed | — | \($f.secs | dur) | \($f.unmet | map(tostring) | join("; ") | cell)"
-             elif $k then "skipped-blocked | — | — | —"
-             else "not run | — | — | —" end) + " |"),
+          + (if $d then "done | `\($d.sha)`\(if $d.pr then " [PR](\($d.pr))" elif $d.branch then " `\($d.branch)` (no PR)" else "" end) | \($d.secs | dur) | \($d.unmet | map(tostring) | join("; ") | cell) | \($att)"
+             elif $f then "failed | — | \($f.secs | dur) | \($f.unmet | map(tostring) | join("; ") | cell) | \($att)"
+             elif $k then "skipped-blocked | — | — | — | —"
+             else "not run | — | — | — | —" end) + " |"),
       "", "## Failures", "",
       (if (.failed | length) == 0 then "None." else
-        (.failed[] | "- #\(.n): \(.reason). " + (if .worktree then "Worktree `\(.worktree)` on `\(.branch)`" else "Stash `\(.stash_name)`\(if .stash then " at `\(.stash)`" else " (nothing to stash)" end)" end) + "\(if .notes != "" then ". Worker: \(.notes | cell)" else "" end)") end),
+        (.failed[] | "- #\(.n): \(.reason). "
+          + (if .class then "Class: \(.class). " else "" end)
+          + ((.red_checks // []) | if length > 0 then "Red checks: \(join(", ")). " else "" end)
+          + ((.protected // []) | if length > 0 then "Protected paths touched: \(map("`\(.)`") | join(", ")). " else "" end)
+          + (if .worktree then "Worktree `\(.worktree)` on `\(.branch)`" else "Stash `\(.stash_name)`\(if .stash then " at `\(.stash)`" else " (nothing to stash)" end)" end)
+          + (if .patch then ". Patch `\(.patch)`" else "" end)
+          + (if .handoff then ". Handoff `\(.handoff)`" else "" end)
+          + "\(if .notes != "" then ". Worker: \(.notes | cell)" else "" end)") end),
       "", "## Skipped (blocked)", "",
       (if (.skipped | length) == 0 then "None." else (.skipped[] | "- #\(.n): \(.why)") end),
       "", "## Usage readings", "",
@@ -471,6 +581,7 @@ stop() {
   write_report
   finished=1
   log "stopped: $1 — report $dir/$(sget .date).md"
+  notify "overnight run stopped" "$1"
   exit "${2:-0}"
 }
 
@@ -486,6 +597,7 @@ on_exit() {
     st_apply '.stop_reason = (.stop_reason // $r) | .ended_at = (now | floor)' \
       --arg r "aborted (exit $rc); continue with --resume"
     write_report || true
+    notify "overnight run aborted" "exit $rc; continue with --resume"
   fi
 }
 
@@ -536,7 +648,8 @@ drop_worktree() {
 }
 
 # open_worktree <n> <title> — PR mode: a fresh worktree for ticket n on the
-# stack base, set up and entered; sets tbranch, tbase and wt.
+# stack base, set up and entered; sets tbranch, tbase and wt. Returns 1 when
+# setup fails (the worktree stays entered and in place).
 open_worktree() {
   local n="$1" baseref
   tbranch="ticket/$n-$(ticket_slug "$2")"
@@ -550,7 +663,7 @@ open_worktree() {
   cd "$wt"
   if [[ -n "$setup_cmd" ]] && ! run_with_timeout "$CHECK_TIMEOUT_SECS" "$dir/logs/$n-setup.log" \
     "$dir/logs/$n-setup.log" bash -c "$setup_cmd"; then
-    stop "setup failed in $wt: see $dir/logs/$n-setup.log" 1
+    return 1
   fi
 }
 
@@ -582,25 +695,154 @@ publish() {
   fi
 }
 
+# write_handoff <n> <k> <reason> <class> <retry> <patch> <result-obj> <file> —
+# one Markdown note per ticket, overwritten by each retry and final failure.
+write_handoff() {
+  local n="$1" k="$2" reason="$3" class="$4" retry="$5" patch="$6" robj="$7" file="$8"
+  {
+    echo "# Handoff: #$n attempt $k"
+    echo
+    echo "- Reason: $reason"
+    echo "- Class: $class$( ((retry)) && echo ' (retrying once)' || echo ' (final)')"
+    echo "- Patch: ${patch:-none}"
+    echo
+    echo "## Diff stat"
+    echo
+    echo '```'
+    git diff --cached --stat HEAD 2>/dev/null || true
+    echo '```'
+    if [[ -n "$gate_red_log" && -f "$gate_red_log" ]]; then
+      echo
+      echo "## Red check: ${gate_red_keys%% *} (last 40 lines of $gate_red_log)"
+      echo
+      echo '```'
+      tail -n 40 "$gate_red_log"
+      echo '```'
+    fi
+    echo
+    echo "## Worker notes"
+    echo
+    jq -r '.notes // "" | if . == "" then "None." else . end' <<<"$robj"
+    echo
+    echo "## Unmet criteria"
+    echo
+    jq -r '.unmet_criteria // [] | if type == "array" then . else [.] end
+      | if length == 0 then "None." else map("- \(.)") | join("\n") end' <<<"$robj"
+  } >"$file"
+}
+
+# fail_ticket <n> <reason> <temporary|permanent> <result-obj> <secs> <unmet-json> <keep-patch 0|1>
+# — the tail of a failed attempt, after the protected-paths check: save the
+# attempt as a patch, write the handoff note, then reset for one retry
+# (temporary, retry left, room for a whole attempt) or record the final failure.
+fail_ticket() {
+  local n="$1" reason="$2" class="$3" robj="$4" secs="$5" unmet="$6" keep_patch="$7"
+  local retries k patch="" hand="$dir/logs/$n.handoff.md" retry=0 stash=""
+  retries="$(sget "(.retries // {})[\"$n\"] // 0")"
+  k=$((retries + 1))
+  if [[ "$class" == temporary ]] && ((retries < MAX_RETRIES)) &&
+    (($(date +%s) + TICKET_TIMEOUT_SECS <= deadline)); then
+    retry=1
+  fi
+  if ((keep_patch)); then
+    patch="$dir/logs/$n-attempt$k.patch"
+    git add -A
+    git diff --cached --binary HEAD >"$patch"
+  fi
+  write_handoff "$n" "$k" "$reason" "$class" "$retry" "$patch" "$robj" "$hand"
+
+  if ((retry)); then
+    if ((pr_mode)); then
+      drop_worktree "$n" ""
+    elif [[ -n "$(git status --porcelain)" ]]; then
+      git stash push -u -q -m "overnight #$n attempt $k"
+    fi
+    st_apply '.retries = (.retries // {}) | .retries[$n | tostring] += 1 | .current = null' --argjson n "$n"
+    log "#$n failed ($reason); temporary, will retry once${patch:+ from $patch}"
+    if ((!pr_mode)); then
+      build_gate "$n-after-stash" static || stop "red build after stashing #$n attempt $k: $gate_failures" 1
+    fi
+    return
+  fi
+
+  local extra=(--arg class "$class" --arg red "$gate_red_keys" --arg prot "$protected_hit"
+    --arg patch "$patch" --arg hand "$hand")
+  local fields='class: $class, red_checks: ($red | split(" ") | map(select(. != ""))),
+    protected: ($prot | split("\n") | map(select(. != ""))),
+    patch: (if $patch == "" then null else $patch end), handoff: $hand'
+  if ((pr_mode)); then
+    st_apply ".failed += [{n: \$n, reason: \$reason, worktree: \$wt, branch: \$tb, secs: \$secs,
+        unmet: \$unmet, notes: (\$r.notes // \"\"), $fields}]
+      | .order += [\$n] | .queue -= [\$n] | .current = null" \
+      --argjson n "$n" --arg reason "$reason" --arg wt "$wt" --arg tb "$tbranch" \
+      --argjson secs "$secs" --argjson unmet "$unmet" --argjson r "$robj" "${extra[@]}"
+    log "#$n failed ($class): $reason (worktree $wt kept)"
+    return
+  fi
+  if [[ -n "$(git status --porcelain)" ]]; then
+    git stash push -u -q -m "overnight #$n"
+    stash="$(git rev-parse --short refs/stash)"
+  fi
+  st_apply ".failed += [{n: \$n, reason: \$reason, stash_name: \"overnight #\(\$n)\",
+      stash: (if \$stash == \"\" then null else \$stash end), secs: \$secs, unmet: \$unmet,
+      notes: (\$r.notes // \"\"), $fields}]
+    | .order += [\$n] | .queue -= [\$n] | .current = null" \
+    --argjson n "$n" --arg reason "$reason" --arg stash "$stash" --argjson secs "$secs" \
+    --argjson unmet "$unmet" --argjson r "$robj" "${extra[@]}"
+  log "#$n failed ($class): $reason${stash:+ (stash $stash)}"
+  build_gate "$n-after-stash" static || stop "red build after stashing #$n: $gate_failures" 1
+}
+
 run_ticket() {
-  local n="$1" title attempt out err brief start secs rc=0 text result status unmet reason
-  local sessions resultf head_before pr_url=""
+  local n="$1" title k retries out err brief start secs rc=0 text result status unmet reason class
+  local sessions resultf head_before pr_url="" handoff handoff_ref=none patch_prev
   title="$(sget ".titles[\"$n\"] // \"\"")"
-  attempt=$(($(sget ".requeues[\"$n\"] // 0") + 1))
+  retries="$(sget "(.retries // {})[\"$n\"] // 0")"
+  k=$((retries + 1))
+  handoff="$dir/logs/$n.handoff.md"
+  patch_prev="$dir/logs/$n-attempt$retries.patch"
+  # A first attempt owns its files: leftovers belong to an earlier run.
+  if ((retries == 0)); then rm -f "$handoff" "$dir/logs/$n-attempt"*.patch; fi
+  gate_failures="" gate_red_keys="" gate_red_log="" protected_hit=""
   st_apply '.current = $n | .tickets_run += 1' --argjson n "$n"
   out="$dir/logs/$(sget .tickets_run)-$n.out" # one set per worker start, resumes included
   err="${out%.out}.err"
   brief="${out%.out}.brief.md"
   resultf="${out%.out}.result.json"
   sessions="$dir/sessions/$(sget .tickets_run)-$n"
-  if ((pr_mode)); then open_worktree "$n" "$title"; else tbranch="$branch"; fi
-  render_brief "$n" "$title" "$resultf" >"$brief"
+  if ((pr_mode)); then
+    if ! open_worktree "$n" "$title"; then
+      log "#$n setup failed; see $dir/logs/$n-setup.log"
+      fail_ticket "$n" "setup failed: see $dir/logs/$n-setup.log" temporary '{}' 0 '[]' 0
+      return
+    fi
+  else
+    tbranch="$branch"
+  fi
+  if ((retries > 0)); then
+    if [[ -s "$patch_prev" ]]; then
+      if git apply --index --binary "$patch_prev" 2>>"$dir/logs/$n-apply.log"; then
+        printf '\n## Retry\n\nPrevious patch applied: the working tree holds attempt %s.\n' "$retries" >>"$handoff"
+      else
+        if ((!pr_mode)); then
+          git reset -q --hard
+          git clean -fdq
+        fi
+        printf '\n## Retry\n\nprevious patch did not apply; started clean\n' >>"$handoff"
+        log "#$n previous patch did not apply; started clean"
+      fi
+    else
+      printf '\n## Retry\n\nNo previous patch; started clean.\n' >>"$handoff"
+    fi
+    if [[ -f "$handoff" ]]; then handoff_ref="$handoff"; fi
+  fi
+  render_brief "$n" "$title" "$resultf" "$handoff_ref" >"$brief"
   worker_cmd "$brief" "$sessions"
   head_before="$(git rev-parse HEAD)"
   if ((pr_mode)); then
-    log "#$n start (attempt $attempt): $title — $tbranch on $tbase in $wt"
+    log "#$n start (attempt $k): $title — $tbranch on $tbase in $wt"
   else
-    log "#$n start (attempt $attempt): $title"
+    log "#$n start (attempt $k): $title"
   fi
   start="$(date +%s)"
   local timeout_secs="$TICKET_TIMEOUT_SECS"
@@ -651,18 +893,34 @@ run_ticket() {
     fi
   fi
 
-  if ((timed_out)); then
+  # Protected paths: once per attempt, before any patch, stash or commit. The
+  # files are removed first, so they reach none of them.
+  protected_hit="$(protected_hits)"
+  if [[ -n "$protected_hit" ]]; then
+    purge_protected "$protected_hit"
+    reason="protected paths touched: $(paste -sd ' ' - <<<"$protected_hit")"
+    class=permanent
+  elif ((timed_out)); then
     reason="timed out after $((secs / 60))m$((secs % 60))s"
+    class=temporary
   elif ((rc != 0)); then
     reason="worker exited $rc"
+    class=temporary
   elif [[ -z "$result" ]]; then
     reason="no final JSON from worker"
+    class=temporary
+  elif [[ "$status" == blocked ]]; then
+    reason="worker reported blocked"
+    class=permanent
   elif [[ "$status" != "done" ]]; then
     reason="worker reported $status"
+    class=temporary
   elif [[ -z "$(git status --porcelain)" ]]; then
     reason="worker reported done but changed nothing"
-  elif ! build_gate "$n"; then
-    reason="build gate red: $gate_failures"
+    class=permanent
+  elif ! build_gate "$n" full; then
+    reason="checks red: $gate_failures"
+    class=temporary
   else
     local subject stat sha
     subject="$(jq -r '.commit_subject // ""' <<<"$result" | head -n 1 | sed -E 's/[[:space:]]*\(#[0-9]+\)[[:space:]]*$//')"
@@ -689,30 +947,9 @@ run_ticket() {
     fi
     git reset -q
     reason="git commit failed (hook?)"
+    class=permanent
   fi
-
-  if ((pr_mode)); then
-    st_apply '.failed += [{n: $n, reason: $reason, worktree: $wt, branch: $tb, secs: $secs,
-        unmet: $unmet, notes: ($r.notes // "")}]
-      | .order += [$n] | .queue -= [$n] | .current = null' \
-      --argjson n "$n" --arg reason "$reason" --arg wt "$wt" --arg tb "$tbranch" \
-      --argjson secs "$secs" --argjson unmet "$unmet" --argjson r "$robj"
-    log "#$n failed: $reason (worktree $wt kept)"
-    return
-  fi
-  local stash=""
-  if [[ -n "$(git status --porcelain)" ]]; then
-    git stash push -u -q -m "overnight #$n"
-    stash="$(git rev-parse --short refs/stash)"
-  fi
-  st_apply '.failed += [{n: $n, reason: $reason, stash_name: "overnight #\($n)",
-      stash: (if $stash == "" then null else $stash end), secs: $secs, unmet: $unmet,
-      notes: ($r.notes // "")}]
-    | .order += [$n] | .queue -= [$n] | .current = null' \
-    --argjson n "$n" --arg reason "$reason" --arg stash "$stash" --argjson secs "$secs" \
-    --argjson unmet "$unmet" --argjson r "$robj"
-  log "#$n failed: $reason${stash:+ (stash $stash)}"
-  build_gate "$n-after-stash" || stop "red build after stashing #$n: $gate_failures" 1
+  fail_ticket "$n" "$reason" "$class" "$robj" "$secs" "$unmet" 1
 }
 
 # --- setup -----------------------------------------------------------------
@@ -722,13 +959,16 @@ if ((resume)); then
   [[ -f "$state" ]] || die "--resume needs $state"
   [[ "$(sget .branch)" == "$branch" ]] || die "state.json is for $(sget .branch); $branch is checked out"
   [[ -n "$worker" ]] || worker="$(sget .worker)"
-  ((visible)) || visible="$(sget '.visible // false | if . then 1 else 0 end')"
+  [[ -n "$visible" ]] || visible="$(sget '.visible // false | if . then 1 else 0 end')"
   ((pr_mode)) || pr_mode="$(sget '.pr_mode // false | if . then 1 else 0 end')"
 fi
 if [[ -z "$worker" ]]; then
   if [[ -n "${CLAUDECODE:-}" ]]; then worker=claude; else worker=omp; fi
 fi
 [[ "$worker" == claude || "$worker" == omp ]] || die "--worker must be claude or omp"
+if [[ -z "$visible" ]]; then
+  if [[ "$worker" == omp && -n "${HERDR_WORKSPACE_ID:-}" ]] && command -v herdr >/dev/null 2>&1; then visible=1; else visible=0; fi
+fi
 command -v "$worker" >/dev/null 2>&1 || die "$worker not on PATH"
 if ((visible)); then
   [[ "$worker" == omp ]] || die "--visible needs --worker omp"
@@ -748,22 +988,24 @@ claude_lists_max_turns=0
 if [[ "$worker" == claude ]] && claude --help 2>/dev/null | grep -q -- '--max-turns'; then
   claude_lists_max_turns=1
 fi
-model="$(resolve_model)"
+resolve_model
 deadline="$(deadline_epoch)"
 account="$(account_check)"
 mkdir -p "$dir/logs"
 
 new_state() {
   jq -n --argjson plan "$(cat "$plan")" --arg branch "$branch" --arg worker "$worker" \
-    --arg model "$model" --argjson deadline "$deadline" --arg account "$account" \
+    --arg model "$model" --arg model_arg "$model_arg" --arg provider "$provider" \
+    --argjson deadline "$deadline" --arg account "$account" \
     --arg date "$(date +%Y-%m-%d)" --argjson visible "$visible" --argjson pr_mode "$pr_mode" \
     --arg pr_base "$PR_BASE" '
-    {date: $date, branch: $branch, worker: $worker, model: $model, account: $account,
+    {date: $date, branch: $branch, worker: $worker, model: $model, model_arg: $model_arg,
+     provider: $provider, account: $account,
      visible: ($visible == 1), pr_mode: ($pr_mode == 1), pr_base: $pr_base, stack_base: null,
      started_at: (now | floor), ended_at: null, deadline: $deadline,
      planned: $plan.queue, queue: $plan.queue, waived: ($plan.waived // []),
      titles: {}, edges: {}, done: [], failed: [], skipped: [], order: [], usage: [],
-     tickets_run: 0, requeues: {}, current: null, stop_reason: null}'
+     tickets_run: 0, requeues: {}, retries: {}, current: null, stop_reason: null}'
 }
 
 if ((dry_run)); then
@@ -785,15 +1027,17 @@ if ((dry_run)); then
     echo "              (--max-turns omitted: not listed in claude --help; bounded by the timeout)"
   fi
   echo "  model       ${model:-harness default (gate checks every model-scoped 7d window)}"
+  echo "  gate provider  $provider"
   if ((visible)); then echo "  visible     one herdr tab per worker (omp TUI), idle after ${VISIBLE_IDLE_SECS}s"; fi
   if ((pr_mode)); then
     echo "  PRs         worktrees in $worktrees; ticket/<N>-<slug> stacked from origin/$PR_BASE; draft PR per pass"
     echo "  setup       ${setup_cmd:-none}"
   fi
   echo "  skills      $implement_skill · $code_review_skill"
-  echo "  build gate  $(jq -r '[.checks | to_entries[] | select(.key != "test") | "\(.key): \(if .value == "" then "n/a" else .value end)"] | join(" · ")' "$plan")"
+  echo "  build gate  $(jq -r '[.checks | to_entries[] | "\(.key): \(if .value == "" then "n/a" else .value end)"] | join(" · ")' "$plan") (test skipped in the after-stash health check)"
+  echo "  protected   $PROTECTED_RE"
   echo "  limits      deadline $(date -r "$deadline" '+%a %H:%M' 2>/dev/null || date -d "@$deadline" '+%a %H:%M'), $((TICKET_TIMEOUT_SECS / 60))m per ticket, max tickets $([[ "$max_tickets" == 0 ]] && echo unlimited || echo "$max_tickets")"
-  echo "  thresholds  5h sleep ≥${FIVE_HOUR_SLEEP_PCT}% · 7d pace +${PACE_MARGIN_PCT}% over elapsed (past ${PACE_MIN_ELAPSED_PCT}%) or ≥${SEVEN_DAY_STOP_PCT}% · unknown-gate cap ${FALLBACK_MAX_TICKETS} tickets"
+  echo "  thresholds  5h sleep ≥${FIVE_HOUR_SLEEP_PCT}% · 7d pace +${PACE_MARGIN_PCT}% over elapsed (past ${PACE_MIN_ELAPSED_PCT}%) or ≥${SEVEN_DAY_STOP_PCT}%$([[ "$provider" == anthropic ]] || echo " · monthly (no window length) hard stop ≥${SEVEN_DAY_STOP_PCT}%") · unknown-gate cap ${FALLBACK_MAX_TICKETS} tickets"
   echo "  account     $account"
   echo "  gate        exit $gate_code — $gate_reading${gate_secs:+ (sleep ${gate_secs}s)}"
   git check-ignore -q "$dir/state.json" || echo "  note        $dir/ is not git-ignored yet; a real run adds it to .git/info/exclude"
@@ -811,6 +1055,12 @@ if ((dry_run)); then
     echo "  skipped-blocked:"
     sget '.skipped[] | "    #\(.n) \(.why)"'
   fi
+  no_criteria=""
+  for n in $(sget '.queue[]'); do
+    body="$(gh issue view "$n" --json body --jq .body)" || die "gh issue view $n failed"
+    [[ -n "$(acceptance_criteria <<<"$body")" ]] || no_criteria="${no_criteria:+$no_criteria, }#$n"
+  done
+  echo "  no acceptance criteria: ${no_criteria:-none}"
   exit 0
 fi
 
@@ -824,8 +1074,10 @@ if ((resume)); then
     log "stashed interrupted #$current work as 'overnight #$current interrupted'"
   fi
   st_apply '.current = null | .stop_reason = null | .ended_at = null | .deadline = $d | .worker = $w
-      | .visible = ($v == 1) | .pr_mode = ($p == 1) | .pr_base = (.pr_base // $b)' \
-    --argjson d "$deadline" --arg w "$worker" --argjson v "$visible" --argjson p "$pr_mode" --arg b "$PR_BASE"
+      | .visible = ($v == 1) | .pr_mode = ($p == 1) | .pr_base = (.pr_base // $b)
+      | .model = $m | .model_arg = $ma | .provider = $pv | .retries = (.retries // {})' \
+    --argjson d "$deadline" --arg w "$worker" --argjson v "$visible" --argjson p "$pr_mode" --arg b "$PR_BASE" \
+    --arg m "$model" --arg ma "$model_arg" --arg pv "$provider"
 else
   [[ ! -f "$state" ]] || die "$state exists; pass --resume or move it aside"
   [[ -z "$(git status --porcelain)" ]] || die "working tree is not clean"

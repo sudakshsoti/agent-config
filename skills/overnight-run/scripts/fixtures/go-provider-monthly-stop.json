@@ -1,0 +1,82 @@
+{
+  "generatedAt": 1790533120264,
+  "reports": [
+    {
+      "provider": "opencode-go",
+      "fetchedAt": 1790533120264,
+      "limits": [
+        {
+          "id": "rolling-5h",
+          "label": "5 Hour limit",
+          "scope": {
+            "provider": "opencode-go",
+            "windowId": "5h",
+            "shared": true
+          },
+          "window": {
+            "id": "5h",
+            "label": "5 Hour",
+            "resetsAt": 1790536720264,
+            "durationMs": 18000000
+          },
+          "amount": {
+            "used": 4,
+            "usedFraction": 0.04,
+            "remainingFraction": 0.96,
+            "unit": "percent"
+          },
+          "status": "ok"
+        },
+        {
+          "id": "weekly",
+          "label": "Weekly limit",
+          "scope": {
+            "provider": "opencode-go",
+            "windowId": "7d",
+            "shared": true
+          },
+          "window": {
+            "id": "7d",
+            "label": "Weekly",
+            "resetsAt": 1790792320264,
+            "durationMs": 604800000
+          },
+          "amount": {
+            "used": 2,
+            "usedFraction": 0.02,
+            "remainingFraction": 0.98,
+            "unit": "percent"
+          },
+          "status": "ok"
+        },
+        {
+          "id": "monthly",
+          "label": "Monthly limit",
+          "scope": {
+            "provider": "opencode-go",
+            "windowId": "monthly",
+            "shared": true
+          },
+          "window": {
+            "id": "monthly",
+            "label": "Monthly",
+            "resetsAt": 1790878720264
+          },
+          "amount": {
+            "used": 95,
+            "usedFraction": 0.95,
+            "remainingFraction": 0.050000000000000044,
+            "unit": "percent"
+          },
+          "status": "ok"
+        }
+      ],
+      "metadata": {
+        "planType": "OpenCode Go",
+        "endpoint": "https://opencode.ai/zen/go/v1/usage"
+      }
+    }
+  ],
+  "accountsWithoutUsage": [],
+  "disabledCredentials": []
+}

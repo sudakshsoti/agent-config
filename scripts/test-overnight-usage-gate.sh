@@ -53,9 +53,13 @@ expect 0 "" "weekly window without resetsAt at 70% goes" pace-no-reset-7d.json
 expect 20 "" "weekly window without resetsAt at 95% stops" pace-no-reset-hard-7d.json
 expect 20 "" "borderline pace stops at the default margin" pace-margin-borderline-7d.json
 PACE_MARGIN_PCT=25 expect 0 "" "raised margin lets the borderline case go" pace-margin-borderline-7d.json
+expect 0 "" "go provider all windows clear" go-provider-go.json --provider opencode-go
+expect 10 3720 "go provider 5h over threshold sleeps until reset + 120 s" go-provider-sleep-5h.json --provider opencode-go
+expect 20 "" "go provider monthly over ceiling stops" go-provider-monthly-stop.json --provider opencode-go
+expect 20 "" "go provider weekly over pace stops" go-provider-pace-stop-7d.json --provider opencode-go
+expect 30 "" "anthropic fixture has no go report" go.json --provider opencode-go
 expect 30 "" "no anthropic report is unknown" no-anthropic.json
 expect 30 "" "missing 5h window is unknown" missing-5h.json
-
 # The stop reason must name the rule that fired.
 err="$(USAGE_GATE_JSON="$fixtures/pace-stop-early-7d.json" "$gate" 2>&1 >/dev/null || true)"
 case "$err" in
@@ -70,6 +74,37 @@ case "$err" in
 *"weekly over 90%"*) echo "  ok    ceiling stop names the 90% rule" ;;
 *)
   echo "  FAIL  ceiling stop names the 90% rule: '$err'"
+  fails=$((fails + 1))
+  ;;
+esac
+err="$(USAGE_GATE_JSON="$fixtures/go-provider-go.json" "$gate" --provider opencode-go 2>&1 >/dev/null || true)"
+case "$err" in
+*opencode-go*) echo "  ok    go reading names the provider" ;;
+*)
+  echo "  FAIL  go reading names the provider: '$err'"
+  fails=$((fails + 1))
+  ;;
+esac
+err="$(USAGE_GATE_JSON="$fixtures/go-provider-sleep-5h.json" "$gate" --provider opencode-go 2>&1 >/dev/null || true)"
+case "$err" in
+*opencode-go*) echo "  ok    go sleep names the provider" ;;
+*)
+  echo "  FAIL  go sleep names the provider: '$err'"
+  fails=$((fails + 1))
+  ;;
+esac
+err="$(USAGE_GATE_JSON="$fixtures/go-provider-monthly-stop.json" "$gate" --provider opencode-go 2>&1 >/dev/null || true)"
+case "$err" in
+*opencode-go*) echo "  ok    go monthly stop names the provider" ;;
+*)
+  echo "  FAIL  go monthly stop names the provider: '$err'"
+  fails=$((fails + 1))
+  ;;
+esac
+case "$err" in
+*monthly*) echo "  ok    monthly stop names the window" ;;
+*)
+  echo "  FAIL  monthly stop names the window: '$err'"
   fails=$((fails + 1))
   ;;
 esac

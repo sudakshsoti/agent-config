@@ -21,7 +21,7 @@ in Claude Code, `~/.agents/skills/overnight-run/scripts` in OMP.
 Arguments, if given, preset the deadline (default 07:00), a max-tickets cap
 (default none), the worker harness, and the two optional modes:
 
-- **Visible** (`--visible`; OMP worker inside herdr only): each worker runs as
+- **Visible** (the default for an OMP worker inside herdr; `--headless` opts out, `--visible` forces it): each worker runs as
   the interactive omp TUI in its own herdr tab, so a human can watch it. The
   tab closes when the worker writes its result file, goes quiet for 60 s after
   a terminal turn, or hits the timeout. Transcripts go to
@@ -61,33 +61,44 @@ Keep tracker access read-only for the whole run: `gh issue list/view` and
      .scratch/overnight/x` fails, append `/.scratch/overnight/` to
      `$(git rev-parse --git-path info/exclude)`.
    - `git switch -c overnight/<YYYY-MM-DD>`, install dependencies, then run
-     typecheck, build and lint once. Abort if any is red. In PR-per-ticket
+     typecheck, build and lint once, and the test command once under a
+     20-minute limit. Abort if any is red or times out. In PR-per-ticket
      mode this checkout only holds `.scratch/overnight/`; the tickets branch
      from `origin/main`.
-5. **Pick the worker.** Default to the harness running this session (`claude`
-   in Claude Code, `omp` in OMP); offer the other as an override.
+5. **Pick the worker.** Default: `omp` with model
+   `opencode-go/deepseek-v4.1-flash:high`, so the run spends the OpenCode Go
+   allowance, not Anthropic. Offer Claude or another model as an override
+   (`OVERNIGHT_WORKER_MODEL`, or `--worker claude`, which takes only an
+   Anthropic model or none). The usage gate follows the model's provider.
 6. **Write the plan** to `.scratch/overnight/plan.json`:
 
    ```json
    {"branch": "overnight/2026-09-28", "queue": [12, 14, 15],
     "waived": [[15, 9]],
+    "worker_model": "opencode-go/deepseek-v4.1-flash:high",
     "checks": {"typecheck": "...", "build": "...", "lint": "...", "test": "..."},
     "setup": "npm ci"}
    ```
 
-   `waived` holds `[issue, blocker]` pairs the user agreed to ignore. `setup`
+   `waived` holds `[issue, blocker]` pairs the user agreed to ignore.
+   `worker_model` is `provider/model`; the env var overrides it. `setup`
    installs dependencies in each new worktree and is used only with
    `--pr-per-ticket`; ask for it if the repo's install command is unclear.
 7. **Dry run.** `"$S/overnight.sh" --dry-run --worker <w> --deadline <HH:MM>
-   [--max-tickets N] [--visible] [--pr-per-ticket]`. It runs `usage-gate.sh` once, compares
-   `claude auth status` with the account `omp usage` reports, and prints the
-   run order. If the account line says `mismatch` or `unknown`, or the gate
-   exits 30, say so: the run then stops after `FALLBACK_MAX_TICKETS` (4)
-   tickets.
+   [--max-tickets N] [--headless] [--pr-per-ticket]`. It runs `usage-gate.sh` once for
+   the worker's provider, checks the account, and prints the model, gated
+   provider, thresholds, run order and the tickets with no extractable
+   acceptance criteria. If the account line says `mismatch` or `unknown`, or
+   the gate exits 30, say so: the run then stops after `FALLBACK_MAX_TICKETS`
+   (4) tickets.
 8. **Confirm once.** Show one summary: the ordered queue, the worker command,
-   the thresholds (5h sleep at 70%; 7d stop when 15+ points over elapsed pace past 5% elapsed, or at 90%), the caps (45 min per
-   ticket, max tickets, fallback cap), the deadline (default 07:00), and the
-   git policy below for the chosen mode. Wait for one explicit yes.
+   the model and the provider being gated, the thresholds (5h sleep at 70%; 7d
+   stop when 15+ points over elapsed pace past 5% elapsed, or at 90%; for Go
+   also a monthly hard stop at 90%), the caps (45 min per ticket, max
+   tickets, fallback cap), the deadline (default 07:00), the tickets without
+   acceptance criteria (ask include or exclude for each; included ones run on
+   the ticket's own wording), and the git policy below for the chosen mode.
+   Wait for one explicit yes.
 9. **Launch and exit.**
 
    ```bash
@@ -107,17 +118,37 @@ Keep tracker access read-only for the whole run: `gh issue list/view` and
 ## What the script does
 
 Per ticket, strictly serial: usage gate → one fresh worker running
-`worker-brief.md` with a 45-minute wall clock → build gate (typecheck + build
-+ lint) → commit `<subject> (#N)` on pass, or `git stash push -u -m
-"overnight #N"` on fail, which marks the ticket failed and its dependents
-skipped-blocked. Rate-limited workers are reset and requeued, never failed.
-A red build after a stash halts the run. In PR-per-ticket mode the worker and
-the gate run in the ticket's worktree; a pass also pushes the branch and opens
-the draft PR, and a fail keeps the worktree instead of stashing.
+`worker-brief.md` with a 45-minute wall clock → protected-paths check → build
+gate (typecheck + build + lint + **test**) → commit `<subject> (#N)` on pass.
+Rate-limited workers are reset and requeued, never failed. A red build after a
+stash (typecheck + build + lint, no test) halts the run. In PR-per-ticket mode
+the worker and the gate run in the ticket's worktree; a pass also pushes the
+branch and opens the draft PR.
 
-The gate (`usage-gate.sh`) reads `omp usage --provider anthropic --json` after
-an `invalidate`. Exit 0 go, 10 sleep until the 5h reset + 120 s, 20 stop on a
-weekly window, 30 unknown. Thresholds live at the top of that file.
+- **Protected paths.** Env files, `*.pem`, `*.key`, SSH private keys,
+  `.git/` and `.github/workflows/` (`OVERNIGHT_PROTECTED_RE` overrides the
+  pattern). A change fails the ticket permanently; the files are removed
+  before any patch, stash or commit, so they never reach them.
+- **Failures.** Temporary (timeout, worker crash, no final JSON, red checks,
+  `partial`, setup failed) get one retry: the attempt is saved as a patch
+  and a handoff note (`logs/<N>.handoff.md`), the tree is reset (stashed as
+  `overnight #N attempt <k>`), and when the ticket's turn comes the patch is
+  reapplied before the worker starts. A patch that no longer applies means a
+  clean start, noted in the handoff. Permanent failures (`blocked`, `done`
+  with no changes, protected paths, refused commit) fail at once. A final
+  failure is stashed as `overnight #N` (PR mode keeps the worktree) and
+  skips its dependents; a retry does not. A retry only starts when a whole
+  attempt fits before the deadline. A failed worktree setup fails only its
+  ticket.
+- **Notification.** A macOS notification fires on every stop, aborts
+  included; `OVERNIGHT_NOTIFY=0` silences it.
+
+The gate (`usage-gate.sh --provider <p>`) reads `omp usage --provider <p>
+--json` after an `invalidate`, for the provider of the worker's model. Exit 0
+go, 10 sleep until the 5h reset + 120 s, 20 stop on a weekly or monthly
+window, 30 unknown. Thresholds live at the top of that file. On a work
+machine without OMP config the gate reads unknown, so the run caps at
+`FALLBACK_MAX_TICKETS` (4) tickets.
 
 **Git policy (default):** one run branch, one commit per ticket. Nothing is
 pushed, merged, deployed or opened as a PR, and no issue is commented on,
@@ -132,11 +163,14 @@ rebase-merge: a squash forces conflicts in the PRs above it.
 ## Morning
 
 The report is `.scratch/overnight/<YYYY-MM-DD>.md`: planned vs actual queue,
-per-ticket status, SHA or PR, duration and unmet criteria, failures with stash
-names or worktree paths, skipped tickets with blockers, usage readings, the
-stop reason and the routes to check visually.
+model and gated provider, per-ticket status, SHA or PR, duration, unmet
+criteria and attempts, failures with class (temporary or permanent), red
+checks, protected paths hit, patch and handoff paths, and stash names or
+worktree paths, skipped tickets with blockers, usage readings, the stop
+reason and the routes to check visually.
 
 To continue an interrupted or stopped run on the same branch:
-`"$S/overnight.sh" --resume [--deadline HH:MM] [--visible] [--pr-per-ticket]`,
+`"$S/overnight.sh" --resume [--deadline HH:MM] [--headless] [--pr-per-ticket]`,
 launched the same way. A mode flag given on resume stays on; the state
-remembers the modes of the original run.
+remembers the modes and the model of the original run. To start over, delete
+`.scratch/overnight/state.json`.
