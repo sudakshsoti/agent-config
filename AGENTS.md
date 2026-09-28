@@ -135,8 +135,8 @@ Secrets belong in dotfiles (1Password + age), never here.
   | `critic` agent | `anthropic/claude-opus-5-5:medium` |
   | `slow` role | `anthropic/claude-opus-5-5:xhigh` (explicit escalation only) |
   | `security-reviewer` role and agent | `anthropic/claude-opus-5-5:high` |
-  | `builder` agent | `anthropic/claude-sonnet-5:medium` |
-  | `task` role and agent; `workflow` agent | `anthropic/claude-sonnet-5:medium` |
+  | `builder` agent | `anthropic/claude-sonnet-5-5:medium` |
+  | `task` role and agent; `workflow` agent | `anthropic/claude-sonnet-5-5:medium` |
   | `code-worker`/`sonic` agents | `muse-code/muse-spark-1.3-contributor:high` / `:low` |
   | `smol`/`tiny`/`commit` roles | `opencode-go/glm-5.3-flash:low` |
   | `adversary`/`reviewer`/`advisor` | `opencode-go/glm-5.3-flash:high` |
@@ -182,7 +182,7 @@ Secrets belong in dotfiles (1Password + age), never here.
   `--config`, never add persistent apply/restore state. Thinking levels are
   model-specific: `glm-5.3-flash` and `kimi-k3` accept only low/high/max;
   `deepseek-v4-flash`/`v4.1-flash` accept low/high/max (minimal→low,
-  medium/xhigh→high). `claude-opus-5-5`/`claude-opus-5`/`claude-sonnet-5`/
+  medium/xhigh→high). `claude-opus-5-5`/`claude-opus-5`/`claude-sonnet-5-5`/
   `claude-fable-5-1` use adaptive thinking (default `high`) over
   low/medium/high/xhigh/max, and Opus 5/5.5 cannot disable thinking at
   xhigh/max. `claude-haiku-4-5` has no effort

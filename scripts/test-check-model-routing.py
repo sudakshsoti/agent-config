@@ -24,17 +24,17 @@ SPEC.loader.exec_module(MODULE)
 BASE_CONFIG = """\
 modelRoles:
   default: anthropic/claude-opus-5:medium
-  task: anthropic/claude-sonnet-5:medium
+  task: anthropic/claude-sonnet-5-5:medium
 disabledProviders:
   - openai-codex
 task:
   agentModelOverrides:
-    builder: anthropic/claude-sonnet-5:high
+    builder: anthropic/claude-sonnet-5-5:high
     scout: opencode-go/glm-5.3-flash:low
 retry:
   fallbackChains:
     anthropic/claude-opus-5:
-      - anthropic/claude-sonnet-5:high
+      - anthropic/claude-sonnet-5-5:high
 """
 
 OVERLAY = """\
@@ -53,7 +53,7 @@ BUILDER = """\
 ---
 name: builder
 description: Implements an approved UX plan.
-model: anthropic/claude-sonnet-5:high
+model: anthropic/claude-sonnet-5-5:high
 ---
 
 Body.
@@ -97,18 +97,18 @@ class RoutingCheckTest(unittest.TestCase):
 
     def test_frontmatter_drift_is_reported(self):
         drifted = BUILDER.replace(
-            "model: anthropic/claude-sonnet-5:high", 'model: "@default"'
+            "model: anthropic/claude-sonnet-5-5:high", 'model: "@default"'
         )
         failures = MODULE.check(str(self.build(**{"omp/agents/builder.md": drifted})))
         self.assertTrue(any("resolves to" in f and "builder" in f for f in failures), failures)
 
     def test_alias_matching_its_override_passes(self):
         aliased = BUILDER.replace(
-            "model: anthropic/claude-sonnet-5:high", 'model: "@task"'
+            "model: anthropic/claude-sonnet-5-5:high", 'model: "@task"'
         )
         config = BASE_CONFIG.replace(
-            "builder: anthropic/claude-sonnet-5:high",
-            "builder: anthropic/claude-sonnet-5:medium",
+            "builder: anthropic/claude-sonnet-5-5:high",
+            "builder: anthropic/claude-sonnet-5-5:medium",
         )
         failures = MODULE.check(
             str(self.build(**{"omp/agents/builder.md": aliased, "omp/config.yml": config}))
@@ -181,7 +181,7 @@ class RoutingCheckTest(unittest.TestCase):
         self.assertTrue(any("enabledModels" in f for f in failures), failures)
 
     def test_agent_without_model_key_is_reported(self):
-        agent = BUILDER.replace("model: anthropic/claude-sonnet-5:high\n", "")
+        agent = BUILDER.replace("model: anthropic/claude-sonnet-5-5:high\n", "")
         failures = MODULE.check(str(self.build(**{"omp/agents/builder.md": agent})))
         self.assertTrue(any("no `model:` key" in f for f in failures), failures)
 

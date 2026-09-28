@@ -41,7 +41,7 @@ expect 10 3720 "5h over threshold sleeps until reset + 120 s" sleep-5h.json
 FIVE_HOUR_SLEEP_PCT=76 expect 0 "" "5h below a raised threshold goes" sleep-5h.json
 expect 20 "" "7d over pace stops, even with 5h also over" stop-7d.json
 expect 20 "" "model-scoped 7d over pace stops its family" stop-model-7d.json --model anthropic/claude-opus-5-5
-expect 0 "" "model-scoped 7d of another family is ignored" stop-model-7d.json --model claude-sonnet-5
+expect 0 "" "model-scoped 7d of another family is ignored" stop-model-7d.json --model claude-sonnet-5-5
 expect 20 "" "unknown family gates every model-scoped 7d" stop-model-7d.json
 expect 0 "" "late-week 7d at 60% with 90% elapsed goes" pace-go-late-7d.json
 expect 20 "" "day-1 7d at 40% with 10% elapsed stops" pace-stop-early-7d.json

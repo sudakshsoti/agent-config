@@ -105,7 +105,7 @@ Both options require **re-adding the credential first** (it was removed on
   credential then works from Pi, metered against that balance rather than the
   plan — note that without extra usage Anthropic rejects the login outright
   (HTTP 400, "Third-party apps now draw from your extra usage");
-- or add a live OpenRouter API key and route `anthropic/claude-sonnet-5` or
+- or add a live OpenRouter API key and route `anthropic/claude-sonnet-5-5` or
   `anthropic/claude-opus-5` through `openrouter`, metered per token.
 
 Until then, treat OMP as the Claude harness and Pi as the flat-rate harness.
