@@ -36,6 +36,7 @@ task:
     critic: anthropic/claude-opus-5-5:medium
     workflow: anthropic/claude-sonnet-5-5:medium
     research: muse-code/muse-spark-1.3-contributor:high
+  maxConcurrency: 4
 retry:
   enabled: true
   modelFallback: true
@@ -148,6 +149,7 @@ display:
 defaultThinkingLevel: auto
 providers:
   autoThinkingMaxEffort: high
+  fireworksTier: standard
 textVerbosity: medium
 tier:
   subagent: inherit
@@ -161,8 +163,12 @@ compaction:
     - soft
   thresholdPercent: 70
   idleThresholdTokens: 200000
+  thresholdTokens: 200000
+  idleEnabled: true
+  idleTimeoutSeconds: 120
 snapcompact:
   systemPrompt: none
+  toolResults: false
 bashInterceptor:
   enabled: false
 skills:
@@ -208,3 +214,8 @@ vault:
   enabled: true
 live:
   voice: sol
+read:
+  renderMarkdown: true
+plan:
+  autosave: true
+  autosaveDir: plans
