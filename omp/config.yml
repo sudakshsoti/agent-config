@@ -131,7 +131,7 @@ autolearn:
   autoContinue: true
 dev:
   autoqaConsent: denied
-hideThinkingBlock: true
+hideThinkingBlock: false
 advisor:
   enabled: false
   syncBacklog: "off"
