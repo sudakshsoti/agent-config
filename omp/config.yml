@@ -1,5 +1,5 @@
 modelRoles:
-  default: anthropic/claude-opus-5-5:medium
+  default: anthropic/claude-sonnet-5-5:high
   plan: anthropic/claude-opus-5-5:high
   slow: anthropic/claude-opus-5-5:xhigh
   designer: anthropic/claude-opus-5-5:high
@@ -131,7 +131,7 @@ autolearn:
   autoContinue: true
 dev:
   autoqaConsent: denied
-hideThinkingBlock: false
+hideThinkingBlock: true
 advisor:
   enabled: false
   syncBacklog: "off"
