@@ -1,0 +1,14 @@
+id = "marksman-root"
+name = "Marksman root marker"
+version = "0.1.0"
+min_herdr_version = "0.7.3"
+description = "Drop .marksman.toml into linked worktrees so Marksman accepts them as workspace roots"
+platforms = ["linux", "macos"]
+
+[[events]]
+on = "worktree.created"
+command = ["sh", "mark.sh"]
+
+[[events]]
+on = "worktree.opened"
+command = ["sh", "mark.sh"]

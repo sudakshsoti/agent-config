@@ -758,6 +758,22 @@ else
         fi
       done <"$REPO/herdr/plugins.txt"
     fi
+    # Repo-owned plugins (herdr/<dir>/herdr-plugin.toml) are linked, not
+    # installed: no network or build, so this runs under --no-external too.
+    if command -v herdr >/dev/null 2>&1; then
+      herdr_linked="$(herdr plugin list 2>/dev/null || true)"
+      for plugin_manifest in "$REPO"/herdr/*/herdr-plugin.toml; do
+        [ -f "$plugin_manifest" ] || continue
+        plugin_dir="$(dirname "$plugin_manifest")"
+        case "$herdr_linked" in *"local:$plugin_dir"*) continue ;; esac
+        if herdr plugin link "$plugin_dir" >/dev/null 2>&1; then
+          echo "link    herdr/$(basename "$plugin_dir")"
+        else
+          echo "⚠️  herdr plugin link $plugin_dir failed; re-run to retry."
+          skipped=$((skipped + 1))
+        fi
+      done
+    fi
   else
     echo "⚠️  SKIP herdr — no ~/.config/herdr (herdr not run yet). herdr/config.toml and herdr/plugins.txt not applied."
   fi
