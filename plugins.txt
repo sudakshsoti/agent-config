@@ -68,3 +68,8 @@ external jakubkrehel/skills break explain-interface interface-review
 # here, so there is only one live copy. grilling is referenced from mattpocock
 # above, because grill-with-docs and design-grill call it through the Skill tool
 # and upstream keeps it model-invocable.
+
+# humanlayer/skills show-me — user-invoked only (`disable-model-invocation: true`),
+# so it adds nothing to the always-loaded skill list. The repo ships each skill as
+# plugins/<name>/skills/<name>; only show-me is allowlisted.
+external humanlayer/skills:plugins/show-me/skills show-me
