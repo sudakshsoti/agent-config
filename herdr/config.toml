@@ -3,7 +3,7 @@ onboarding = false
 [keys]
 prefix = "ctrl+a"
 
-# Single letter after the prefix. Still unbound: a i m.
+# Single letter after the prefix. Still unbound: a i.
 new_worktree = "prefix+t"
 new_workspace = "prefix+s"
 settings = "prefix+shift+s"   # moved off prefix+s, which new_workspace now takes
@@ -37,3 +37,10 @@ delivery = "herdr"
 [theme]
 name = "catppuccin"
 auto_switch = false
+
+# Reveal the focused pane's cwd in Finder (shell type runs detached).
+[[keys.command]]
+key = "prefix+m"
+type = "shell"
+command = "open \"${HERDR_ACTIVE_PANE_CWD:-$HOME}\""
+description = "open pane dir in Finder"
