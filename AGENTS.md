@@ -158,8 +158,7 @@ Secrets belong in dotfiles (1Password + age), never here.
   | `task.maxEffort` / `providers.autoThinkingMaxEffort` | `high` / `high` |
 
   Agent models are set in `task.agentModelOverrides`, which beats agent
-  frontmatter; each overlay must override every agent too, or a base
-  `anthropic` pin leaks into `ompgo`. OMP's bundled `scout`, `reviewer`,
+  frontmatter. OMP's bundled `scout`, `reviewer`,
   `security-reviewer`, `task` and `sonic` are kept, not shadowed: `/review`
   depends on bundled `reviewer`. Pi `Explore`/`public-scout` map to OMP
   `scout`, Pi `reviewer` to `adversary`, Pi `general-purpose` to `task`.
@@ -187,10 +186,10 @@ Secrets belong in dotfiles (1Password + age), never here.
   20% remaining, shifts to the configured Go rung without asking; an unmapped
   usage report fails open, so it is a backstop, not a guarantee.
 
-  Overlays differ. `omp -p` from a persistent kernel needs closed stdin
+  `omp -p` from a persistent kernel needs closed stdin
   (`stdin=DEVNULL` or `</dev/null`) or it waits at `readPipedInput`.
-- `omp` is the binary, not a restoring wrapper; pass overlays per session with
-  `--config`, never add persistent apply/restore state. Thinking levels are
+- `omp` is the binary, not a restoring wrapper; never add persistent
+  apply/restore state. Thinking levels are
   model-specific: `glm-5.3-flash` and `kimi-k3` accept only low/high/max;
   `deepseek-v4-flash`/`v4.1-flash` accept low/high/max (minimal→low,
   medium/xhigh→high). `claude-opus-5-5`/`claude-opus-5`/`claude-sonnet-5-5`/
@@ -247,16 +246,13 @@ Secrets belong in dotfiles (1Password + age), never here.
   re-measured for 5.5; the role split they justify is unchanged.
 - `openai-codex` is in the base `disabledProviders`, so no role, chain or
   `/model` pick in a **plain** session reaches the lapsing ChatGPT account.
-  The overlays in `omp/overlays/` were removed on 2026-09-16 — they had applied
-  only via manual `--config`, and no `ompcodex`/`ompgo` launcher functions exist
-  in the shell config or dotfiles.
+  There are no routing overlays: `omp/overlays/` holds only `search-keys.tpl`.
 - `python3 scripts/check-model-routing.py` (in `check.sh` and the pre-commit
   fast set) enforces the routing invariants, all of which failed silently
   before: a repo-owned `omp/agents/*.md` `model:` — literal or `@role` — must
   resolve to that agent's base `task.agentModelOverrides` value; every
   override key must name a real agent (repo file or one of OMP's bundled
-  `task`/`scout`/`sonic`/`reviewer`/`security-reviewer`); every overlay must
-  re-pin every base role and agent key; every selector must parse as
+  `task`/`scout`/`sonic`/`reviewer`/`security-reviewer`); every selector must parse as
   `provider/model[:effort]` and must not name a provider the same file
   disables; and no `pi/agents/*.md`, `pi/settings.json` or
   `pi/web-search.json` entry may use `anthropic/*` or `openrouter/*`, which

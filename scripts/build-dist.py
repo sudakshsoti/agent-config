@@ -49,6 +49,7 @@ _lint_spec = importlib.util.spec_from_file_location(
 )
 lint = importlib.util.module_from_spec(_lint_spec)
 _lint_spec.loader.exec_module(lint)
+parse_frontmatter = lint.parse_frontmatter
 
 
 class BuildError(Exception):
@@ -177,7 +178,7 @@ def validate(name, entries):
         fails.append("needs exactly one SKILL.md, at the skill root (found %s)" % (skill_mds or "none"))
     if "SKILL.md" not in entries:
         return fails
-    fields, body, error = lint.parse_frontmatter(entries["SKILL.md"][0].decode("utf-8"))
+    fields, body, error = parse_frontmatter(entries["SKILL.md"][0].decode("utf-8"))
     if error:
         return fails + [error]
     for key in fields:

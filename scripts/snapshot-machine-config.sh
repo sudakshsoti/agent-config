@@ -40,6 +40,7 @@ refused=0
 
 # looks_like_secret <file> — 0 when the content should never be committed.
 #
+# The rules live in mcp_secret_policy.py (shared with seed-mcp-servers.py).
 # Two rules, both keyed on the *value* rather than the key alone, because a key
 # name on its own is a weak signal: claude-powerline.json has a display segment
 # named `env` and a color named `env`, and neither is a credential.
@@ -53,63 +54,7 @@ refused=0
 # `credentialId` is deliberately allowed: it is an opaque pointer into OMP's
 # local credential store, not the credential itself.
 looks_like_secret() {
-  python3 - "$1" <<'GUARD'
-import json, re, sys
-
-raw = open(sys.argv[1]).read()
-SECRET_KEY = re.compile(
-    r"^(authorization|api[_-]?key|apikey|token|access[_-]?token|"
-    r"secret|password|passwd|bearer)$",
-    re.I,
-)
-CARRIER_KEY = re.compile(r"^(env|headers)$", re.I)
-
-try:
-    data = json.loads(raw)
-except ValueError:
-    # Not JSON (a shell script): scan the text for an assigned-looking secret.
-    sys.exit(
-        0
-        if re.search(
-            r"(api[_-]?key|secret|token|password)\s*[=:]\s*[\"']?[A-Za-z0-9_\-]{16,}",
-            raw,
-            re.I,
-        )
-        else 1
-    )
-
-hits = []
-
-
-def has_nonempty_string(node):
-    if isinstance(node, str):
-        return node.strip() != ""
-    if isinstance(node, dict):
-        return any(has_nonempty_string(v) for v in node.values())
-    if isinstance(node, list):
-        return any(has_nonempty_string(v) for v in node)
-    return False
-
-
-def walk(node, path, in_mcp):
-    if isinstance(node, dict):
-        for k, v in node.items():
-            here = f"{path}.{k}" if path else k
-            if SECRET_KEY.match(k) and has_nonempty_string(v):
-                hits.append(here)
-            elif in_mcp and CARRIER_KEY.match(k) and has_nonempty_string(v):
-                hits.append(here)
-            walk(v, here, in_mcp or k == "mcpServers")
-    elif isinstance(node, list):
-        for i, v in enumerate(node):
-            walk(v, f"{path}[{i}]", in_mcp)
-
-
-walk(data, "", False)
-for h in hits:
-    print(h)
-sys.exit(0 if hits else 1)
-GUARD
+  python3 "${BASH_SOURCE[0]%/*}/mcp_secret_policy.py" "$1"
 }
 
 # capture <label> <dest-relative> <producer...> — producer writes live content

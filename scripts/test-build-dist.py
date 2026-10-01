@@ -48,7 +48,7 @@ class BuildDistTest(unittest.TestCase):
         self._tmp = tempfile.TemporaryDirectory(prefix="build-dist-test-")
         self.root = Path(self._tmp.name)
         (self.root / "scripts").mkdir()
-        for name in ("build-dist.py", "lint-skills.py"):
+        for name in ("build-dist.py", "lint-skills.py", "frontmatter.py"):
             shutil.copy2(ROOT / "scripts" / name, self.root / "scripts" / name)
         write(self.root / ".gitignore", ".DS_Store\n")
         write(self.root / "distribution.txt", "# comment\nalpha\n")

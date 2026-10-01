@@ -12,10 +12,11 @@ rather than re-implemented) -- never the operator's real $HOME, never
 install.sh in this checkout.
 """
 
+import fnmatch
 import sys
 import tempfile
 import unittest
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -44,6 +45,22 @@ def target_is_managed(path):
     return oc.classify_target(path) is not None
 
 
+def _destination_has_link(destination, path):
+    """True if HOME-relative symlink `path` is delivered under `destination`."""
+    pure = PurePosixPath(path)
+    if destination.kind == "file":
+        return path == destination.path
+    if destination.kind == "glob":
+        return str(pure.parent) == destination.path and any(
+            fnmatch.fnmatch(pure.name, pattern) for pattern in destination.patterns
+        )
+    if destination.kind == "nested_glob":
+        return (
+            str(pure.parent.parent) == destination.path and pure.name in destination.patterns
+        )
+    return False
+
+
 class InstallOutputStaysWithinManagedDestinationsTest(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
@@ -51,9 +68,13 @@ class InstallOutputStaysWithinManagedDestinationsTest(unittest.TestCase):
         self.directory = Path(self.temporary.name)
         self.repo = self.directory / "checkout"
         _install_test_module.seed_repo(self.repo)
+        # seed_repo omits OMP slash commands; a glob destination with no
+        # source file would look like drift.
+        (self.repo / "omp/commands").mkdir(parents=True, exist_ok=True)
+        (self.repo / "omp/commands/example.md").write_text("fixture\n", encoding="utf-8")
         self.test_home = self.directory / "home"
         self.test_home.mkdir()
-        for relative in (".omp/agent", ".pi/agent"):
+        for relative in (".omp/agent", ".pi/agent", ".claude", ".config/herdr"):
             (self.test_home / relative).mkdir(parents=True)
         self.bin = self.directory / "bin"
         self.bin.mkdir()
@@ -91,32 +112,17 @@ class InstallOutputStaysWithinManagedDestinationsTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         links = set(_install_test_module.links_under(self.test_home))
 
-        expected_files = [
-            ".omp/agent/AGENTS.md",
-            ".omp/agent/config.yml",
-            ".omp/agent/keybindings.yml",
-            ".omp/agent/lsp.yml",
-            ".omp/agent/themes/kohra.json",
-            ".omp/agent/agents/adversary.md",
-            ".config/omp/go-overlay.yml",
-            ".pi/agent/AGENTS.md",
-            ".pi/agent/settings.json",
-            ".pi/agent/verbosity.json",
-            ".pi/agent/pi-fff.json",
-            ".pi/agent/keybindings.json",
-            ".pi/agent/subagents.json",
-            ".pi/agent/prompts/vibe.md",
-            ".pi/agent/themes/kohra.json",
-            ".pi/agent/agents/scout.md",
-            ".pi/agent/extensions/operational-footer/index.js",
-        ]
-        missing = [path for path in expected_files if path not in links]
-        self.assertEqual(missing, [], "install.sh no longer writes a destination this fixture expects")
-        for path in expected_files:
-            self.assertTrue(
-                target_is_managed(path),
-                f"{path} is installed but not covered by MANAGED_DESTINATIONS",
-            )
+        missing = []
+        for destination in oc.MANAGED_DESTINATIONS:
+            if destination.kind == "tree":
+                continue  # skills names are dynamic; checked below
+            if not any(_destination_has_link(destination, path) for path in links):
+                missing.append(f"{destination.kind} {destination.path}")
+        self.assertEqual(
+            missing,
+            [],
+            "MANAGED_DESTINATIONS declares destinations install.sh no longer writes",
+        )
         self.assertTrue(any(path.startswith(".agents/skills/") for path in links))
 
 

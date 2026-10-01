@@ -48,6 +48,10 @@ CLAUDE_FILES = (
 # rev-parse (and therefore the linked-worktree guard) at the outer repository
 # instead of the disposable checkout.
 GIT_REPO_SELECTOR_VARS = ("GIT_DIR", "GIT_INDEX_FILE", "GIT_WORK_TREE")
+# install.sh honors these to place pi-web-access config outside HOME; an
+# inherited value (CI runners set XDG_CONFIG_HOME) would send writes to the
+# real machine instead of the disposable HOME.
+CONFIG_DIR_OVERRIDE_VARS = ("XDG_CONFIG_HOME", "PI_CODING_AGENT_DIR")
 
 
 def seed_repo(destination):
@@ -124,8 +128,10 @@ def links_under(directory):
 class DisposableInstallCase(unittest.TestCase):
     """Shared install.sh runner over a disposable HOME.
 
-    The environment always drops the Git variables a pre-commit hook exports,
-    and keeps Git from reading the operator's global/system config. Unless
+    The environment always drops the Git variables a pre-commit hook exports
+    and the config-dir overrides that would redirect writes out of the
+    disposable HOME, and keeps Git from reading the operator's global/system
+    config. Unless
     real_git is set, a PATH stub stands in for Git so that an accidental fetch
     or repository config write fails loudly instead of reaching the network.
     """
@@ -140,7 +146,7 @@ class DisposableInstallCase(unittest.TestCase):
     def install_environment(self, real_git):
         environment = dict(os.environ)
         environment["HOME"] = str(self.test_home)
-        for name in GIT_REPO_SELECTOR_VARS:
+        for name in GIT_REPO_SELECTOR_VARS + CONFIG_DIR_OVERRIDE_VARS:
             environment.pop(name, None)
         environment["GIT_CONFIG_NOSYSTEM"] = "1"
         environment["GIT_CONFIG_GLOBAL"] = os.devnull
@@ -329,6 +335,19 @@ class InstallerTest(DisposableInstallCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("not merged", result.stdout)
         self.assertEqual((claude / "settings.json").read_text(), "{ not json\n")
+        self.assertTrue((self.test_home / ".agents/skills/alpha").is_symlink())
+
+    def test_unparseable_pi_web_search_does_not_abort_the_install(self):
+        (self.repo / "pi/web-search.json").write_text(
+            '{"provider": "exa"}\n', encoding="utf-8"
+        )
+        invalid = self.test_home / ".pi/web-search.json"
+        invalid.write_text("{ not json\n", encoding="utf-8")
+
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("pi/web-search.json not merged", result.stdout)
+        self.assertEqual(invalid.read_text(), "{ not json\n")
         self.assertTrue((self.test_home / ".agents/skills/alpha").is_symlink())
 
     def test_work_machine_leaves_claude_config_alone_but_links_claude_skills(self):
@@ -696,6 +715,21 @@ class InstallerTest(DisposableInstallCase):
         self.assertFalse((home / ".claude/skills/ghost").is_symlink())
         # The shared root was still populated by the same run.
         self.assertTrue((home / ".agents/skills/alpha").is_symlink())
+
+    def test_prune_removes_dangling_config_links_and_keeps_real_files(self):
+        first = self.install("--no-external")
+        self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+        home = self.test_home
+        (self.repo / "omp/lsp.yml").unlink()
+        (home / ".omp/agent/stray.yml").write_text("mine\n", encoding="utf-8")
+        self.assertTrue((home / ".omp/agent/lsp.yml").is_symlink())
+        self.assertFalse((home / ".omp/agent/lsp.yml").exists())
+
+        result = self.install("--no-external", "--prune")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse((home / ".omp/agent/lsp.yml").is_symlink())
+        self.assertEqual((home / ".omp/agent/stray.yml").read_text(), "mine\n")
+        self.assertTrue((home / ".omp/agent/config.yml").is_symlink())
 
     def test_prune_removes_undeclared_shared_links_and_is_idempotent(self):
         result = self.install("--skills-only=alpha")

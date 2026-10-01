@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
 """test-check-model-routing.py — the drift cases check-model-routing.py must catch.
 
-Each test builds a throwaway repo tree, so the real checkout is never touched.
+Rule tests hand `check` in-memory inputs; only test_real_repo_passes reads the checkout.
 The negative cases are the ones that matter: a check that only ever passes on
 the current tree is not a check.
 """
 
 import importlib.util
-import os
-import sys
-import tempfile
-import textwrap
+import json
 import unittest
 from pathlib import Path
 
@@ -37,18 +34,6 @@ retry:
       - anthropic/claude-sonnet-5-5:high
 """
 
-OVERLAY = """\
-modelRoles:
-  default: opencode-go/glm-5.3-flash:high
-  task: opencode-go/glm-5.3-flash:high
-disabledProviders:
-  - anthropic
-task:
-  agentModelOverrides:
-    builder: opencode-go/glm-5.3-flash:high
-    scout: opencode-go/glm-5.3-flash:low
-"""
-
 BUILDER = """\
 ---
 name: builder
@@ -73,34 +58,47 @@ PI_SETTINGS = '{"defaultProvider": "opencode-go", "defaultModel": "deepseek-v4.1
 
 
 class RoutingCheckTest(unittest.TestCase):
-    def build(self, **overrides):
-        root = Path(tempfile.mkdtemp())
-        files = {
-            "omp/config.yml": BASE_CONFIG,
-            "omp/overlays/go-overlay.yml": OVERLAY,
-            "omp/agents/builder.md": BUILDER,
-            "pi/agents/Explore.md": PI_AGENT,
-            "pi/settings.json": PI_SETTINGS,
-        }
-        files.update(overrides)
-        for relative, content in files.items():
-            path = root / relative
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(content, encoding="utf-8")
-        return root
+    def run_check(self, config=BASE_CONFIG, builder=BUILDER, pi_agent=PI_AGENT, pi_settings=PI_SETTINGS):
+        parsed, parse_failures = MODULE.parse_config(config, "omp/config.yml")
+        self.assertEqual(parse_failures, [])
+        return MODULE.check(
+            parsed,
+            {"builder.md": builder},
+            {"Explore.md": pi_agent},
+            json.loads(pi_settings),
+        )
 
     def test_clean_tree_passes(self):
-        self.assertEqual(MODULE.check(str(self.build())), [])
+        self.assertEqual(self.run_check(), [])
 
     def test_real_repo_passes(self):
-        self.assertEqual(MODULE.check(str(ROOT)), [])
+        self.assertEqual(MODULE.check_repo(str(ROOT)), [])
 
     def test_frontmatter_drift_is_reported(self):
         drifted = BUILDER.replace(
             "model: anthropic/claude-sonnet-5-5:high", 'model: "@default"'
         )
-        failures = MODULE.check(str(self.build(**{"omp/agents/builder.md": drifted})))
+        failures = self.run_check(builder=drifted)
         self.assertTrue(any("resolves to" in f and "builder" in f for f in failures), failures)
+
+    def test_block_scalar_model_is_resolved_not_misread(self):
+        block = BUILDER.replace(
+            "model: anthropic/claude-sonnet-5-5:high",
+            "model: >-\n  anthropic/claude-sonnet-5-5:high",
+        )
+        failures = self.run_check(builder=block)
+        self.assertEqual(failures, [])
+
+    def test_block_scalar_model_drift_is_reported(self):
+        block = BUILDER.replace(
+            "model: anthropic/claude-sonnet-5-5:high", 'model: |\n  "@default"'
+        )
+        failures = self.run_check(builder=block)
+        self.assertTrue(any("builder" in f for f in failures), failures)
+
+    def test_unparseable_frontmatter_is_reported(self):
+        failures = self.run_check(builder="no frontmatter here\n")
+        self.assertTrue(any("builder.md" in f and "frontmatter" in f for f in failures), failures)
 
     def test_alias_matching_its_override_passes(self):
         aliased = BUILDER.replace(
@@ -110,9 +108,7 @@ class RoutingCheckTest(unittest.TestCase):
             "builder: anthropic/claude-sonnet-5-5:high",
             "builder: anthropic/claude-sonnet-5-5:medium",
         )
-        failures = MODULE.check(
-            str(self.build(**{"omp/agents/builder.md": aliased, "omp/config.yml": config}))
-        )
+        failures = self.run_check(config=config, builder=aliased)
         self.assertEqual([f for f in failures if "builder" in f], [])
 
     def test_override_key_naming_no_agent_is_reported(self):
@@ -120,34 +116,22 @@ class RoutingCheckTest(unittest.TestCase):
             "    scout: opencode-go/glm-5.3-flash:low",
             "    scout: opencode-go/glm-5.3-flash:low\n    librarian: opencode-go/glm-5.3-flash:low",
         )
-        failures = MODULE.check(str(self.build(**{"omp/config.yml": config})))
+        failures = self.run_check(config=config)
         self.assertTrue(any("librarian" in f and "names no agent" in f for f in failures), failures)
-
-    def test_overlay_missing_role_is_reported(self):
-        overlay = OVERLAY.replace("  task: opencode-go/glm-5.3-flash:high\n", "")
-        failures = MODULE.check(str(self.build(**{"omp/overlays/go-overlay.yml": overlay})))
-        self.assertTrue(any("modelRoles.task not overridden" in f for f in failures), failures)
-
-    def test_overlay_missing_agent_is_reported(self):
-        overlay = OVERLAY.replace("    builder: opencode-go/glm-5.3-flash:high\n", "")
-        failures = MODULE.check(str(self.build(**{"omp/overlays/go-overlay.yml": overlay})))
-        self.assertTrue(
-            any("agentModelOverrides.builder not overridden" in f for f in failures), failures
-        )
 
     def test_selector_pinned_to_locally_disabled_provider_is_reported(self):
         config = BASE_CONFIG.replace(
             "  default: anthropic/claude-opus-5:medium",
             "  default: openai-codex/gpt-5.6-luna:high",
         )
-        failures = MODULE.check(str(self.build(**{"omp/config.yml": config})))
+        failures = self.run_check(config=config)
         self.assertTrue(any("disabledProviders" in f for f in failures), failures)
 
     def test_malformed_selector_is_reported(self):
         config = BASE_CONFIG.replace(
             "  default: anthropic/claude-opus-5:medium", "  default: claude-opus-5:medium"
         )
-        failures = MODULE.check(str(self.build(**{"omp/config.yml": config})))
+        failures = self.run_check(config=config)
         self.assertTrue(any("provider/model" in f for f in failures), failures)
 
     def test_unknown_effort_is_reported(self):
@@ -155,21 +139,21 @@ class RoutingCheckTest(unittest.TestCase):
             "  default: anthropic/claude-opus-5:medium",
             "  default: anthropic/claude-opus-5:enormous",
         )
-        failures = MODULE.check(str(self.build(**{"omp/config.yml": config})))
+        failures = self.run_check(config=config)
         self.assertTrue(any("provider/model" in f for f in failures), failures)
 
     def test_claude_pin_in_pi_agent_is_reported(self):
         agent = PI_AGENT.replace(
             "model: opencode-go/glm-5.3-flash", "model: anthropic/claude-opus-5"
         )
-        failures = MODULE.check(str(self.build(**{"pi/agents/Explore.md": agent})))
+        failures = self.run_check(pi_agent=agent)
         self.assertTrue(
             any("no working credential path" in f for f in failures), failures
         )
 
     def test_unreachable_pi_default_provider_is_reported(self):
         settings = '{"defaultProvider": "anthropic", "defaultModel": "claude-opus-5"}\n'
-        failures = MODULE.check(str(self.build(**{"pi/settings.json": settings})))
+        failures = self.run_check(pi_settings=settings)
         self.assertTrue(any("defaultProvider" in f for f in failures), failures)
 
     def test_unreachable_pi_enabled_model_is_reported(self):
@@ -177,12 +161,12 @@ class RoutingCheckTest(unittest.TestCase):
             '{"defaultProvider": "opencode-go", "defaultModel": "deepseek-v4.1-flash",'
             ' "enabledModels": ["openrouter/anthropic/claude-opus-5"]}\n'
         )
-        failures = MODULE.check(str(self.build(**{"pi/settings.json": settings})))
+        failures = self.run_check(pi_settings=settings)
         self.assertTrue(any("enabledModels" in f for f in failures), failures)
 
     def test_agent_without_model_key_is_reported(self):
         agent = BUILDER.replace("model: anthropic/claude-sonnet-5-5:high\n", "")
-        failures = MODULE.check(str(self.build(**{"omp/agents/builder.md": agent})))
+        failures = self.run_check(builder=agent)
         self.assertTrue(any("no `model:` key" in f for f in failures), failures)
 
 
