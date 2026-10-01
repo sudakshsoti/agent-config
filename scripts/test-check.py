@@ -53,6 +53,15 @@ def isolated_git_environment() -> dict[str, str]:
     environment.update(GIT_ENV)
     return environment
 
+# The static checks are declared once, in check.sh, as literal
+# `run "<name>" python3 "$repo_root/scripts/<name>" ...` lines. The discovery
+# loop uses `run "$label"`, which does not match.
+STATIC_CHECK_LINE = re.compile(
+    r'^run "(?P<name>[^"$]+)" python3 "\$repo_root/scripts/(?P=name)"', re.MULTILINE
+)
+STATIC_CHECKS = STATIC_CHECK_LINE.findall(CHECK_SH.read_text(encoding="utf-8"))
+assert STATIC_CHECKS, "no static checks found in check.sh"
+
 PASS_STUB = "print('pass stub')\n"
 SKIP_STUB = "exit 77\n"
 FAIL_STUB = "raise SystemExit(1)\n"
@@ -63,6 +72,11 @@ DIRTY_STUB = 'echo "artifact" > "$(dirname "$0")/zz-dirty-artifact.txt"\n'
 
 def write(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
+
+
+def write_static_check_stubs(scripts: Path) -> None:
+    for name in STATIC_CHECKS:
+        write(scripts / name, "raise SystemExit(0)\n")
 
 
 def init_git(root: Path) -> None:
@@ -102,10 +116,7 @@ def disposable_copy(*, include_dirty: bool):
         pi_tui_marker = root / "node_modules" / "@earendil-works" / "pi-tui"
         pi_tui_marker.mkdir(parents=True)
         shutil.copy2(CHECK_SH, scripts / "check.sh")
-        write(scripts / "lint-skills.py", "raise SystemExit(0)\n")
-        write(scripts / "check-manifest.py", "raise SystemExit(0)\n")
-        write(scripts / "check-model-routing.py", "raise SystemExit(0)\n")
-        write(scripts / "build-dist.py", "raise SystemExit(0)\n")
+        write_static_check_stubs(scripts)
         write(scripts / "test-aa-pass.py", PASS_STUB)
         write(scripts / "test-ab-skip.sh", SKIP_STUB)
         write(scripts / "test-ac-fail.py", FAIL_STUB)
@@ -163,10 +174,8 @@ class CheckShSelfTest(unittest.TestCase):
             after = git_status(root)
 
         rows, totals = parse(result.stdout)
-        self.assertEqual(rows.get("lint-skills.py"), "ok", result.stdout)
-        self.assertEqual(rows.get("check-manifest.py"), "ok", result.stdout)
-        self.assertEqual(rows.get("check-model-routing.py"), "ok", result.stdout)
-        self.assertEqual(rows.get("build-dist.py"), "ok", result.stdout)
+        for name in STATIC_CHECKS:
+            self.assertEqual(rows.get(name), "ok", result.stdout)
         self.assertEqual(rows.get("test-aa-pass.py"), "ok", result.stdout)
         self.assertEqual(rows.get("test-ab-skip.sh"), "SKIP", result.stdout)
         self.assertEqual(rows.get("test-ac-fail.py"), "FAIL", result.stdout)
@@ -174,7 +183,7 @@ class CheckShSelfTest(unittest.TestCase):
         self.assertEqual(rows.get("test-ae-continue.mjs"), "ok", result.stdout)
         self.assertEqual(rows.get("git-status-unchanged"), "ok", result.stdout)
         self.assertIn("unsupported extension", result.stdout)
-        self.assertEqual(totals, ("7", "2", "1"), result.stdout)
+        self.assertEqual(totals, (str(3 + len(STATIC_CHECKS)), "2", "1"), result.stdout)
         self.assertNotEqual(result.returncode, 0)
 
         # The .mjs stub is discovered after the failures and still ran.
@@ -201,7 +210,7 @@ class CheckShSelfTest(unittest.TestCase):
         rows, totals = parse(result.stdout)
         self.assertEqual(rows.get("git-status-unchanged"), "FAIL", result.stdout)
         self.assertIn("working tree changed", result.stdout)
-        self.assertEqual(totals, ("7", "3", "1"), result.stdout)
+        self.assertEqual(totals, (str(3 + len(STATIC_CHECKS)), "3", "1"), result.stdout)
         self.assertNotEqual(result.returncode, 0)
 
         # The planted artifact is what the guard noticed.
@@ -263,10 +272,7 @@ def npm_bootstrap_fixture(tmp: Path):
     # working-tree guard.
     write(root / ".gitignore", "node_modules/\n")
     shutil.copy2(CHECK_SH, scripts / "check.sh")
-    write(scripts / "lint-skills.py", "raise SystemExit(0)\n")
-    write(scripts / "check-manifest.py", "raise SystemExit(0)\n")
-    write(scripts / "check-model-routing.py", "raise SystemExit(0)\n")
-    write(scripts / "build-dist.py", "raise SystemExit(0)\n")
+    write_static_check_stubs(scripts)
     write(
         scripts / "test-zz-requires-npm.mjs",
         '// check.sh: requires-npm\nconsole.log("ran");\n',
