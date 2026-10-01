@@ -331,6 +331,19 @@ class InstallerTest(DisposableInstallCase):
         self.assertEqual((claude / "settings.json").read_text(), "{ not json\n")
         self.assertTrue((self.test_home / ".agents/skills/alpha").is_symlink())
 
+    def test_unparseable_pi_web_search_does_not_abort_the_install(self):
+        (self.repo / "pi/web-search.json").write_text(
+            '{"provider": "exa"}\n', encoding="utf-8"
+        )
+        invalid = self.test_home / ".pi/web-search.json"
+        invalid.write_text("{ not json\n", encoding="utf-8")
+
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("pi/web-search.json not merged", result.stdout)
+        self.assertEqual(invalid.read_text(), "{ not json\n")
+        self.assertTrue((self.test_home / ".agents/skills/alpha").is_symlink())
+
     def test_work_machine_leaves_claude_config_alone_but_links_claude_skills(self):
         self.stub_chezmoi_machine("work")
         claude = self.test_home / ".claude"

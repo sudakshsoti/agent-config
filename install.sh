@@ -751,9 +751,13 @@ else
     fi
 
     for web_search_config in "${web_search_configs[@]}"; do
-      python3 "$REPO/scripts/apply-json-config.py" \
-        "$REPO/pi/web-search.json" "$web_search_config"
-      echo "merged  pi/web-search.json -> $web_search_config"
+      if python3 "$REPO/scripts/apply-json-config.py" \
+        "$REPO/pi/web-search.json" "$web_search_config"; then
+        echo "merged  pi/web-search.json -> $web_search_config"
+      else
+        echo "⚠️  pi/web-search.json not merged into $web_search_config; fix the file and re-run."
+        skipped=$((skipped + 1))
+      fi
     done
   fi
 
