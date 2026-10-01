@@ -249,6 +249,17 @@ Secrets belong in dotfiles (1Password + age), never here.
   `anthropic/claude-opus-5-5` answered a retry-disabled `omp -p` probe. The
   benchmark figures above are the 2026-09-16 Opus 5 evidence and have not been
   re-measured for 5.5; the role split they justify is unchanged.
+  The `opencode-go/glm-5.3-flash` fallback chain gained
+  `opencode-go/mimo-v2.6-pro:high` as its first rung on 2026-10-02 (user
+  decision), ahead of `deepseek-v4.1-flash:max`. Artificial Analysis v4.3.2
+  per-benchmark data: hallucination rate GLM-5.3-Flash 27.6%, MiMo-V2.6-Pro
+  40.6%, MiMo-V2.6-Flash 54.4%, DeepSeek V4.1 Flash (max) 96.5%; Terminal-Bench
+  4.0 34.8 / 32.8 / 22.7 / 26.8. Review roles therefore fall back to the
+  lower-hallucination model, not DeepSeek. MiMo-V2.6-Pro's Go cap is $15/month,
+  so DeepSeek stays as the next rung. Chains match by exact model, so scout,
+  smol and commit traffic also lands on MiMo-Pro `:high` during a GLM outage.
+  No role was moved to MiMo: Pro's +4 index lead over GLM comes mostly from
+  HLE/CritPt, the Terminal-Bench gap is within noise, and Pro hallucinates more.
 - `openai-codex` is in the base `disabledProviders`, so no role, chain or
   `/model` pick in a **plain** session reaches the lapsing ChatGPT account.
   There are no routing overlays: `omp/overlays/` holds only `search-keys.tpl`.
