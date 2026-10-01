@@ -112,9 +112,10 @@
 #       (replaced by the link) rather than skipped.
 #     claude/settings.json   -> ~/.claude/settings.json
 #       MERGED, not linked: Claude Code writes the file itself, herdr owns its
-#       SessionStart hook there, and it holds OPENROUTER_API_KEY. Only the
-#       repo-owned keys are pushed; the key is copied from ~/.omp/.env
-#       (1Password-injected, never tracked) by scripts/apply-json-config.py.
+#       SessionStart hook there, and it holds OPENROUTER_API_KEY for the Jev
+#       compaction plugin. Only the repo-owned keys are pushed; the key is
+#       copied from JEV_OPENROUTER_API_KEY in ~/.omp/.env (1Password-injected,
+#       never tracked) by scripts/apply-json-config.py.
 #     claude/plugins.txt     -> `claude plugin marketplace add` + `install`
 #       Skipped by --no-external.
 #     snapshots/claude/mcp.json -> `claude mcp add-json --scope user`, adding
@@ -813,14 +814,16 @@ else
       link_into "$REPO/claude/$claude_file" "$CLAUDE/$claude_file"
     done
 
-    # OPENROUTER_API_KEY comes from ~/.omp/.env, which `op inject` writes from
-    # omp/overlays/search-keys.tpl. Without that file the merge still runs and
-    # warns, leaving whatever key is already in settings.json.
+    # Claude's OPENROUTER_API_KEY is the Jev key, JEV_OPENROUTER_API_KEY in
+    # ~/.omp/.env (written by `op inject` from omp/overlays/search-keys.tpl).
+    # It is kept apart from OMP's own OPENROUTER_API_KEY so Jev compaction is
+    # billed to its own OpenRouter key. Without that file the merge still runs
+    # and warns, leaving whatever key is already in settings.json.
     # A settings.json Claude Code cannot parse is the operator's to fix; do not
     # abort the rest of the install over it.
     if python3 "$REPO/scripts/apply-json-config.py" \
       "$REPO/claude/settings.json" "$CLAUDE/settings.json" \
-      --env-from "$HOME/.omp/.env:OPENROUTER_API_KEY"; then
+      --env-from "$HOME/.omp/.env:JEV_OPENROUTER_API_KEY=OPENROUTER_API_KEY"; then
       echo "merged  claude/settings.json -> $CLAUDE/settings.json"
     else
       echo "⚠️  claude/settings.json not merged into $CLAUDE/settings.json; fix the file and re-run."
@@ -895,7 +898,7 @@ else
       done <"$REPO/omp/plugins.txt"
     fi
     if [ ! -f "$HOME/.omp/.env" ]; then
-      echo "note: no ~/.omp/.env — run: op inject -f -i ~/.config/omp/search-keys.tpl -o ~/.omp/.env && chmod 600 ~/.omp/.env, then re-run to push OPENROUTER_API_KEY into Claude settings."
+      echo "note: no ~/.omp/.env — run: op inject -f -i ~/.config/omp/search-keys.tpl -o ~/.omp/.env && chmod 600 ~/.omp/.env, then re-run to push the Jev OpenRouter key into Claude settings."
     fi
   fi
 fi

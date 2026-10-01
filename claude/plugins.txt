@@ -9,6 +9,7 @@
 #
 # claude-compact-openrouter sends session transcripts to Jev through OpenRouter,
 # so it is never installed on the work machine. It needs OPENROUTER_API_KEY,
-# which install.sh copies from ~/.omp/.env (1Password-injected) into the live
+# which install.sh copies from JEV_OPENROUTER_API_KEY in ~/.omp/.env
+# (1Password-injected from the `OpenRouter API Key - Jev` item) into the live
 # settings.json env; the key is never tracked.
 denisded/claude-compact-openrouter claude-compact-openrouter@claude-compact-openrouter d6e3214453c624d4be84b2f4508d5c57a773116c

@@ -316,7 +316,8 @@ class InstallerTest(DisposableInstallCase):
         (self.test_home / ".claude").mkdir()
         (self.test_home / ".omp").mkdir(exist_ok=True)
         (self.test_home / ".omp/.env").write_text(
-            "OPENROUTER_API_KEY=sk-or-from-1password\n", encoding="utf-8"
+            "OPENROUTER_API_KEY=sk-or-omp\nJEV_OPENROUTER_API_KEY=sk-or-from-1password\n",
+            encoding="utf-8",
         )
 
         result = self.install("--no-external")

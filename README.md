@@ -66,8 +66,9 @@ Three destinations, and nothing else.
 - `claude/` — Claude Code: `statusline.sh`, `subagent-statusline.sh` and
   `claude-powerline.json` are linked into `~/.claude/`; `settings.json` is
   **merged** (Claude Code and herdr write the live file, and it holds
-  `OPENROUTER_API_KEY`, which install copies from `~/.omp/.env` rather than
-  tracking it); `plugins.txt` pins the `claude-compact-openrouter` plugin.
+  `OPENROUTER_API_KEY`, which install copies from `JEV_OPENROUTER_API_KEY` in
+  `~/.omp/.env` rather than tracking it); `plugins.txt` pins the
+  `claude-compact-openrouter` plugin.
   `omp/plugins.txt` does the same for OMP npm plugins. On a new box: log in
   (`claude`, `omp`), `op inject` the `.env`, run `./install.sh`.
 - `snapshots/` — machine-local harness config **copied**, never linked:

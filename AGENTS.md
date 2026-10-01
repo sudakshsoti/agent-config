@@ -20,13 +20,15 @@ This file applies to this checkout. Shared, harness-neutral preferences live in
 `pi/web-search.json` and `claude/settings.json` are **merges**, not links
 (`scripts/apply-json-config.py`): the first is pi-web-access's credential
 store, the second is written by Claude Code, carries herdr's `hooks` entry and
-holds `OPENROUTER_API_KEY`. Only repo-owned keys are pushed. The key is never
-tracked: install copies it from `~/.omp/.env` (1Password-injected from
-`omp/overlays/search-keys.tpl`) into the live `env`, so run `op inject` before
-installing on a new box. On the homelab box, `~/.omp/.env` was filled from
-`op://Homelab/OpenRouter API Key - Jev/credential` with the box's read-only
-service-account token (see `global-agents.md`). The tracked file is checked for
-credential-shaped keys.
+holds `OPENROUTER_API_KEY` for the Jev compaction plugin. Only repo-owned keys
+are pushed. The key is never tracked: install copies `JEV_OPENROUTER_API_KEY`
+(item `OpenRouter API Key - Jev`) from `~/.omp/.env` into the live `env` as
+`OPENROUTER_API_KEY`, kept apart from OMP's own `OPENROUTER_API_KEY` (item
+`OpenRouter API Key - omp.sh`) so each is billed separately. `~/.omp/.env` is
+1Password-injected from `omp/overlays/search-keys.tpl`, so run `op inject`
+before installing on a new box; on the homelab box use the read-only
+service-account token (see `global-agents.md`). The tracked file is checked
+for credential-shaped keys.
 
 - Link skills **once** into `~/.agents/skills`; never also link
   `~/.pi/agent/skills` or skills are discovered twice and consume double the

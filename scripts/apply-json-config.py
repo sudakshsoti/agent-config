@@ -16,9 +16,10 @@ are exercised by the fast pre-commit test, so an accidental credential fails
 validation before the install merge or commit completes.
 
 A secret that must live in the live file is supplied at merge time with
-`--env-from DOTENV:NAME`: NAME is read from the (untracked, 1Password-injected)
-dotenv file and written to the target's `env` object. A missing file or name is
-a warning, not an error, so a machine without the dotenv yet still installs.
+`--env-from DOTENV:NAME[=TARGET]`: NAME is read from the (untracked,
+1Password-injected) dotenv file and written to the target's `env` object as
+TARGET (default NAME). A missing file or name is a warning, not an error, so a
+machine without the dotenv yet still installs.
 """
 
 from __future__ import annotations
@@ -107,8 +108,8 @@ def main() -> None:
         "--env-from",
         action="append",
         default=[],
-        metavar="DOTENV:NAME",
-        help="copy NAME from DOTENV into the target's env object (repeatable)",
+        metavar="DOTENV:NAME[=TARGET]",
+        help="copy NAME from DOTENV into the target's env object as TARGET (default NAME; repeatable)",
     )
     args = parser.parse_args()
 
@@ -119,18 +120,20 @@ def main() -> None:
     result = merged(target_data, source_data)
 
     for spec in args.env_from:
-        dotenv, separator, name = spec.rpartition(":")
+        dotenv, separator, names = spec.rpartition(":")
+        name, _, target_name = names.partition("=")
+        target_name = target_name or name
         if not separator or not dotenv or not name:
-            raise SystemExit(f"error: --env-from expects DOTENV:NAME, got {spec!r}")
+            raise SystemExit(f"error: --env-from expects DOTENV:NAME[=TARGET], got {spec!r}")
         value = read_dotenv_value(Path(dotenv).expanduser(), name)
         if value is None:
             print(
-                f"warning: {name} not found in {dotenv}; leaving env.{name} as is",
+                f"warning: {name} not found in {dotenv}; leaving env.{target_name} as is",
                 file=sys.stderr,
             )
             continue
         env = result.get("env")
-        result["env"] = {**(env if isinstance(env, dict) else {}), name: value}
+        result["env"] = {**(env if isinstance(env, dict) else {}), target_name: value}
 
     if result == target_data:
         return  # already applied: leave the file and its mtime alone
