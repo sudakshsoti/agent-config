@@ -863,15 +863,8 @@ else
           fi
           ;;
         esac
-        installed_commit="$(python3 - "$CLAUDE/plugins/installed_plugins.json" "$plugin_id" <<'PY' 2>/dev/null || true
-import json, sys
-entries = json.load(open(sys.argv[1])).get("plugins", {}).get(sys.argv[2], [])
-print(entries[0].get("gitCommitSha", "") if entries else "")
-PY
-)"
-        if [ -n "$installed_commit" ] && [ "$installed_commit" != "$plugin_commit" ]; then
-          echo "⚠️  $plugin_id is at ${installed_commit:0:8}, claude/plugins.txt pins ${plugin_commit:0:8}."
-        fi
+        python3 "$REPO/scripts/plugin-pin.py" \
+          "$CLAUDE/plugins/installed_plugins.json" "$plugin_id" "$plugin_commit"
       done <"$REPO/claude/plugins.txt"
     fi
   else
