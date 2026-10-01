@@ -48,6 +48,10 @@ CLAUDE_FILES = (
 # rev-parse (and therefore the linked-worktree guard) at the outer repository
 # instead of the disposable checkout.
 GIT_REPO_SELECTOR_VARS = ("GIT_DIR", "GIT_INDEX_FILE", "GIT_WORK_TREE")
+# install.sh honors these to place pi-web-access config outside HOME; an
+# inherited value (CI runners set XDG_CONFIG_HOME) would send writes to the
+# real machine instead of the disposable HOME.
+CONFIG_DIR_OVERRIDE_VARS = ("XDG_CONFIG_HOME", "PI_CODING_AGENT_DIR")
 
 
 def seed_repo(destination):
@@ -124,8 +128,10 @@ def links_under(directory):
 class DisposableInstallCase(unittest.TestCase):
     """Shared install.sh runner over a disposable HOME.
 
-    The environment always drops the Git variables a pre-commit hook exports,
-    and keeps Git from reading the operator's global/system config. Unless
+    The environment always drops the Git variables a pre-commit hook exports
+    and the config-dir overrides that would redirect writes out of the
+    disposable HOME, and keeps Git from reading the operator's global/system
+    config. Unless
     real_git is set, a PATH stub stands in for Git so that an accidental fetch
     or repository config write fails loudly instead of reaching the network.
     """
@@ -140,7 +146,7 @@ class DisposableInstallCase(unittest.TestCase):
     def install_environment(self, real_git):
         environment = dict(os.environ)
         environment["HOME"] = str(self.test_home)
-        for name in GIT_REPO_SELECTOR_VARS:
+        for name in GIT_REPO_SELECTOR_VARS + CONFIG_DIR_OVERRIDE_VARS:
             environment.pop(name, None)
         environment["GIT_CONFIG_NOSYSTEM"] = "1"
         environment["GIT_CONFIG_GLOBAL"] = os.devnull
