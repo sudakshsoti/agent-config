@@ -102,6 +102,27 @@ class RoutingCheckTest(unittest.TestCase):
         failures = MODULE.check(str(self.build(**{"omp/agents/builder.md": drifted})))
         self.assertTrue(any("resolves to" in f and "builder" in f for f in failures), failures)
 
+    def test_block_scalar_model_is_resolved_not_misread(self):
+        block = BUILDER.replace(
+            "model: anthropic/claude-sonnet-5-5:high",
+            "model: >-\n  anthropic/claude-sonnet-5-5:high",
+        )
+        failures = MODULE.check(str(self.build(**{"omp/agents/builder.md": block})))
+        self.assertEqual(failures, [])
+
+    def test_block_scalar_model_drift_is_reported(self):
+        block = BUILDER.replace(
+            "model: anthropic/claude-sonnet-5-5:high", 'model: |\n  "@default"'
+        )
+        failures = MODULE.check(str(self.build(**{"omp/agents/builder.md": block})))
+        self.assertTrue(any("builder" in f for f in failures), failures)
+
+    def test_unparseable_frontmatter_is_reported(self):
+        failures = MODULE.check(
+            str(self.build(**{"omp/agents/builder.md": "no frontmatter here\n"}))
+        )
+        self.assertTrue(any("builder.md" in f and "frontmatter" in f for f in failures), failures)
+
     def test_alias_matching_its_override_passes(self):
         aliased = BUILDER.replace(
             "model: anthropic/claude-sonnet-5-5:high", 'model: "@task"'

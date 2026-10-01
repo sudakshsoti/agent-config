@@ -24,7 +24,8 @@ of them errors at runtime; they just quietly route work to the wrong model:
 
   ./scripts/check-model-routing.py [repo-root]
 
-Stdlib only, like `lint-skills.py`: PyYAML is not a dependency of this repo and
+Stdlib only, like `lint-skills.py` (whose frontmatter parser it shares via
+`frontmatter.py`): PyYAML is not a dependency of this repo and
 must not become one for a check. The parser below handles exactly the flat
 mappings, scalar lists and inline empty containers these config files use, and
 reports anything it cannot parse rather than guessing.
@@ -34,6 +35,9 @@ import json
 import os
 import re
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from frontmatter import parse_frontmatter  # noqa: E402
 
 EFFORTS = ("minimal", "low", "medium", "high", "xhigh", "max")
 SELECTOR_RE = re.compile(
@@ -125,18 +129,21 @@ def _scalar(value):
     return value
 
 
-def frontmatter(text):
-    """Return the top-level frontmatter keys of a Markdown agent file."""
-    lines = text.splitlines()
-    if not lines or lines[0].strip() != "---":
+def frontmatter(text, label, failures):
+    """Return the top-level scalar frontmatter keys of a Markdown agent file.
+
+    Parsing is shared with lint-skills.py, so block scalars and multi-line
+    quoted values resolve; an unparseable header is appended to `failures`.
+    """
+    parsed, _, error = parse_frontmatter(text)
+    if error:
+        failures.append(f"{label}: {error}")
         return {}
     fields = {}
-    for line in lines[1:]:
-        if line.strip() == "---":
-            break
-        key, sep, value = line.partition(":")
-        if sep and not line[:1].isspace():
-            fields[key.strip()] = _scalar(value.strip())
+    for key, field in parsed.items():
+        if field.value is None:  # nested mapping: not a scalar we route on
+            continue
+        fields[key] = _scalar(field.value) if field.style == "plain" else field.value
     return fields
 
 
@@ -205,7 +212,7 @@ def check(repo):
         if not name.endswith(".md"):
             continue
         with open(os.path.join(agent_dir, name), encoding="utf-8") as handle:
-            fields = frontmatter(handle.read())
+            fields = frontmatter(handle.read(), f"omp/agents/{name}", failures)
         agent_files[fields.get("name") or name[: -len(".md")]] = (name, fields)
     known_agents = set(agent_files) | BUNDLED_AGENTS
     for path, tree in routing_files:
@@ -266,7 +273,7 @@ def check(repo):
             if not name.endswith(".md"):
                 continue
             with open(os.path.join(pi_agent_dir, name), encoding="utf-8") as handle:
-                fields = frontmatter(handle.read())
+                fields = frontmatter(handle.read(), f"pi/agents/{name}", failures)
             declared = fields.get("model")
             if not declared:
                 failures.append(f"pi/agents/{name}: no `model:` key")
