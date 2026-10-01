@@ -1034,6 +1034,33 @@ if [ "$PRUNE" = "1" ]; then
   # ~/.codex/skills holds copies left by the old mirror; only ours carry the
   # marker, so .system and hand-installed Codex skills are untouched.
   prune_retired_copies "$HOME/.codex/skills" "codex copy, no longer used"
+
+  # 7e. Config links: a repo source that was deleted or renamed leaves a
+  #     dangling link in the live config directories. Same ownership rule as
+  #     7a/7b: only symlinks into this checkout whose target is gone; real
+  #     files and foreign links are never touched. Covers the file, glob and
+  #     nested_glob entries of MANAGED_DESTINATIONS in
+  #     scripts/ownership_collisions.py (the dangling test is name-agnostic,
+  #     so listing the containing directories is enough).
+  for link in \
+    "$HOME"/.claude/* \
+    "$HOME"/.omp/agent/* "$HOME"/.omp/agent/themes/* \
+    "$HOME"/.omp/agent/agents/* "$HOME"/.omp/agent/commands/* \
+    "$HOME"/.config/omp/* "$HOME"/.config/herdr/* \
+    "$HOME"/.pi/agent/* "$HOME"/.pi/agent/prompts/* \
+    "$HOME"/.pi/agent/themes/* "$HOME"/.pi/agent/agents/* \
+    "$HOME"/.pi/agent/extensions/*/*; do
+    [ -L "$link" ] || continue
+    case "$(readlink "$link")" in
+    "$REPO"/*)
+      if [ ! -e "$link" ]; then
+        rm -f "$link"
+        echo "pruned  $(display_path "$link") (dangling config link)"
+        pruned=$((pruned + 1))
+      fi
+      ;;
+    esac
+  done
 fi
 
 echo "---"

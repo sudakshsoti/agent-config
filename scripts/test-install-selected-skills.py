@@ -697,6 +697,21 @@ class InstallerTest(DisposableInstallCase):
         # The shared root was still populated by the same run.
         self.assertTrue((home / ".agents/skills/alpha").is_symlink())
 
+    def test_prune_removes_dangling_config_links_and_keeps_real_files(self):
+        first = self.install("--no-external")
+        self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+        home = self.test_home
+        (self.repo / "omp/lsp.yml").unlink()
+        (home / ".omp/agent/stray.yml").write_text("mine\n", encoding="utf-8")
+        self.assertTrue((home / ".omp/agent/lsp.yml").is_symlink())
+        self.assertFalse((home / ".omp/agent/lsp.yml").exists())
+
+        result = self.install("--no-external", "--prune")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse((home / ".omp/agent/lsp.yml").is_symlink())
+        self.assertEqual((home / ".omp/agent/stray.yml").read_text(), "mine\n")
+        self.assertTrue((home / ".omp/agent/config.yml").is_symlink())
+
     def test_prune_removes_undeclared_shared_links_and_is_idempotent(self):
         result = self.install("--skills-only=alpha")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
