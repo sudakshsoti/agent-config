@@ -6,18 +6,15 @@ of them errors at runtime; they just quietly route work to the wrong model:
 
 1. **Agent frontmatter vs override drift.** `omp/config.yml`'s
    `task.agentModelOverrides` beats `omp/agents/<name>.md` frontmatter, so a
-   stale `model:` in frontmatter is invisible — until a session runs with an
-   overlay that omits that agent, and the agent silently lands on whatever the
-   frontmatter alias resolves to. `builder` sat on `"@default"` (Opus 5) for a
-   whole re-base while its override said Sonnet 5.
-2. **Dead override keys.** `librarian` was pinned in both overlays long after
-   the agent stopped existing. A key naming no agent is never reported.
-3. **Overlay coverage holes.** An overlay replaces the base value only for the
-   keys it lists, so a missing role or agent key lets the base provider leak
-   into a session whose whole point was to stay on one provider.
-4. **Selector pinned to a provider the same file disables.** That request
+   stale `model:` in frontmatter is invisible — until a session that omits that
+   agent from its overrides lands it on whatever the frontmatter alias
+   resolves to. `builder` sat on `"@default"` (Opus 5) for a whole re-base
+   while its override said Sonnet 5.
+2. **Dead override keys.** `librarian` stayed pinned long after the agent
+   stopped existing. A key naming no agent is never reported.
+3. **Selector pinned to a provider the same file disables.** That request
    fails at runtime, but only for whichever role happens to fire first.
-5. **A Claude pin in Pi.** Pi cannot reach `anthropic/*` (the subscription
+4. **A Claude pin in Pi.** Pi cannot reach `anthropic/*` (the subscription
    bills third-party clients against an extra-usage balance) or `openrouter/*`
    (dead key). Those pins fail on first request, per
    `docs/research/harness-provider-access-2026-09.md`.
@@ -164,67 +161,49 @@ def selectors(node, trail=""):
         yield trail, node
 
 
-def check(repo):
-    failures = []
-    config_path = os.path.join(repo, "omp", "config.yml")
-    with open(config_path, encoding="utf-8") as handle:
-        config, parse_failures = parse_config(handle.read(), "omp/config.yml")
-    failures.extend(parse_failures)
+def check(config, agents, pi_agents, pi_settings=None, pi_search=None):
+    """Return routing failures for already-read inputs; performs no I/O.
 
+    config: parsed omp/config.yml mapping.
+    agents / pi_agents: {filename: text} for omp/agents/*.md and pi/agents/*.md.
+    pi_settings / pi_search: parsed pi/settings.json / pi/web-search.json, or None.
+    """
+    failures = []
     roles = config.get("modelRoles") or {}
     overrides = (config.get("task") or {}).get("agentModelOverrides") or {}
     if not roles or not overrides:
         failures.append("omp/config.yml: modelRoles or task.agentModelOverrides missing")
         return failures
 
-    # 1. Selector shape, everywhere, plus provider-vs-disabledProviders.
-    routing_files = [("omp/config.yml", config)]
-    overlay_dir = os.path.join(repo, "omp", "overlays")
-    overlays = {}
-    for name in sorted(os.listdir(overlay_dir)):
-        if not name.endswith((".yml", ".yaml")):
+    # 1. Selector shape, plus provider-vs-disabledProviders.
+    disabled = set(config.get("disabledProviders") or [])
+    for trail, value in selectors(config):
+        if not trail.startswith(("modelRoles", "task.agentModelOverrides", "retry.fallbackChains", "enabledModels")):
             continue
-        with open(os.path.join(overlay_dir, name), encoding="utf-8") as handle:
-            overlay, overlay_failures = parse_config(handle.read(), f"omp/overlays/{name}")
-        failures.extend(overlay_failures)
-        overlays[name] = overlay
-        routing_files.append((f"omp/overlays/{name}", overlay))
-
-    for path, tree in routing_files:
-        disabled = set(tree.get("disabledProviders") or [])
-        for trail, value in selectors(tree):
-            if not trail.startswith(("modelRoles", "task.agentModelOverrides", "retry.fallbackChains", "enabledModels")):
-                continue
-            match = SELECTOR_RE.match(value)
-            if not match:
-                failures.append(f"{path}: {trail} = {value!r} is not provider/model[:effort]")
-                continue
-            provider = match.group("provider")
-            if provider in disabled:
-                failures.append(
-                    f"{path}: {trail} pins {provider!r}, which the same file lists in disabledProviders"
-                )
+        match = SELECTOR_RE.match(value)
+        if not match:
+            failures.append(f"omp/config.yml: {trail} = {value!r} is not provider/model[:effort]")
+            continue
+        provider = match.group("provider")
+        if provider in disabled:
+            failures.append(
+                f"omp/config.yml: {trail} pins {provider!r}, which the same file lists in disabledProviders"
+            )
 
     # 2. Override keys must name a real agent.
-    agent_dir = os.path.join(repo, "omp", "agents")
     agent_files = {}
-    for name in sorted(os.listdir(agent_dir)):
-        if not name.endswith(".md"):
-            continue
-        with open(os.path.join(agent_dir, name), encoding="utf-8") as handle:
-            fields = frontmatter(handle.read(), f"omp/agents/{name}", failures)
+    for name, text in sorted(agents.items()):
+        fields = frontmatter(text, f"omp/agents/{name}", failures)
         agent_files[fields.get("name") or name[: -len(".md")]] = (name, fields)
     known_agents = set(agent_files) | BUNDLED_AGENTS
-    for path, tree in routing_files:
-        keys = (tree.get("task") or {}).get("agentModelOverrides") or {}
-        for agent in keys:
-            if agent not in known_agents:
-                failures.append(
-                    f"{path}: task.agentModelOverrides.{agent} names no agent "
-                    f"(no omp/agents/{agent}.md and not bundled)"
-                )
+    for agent in overrides:
+        if agent not in known_agents:
+            failures.append(
+                f"omp/config.yml: task.agentModelOverrides.{agent} names no agent "
+                f"(no omp/agents/{agent}.md and not bundled)"
+            )
 
-    # 3. Repo-owned agent frontmatter must resolve to its base override.
+    # 3. Repo-owned agent frontmatter must resolve to its override.
     for agent, (filename, fields) in sorted(agent_files.items()):
         declared = fields.get("model")
         override = overrides.get(agent)
@@ -245,68 +224,41 @@ def check(repo):
         if override is not None and resolved != override:
             failures.append(
                 f"omp/agents/{filename}: model {declared!r} resolves to {resolved!r} but "
-                f"task.agentModelOverrides.{agent} is {override!r} — an overlay that omits "
-                f"{agent} would route it to the wrong model"
+                f"task.agentModelOverrides.{agent} is {override!r} — a session that omits "
+                f"{agent} from its overrides would route it to the wrong model"
             )
 
-    # 4. Overlay coverage: every base role and agent key must be re-pinned.
-    for name, overlay in overlays.items():
-        overlay_roles = overlay.get("modelRoles") or {}
-        overlay_agents = (overlay.get("task") or {}).get("agentModelOverrides") or {}
-        for role in sorted(roles):
-            if role not in overlay_roles:
-                failures.append(
-                    f"omp/overlays/{name}: modelRoles.{role} not overridden — the base "
-                    f"value {roles[role]!r} leaks into this session"
-                )
-        for agent in sorted(overrides):
-            if agent not in overlay_agents:
-                failures.append(
-                    f"omp/overlays/{name}: task.agentModelOverrides.{agent} not overridden — "
-                    f"the base value {overrides[agent]!r} leaks into this session"
-                )
+    # 4. Pi may not pin a provider it cannot reach.
+    for name, text in sorted(pi_agents.items()):
+        fields = frontmatter(text, f"pi/agents/{name}", failures)
+        declared = fields.get("model")
+        if not declared:
+            failures.append(f"pi/agents/{name}: no `model:` key")
+            continue
+        match = SELECTOR_RE.match(declared)
+        if not match:
+            failures.append(f"pi/agents/{name}: model {declared!r} is not provider/model[:effort]")
+            continue
+        if match.group("provider") in PI_UNREACHABLE:
+            failures.append(
+                f"pi/agents/{name}: model {declared!r} uses {match.group('provider')!r}, "
+                "which Pi has no working credential path to"
+            )
 
-    # 5. Pi may not pin a provider it cannot reach.
-    pi_agent_dir = os.path.join(repo, "pi", "agents")
-    if os.path.isdir(pi_agent_dir):
-        for name in sorted(os.listdir(pi_agent_dir)):
-            if not name.endswith(".md"):
-                continue
-            with open(os.path.join(pi_agent_dir, name), encoding="utf-8") as handle:
-                fields = frontmatter(handle.read(), f"pi/agents/{name}", failures)
-            declared = fields.get("model")
-            if not declared:
-                failures.append(f"pi/agents/{name}: no `model:` key")
-                continue
-            match = SELECTOR_RE.match(declared)
-            if not match:
-                failures.append(f"pi/agents/{name}: model {declared!r} is not provider/model[:effort]")
-                continue
-            if match.group("provider") in PI_UNREACHABLE:
-                failures.append(
-                    f"pi/agents/{name}: model {declared!r} uses {match.group('provider')!r}, "
-                    "which Pi has no working credential path to"
-                )
-
-    settings_path = os.path.join(repo, "pi", "settings.json")
-    if os.path.exists(settings_path):
-        with open(settings_path, encoding="utf-8") as handle:
-            settings = json.load(handle)
-        provider = settings.get("defaultProvider")
+    if pi_settings is not None:
+        provider = pi_settings.get("defaultProvider")
         if provider in PI_UNREACHABLE:
             failures.append(
                 f"pi/settings.json: defaultProvider {provider!r} is unreachable from Pi"
             )
-        for entry in settings.get("enabledModels") or []:
+        for entry in pi_settings.get("enabledModels") or []:
             if entry.split("/", 1)[0] in PI_UNREACHABLE:
                 failures.append(
                     f"pi/settings.json: enabledModels entry {entry!r} is unreachable from Pi"
                 )
 
-    search_path = os.path.join(repo, "pi", "web-search.json")
-    if os.path.exists(search_path):
-        with open(search_path, encoding="utf-8") as handle:
-            summary = (json.load(handle) or {}).get("summaryModel") or ""
+    if pi_search is not None:
+        summary = pi_search.get("summaryModel") or ""
         if summary.split("/", 1)[0] in PI_UNREACHABLE:
             failures.append(
                 f"pi/web-search.json: summaryModel {summary!r} is unreachable from Pi"
@@ -315,9 +267,40 @@ def check(repo):
     return failures
 
 
+def _read_dir(path, suffix):
+    if not os.path.isdir(path):
+        return {}
+    texts = {}
+    for name in sorted(os.listdir(path)):
+        if name.endswith(suffix):
+            with open(os.path.join(path, name), encoding="utf-8") as handle:
+                texts[name] = handle.read()
+    return texts
+
+
+def _read_json(path):
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8") as handle:
+        return json.load(handle) or {}
+
+
+def check_repo(repo):
+    """Read the repo's routing files and run `check` over them."""
+    with open(os.path.join(repo, "omp", "config.yml"), encoding="utf-8") as handle:
+        config, failures = parse_config(handle.read(), "omp/config.yml")
+    return failures + check(
+        config,
+        _read_dir(os.path.join(repo, "omp", "agents"), ".md"),
+        _read_dir(os.path.join(repo, "pi", "agents"), ".md"),
+        _read_json(os.path.join(repo, "pi", "settings.json")),
+        _read_json(os.path.join(repo, "pi", "web-search.json")),
+    )
+
+
 def main(argv):
     repo = argv[1] if len(argv) > 1 else os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    failures = check(repo)
+    failures = check_repo(repo)
     for failure in failures:
         print(f"FAIL {failure}")
     if failures:
