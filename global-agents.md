@@ -51,6 +51,14 @@ For normal answers, explanations, plans, code, technical documentation and work 
 
 If it is unclear whether something should sound like me, ask before applying my voice.
 
+## 1Password secrets
+
+Never ask me for a 1Password service-account token or to paste a secret that 1Password holds.
+
+On the homelab box (hostname `homelab`), a read-only token scoped to the `Homelab` vault is stored at `~/.config/op/homelab-box-ro.token` (homelab ADR-0036). Read a secret with `OP_SERVICE_ACCOUNT_TOKEN="$(cat ~/.config/op/homelab-box-ro.token)" op read 'op://Homelab/<item>/<field>'`. Keep the token scoped to that one command and never export it. Write the value straight to its destination file without echoing it.
+
+Ask me only when the secret is outside the `Homelab` vault or the read fails.
+
 ## Authorship and attribution
 
 When writing commit messages, never auto-add the agent's name as co-author.

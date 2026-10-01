@@ -23,7 +23,10 @@ store, the second is written by Claude Code, carries herdr's `hooks` entry and
 holds `OPENROUTER_API_KEY`. Only repo-owned keys are pushed. The key is never
 tracked: install copies it from `~/.omp/.env` (1Password-injected from
 `omp/overlays/search-keys.tpl`) into the live `env`, so run `op inject` before
-installing on a new box. The tracked file is checked for credential-shaped keys.
+installing on a new box. On the homelab box, `~/.omp/.env` was filled from
+`op://Homelab/OpenRouter API Key - Jev/credential` with the box's read-only
+service-account token (see `global-agents.md`). The tracked file is checked for
+credential-shaped keys.
 
 - Link skills **once** into `~/.agents/skills`; never also link
   `~/.pi/agent/skills` or skills are discovered twice and consume double the
