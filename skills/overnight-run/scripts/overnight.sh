@@ -8,7 +8,12 @@
 #
 #   overnight.sh [--dry-run] [--deadline HH:MM] [--max-tickets N]
 #                [--worker claude|omp] [--visible|--headless] [--pr-per-ticket] [--resume]
+#                [--stop]
 #
+# --stop           ask the live run in this repo to end after its current ticket
+#                  (or during a usage sleep); it writes its report and exits 0.
+#                  For an immediate abort, kill -TERM the pid in state.json,
+#                  never caffeinate or the tmux pane.
 # --visible        default for an omp worker inside herdr (--headless opts out):
 #                  each worker runs as the interactive omp TUI in its own herdr
 #                  tab, closed when it ends.
@@ -22,14 +27,15 @@
 # plan.json (written by the preflight):
 #   {"branch": "overnight/YYYY-MM-DD", "queue": [12, 14],
 #    "waived": [[14, 9]],             # [issue, blocker] edges to ignore
-#    "worker_model": "opencode-go/deepseek-v4.1-flash:high",
 #    "checks": {"typecheck": "...", "build": "...", "lint": "...", "test": "..."},
 #    "setup": "npm ci"}                # --pr-per-ticket only; "" or absent = none
 # "" means the repo has no such command. The build gate after each worker is
 # typecheck + build + lint + test; the tree-health check after a stash skips
-# test. OVERNIGHT_WORKER_MODEL overrides worker_model. The usage gate reads the
-# quota of the model's provider (the prefix before "/"); a claude worker takes
-# no model, or an anthropic one.
+# test. worker_model is optional: OVERNIGHT_WORKER_MODEL, then plan worker_model,
+# then (on --resume) the state, then omp's modelRoles.task. It must be an
+# `omp models` selector, plus an optional :<thinking> suffix. The usage gate
+# reads the quota of the model's provider (the prefix before "/"); a claude
+# worker takes an anthropic model, its :<level> passed as --effort.
 #
 # Outputs, all under .scratch/overnight/ (git-ignored via .git/info/exclude):
 #   state.json     queue, done, failed, skipped, SHAs, stash refs, usage
@@ -61,6 +67,7 @@ MAX_RETRIES=1                                                        # per ticke
 PR_BASE="${OVERNIGHT_PR_BASE:-main}"                                 # --pr-per-ticket stack root
 VISIBLE_IDLE_SECS=60 # --visible: quiet time after a terminal turn that counts as finished
 LIMIT_RE="You('|’)ve hit your .* limit|Request rejected \(429\)"
+MODEL_MISSING_RE='Model "[^"]+" not found|issue with the selected model|unrecognized_model'
 # Repo-relative paths a worker may never change: env files, keys, CI workflows,
 # git internals. id_*.pub stays allowed.
 PROTECTED_RE="${OVERNIGHT_PROTECTED_RE:-(^|/)\.env(\.|\$)|\.pem\$|\.key\$|(^|/)id_(rsa|ed25519|ecdsa|dsa)(\$|[^.]|\.[^p])|(^|/)\.git/|^\.github/workflows/}"
@@ -87,6 +94,7 @@ max_tickets=0
 worker=""
 visible= # empty = auto: on for an omp worker inside herdr
 pr_mode=0
+stop_req=0
 while (($#)); do
   case "$1" in
   --dry-run) dry_run=1 ;;
@@ -94,6 +102,7 @@ while (($#)); do
   --visible) visible=1 ;;
   --headless) visible=0 ;;
   --pr-per-ticket) pr_mode=1 ;;
+  --stop) stop_req=1 ;;
   --deadline)
     deadline_hm="${2:?--deadline needs HH:MM}"
     shift
@@ -122,6 +131,18 @@ cd "$root"
 dir="$root/.scratch/overnight"
 plan="$dir/plan.json"
 state="$dir/state.json"
+stop_file="$dir/stop-requested"
+if ((stop_req)); then
+  live_pid="$(jq -r '.pid // empty' "$state" 2>/dev/null || true)"
+  if [[ -z "$live_pid" ]] || ! kill -0 "$live_pid" 2>/dev/null ||
+    [[ "$(jq -r '.stop_reason // empty' "$state")" != "" ]]; then
+    die "no live run to stop (state.json pid ${live_pid:-unset})"
+  fi
+  : >"$stop_file"
+  live_current="$(jq -r '.current // empty' "$state")"
+  echo "overnight: stop requested; run $live_pid ends $([[ -n "$live_current" ]] && echo "after ticket #$live_current" || echo "at its next check")"
+  exit 0
+fi
 [[ -f "$plan" ]] || die "no $plan — run the overnight-run preflight first"
 jq -e '(.queue | type) == "array" and (.checks | type) == "object"' "$plan" >/dev/null ||
   die "$plan needs a queue array and a checks object"
@@ -160,19 +181,31 @@ deadline_epoch() {
 }
 
 # resolve_model — sets model (what the gate filters on), model_arg (what the
-# worker is passed) and provider (whose quota the gate reads).
-# Precedence: OVERNIGHT_WORKER_MODEL, plan worker_model, then on --resume the state.
+# worker is passed), model_source (where it came from), provider (whose quota
+# the gate reads) and, for a claude worker, claude_model and claude_effort.
+# Precedence: OVERNIGHT_WORKER_MODEL, plan worker_model, on --resume the state,
+# then omp's modelRoles.task.
 resolve_model() {
   model_arg="$WORKER_MODEL"
-  [[ -n "$model_arg" ]] || model_arg="$(jq -r '.worker_model // ""' "$plan")"
+  model_source="OVERNIGHT_WORKER_MODEL"
+  if [[ -z "$model_arg" ]]; then
+    model_arg="$(jq -r '.worker_model // ""' "$plan")"
+    model_source="plan.json worker_model"
+  fi
   if [[ -z "$model_arg" ]] && ((resume)); then
     model_arg="$(sget '.model_arg // (if .worker == "omp" then .model else "" end) // ""')"
+    model_source="state.json (resumed run)"
   fi
+  if [[ -z "$model_arg" ]]; then
+    model_arg="$(omp config get modelRoles --json 2>/dev/null | jq -r '.value.task // empty' 2>/dev/null || true)"
+    model_source="omp modelRoles.task"
+  fi
+  [[ -n "$model_arg" ]] ||
+    die "no worker model: set worker_model in plan.json, OVERNIGHT_WORKER_MODEL, or modelRoles.task in omp config"
+  claude_model="" claude_effort=""
   if [[ "$worker" == omp ]]; then
-    [[ -n "$model_arg" ]] ||
-      die "omp worker needs a model: set worker_model in plan.json or OVERNIGHT_WORKER_MODEL"
     [[ "$model_arg" =~ ^[^/]+/. ]] ||
-      die "omp worker model '$model_arg' needs provider/model form (e.g. opencode-go/deepseek-v4.1-flash:high)"
+      die "omp worker model '$model_arg' needs provider/model form (e.g. anthropic/claude-sonnet-5-5:medium)"
     model="$model_arg"
     provider="${model_arg%%/*}"
   else
@@ -180,13 +213,41 @@ resolve_model() {
       die "worker claude cannot run model '$model_arg' (provider ${model_arg%%/*}): use --worker omp, or an anthropic model"
     fi
     provider=anthropic
-    if [[ -n "$model_arg" ]]; then
-      model="$model_arg"
-    else
-      # Only the gate's --model tier filter uses this; claude is not passed it.
-      model="$(jq -r '.model // empty' "$HOME/.claude/settings.json" 2>/dev/null || true)"
+    model="$model_arg"
+    claude_model="${model_arg#anthropic/}"
+    if [[ "$claude_model" =~ ^(.+):(low|medium|high|xhigh|max)$ ]]; then
+      claude_model="${BASH_REMATCH[1]}"
+      claude_effort="${BASH_REMATCH[2]}"
+    elif [[ "$claude_model" == *:* ]]; then
+      die "worker claude takes an effort of low|medium|high|xhigh|max, not '${claude_model##*:}'"
+    fi
+    if [[ -n "$claude_effort" ]] && ((!claude_lists_effort)); then
+      die "claude has no --effort; drop the :$claude_effort suffix from the model"
     fi
   fi
+}
+
+# check_model — sets model_check; dies when model_arg is not an exact selector
+# in `omp models`. Only a trailing thinking/effort word is stripped, so ids that
+# contain a colon themselves (…:batch) are looked up whole.
+check_model() {
+  local base catalog near
+  if [[ "$model_arg" != */* ]]; then
+    model_check="not checked (bare claude model name)"
+    return 0
+  fi
+  base="$model_arg"
+  if [[ "$base" =~ ^(.+):(off|minimal|low|medium|high|xhigh|max|auto)$ ]]; then base="${BASH_REMATCH[1]}"; fi
+  if ! catalog="$(omp models --json 2>/dev/null)" || ! jq -e '.models | type == "array"' <<<"$catalog" >/dev/null 2>&1; then
+    model_check="catalogue unreadable (omp models --json failed); not checked"
+    return 0
+  fi
+  if jq -e --arg s "$base" 'any(.models[]?; .selector == $s)' <<<"$catalog" >/dev/null; then
+    model_check="in omp models"
+    return 0
+  fi
+  near="$(jq -r --arg n "${base#*/}" '[.models[]?.selector | select(contains($n))][:3] | join(", ")' <<<"$catalog")"
+  die "model '$model_arg' is not in omp models (no selector '$base')${near:+; did you mean: $near}"
 }
 
 # The Anthropic gate reads omp's Anthropic login. A claude worker must be on the
@@ -243,6 +304,17 @@ nap() {
   wait $! || true
 }
 
+# idle <secs> — nap in chunks of at most 10s, returning early once --stop has
+# been requested, so a long usage sleep or backoff does not outlast it.
+idle() {
+  local left="$1" step
+  while ((left > 0)) && [[ ! -f "$stop_file" ]]; do
+    step=$((left < 10 ? left : 10))
+    nap "$step"
+    left=$((left - step))
+  done
+}
+
 # mtime <file> — modification time in epoch seconds (BSD or GNU stat).
 mtime() { stat -f %m "$1" 2>/dev/null || stat -c %Y "$1"; }
 
@@ -275,8 +347,9 @@ run_visible() {
   # carries the runner's PATH (the pane's login shell has its own) and the
   # worker command. `exit` closes the tab when omp quits, which the loop reads
   # as "worker exited".
-  local launcher="${result%.result.json}.worker.sh"
-  printf 'export PATH=%q\nexec %s\n' "$PATH" "$(printf '%q ' "${worker_argv[@]}")" >"$launcher"
+  local launcher="${result%.result.json}.worker.sh" err="${result%.result.json}.err"
+  # stderr still reaches the pane, and is kept in the ticket's .err for the checks.
+  printf 'export PATH=%q\nexec %s 2> >(tee -a %q >&2)\n' "$PATH" "$(printf '%q ' "${worker_argv[@]}")" "$err" >"$launcher"
   herdr pane run "$pane" "bash $(printf '%q' "$launcher"); exit" >/dev/null
   while :; do
     if [[ -s "$result" ]]; then
@@ -493,10 +566,11 @@ worker_cmd() {
   else
     worker_argv=(omp -p --mode json --auto-approve --max-time "$((TICKET_TIMEOUT_SECS / 60))m" --no-session)
   fi
-  if [[ "$worker" == omp && -n "$model_arg" ]]; then
+  if [[ "$worker" == omp ]]; then
     worker_argv+=(--model "$model_arg")
-  elif [[ -n "$model_arg" ]]; then
-    worker_argv+=(--model "${model_arg#anthropic/}")
+  else
+    worker_argv+=(--model "$claude_model")
+    if [[ -n "$claude_effort" ]]; then worker_argv+=(--effort "$claude_effort"); fi
   fi
   if ((visible)); then worker_argv+=("@$1"); else worker_argv+=("$(cat "$1")"); fi
 }
@@ -535,7 +609,7 @@ write_report() {
     def cell: tostring | gsub("\\|"; "/") | gsub("\n"; " ");
     . as $s
     | "# Overnight run \(.date)", "",
-      "- \(if .pr_mode then "Draft PR per ticket, stacked from `\(.pr_base)`" else "Branch `\(.branch)`" end), worker `\(.worker)`\(if .visible then " (visible)" else "" end), model \(.model // "" | if . == "" then "harness default" else "`\(.)`" end), gated provider `\(.provider // "anthropic")`",
+      "- \(if .pr_mode then "Draft PR per ticket, stacked from `\(.pr_base)`" else "Branch `\(.branch)`" end), worker `\(.worker)`\(if .visible then " (visible)" else "" end), model `\(.model)`, gated provider `\(.provider // "anthropic")`",
       "- Started \(.started_at | hm), ended \(.ended_at // now | floor | hm), deadline \(.deadline | hm)",
       "- Stop reason: **\(.stop_reason // "still running")**",
       "- Account check: \(.account)", "",
@@ -577,7 +651,7 @@ finished=0
 stop() {
   gate
   record_usage "end"
-  st_apply '.stop_reason = $r | .ended_at = (now | floor) | .current = null' --arg r "$1"
+  st_apply '.stop_reason = $r | .ended_at = (now | floor)' --arg r "$1"
   write_report
   finished=1
   log "stopped: $1 — report $dir/$(sget .date).md"
@@ -621,7 +695,7 @@ requeue() {
   if [[ "$gate_code" == 0 ]]; then
     (($(date +%s) + RATE_LIMIT_BACKOFF_SECS + TICKET_TIMEOUT_SECS <= deadline)) || stop "deadline"
     log "gate sees no limit; backing off ${RATE_LIMIT_BACKOFF_SECS}s"
-    nap "$RATE_LIMIT_BACKOFF_SECS"
+    idle "$RATE_LIMIT_BACKOFF_SECS"
   fi
 }
 
@@ -872,6 +946,12 @@ run_ticket() {
     text="$(final_text "$out")"
   fi
   result="$(final_json "$text")"
+
+  # A rejected model fails every ticket the same way: stop before any retry,
+  # patch, stash or gate call, leaving .current so --resume stashes the tree.
+  if ((rc != 0)) && { grep -Eq "$MODEL_MISSING_RE" "$err" || grep -Eq "$MODEL_MISSING_RE" <<<"$text"; }; then
+    stop "worker model '$model_arg' rejected on #$n; fix the model and --resume" 1
+  fi
   local robj="${result:-}"
   [[ -n "$robj" ]] || robj='{}'
   status="$(jq -r '.status // ""' <<<"$robj")"
@@ -956,6 +1036,7 @@ run_ticket() {
 # --- setup -----------------------------------------------------------------
 
 branch="$(git branch --show-current)"
+visible_req="$visible" # what the command line asked for; empty = auto
 if ((resume)); then
   [[ -f "$state" ]] || die "--resume needs $state"
   [[ "$(sget .branch)" == "$branch" ]] || die "state.json is for $(sget .branch); $branch is checked out"
@@ -967,15 +1048,28 @@ if [[ -z "$worker" ]]; then
   if [[ -n "${CLAUDECODE:-}" ]]; then worker=claude; else worker=omp; fi
 fi
 [[ "$worker" == claude || "$worker" == omp ]] || die "--worker must be claude or omp"
+in_herdr=0
+if [[ -n "${HERDR_WORKSPACE_ID:-}" ]] && command -v herdr >/dev/null 2>&1; then in_herdr=1; fi
 if [[ -z "$visible" ]]; then
-  if [[ "$worker" == omp && -n "${HERDR_WORKSPACE_ID:-}" ]] && command -v herdr >/dev/null 2>&1; then visible=1; else visible=0; fi
+  if [[ "$worker" == omp ]] && ((in_herdr)); then visible=1; else visible=0; fi
 fi
 command -v "$worker" >/dev/null 2>&1 || die "$worker not on PATH"
 if ((visible)); then
   [[ "$worker" == omp ]] || die "--visible needs --worker omp"
-  if [[ -z "${HERDR_WORKSPACE_ID:-}" ]] || ! command -v herdr >/dev/null 2>&1; then
+  if ((!in_herdr)); then
     die "--visible needs to run inside a herdr pane"
   fi
+fi
+if ((visible)); then
+  visible_line="yes — one herdr tab per worker (omp TUI), idle after ${VISIBLE_IDLE_SECS}s"
+elif [[ "$worker" == claude ]]; then
+  visible_line="no (claude worker is headless)"
+elif [[ "$visible_req" == 0 ]]; then
+  visible_line="no (--headless)"
+elif ((!in_herdr)); then
+  visible_line="no (not inside herdr)"
+else
+  visible_line="no (resumed run was headless)"
 fi
 setup_cmd="$(jq -r '.setup // ""' "$plan")"
 worktrees="$root-overnight"
@@ -985,11 +1079,13 @@ if ((pr_mode)); then
 fi
 implement_skill="$(skill_path implement)" || die "implement skill not installed"
 code_review_skill="$(skill_path code-review)" || die "code-review skill not installed"
-claude_lists_max_turns=0
-if [[ "$worker" == claude ]] && claude --help 2>/dev/null | grep -q -- '--max-turns'; then
-  claude_lists_max_turns=1
-fi
+claude_help=""
+if [[ "$worker" == claude ]]; then claude_help="$(claude --help 2>/dev/null || true)"; fi
+claude_lists_max_turns=0 claude_lists_effort=0
+if grep -q -- '--max-turns' <<<"$claude_help"; then claude_lists_max_turns=1; fi
+if grep -q -- '--effort' <<<"$claude_help"; then claude_lists_effort=1; fi
 resolve_model
+check_model
 deadline="$(deadline_epoch)"
 account="$(account_check)"
 mkdir -p "$dir/logs"
@@ -997,10 +1093,10 @@ mkdir -p "$dir/logs"
 new_state() {
   jq -n --argjson plan "$(cat "$plan")" --arg branch "$branch" --arg worker "$worker" \
     --arg model "$model" --arg model_arg "$model_arg" --arg provider "$provider" \
-    --argjson deadline "$deadline" --arg account "$account" \
+    --argjson deadline "$deadline" --arg account "$account" --argjson pid "$$" \
     --arg date "$(date +%Y-%m-%d)" --argjson visible "$visible" --argjson pr_mode "$pr_mode" \
     --arg pr_base "$PR_BASE" '
-    {date: $date, branch: $branch, worker: $worker, model: $model, model_arg: $model_arg,
+    {date: $date, branch: $branch, worker: $worker, model: $model, model_arg: $model_arg, pid: $pid,
      provider: $provider, account: $account,
      visible: ($visible == 1), pr_mode: ($pr_mode == 1), pr_base: $pr_base, stack_base: null,
      started_at: (now | floor), ended_at: null, deadline: $deadline,
@@ -1027,9 +1123,9 @@ if ((dry_run)); then
   if [[ "$worker" == claude ]] && ((!claude_lists_max_turns)); then
     echo "              (--max-turns omitted: not listed in claude --help; bounded by the timeout)"
   fi
-  echo "  model       ${model:-harness default (gate checks every model-scoped 7d window)}"
+  echo "  model       $model_arg — from $model_source; $model_check"
   echo "  gate provider  $provider"
-  if ((visible)); then echo "  visible     one herdr tab per worker (omp TUI), idle after ${VISIBLE_IDLE_SECS}s"; fi
+  echo "  visible     $visible_line"
   if ((pr_mode)); then
     echo "  PRs         worktrees in $worktrees; ticket/<N>-<slug> stacked from origin/$PR_BASE; draft PR per pass"
     echo "  setup       ${setup_cmd:-none}"
@@ -1077,9 +1173,9 @@ if ((resume)); then
   fi
   st_apply '.current = null | .stop_reason = null | .ended_at = null | .deadline = $d | .worker = $w
       | .visible = ($v == 1) | .pr_mode = ($p == 1) | .pr_base = (.pr_base // $b)
-      | .model = $m | .model_arg = $ma | .provider = $pv | .retries = (.retries // {})' \
+      | .model = $m | .model_arg = $ma | .provider = $pv | .retries = (.retries // {}) | .pid = $pid' \
     --argjson d "$deadline" --arg w "$worker" --argjson v "$visible" --argjson p "$pr_mode" --arg b "$PR_BASE" \
-    --arg m "$model" --arg ma "$model_arg" --arg pv "$provider"
+    --arg m "$model" --arg ma "$model_arg" --arg pv "$provider" --argjson pid "$$"
 else
   [[ ! -f "$state" ]] || die "$state exists; pass --resume or move it aside"
   [[ -z "$(git status --porcelain)" ]] || die "working tree is not clean"
@@ -1089,14 +1185,19 @@ trap on_exit EXIT
 trap 'exit 129' HUP
 trap 'exit 130' INT
 trap 'exit 143' TERM
+rm -f "$stop_file" # a stale request never stops a new run
 fetch_tracker
 gate
 record_usage "start"
-log "overnight run on $branch with $worker; gate: $gate_reading"
+log "overnight run on $branch with $worker, model $model_arg, visible: $visible_line; gate: $gate_reading"
 
 # --- the loop --------------------------------------------------------------
 
 while :; do
+  if [[ -f "$stop_file" ]]; then
+    rm -f "$stop_file"
+    stop "stop requested"
+  fi
   settle_and_pick
   [[ -n "$next" ]] || stop "queue empty"
   if ((max_tickets > 0 && $(sget .tickets_run) >= max_tickets)); then stop "max tickets ($max_tickets)"; fi
@@ -1107,7 +1208,7 @@ while :; do
     (($(date +%s) + gate_secs + TICKET_TIMEOUT_SECS <= deadline)) || stop "deadline (5h window resets too late)"
     record_usage "sleep ${gate_secs}s"
     log "5h window over ${FIVE_HOUR_SLEEP_PCT}%; sleeping ${gate_secs}s"
-    nap "$gate_secs"
+    idle "$gate_secs"
     continue
     ;;
   20) stop "weekly limit" ;;

@@ -25,7 +25,8 @@ Arguments, if given, preset the deadline (default 07:00), a max-tickets cap
   the interactive omp TUI in its own herdr tab, so a human can watch it. The
   tab closes when the worker writes its result file, goes quiet for 60 s after
   a terminal turn, or hits the timeout. Transcripts go to
-  `.scratch/overnight/sessions/`.
+  `.scratch/overnight/sessions/`. A claude worker is always headless; the dry
+  run's `visible` line says which mode the run uses.
 - **PR per ticket** (`--pr-per-ticket`): each ticket runs in its own worktree
   at `<repo>-overnight/<N>` on `ticket/<N>-<slug>`. Every worktree stacks on
   the previous passed ticket's branch; the first one stacks on `origin/main`.
@@ -56,64 +57,90 @@ Keep tracker access read-only for the whole run: `gh issue list/view` and
    have is `""` (n/a); ask about any you cannot find instead of inventing one.
 4. **Prepare git.**
    - The tree is clean (`git status --porcelain` prints nothing).
-   - `git fetch origin && git switch main && git merge --ff-only origin/main`.
+   - `git fetch origin`. Base the run on `origin/main` and never
+     `git switch main`: this checkout may be a worktree, with `main` checked
+     out elsewhere. If `git rev-list --count origin/main..main` is non-zero,
+     report the unpushed commits and ask once: push them first, or base on
+     `main`.
    - `.scratch/overnight/` is ignored: if `git check-ignore -q
      .scratch/overnight/x` fails, append `/.scratch/overnight/` to
      `$(git rev-parse --git-path info/exclude)`.
-   - `git switch -c overnight/<YYYY-MM-DD>`, install dependencies, then run
-     typecheck, build and lint once, and the test command once under a
-     20-minute limit. Abort if any is red or times out. In PR-per-ticket
-     mode this checkout only holds `.scratch/overnight/`; the tickets branch
-     from `origin/main`.
-5. **Pick the worker.** Default: `omp` with model
-   `opencode-go/deepseek-v4.1-flash:high`, so the run spends the OpenCode Go
-   allowance, not Anthropic. Offer Claude or another model as an override
-   (`OVERNIGHT_WORKER_MODEL`, or `--worker claude`, which takes only an
-   Anthropic model or none). The usage gate follows the model's provider.
+   - If `.scratch/overnight/state.json` exists: when its `pid` is alive and
+     its `stop_reason` is null, a run is in progress; stop and report it.
+     Otherwise ask once: `--resume` it on its branch, or start over by
+     `mv`-ing it to `.scratch/overnight/state.prev-<YYYYMMDD-HHMMSS>.json`.
+   - Run branch: `overnight/<YYYY-MM-DD>`, or `-2`, `-3`, … when
+     `git show-ref -q --verify refs/heads/<name>` finds the name taken.
+     `git switch --no-track -c <run-branch> origin/main` (or `main`, if chosen
+     above); `--no-track` stops the branch from tracking `origin/main`.
+   - Install dependencies, then run typecheck, build and lint once, and the
+     test command once under a 20-minute limit. Abort if any is red or times
+     out. In PR-per-ticket mode this checkout only holds
+     `.scratch/overnight/`; the tickets branch from `origin/main`.
+5. **Pick the worker.** Default: `omp` with omp's `modelRoles.task`
+   (`omp config get modelRoles --json | jq -r .value.task`, today
+   `anthropic/claude-sonnet-5-5:medium`). Leave `worker_model` out of
+   plan.json and the script resolves it; show the resolved value.
+   - An override goes in plan.json `worker_model`, never in
+     `OVERNIGHT_WORKER_MODEL`: the tmux or herdr launch does not inherit this
+     session's environment. Example: `opencode-go/deepseek-v4.1-flash:high`,
+     to spend the OpenCode Go allowance instead of Anthropic.
+   - The model must be an exact `omp models` selector, optionally with a
+     `:<thinking>` suffix. `~`-prefixed aliases are not accepted.
+   - `--worker claude` takes an Anthropic model, or the same default, passed
+     as `--model claude-sonnet-5-5 --effort medium`. It always runs headless.
+   - The usage gate follows the model's provider.
 6. **Write the plan** to `.scratch/overnight/plan.json`:
 
    ```json
    {"branch": "overnight/2026-09-28", "queue": [12, 14, 15],
     "waived": [[15, 9]],
-    "worker_model": "opencode-go/deepseek-v4.1-flash:high",
     "checks": {"typecheck": "...", "build": "...", "lint": "...", "test": "..."},
     "setup": "npm ci"}
    ```
 
    `waived` holds `[issue, blocker]` pairs the user agreed to ignore.
-   `worker_model` is `provider/model`; the env var overrides it. `setup`
+   `worker_model` is optional (`provider/model[:level]`); absent means omp's
+   `modelRoles.task`. `setup`
    installs dependencies in each new worktree and is used only with
    `--pr-per-ticket`; ask for it if the repo's install command is unclear.
 7. **Dry run.** `"$S/overnight.sh" --dry-run --worker <w> --deadline <HH:MM>
    [--max-tickets N] [--headless] [--pr-per-ticket]`. It runs `usage-gate.sh` once for
-   the worker's provider, checks the account, and prints the model, gated
-   provider, thresholds, run order and the tickets with no extractable
-   acceptance criteria. If the account line says `mismatch` or `unknown`, or
-   the gate exits 30, say so: the run then stops after `FALLBACK_MAX_TICKETS`
-   (4) tickets.
+   the worker's provider, checks the account, and prints the model with its
+   source and the `omp models` check, the gated provider, a `visible` line,
+   thresholds, run order and the tickets with no extractable acceptance
+   criteria. A model missing from `omp models` stops the dry run: fix
+   `worker_model` and rerun. If the account line says `mismatch` or
+   `unknown`, or the gate exits 30, say so: the run then stops after
+   `FALLBACK_MAX_TICKETS` (4) tickets.
 8. **Confirm once.** Show one summary: the ordered queue, the worker command,
-   the model and the provider being gated, the thresholds (5h sleep at 70%; 7d
+   the model and the provider being gated, the visibility (the dry run's
+   `visible` line), the thresholds (5h sleep at 70%; 7d
    stop when 15+ points over elapsed pace past 5% elapsed, or at 90%; for Go
    also a monthly hard stop at 90%), the caps (45 min per ticket, max
    tickets, fallback cap), the deadline (default 07:00), the tickets without
    acceptance criteria (ask include or exclude for each; included ones run on
    the ticket's own wording), and the git policy below for the chosen mode.
    Wait for one explicit yes.
-9. **Launch and exit.**
+9. **Launch and exit.** The command always carries `--worker <w>` and the dry
+   run's `--visible` or `--headless` explicitly, so the launched run cannot
+   resolve them differently. `<run>` is the run branch with `/` replaced by
+   `-`, which keeps the name unique per same-day run.
 
    ```bash
-   tmux new-session -d -s "overnight-<YYYY-MM-DD>" -c "$PWD" \
-     "caffeinate -i '$S/overnight.sh' --worker <w> --deadline <HH:MM> [flags] 2>&1 | tee -a .scratch/overnight/run.log"
+   tmux new-session -d -s "<run>" -c "$PWD" \
+     "caffeinate -i '$S/overnight.sh' --worker <w> --deadline <HH:MM> --visible|--headless [flags] 2>&1 | tee -a .scratch/overnight/run.log"
    ```
 
    Inside herdr (`HERDR_ENV=1`), skip tmux: create a tab with
    `herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd "$PWD" --label
-   overnight-<YYYY-MM-DD> --no-focus` and send the same `caffeinate -i …`
+   <run> --no-focus` and send the same `caffeinate -i …`
    command to its root pane with `herdr pane run <pane> "<command>"`.
 
-   Print how to attach (`tmux attach -t overnight-<YYYY-MM-DD>` or the herdr
-   tab) and the report path. Remind the user that `caffeinate -i` prevents
-   only idle sleep (stay on power with the lid open), then end the session.
+   Print how to attach (`tmux attach -t <run>` or the herdr tab), the report
+   path, and the stop command `"$S/overnight.sh" --stop`, run from the repo.
+   Remind the user that `caffeinate -i` prevents only idle sleep (stay on
+   power with the lid open), then end the session.
 
 ## What the script does
 
@@ -142,6 +169,9 @@ branch and opens the draft PR.
   ticket.
 - **Notification.** A macOS notification fires on every stop, aborts
   included; `OVERNIGHT_NOTIFY=0` silences it.
+- **Model rejected.** A worker that exits non-zero with a model-not-found
+  error stops the whole run (`stop_reason` "worker model … rejected"). The
+  ticket is neither failed nor retried; fix the model and `--resume`.
 
 The gate (`usage-gate.sh --provider <p>`) reads `omp usage --provider <p>
 --json` after an `invalidate`, for the provider of the worker's model. Exit 0
@@ -169,8 +199,15 @@ checks, protected paths hit, patch and handoff paths, and stash names or
 worktree paths, skipped tickets with blockers, usage readings, the stop
 reason and the routes to check visually.
 
+**Stopping.** `"$S/overnight.sh" --stop` from the repo ends the run after the
+current ticket, or wakes it from a usage sleep. It writes the report and
+exits 0. For an immediate abort, `kill -TERM "$(jq .pid
+.scratch/overnight/state.json)"`; the interrupted ticket is stashed on
+`--resume`. The `<N>-attempt<k>.patch` files and handoffs in `logs/` are kept
+on purpose, for retries and the report.
+
 To continue an interrupted or stopped run on the same branch:
-`"$S/overnight.sh" --resume [--deadline HH:MM] [--headless] [--pr-per-ticket]`,
+`"$S/overnight.sh" --resume [--deadline HH:MM] [--visible|--headless] [--pr-per-ticket]`,
 launched the same way. A mode flag given on resume stays on; the state
-remembers the modes and the model of the original run. To start over, delete
-`.scratch/overnight/state.json`.
+remembers the modes and the model of the original run. To start over, `mv`
+`.scratch/overnight/state.json` to `.scratch/overnight/state.prev-<YYYYMMDD-HHMMSS>.json`.

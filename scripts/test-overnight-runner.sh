@@ -50,7 +50,10 @@ jq '.reports += [{provider: "opencode-go", fetchedAt: 1790533120264, limits: [
    amount: {used: 42, limit: 100, usedFraction: 0.42, unit: "percent"}, status: "ok"}]}]' \
   "$fixtures/go.json" >"$T/gate.json"
 export USAGE_GATE_JSON="$T/gate.json" USAGE_GATE_NOW_MS=1790533120264 OVERNIGHT_NOTIFY=0
-unset HERDR_WORKSPACE_ID HERDR_ENV CLAUDECODE CLAUDE_CODE_ENTRYPOINT OVERNIGHT_WORKER_MODEL OVERNIGHT_PROTECTED_RE
+unset HERDR_WORKSPACE_ID HERDR_ENV CLAUDECODE CLAUDE_CODE_ENTRYPOINT OVERNIGHT_WORKER_MODEL OVERNIGHT_PROTECTED_RE OT_TASK_ROLE OT_MODELS_FAIL
+# The stub `omp models` catalogue, and the runner path for stubs that call back in.
+echo '{"models":[{"selector":"opencode-go/deepseek-v4.1-flash"},{"selector":"anthropic/claude-sonnet-5-5"},{"selector":"openrouter/~anthropic/claude-opus-latest"}]}' >"$T/models.json"
+export OT_MODELS="$T/models.json" OT_RUNNER="$runner"
 export PATH="$T/bin:$PATH"
 
 cat >"$T/bin/gh" <<'EOF'
@@ -83,7 +86,19 @@ EOF
 cat >"$T/bin/omp" <<'EOF'
 #!/usr/bin/env bash
 c="${OT_CASE:?}"
-[[ "${1:-}" == usage ]] && exit 1
+case "${1:-}" in
+usage) exit 1 ;;
+models)
+  [[ "${OT_MODELS_FAIL:-0}" == 1 ]] && exit 1
+  cat "$OT_MODELS"
+  exit 0
+  ;;
+config)
+  jq -nc --arg r "${OT_TASK_ROLE-anthropic/claude-sonnet-5-5:medium}" \
+    '{key: "modelRoles", value: (if $r == "" then {} else {task: $r} end)}'
+  exit 0
+  ;;
+esac
 brief="${!#}"
 n="$(grep -o 'ticket #[0-9]*' <<<"$brief" | head -n 1 | tr -dc 0-9)"
 rf="$(grep -o '/[^ `]*\.result\.json' <<<"$brief" | head -n 1)"
@@ -117,7 +132,7 @@ jq -nc --arg t "$([[ $NO_RESULT == 1 ]] && echo 'finished' || echo "$RESULT")" \
   '{type: "agent_end", messages: [{role: "assistant", content: [{type: "text", text: $t}]}]}'
 exit "$EXIT"
 EOF
-printf '#!/bin/sh\n[ "$1" = --help ] && echo "  --max-turns N"\nexit 0\n' >"$T/bin-claude/claude"
+printf '#!/bin/sh\n[ "$1" = --help ] && printf "  --max-turns N\\n  --effort <level>\\n"\nexit 0\n' >"$T/bin-claude/claude"
 chmod +x "$T/bin/gh" "$T/bin/omp" "$T/bin-claude/claude"
 
 # --- per-case helpers --------------------------------------------------------
@@ -358,9 +373,10 @@ case_matrix() {
   local dry="--dry-run"
   plan '[1,2]' "$MODEL"
   run_runner $dry
-  check "matrix: DeepSeek gates the Go provider" '[[ $RC == 0 ]] && grep -q "gate provider  opencode-go" "$C/run.out" && grep -q "model       $MODEL" "$C/run.out" && grep -Eq "^  gate +exit [0-9]+ — .*opencode-go" "$C/run.out"'
+  check "matrix: DeepSeek gates the Go provider" '[[ $RC == 0 ]] && grep -q "gate provider  opencode-go" "$C/run.out" && grep -q "model       $MODEL" "$C/run.out" && grep -q "in omp models" "$C/run.out" && grep -Eq "^  gate +exit [0-9]+ — .*opencode-go" "$C/run.out"'
   check "matrix: dry run shows Go thresholds" 'grep -q "monthly" "$C/run.out" && grep -q "5h sleep" "$C/run.out"'
   check "matrix: dry run lists tickets without criteria" 'grep -q "no acceptance criteria: #2$" "$C/run.out"'
+  check "matrix: dry run says why it is headless" 'grep -q "visible     no (--headless)" "$C/run.out"'
   plan '[1]' ''
   OVERNIGHT_WORKER_MODEL=anthropic/claude-sonnet-5-5 run_runner $dry
   check "matrix: omp + anthropic model gates Anthropic (env beats plan)" '[[ $RC == 0 ]] && grep -q "gate provider  anthropic" "$C/run.out" && grep -q "model       anthropic/claude-sonnet-5-5" "$C/run.out"'
@@ -369,7 +385,9 @@ case_matrix() {
   check "matrix: env override beats the plan model" 'grep -q "gate provider  anthropic" "$C/run.out"'
   plan '[1]' ''
   run_runner $dry
-  check "matrix: omp with no model is refused" '[[ $RC != 0 ]] && grep -q "worker_model" "$C/run.err"'
+  check "matrix: omp with no plan model defaults to modelRoles.task" '[[ $RC == 0 ]] && grep -q "model       anthropic/claude-sonnet-5-5:medium" "$C/run.out" && grep -q "omp modelRoles.task" "$C/run.out" && grep -q "gate provider  anthropic" "$C/run.out"'
+  OT_TASK_ROLE= run_runner $dry
+  check "matrix: no plan model and no task role is refused, naming modelRoles.task" '[[ $RC != 0 ]] && grep -q "modelRoles.task" "$C/run.err"'
   plan '[1]' 'deepseek-v4.1-flash'
   run_runner $dry
   check "matrix: omp model without provider prefix is refused" '[[ $RC != 0 ]] && grep -q "provider/model" "$C/run.err"'
@@ -378,10 +396,19 @@ case_matrix() {
   check "matrix: claude + DeepSeek refused, naming both" '[[ $RC != 0 ]] && grep -q "claude" "$C/run.err" && grep -q "$MODEL" "$C/run.err"'
   plan '[1]' ''
   PATH="$T/bin-claude:$PATH" run_runner --worker claude $dry
-  check "matrix: claude with no model gates Anthropic and passes no --model" '[[ $RC == 0 ]] && grep -q "gate provider  anthropic" "$C/run.out" && ! grep -q -- "--model" "$C/run.out"'
+  check "matrix: claude defaults to the task role, split into --model and --effort" '[[ $RC == 0 ]] && grep -q -- "--model claude-sonnet-5-5 --effort medium" "$C/run.out" && grep -q "gate provider  anthropic" "$C/run.out"'
+  plan '[1]' 'anthropic/claude-sonnet-5-5:minimal'
+  PATH="$T/bin-claude:$PATH" run_runner --worker claude $dry
+  check "matrix: claude refuses a non-claude effort word" '[[ $RC != 0 ]] && grep -q "effort" "$C/run.err"'
   plan '[1]' 'anthropic/claude-sonnet-5-5'
   PATH="$T/bin-claude:$PATH" run_runner --worker claude $dry
-  check "matrix: claude with an anthropic model is allowed" '[[ $RC == 0 ]] && grep -q "gate provider  anthropic" "$C/run.out"'
+  check "matrix: claude with an anthropic model is allowed" '[[ $RC == 0 ]] && grep -q "gate provider  anthropic" "$C/run.out" && grep -q "visible     no (claude worker is headless)" "$C/run.out"'
+  plan '[1]' 'anthropic/claude-opus-latest:high'
+  run_runner $dry
+  check "matrix: a model missing from omp models is refused with a near match" '[[ $RC != 0 ]] && grep -q "not in omp models" "$C/run.err" && grep -q "openrouter/~anthropic/claude-opus-latest" "$C/run.err"'
+  plan '[1]' "$MODEL"
+  OT_MODELS_FAIL=1 run_runner $dry
+  check "matrix: an unreadable catalogue does not block the run" '[[ $RC == 0 ]] && grep -q "catalogue unreadable" "$C/run.out"'
 }
 
 case_resume_old_state() {
@@ -412,8 +439,8 @@ case_resume_no_model() {
   local s="$R/.scratch/overnight/state.json"
   jq 'del(.model, .model_arg)' "$s" >"$s.tmp" && mv "$s.tmp" "$s"
   plan '[1,2]' ''
-  run_runner --resume
-  check "resume: no model anywhere is refused, naming worker_model" '[[ $RC != 0 ]] && grep -q "worker_model" "$C/run.err"'
+  OT_TASK_ROLE= run_runner --resume
+  check "resume: no model anywhere is refused, naming worker_model and modelRoles.task" '[[ $RC != 0 ]] && grep -q "worker_model" "$C/run.err" && grep -q "modelRoles.task" "$C/run.err"'
 }
 
 case_resume_interrupted() {
@@ -446,11 +473,68 @@ case_notify() {
   check "notify: OVERNIGHT_NOTIFY=0 silences it" '[[ $RC == 0 && ! -e "$C/notify.log" ]]'
 }
 
+case_model_rejected() {
+  mk_case model_rejected
+  for n in 1 2; do issue "$n" "T$n" "Body"; done
+  edge 2 1
+  plan '[1,2]' "$MODEL"
+  behave 1 <<'B'
+echo 'Model "x" not found. Run "omp models" to see available models.' >&2
+EXIT=1 NO_RESULT=1
+B
+  run_runner
+  check "model rejected: the run stops without retrying" '[[ $RC != 0 && "$(inv)" == 1 ]]'
+  check "model rejected: stop reason names the model" '[[ "$(sq .stop_reason)" == "worker model"* ]]'
+  check "model rejected: #1 is neither failed nor its dependent skipped" '[[ "$(sq ".failed | length")" == 0 && "$(sq ".skipped | length")" == 0 && "$(sq ".queue | map(tostring) | join(\",\")")" == "1,2" && "$(sq .current)" == 1 ]]'
+  check "model rejected: the worker's stderr is kept" 'grep -q "not found" '"$logs"'/1-1.err'
+}
+
+case_stop() {
+  mk_case stop
+  for n in 1 2; do issue "$n" "T$n" "Body"; done
+  plan '[1,2]' "$MODEL"
+  behave 1 <<'B'
+bash "$OT_RUNNER" --stop >"$OT_CASE/stop-msg.out"
+B
+  run_runner
+  check "stop: the current ticket finishes, then the run ends cleanly" '[[ $RC == 0 && "$(inv)" == 1 && "$(sq ".done | map(.n) | join(\",\")")" == 1 && "$(sq .stop_reason)" == "stop requested" && "$(sq ".queue | map(tostring) | join(\",\")")" == 2 && ! -e "$R/.scratch/overnight/stop-requested" ]]'
+  check "stop: the confirmation names the current ticket once" 'grep -q "ends after ticket #1$" "$C/stop-msg.out"'
+  run_runner --resume
+  check "stop: --resume picks up the rest and the request does not linger" '[[ $RC == 0 && "$(inv)" == "1 2" && "$(sq .stop_reason)" == "queue empty" ]]'
+  local src=0
+  (cd "$R" && bash "$runner" --stop) >"$C/stop.out" 2>"$C/stop.err" || src=$?
+  check "stop: with no live run it is refused" '[[ $src != 0 ]] && grep -q "no live run" "$C/stop.err"'
+}
+
+case_abort() {
+  mk_case abort
+  for n in 1 2; do issue "$n" "T$n" "Body"; done
+  plan '[1,2]' "$MODEL"
+  behave 1 <<'B'
+sleep 30
+B
+  (cd "$R" && exec bash "$runner" --headless --worker omp --deadline "$DL") >"$C/run.out" 2>"$C/run.err" &
+  local pid=$! i
+  for i in $(seq 100); do
+    [[ -f "$C/invocations.log" ]] && break
+    sleep 0.1
+  done
+  kill -TERM "$pid"
+  RC=0
+  wait "$pid" || RC=$?
+  check "abort: SIGTERM ends the run at once, with #1 still current and #2 never started" '[[ $RC == 143 && "$(inv)" == 1 && "$(sq .current)" == 1 && "$(sq .stop_reason)" == aborted* ]] && ! grep -q "#2 start" "$C/run.out"'
+  behave 1 <<'B'
+true
+B
+  run_runner --resume
+  check "abort: --resume finishes both tickets" '[[ $RC == 0 && "$(sq ".done | map(.n) | join(\",\")")" == "1,2" ]]'
+}
+
 # --- run ----------------------------------------------------------------------
 
 cases=(retry_success retry_exhausted dependent_order blocked protected protected_allowed
   protected_override red_tests commit_refused setup_failure matrix resume_old_state
-  resume_no_model resume_interrupted notify)
+  resume_no_model resume_interrupted notify model_rejected stop abort)
 for c in "${cases[@]}"; do
   (
     "case_$c"
