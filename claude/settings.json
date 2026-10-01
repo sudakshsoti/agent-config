@@ -1,11 +1,11 @@
 {
   "agentPushNotifEnabled": true,
-  "autoCompactWindow": 200000,
+  "autoCompactWindow": 233000,
   "enabledPlugins": {
     "claude-compact-openrouter@claude-compact-openrouter": true
   },
   "env": {
-    "CLAUDE_CODE_DISABLE_1M_CONTEXT": "1",
+    "CLAUDE_CODE_DISABLE_1M_CONTEXT": "0",
     "CLAUDE_CODE_ENABLE_FUNCTION_HOOKS": "1"
   },
   "extraKnownMarketplaces": {
@@ -25,7 +25,7 @@
   "pluginConfigs": {
     "claude-compact-openrouter@claude-compact-openrouter": {
       "options": {
-        "compactAtPercent": 95
+        "compactAtPercent": 19
       }
     }
   },
