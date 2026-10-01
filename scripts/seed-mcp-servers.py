@@ -27,6 +27,8 @@ from pathlib import Path
 import sys
 import tempfile
 
+from mcp_secret_policy import refuse_reason
+
 
 def load(path: Path, *, required: bool) -> dict:
     try:
@@ -60,12 +62,14 @@ def declared(source_path: Path) -> dict:
     for name, config in servers.items():
         if not isinstance(config, dict):
             raise SystemExit(f"error: server {name!r} in {source_path} is not an object")
-        for carrier in ("env", "headers"):
-            if config.get(carrier):
-                raise SystemExit(
-                    f"error: refusing server {name!r}: non-empty {carrier} "
-                    "(inline credentials never ride in a snapshot)"
-                )
+        reason = refuse_reason(config)
+        if reason is None:
+            # Seed is stricter than the shared policy: any non-empty carrier.
+            reason = next(
+                (f"non-empty {c}" for c in ("env", "headers") if config.get(c)), None
+            )
+        if reason:
+            raise SystemExit(f"error: refusing server {name!r}: {reason}")
     return servers
 
 
