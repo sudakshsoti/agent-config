@@ -1,0 +1,5 @@
+# OMP npm plugins installed by install.sh (skipped by --no-external):
+#   <npm package> <version>
+# Installed with `omp plugin install <package>@<version>` when not already
+# listed by `omp plugin list --json`.
+@plannotator/pi-extension 0.27.16

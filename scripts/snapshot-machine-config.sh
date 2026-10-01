@@ -157,17 +157,6 @@ capture() {
   rm -f "$tmp"
 }
 
-# Claude Code: the statusline wrapper, its companion for subagents, and the
-# claude-powerline theme the wrapper renders through. settings.json is not
-# copied — it carries unrelated keys; snapshots/README.md documents the two
-# keys that wire these scripts up.
-capture "claude/statusline.sh" claude/statusline.sh \
-  cat "$HOME/.claude/statusline.sh"
-capture "claude/subagent-statusline.sh" claude/subagent-statusline.sh \
-  cat "$HOME/.claude/subagent-statusline.sh"
-capture "claude/claude-powerline.json" claude/claude-powerline.json \
-  cat "$HOME/.claude/claude-powerline.json"
-
 # Claude Code MCP: user scope only, extracted from the state blob.
 claude_mcp() {
   python3 - "$HOME/.claude.json" <<'PY'

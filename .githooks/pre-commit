@@ -16,7 +16,9 @@ python3 "$repo_root/scripts/lint-skills.py" "$repo_root" || status=1
 echo
 python3 "$repo_root/scripts/check-model-routing.py" "$repo_root" || status=1
 echo
-python3 "$repo_root/scripts/test-apply-web-search-config.py" || status=1
+python3 "$repo_root/scripts/test-apply-json-config.py" || status=1
+echo
+python3 "$repo_root/scripts/test-seed-mcp-servers.py" || status=1
 echo
 # Rebuild claude.ai zips from the staged tree and stage them into this commit,
 # so dist/ always matches the skills being committed.

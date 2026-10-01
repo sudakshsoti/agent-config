@@ -10,7 +10,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MERGER = ROOT / "scripts" / "apply-web-search-config.py"
+MERGER = ROOT / "scripts" / "apply-json-config.py"
 TRACKED_CONFIG = ROOT / "pi" / "web-search.json"
 
 
@@ -171,6 +171,66 @@ class ApplyWebSearchConfigTest(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("searchRouting.exaToken", result.stderr)
 
+    def run_with_env(self, dotenv, target, *specs):
+        """Merge an empty source into target with --env-from specs; return (result, parsed target)."""
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            source_path = directory / "source.json"
+            target_path = directory / "target.json"
+            dotenv_path = directory / ".env"
+            source_path.write_text("{}\n", encoding="utf-8")
+            target_path.write_text(target, encoding="utf-8")
+            if dotenv is not None:
+                dotenv_path.write_text(dotenv, encoding="utf-8")
+            args = ["--env-from", f"{dotenv_path}:{specs[0]}"] if specs else []
+            result = subprocess.run(
+                ["python3", str(MERGER), str(source_path), str(target_path), *args],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            return result, self.parse(target_path.read_text(encoding="utf-8"))
+
+    def test_env_from_copies_the_named_secret_and_keeps_other_env(self):
+        result, merged = self.run_with_env(
+            "# comment\nOTHER=nope\nOPENROUTER_API_KEY='sk-or-live'\n",
+            '{"env": {"KEEP": "1"}, "hooks": {"x": []}}\n',
+            "OPENROUTER_API_KEY",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            merged["env"], {"KEEP": "1", "OPENROUTER_API_KEY": "sk-or-live"}
+        )
+        self.assertEqual(merged["hooks"], {"x": []})
+
+    def test_env_from_missing_name_warns_and_keeps_the_existing_value(self):
+        result, merged = self.run_with_env(
+            "OTHER=1\n",
+            '{"env": {"OPENROUTER_API_KEY": "already-there"}}\n',
+            "OPENROUTER_API_KEY",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("OPENROUTER_API_KEY not found", result.stderr)
+        self.assertEqual(merged["env"]["OPENROUTER_API_KEY"], "already-there")
+
+    def test_env_from_missing_file_warns_instead_of_failing(self):
+        result, merged = self.run_with_env(None, '{"model": "opus"}\n', "OPENROUTER_API_KEY")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("not found", result.stderr)
+        self.assertEqual(merged, {"model": "opus"})
+
+    def test_claude_settings_is_credential_free_and_merges_cleanly(self):
+        source = (ROOT / "claude" / "settings.json").read_text(encoding="utf-8")
+        config = self.parse(source)
+
+        self.assertNotIn("hooks", config)  # herdr owns the SessionStart hook
+        self.assertNotIn("OPENROUTER_API_KEY", config.get("env", {}))
+        result, _ = self.run_merger(source, '{"hooks": {"SessionStart": []}}\n')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_reports_invalid_target_json_without_a_traceback(self):
         result, text = self.run_merger('{"workflow": "auto-summary"}\n', "{ not json\n")
 
@@ -183,7 +243,7 @@ class ApplyWebSearchConfigTest(unittest.TestCase):
         result, _ = self.run_merger(None, '{"provider": "all"}\n')
 
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn("missing web-search config", result.stderr)
+        self.assertIn("missing source config", result.stderr)
         self.assertNotIn("Traceback", result.stderr)
 
     def test_rejects_non_object_source(self):

@@ -1,0 +1,45 @@
+{
+  "agentPushNotifEnabled": true,
+  "autoCompactWindow": 200000,
+  "enabledPlugins": {
+    "claude-compact-openrouter@claude-compact-openrouter": true
+  },
+  "env": {
+    "CLAUDE_CODE_DISABLE_1M_CONTEXT": "1",
+    "CLAUDE_CODE_ENABLE_FUNCTION_HOOKS": "1"
+  },
+  "extraKnownMarketplaces": {
+    "claude-compact-openrouter": {
+      "source": {
+        "repo": "denisded/claude-compact-openrouter",
+        "source": "github"
+      }
+    }
+  },
+  "model": "opus",
+  "modelSettings": {
+    "claude-opus-5": {
+      "effortLevel": "high"
+    }
+  },
+  "pluginConfigs": {
+    "claude-compact-openrouter@claude-compact-openrouter": {
+      "options": {
+        "compactAtPercent": 95
+      }
+    }
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "statusLine": {
+    "command": "$HOME/.claude/statusline.sh",
+    "padding": 0,
+    "refreshInterval": 10,
+    "type": "command"
+  },
+  "subagentStatusLine": {
+    "command": "$HOME/.claude/subagent-statusline.sh",
+    "type": "command"
+  },
+  "theme": "dark",
+  "tui": "fullscreen"
+}

@@ -3,7 +3,7 @@
 Machine-local harness config, **copied** into this repo rather than symlinked.
 
 Everything else here is linked, so the repo *is* the live file and there is no
-sync step. Three surfaces cannot work that way, and each is a copy for its own
+sync step. Two surfaces cannot work that way, and each is a copy for its own
 reason:
 
 - **`omp/mcp.json`** — README.md's "Secrets policy" calls `~/.omp/agent/mcp.json`
@@ -15,13 +15,13 @@ reason:
   `~/.claude.json`, a ~70KB state blob that also holds `userID`, `machineID`,
   `oauthAccount` and a feature-flag cache. There is nothing to link; only the
   `mcpServers` object is extracted.
-- **`claude/statusline.sh`, `claude/subagent-statusline.sh`,
-  `claude/claude-powerline.json`** — `install.sh` fills `~/.claude/skills` but
-  deliberately leaves `~/.claude/settings.json` and everything it points at
-  hand-managed, and it still prunes `claude-powerline.json` as a retired link
-  (leaving the real file alone with a warning). These are tracked for their
-  content, not to be reinstalled; linking them is a separate, deliberate
-  change.
+
+`install.sh` runs the other direction on a fresh machine: it adds the servers a
+snapshot names that the live config lacks (`scripts/seed-mcp-servers.py`, and
+`claude mcp add-json` for Claude Code) and never edits an existing one, so OAuth
+state and tool-side edits survive. A server carrying `env` or `headers` is
+refused on both ends. The Claude statusline scripts and theme used to be
+snapshotted here; they now live in `claude/` and are linked.
 
 The cost of a copy is drift. Refresh after changing any of these by hand or
 through a TUI:
@@ -38,24 +38,8 @@ ride along.
 
 ## What the statusline is
 
-`~/.claude/settings.json` wires the two scripts up, and `install.sh` leaves that
-file alone by design. So on a new machine copy these into `~/.claude/` by hand
-and add:
-
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "$HOME/.claude/statusline.sh",
-    "padding": 0,
-    "refreshInterval": 10
-  },
-  "subagentStatusLine": {
-    "type": "command",
-    "command": "$HOME/.claude/subagent-statusline.sh"
-  }
-}
-```
+`claude/settings.json` (merged into `~/.claude/settings.json` by `install.sh`)
+wires `claude/statusline.sh` and `claude/subagent-statusline.sh` up.
 
 `statusline.sh` is a wrapper around the `claude-powerline` npm package (a
 runtime dependency, installed separately). It exists because claude-powerline

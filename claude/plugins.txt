@@ -1,0 +1,14 @@
+# Claude Code plugins installed by install.sh (skipped by --no-external):
+#   <marketplace owner/repo> <plugin>@<marketplace> <commit>
+#
+# claude/settings.json already declares enabledPlugins and the marketplace, so
+# this file only fetches. `claude plugin marketplace add` cannot pin a ref
+# (anthropics/claude-code#10571), so <commit> is checked against the installed
+# gitCommitSha and a mismatch is a warning, not a failure: it tells you the box
+# resolved a different revision than the one this machine was set up with.
+#
+# claude-compact-openrouter sends session transcripts to Jev through OpenRouter,
+# so it is never installed on the work machine. It needs OPENROUTER_API_KEY,
+# which install.sh copies from ~/.omp/.env (1Password-injected) into the live
+# settings.json env; the key is never tracked.
+denisded/claude-compact-openrouter claude-compact-openrouter@claude-compact-openrouter d6e3214453c624d4be84b2f4508d5c57a773116c

@@ -105,17 +105,36 @@
 #       without either, both the 0.23.0 and 0.29.0 default paths are written.
 #     global-agents.md       -> ~/.pi/agent/AGENTS.md
 #
+#   Claude Code configuration (only when ~/.claude exists and not the work machine):
+#     claude/{statusline.sh,subagent-statusline.sh,claude-powerline.json}
+#                            -> ~/.claude/
+#       Linked. A real file already there with identical content is adopted
+#       (replaced by the link) rather than skipped.
+#     claude/settings.json   -> ~/.claude/settings.json
+#       MERGED, not linked: Claude Code writes the file itself, herdr owns its
+#       SessionStart hook there, and it holds OPENROUTER_API_KEY. Only the
+#       repo-owned keys are pushed; the key is copied from ~/.omp/.env
+#       (1Password-injected, never tracked) by scripts/apply-json-config.py.
+#     claude/plugins.txt     -> `claude plugin marketplace add` + `install`
+#       Skipped by --no-external.
+#     snapshots/claude/mcp.json -> `claude mcp add-json --scope user`, adding
+#       only servers ~/.claude.json lacks; existing servers are never touched.
+#
+#   OMP extras:
+#     omp/plugins.txt        -> `omp plugin install` (skipped by --no-external)
+#     snapshots/omp/mcp.json -> ~/.omp/agent/mcp.json, adding only missing servers
+#
 # Deliberately NOT tracked or linked (machine-local by design):
-#   ~/.claude/CLAUDE.md, ~/.claude/settings.json — the operator's own files.
-#     This repo installs Claude Code *skills* only; its instruction file and
-#     settings stay hand-managed. `global-agents.md` reaches Claude Code by an
-#     `@` include from ~/.claude/CLAUDE.md, written by hand, not by this script.
-#     The statusline scripts those settings point at are snapshotted (copied) to
-#     snapshots/claude/ — tracked for their content, still not installed here.
+#   ~/.claude/CLAUDE.md — retired; global-agents.md reaches Claude Code only if
+#     you add an `@` include by hand. --prune removes a stale link to it.
+#   ~/.claude/hooks/ — written by `herdr integration install`, not by this repo.
+#   ~/.claude.json, ~/.claude/plugins/ — Claude Code's state (accounts, caches).
 #   ~/.omp/agent/mcp.json — never linked; see the "Secrets policy" section of
-#     README.md. It is snapshotted (copied) to snapshots/omp/mcp.json by
-#     scripts/snapshot-machine-config.sh, which is not part of this installer.
+#     README.md. snapshots/omp/mcp.json is its snapshot (scripts/snapshot-
+#     machine-config.sh); this installer only seeds missing servers from it.
 #   ~/.omp/agent/extensions/ — written and overwritten by the tool that owns it.
+#   ~/.omp/.env — produced by `op inject` from omp/overlays/search-keys.tpl.
+#   ~/.omp/agent/agent.db — logins (`omp` /login); they do not transfer.
 #   ~/.pi/agent/auth.json — OAuth tokens and provider API keys.
 #   ~/.pi/agent/models-store.json — a refetchable provider catalog cache.
 #   ~/.pi/agent/skills/ — Pi already discovers ~/.agents/skills, which this
@@ -137,9 +156,10 @@
 # Idempotent; safe to re-run. Run once after cloning on a new machine.
 #
 # Work machine: when chezmoi (owned by ~/dev/dotfiles) reports .machine=work,
-# steps 3-5b are skipped and only skills are linked. OMP and Pi config routes
-# prompts, repository source included, to OpenCode Go and Muse Code, and
-# employer code may only reach the employer's sanctioned vendor.
+# steps 3-5e are skipped and only skills are linked. OMP, Pi and Claude Code
+# config routes prompts, repository source included, to OpenCode Go, Muse Code
+# and OpenRouter, and employer code may only reach the employer's sanctioned
+# vendor.
 #
 #   ./install.sh                     # link skills, OMP config and Pi config
 #   ./install.sh --prune             # also clear managed links that are gone
@@ -344,6 +364,9 @@ link_into() { # link_into <source> <dest-link>
   name="$(basename "$link")"
   if [ -L "$link" ]; then
     rm -f "$link" # replace any existing symlink
+  elif [ -f "$link" ] && cmp -s "$src" "$link"; then
+    rm -f "$link" # byte-identical real file: nothing is lost by adopting it
+    echo "adopt   $name — replaced an identical copy with the link"
   elif [ -e "$link" ]; then
     echo "⚠️  SKIP $name — a real (non-symlink) entry exists at $link."
     echo "    Move it into the repo first, then re-run."
@@ -575,10 +598,10 @@ else
   echo "⚠️  SKIP claude — no $CLAUDE (Claude Code not installed). skills/ not linked."
 fi
 
-# Steps 3-5b link harness config, and never on the work machine: see the
+# Steps 3-5e link harness config, and never on the work machine: see the
 # header. Skills above are already linked there.
 if [ "$MACHINE" = "work" ]; then
-  echo "⚠️  SKIP omp + pi config — chezmoi says this is the work machine. Their model routing reaches providers work code must not; skills only."
+  echo "⚠️  SKIP omp + pi + claude config — chezmoi says this is the work machine. Their model routing and the Claude compaction plugin reach providers work code must not; skills only."
 else
   # 3. global-agents.md: harness-neutral shared preferences, linked into each
   #    installed harness's user-level instruction path so one edit reaches both.
@@ -728,7 +751,7 @@ else
     fi
 
     for web_search_config in "${web_search_configs[@]}"; do
-      python3 "$REPO/scripts/apply-web-search-config.py" \
+      python3 "$REPO/scripts/apply-json-config.py" \
         "$REPO/pi/web-search.json" "$web_search_config"
       echo "merged  pi/web-search.json -> $web_search_config"
     done
@@ -776,6 +799,107 @@ else
     fi
   else
     echo "⚠️  SKIP herdr — no ~/.config/herdr (herdr not run yet). herdr/config.toml and herdr/plugins.txt not applied."
+  fi
+
+  # 5d. Claude Code. Only when ~/.claude exists (run `claude` once on a new
+  #     machine first); this never creates the directory. See the header for
+  #     why settings.json is merged rather than linked.
+  if [ -d "$CLAUDE" ]; then
+    for claude_file in statusline.sh subagent-statusline.sh claude-powerline.json; do
+      link_into "$REPO/claude/$claude_file" "$CLAUDE/$claude_file"
+    done
+
+    # OPENROUTER_API_KEY comes from ~/.omp/.env, which `op inject` writes from
+    # omp/overlays/search-keys.tpl. Without that file the merge still runs and
+    # warns, leaving whatever key is already in settings.json.
+    # A settings.json Claude Code cannot parse is the operator's to fix; do not
+    # abort the rest of the install over it.
+    if python3 "$REPO/scripts/apply-json-config.py" \
+      "$REPO/claude/settings.json" "$CLAUDE/settings.json" \
+      --env-from "$HOME/.omp/.env:OPENROUTER_API_KEY"; then
+      echo "merged  claude/settings.json -> $CLAUDE/settings.json"
+    else
+      echo "⚠️  claude/settings.json not merged into $CLAUDE/settings.json; fix the file and re-run."
+      skipped=$((skipped + 1))
+    fi
+
+    # Claude Code's own `mcp add-json` owns ~/.claude.json: add only the
+    # servers it lacks, never edit one. The snapshot is the declared set.
+    if command -v claude >/dev/null 2>&1 && [ -f "$REPO/snapshots/claude/mcp.json" ]; then
+      while IFS=$'\t' read -r mcp_name mcp_json; do
+        [ -n "$mcp_name" ] || continue
+        if claude mcp add-json --scope user "$mcp_name" "$mcp_json" >/dev/null 2>&1; then
+          echo "seeded  claude mcp server $mcp_name"
+        else
+          echo "⚠️  claude mcp add-json $mcp_name failed; re-run to retry."
+          skipped=$((skipped + 1))
+        fi
+      done < <(python3 "$REPO/scripts/seed-mcp-servers.py" missing \
+        "$REPO/snapshots/claude/mcp.json" "$HOME/.claude.json")
+    fi
+
+    # claude/plugins.txt: `<marketplace repo> <plugin>@<marketplace> <commit>`.
+    if [ "$EXTERNAL" = "1" ] && [ -f "$REPO/claude/plugins.txt" ] && command -v claude >/dev/null 2>&1; then
+      claude_plugins="$(claude plugin list 2>/dev/null || true)"
+      while read -r market_repo plugin_id plugin_commit _; do
+        case "$market_repo" in "" | \#*) continue ;; esac
+        case "$claude_plugins" in
+        *"$plugin_id"*) ;;
+        *)
+          # Adding a marketplace that is already known is not an error worth
+          # stopping for; the install below is what decides success.
+          claude plugin marketplace add "$market_repo" >/dev/null 2>&1 || true
+          if claude plugin install "$plugin_id" >/dev/null 2>&1; then
+            echo "plugin  claude $plugin_id"
+            external=$((external + 1))
+          else
+            echo "⚠️  claude plugin $plugin_id failed to install (needs network); re-run to retry."
+            skipped=$((skipped + 1))
+            continue
+          fi
+          ;;
+        esac
+        installed_commit="$(python3 - "$CLAUDE/plugins/installed_plugins.json" "$plugin_id" <<'PY' 2>/dev/null || true
+import json, sys
+entries = json.load(open(sys.argv[1])).get("plugins", {}).get(sys.argv[2], [])
+print(entries[0].get("gitCommitSha", "") if entries else "")
+PY
+)"
+        if [ -n "$installed_commit" ] && [ "$installed_commit" != "$plugin_commit" ]; then
+          echo "⚠️  $plugin_id is at ${installed_commit:0:8}, claude/plugins.txt pins ${plugin_commit:0:8}."
+        fi
+      done <"$REPO/claude/plugins.txt"
+    fi
+  else
+    echo "⚠️  SKIP claude config — no $CLAUDE (run claude once first). statusline, settings.json, MCP servers and plugins not applied."
+  fi
+
+  # 5e. OMP extras: npm plugins, and MCP servers the snapshot names but the
+  #     live ~/.omp/agent/mcp.json lacks. OMP owns that file, so existing
+  #     servers are never edited and the file is never linked (README "Secrets
+  #     policy").
+  if [ -d "$OMP" ]; then
+    if [ -f "$REPO/snapshots/omp/mcp.json" ]; then
+      python3 "$REPO/scripts/seed-mcp-servers.py" merge \
+        "$REPO/snapshots/omp/mcp.json" "$OMP/mcp.json"
+    fi
+    if [ "$EXTERNAL" = "1" ] && [ -f "$REPO/omp/plugins.txt" ] && command -v omp >/dev/null 2>&1; then
+      omp_plugins="$(omp plugin list --json 2>/dev/null || true)"
+      while read -r omp_plugin omp_plugin_version _; do
+        case "$omp_plugin" in "" | \#*) continue ;; esac
+        case "$omp_plugins" in *"\"name\": \"$omp_plugin\""*) continue ;; esac
+        if omp plugin install "$omp_plugin@$omp_plugin_version" >/dev/null 2>&1; then
+          echo "plugin  omp $omp_plugin@$omp_plugin_version"
+          external=$((external + 1))
+        else
+          echo "⚠️  omp plugin $omp_plugin@$omp_plugin_version failed to install (needs network and bun on PATH); re-run to retry."
+          skipped=$((skipped + 1))
+        fi
+      done <"$REPO/omp/plugins.txt"
+    fi
+    if [ ! -f "$HOME/.omp/.env" ]; then
+      echo "note: no ~/.omp/.env — run: op inject -f -i ~/.config/omp/search-keys.tpl -o ~/.omp/.env && chmod 600 ~/.omp/.env, then re-run to push OPENROUTER_API_KEY into Claude settings."
+    fi
   fi
 fi
 
@@ -857,9 +981,9 @@ if [ "$PRUNE" = "1" ]; then
     done
   fi
 
-  # 7d. Retired harness surfaces. This repo still installs Claude Code skills,
-  #     but nothing else for Claude, and nothing at all for Codex or
-  #     OpenCode — so clean up what an older version left
+  # 7d. Retired harness surfaces. This repo installs Claude Code skills and
+  #     config (steps 2b and 5d), but no Claude instruction file or agents, and
+  #     nothing at all for Codex or OpenCode — so clean up what an older version left
   #     behind — but only entries that provably belong to this repo: symlinks
   #     pointing into this checkout (or its vendor/), and copies carrying our
   #     own ownership marker. Anything else is the operator's and is left
@@ -894,7 +1018,6 @@ if [ "$PRUNE" = "1" ]; then
   }
 
   prune_retired_link "$HOME/.claude/CLAUDE.md" --warn-real
-  prune_retired_link "$HOME/.claude/claude-powerline.json" --warn-real
   prune_retired_link "$HOME/.codex/AGENTS.md" --warn-real
   prune_retired_link "$HOME/.config/opencode/AGENTS.md" --warn-real
 

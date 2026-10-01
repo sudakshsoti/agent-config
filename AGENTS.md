@@ -11,12 +11,19 @@ This file applies to this checkout. Shared, harness-neutral preferences live in
 | --- | --- | --- |
 | `~/.agents/skills/` | `skills/`, `vendor/` | one symlink per skill; filled only when a shared-root consumer exists |
 | `~/.claude/skills/` | `skills/`, `vendor/` | one symlink per skill; filled only when `~/.claude` already exists |
+| `~/.claude/` config | `claude/`, `snapshots/claude/mcp.json` | statusline pair + `claude-powerline.json` linked (identical real copies adopted); `settings.json` **merged**; plugins via `claude/plugins.txt` (skipped by `--no-external`); MCP servers added if missing. Only when `~/.claude` exists; run `claude` once on a new box first |
 | `~/.omp/agent/` + `~/.config/omp/` | `omp/`, `global-agents.md` | one symlink per file; OMP writes through links |
+| `~/.omp/agent/` extras | `omp/plugins.txt`, `snapshots/omp/mcp.json` | `omp plugin install` (skipped by `--no-external`; needs bun); MCP servers added to `mcp.json` if missing, never edited |
 | `~/.pi/agent/` | `pi/`, `global-agents.md` | one symlink per file; Pi writes through links |
 | `~/.config/herdr/config.toml` | `herdr/config.toml` | one symlink; herdr writes through it; only when `~/.config/herdr` exists. `herdr/plugins.txt` entries go through `herdr plugin install` (skipped by `--no-external`); `herdr/<dir>/herdr-plugin.toml` local plugins are `herdr plugin link`ed (`herdr/marksman-root` drops `.marksman.toml` into linked worktrees, since Marksman rejects a `.git` file) |
 
-`pi/web-search.json` is the one **merge**, not a link: it is also
-pi-web-access's credential store, so only repo-owned keys are pushed.
+`pi/web-search.json` and `claude/settings.json` are **merges**, not links
+(`scripts/apply-json-config.py`): the first is pi-web-access's credential
+store, the second is written by Claude Code, carries herdr's `hooks` entry and
+holds `OPENROUTER_API_KEY`. Only repo-owned keys are pushed. The key is never
+tracked: install copies it from `~/.omp/.env` (1Password-injected from
+`omp/overlays/search-keys.tpl`) into the live `env`, so run `op inject` before
+installing on a new box. The tracked file is checked for credential-shaped keys.
 
 - Link skills **once** into `~/.agents/skills`; never also link
   `~/.pi/agent/skills` or skills are discovered twice and consume double the
@@ -30,17 +37,19 @@ pi-web-access's credential store, so only repo-owned keys are pushed.
   drop that pin and every skill is discovered twice in OMP. The pin is the
   load-bearing half of this arrangement, not a stylistic preference.
   `install.sh` never creates `~/.claude`, so a machine without Claude Code is
-  untouched. Only skills are installed there — `~/.claude/CLAUDE.md`,
-  `settings.json` and `agents/` stay hand-managed and out of scope, and
-  `--prune` still treats `~/.claude/agents` as a retired surface.
+  untouched. `~/.claude/CLAUDE.md`, `hooks/` (herdr writes it), `agents/` and
+  `~/.claude.json` stay out of scope; `--prune` still treats `CLAUDE.md` and
+  `~/.claude/agents` as retired surfaces.
 - `--skills-only` fills the shared root **only**, never `~/.claude/skills`;
   it is a shared-root operation by definition. A selective run therefore does
   not keep Claude Code in sync — use a full `./install.sh` for that.
 - **Work machine gate.** When `chezmoi data` reports `.machine` = `work`,
-  install links skills only and skips every OMP and Pi config step
-  (`global-agents.md`, `omp/`, overlays, `pi/`, `web-search.json`). Their model
-  routing sends prompts and repository source to OpenCode Go and Muse Code,
-  and employer code may only reach the employer's sanctioned vendor. Dotfiles
+  install links skills only and skips every OMP, Pi and Claude config step
+  (`global-agents.md`, `omp/`, overlays, `pi/`, `web-search.json`,
+  `claude/`, plugins, MCP seeding). Their model routing sends prompts and
+  repository source to OpenCode Go and Muse Code, `claude-compact-openrouter`
+  sends transcripts to Jev via OpenRouter, and employer code may only reach the
+  employer's sanctioned vendor. Dotfiles
   owns the profile; this repo only reads it. With no chezmoi or no profile the
   machine counts as unknown and installs as before, so apply dotfiles first.
   Claude.ai connectors (Gmail, Todoist, Notion) belong to the claude.ai account,
@@ -80,7 +89,9 @@ Secrets belong in dotfiles (1Password + age), never here.
 | `pi/settings.json`, `verbosity.json`, `subagents.json`, `pi-fff.json`, `keybindings.json`, `prompts/`, `themes/`, `extensions/`, `agents/` | agent-config | Pi writes through links |
 | `herdr/config.toml`, `herdr/plugins.txt` | agent-config | keybindings and pinned plugins; plugin state under `~/.config/herdr/plugins/` is untracked |
 | `pi/web-search.json` | **shared** | merged; credentials and unmanaged keys stay machine-local |
-| `~/.omp/agent/mcp.json`, `~/.omp/agent/extensions/`, `~/.pi/agent/auth.json`, `~/.pi/agent/models-store.json`, `~/.pi/agent/sessions/`, `~/.pi/agent/npm/` | **neither** | credentials or runtime state; untracked |
+| `claude/settings.json`, `statusline.sh`, `subagent-statusline.sh`, `claude-powerline.json`, `plugins.txt` | agent-config / **shared** (settings) | settings merged; the rest linked or declarative |
+| `omp/plugins.txt`, `snapshots/*/mcp.json` | agent-config | declared sets, add-only; snapshots refreshed from live by `scripts/snapshot-machine-config.sh` |
+| `~/.omp/agent/mcp.json`, `~/.omp/agent/extensions/`, `~/.omp/agent/agent.db` (logins), `~/.claude.json`, `~/.claude/plugins/`, `~/.claude/hooks/`, `~/.pi/agent/auth.json`, `~/.pi/agent/models-store.json`, `~/.pi/agent/sessions/`, `~/.pi/agent/npm/` | **neither** | credentials or runtime state; untracked. Logins (`/login`, `claude`) are per box |
 | `~/.local/bin/omp-*-overlay`, `~/.zshrc`, Brewfile, fonts | **dotfiles** | chezmoi |
 | `scripts/` | agent-config | checks and installer helpers, referenced by `check.sh` |
 

@@ -63,10 +63,17 @@ Three destinations, and nothing else.
   because the live file is also that extension's credential store.
 - `~/.pi/agent/auth.json` is **not** tracked here, on purpose — see "Secrets
   policy" below before adding anything like it.
+- `claude/` — Claude Code: `statusline.sh`, `subagent-statusline.sh` and
+  `claude-powerline.json` are linked into `~/.claude/`; `settings.json` is
+  **merged** (Claude Code and herdr write the live file, and it holds
+  `OPENROUTER_API_KEY`, which install copies from `~/.omp/.env` rather than
+  tracking it); `plugins.txt` pins the `claude-compact-openrouter` plugin.
+  `omp/plugins.txt` does the same for OMP npm plugins. On a new box: log in
+  (`claude`, `omp`), `op inject` the `.env`, run `./install.sh`.
 - `snapshots/` — machine-local harness config **copied**, never linked:
-  `~/.omp/agent/mcp.json`, Claude Code's user-scope `mcpServers`, and the
-  `~/.claude` statusline scripts and their claude-powerline theme. A copy is
-  what keeps the mcp.json leak path closed. Refresh with
+  `~/.omp/agent/mcp.json` and Claude Code's user-scope `mcpServers`. A copy is
+  what keeps the mcp.json leak path closed; install seeds missing servers from
+  it and never edits an existing one. Refresh with
   `./scripts/snapshot-machine-config.sh`; see `snapshots/README.md`.
 - `scripts/` — installer helpers and the repo's own checks, including
   `check-model-routing.py`, which fails the build on model-routing drift
@@ -80,7 +87,7 @@ Three destinations, and nothing else.
 ./install.sh --prune     # after deleting one — also clears dead links
 ./install.sh --no-external  # skip the external git fetch (offline)
 ./scripts/check.sh       # run the repo's tests
-./scripts/snapshot-machine-config.sh  # after changing an MCP server or the statusline
+./scripts/snapshot-machine-config.sh  # after changing an MCP server
 ```
 
 Everything is **symlinked**, so editing a skill, agent, prompt or setting in

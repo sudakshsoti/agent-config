@@ -7,6 +7,7 @@ this repo owns while leaving everything else — especially unmarked real files
 at retired harness paths — exactly as it found it.
 """
 
+import json
 import os
 from pathlib import Path
 import shutil
@@ -37,6 +38,12 @@ PI_FILES = (
     "pi/extensions/operational-footer/index.js",
 )
 
+CLAUDE_FILES = (
+    "claude/statusline.sh",
+    "claude/subagent-statusline.sh",
+    "claude/claude-powerline.json",
+)
+
 # A pre-commit hook exports these; an inherited GIT_DIR would redirect
 # rev-parse (and therefore the linked-worktree guard) at the outer repository
 # instead of the disposable checkout.
@@ -47,6 +54,10 @@ def seed_repo(destination):
     """Populate a disposable checkout with everything install.sh links."""
     destination.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ROOT / "install.sh", destination / "install.sh")
+    # The Claude and MCP steps shell out to repo helpers.
+    (destination / "scripts").mkdir(exist_ok=True)
+    for helper in ("apply-json-config.py", "seed-mcp-servers.py"):
+        shutil.copyfile(ROOT / "scripts" / helper, destination / "scripts" / helper)
     for name in ("alpha", "beta", "gamma"):
         skill = destination / "skills" / name
         skill.mkdir(parents=True)
@@ -59,6 +70,13 @@ def seed_repo(destination):
         path = destination / relative
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("fixture\n", encoding="utf-8")
+    for relative in CLAUDE_FILES:
+        path = destination / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("fixture\n", encoding="utf-8")
+    (destination / "claude/settings.json").write_text(
+        '{"theme": "dark"}\n', encoding="utf-8"
+    )
     (destination / "herdr").mkdir()
     (destination / "herdr/config.toml").write_text("fixture\n", encoding="utf-8")
     (destination / "herdr/plugins.txt").write_text("example/plugin v1\n", encoding="utf-8")
@@ -201,7 +219,10 @@ class InstallerTest(DisposableInstallCase):
     def test_herdr_config_links_only_when_herdr_dir_exists_and_never_installs_plugins_offline(self):
         herdr_stub = self.bin / "herdr"
         called = self.directory / "herdr-called"
-        herdr_stub.write_text(f"#!/bin/sh\ntouch '{called}'\nexit 1\n", encoding="utf-8")
+        herdr_stub.write_text(
+            f"#!/bin/sh\ncase \"$*\" in *install*) touch '{called}' ;; esac\nexit 1\n",
+            encoding="utf-8",
+        )
         herdr_stub.chmod(0o755)
 
         result = self.install("--no-external")
@@ -237,7 +258,7 @@ class InstallerTest(DisposableInstallCase):
         self.stub_chezmoi_machine("work")
         result = self.install("--no-external")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("SKIP omp + pi config", result.stdout)
+        self.assertIn("SKIP omp + pi + claude config", result.stdout)
         self.assert_no_retired_harness_paths()
 
         expected = {
@@ -250,10 +271,77 @@ class InstallerTest(DisposableInstallCase):
         self.stub_chezmoi_machine("personal")
         result = self.install("--no-external")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertNotIn("SKIP omp + pi config", result.stdout)
+        self.assertNotIn("SKIP omp + pi + claude config", result.stdout)
         links = links_under(self.test_home)
         self.assertEqual(links[".omp/agent/config.yml"], str(self.repo / "omp/config.yml"))
         self.assertEqual(links[".pi/agent/settings.json"], str(self.repo / "pi/settings.json"))
+
+    def test_claude_config_is_linked_and_settings_merged_without_losing_local_keys(self):
+        claude = self.test_home / ".claude"
+        claude.mkdir()
+        (claude / "settings.json").write_text(
+            '{"hooks": {"SessionStart": []}, "theme": "light"}\n', encoding="utf-8"
+        )
+        # A byte-identical real copy (what a hand-copied statusline looks like)
+        # is adopted; a differing one is left alone and reported.
+        (claude / "statusline.sh").write_text("fixture\n", encoding="utf-8")
+        (claude / "subagent-statusline.sh").write_text("hand edited\n", encoding="utf-8")
+
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+        self.assertEqual(
+            os.readlink(claude / "statusline.sh"), str(self.repo / "claude/statusline.sh")
+        )
+        self.assertEqual(
+            os.readlink(claude / "claude-powerline.json"),
+            str(self.repo / "claude/claude-powerline.json"),
+        )
+        self.assertFalse((claude / "subagent-statusline.sh").is_symlink())
+        self.assertEqual(
+            (claude / "subagent-statusline.sh").read_text(), "hand edited\n"
+        )
+        self.assertFalse((claude / "settings.json").is_symlink())
+        settings = json.loads((claude / "settings.json").read_text())
+        self.assertEqual(settings["theme"], "dark")  # repo-owned key wins
+        self.assertEqual(settings["hooks"], {"SessionStart": []})  # herdr's survives
+
+    def test_claude_settings_receive_the_key_from_omp_dotenv_not_the_repo(self):
+        (self.test_home / ".claude").mkdir()
+        (self.test_home / ".omp").mkdir(exist_ok=True)
+        (self.test_home / ".omp/.env").write_text(
+            "OPENROUTER_API_KEY=sk-or-from-1password\n", encoding="utf-8"
+        )
+
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+        settings = json.loads((self.test_home / ".claude/settings.json").read_text())
+        self.assertEqual(settings["env"]["OPENROUTER_API_KEY"], "sk-or-from-1password")
+        self.assertNotIn("sk-or-from-1password", (self.repo / "claude/settings.json").read_text())
+
+    def test_unparseable_claude_settings_do_not_abort_the_install(self):
+        claude = self.test_home / ".claude"
+        claude.mkdir()
+        (claude / "settings.json").write_text("{ not json\n", encoding="utf-8")
+
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("not merged", result.stdout)
+        self.assertEqual((claude / "settings.json").read_text(), "{ not json\n")
+        self.assertTrue((self.test_home / ".agents/skills/alpha").is_symlink())
+
+    def test_work_machine_leaves_claude_config_alone_but_links_claude_skills(self):
+        self.stub_chezmoi_machine("work")
+        claude = self.test_home / ".claude"
+        claude.mkdir()
+
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+        self.assertFalse((claude / "settings.json").exists())
+        self.assertFalse((claude / "statusline.sh").exists())
+        self.assertTrue((claude / "skills/alpha").is_symlink())
 
     def test_selective_and_full_install_agree_on_the_shared_root(self):
         selected = self.install("--skills-only=alpha,beta,gamma")
@@ -553,8 +641,7 @@ class InstallerTest(DisposableInstallCase):
                          ".config/opencode", ".claude/agents"):
             (home / relative).mkdir(parents=True, exist_ok=True)
         # Ours: symlinks pointing into this checkout.
-        (home / ".claude/CLAUDE.md").symlink_to(self.repo / "global-agents.md")
-        (home / ".claude/claude-powerline.json").write_text("{}\n", encoding="utf-8")
+        (home / ".claude/CLAUDE.md").write_text("mine\n", encoding="utf-8")
         (home / ".claude/skills/alpha").symlink_to(self.repo / "skills/alpha")
         (home / ".claude/agents/plan-critic.md").symlink_to(self.repo / "agents/plan-critic.md")
         (home / ".codex/AGENTS.md").symlink_to(self.repo / "global-agents.md")
@@ -583,8 +670,7 @@ class InstallerTest(DisposableInstallCase):
         self.assertIn("retired harness link", result.stdout)
         self.assertNotIn("(dangling)", result.stdout)
 
-        for relative in (".claude/CLAUDE.md",
-                         ".claude/agents/plan-critic.md", ".codex/AGENTS.md",
+        for relative in (".claude/agents/plan-critic.md", ".codex/AGENTS.md",
                          ".codex/prompts/vibe.md", ".config/opencode/AGENTS.md",
                          ".codex/skills/legacy"):
             self.assertFalse(
@@ -593,9 +679,7 @@ class InstallerTest(DisposableInstallCase):
             )
         # An unmarked real file at a retired single-file destination is preserved
         # and reported rather than deleted.
-        self.assertEqual(
-            (home / ".claude/claude-powerline.json").read_text(), "{}\n"
-        )
+        self.assertEqual((home / ".claude/CLAUDE.md").read_text(), "mine\n")
         self.assertIn("left alone", result.stdout)
         self.assertEqual((home / ".claude/settings.json").read_text(), "mine\n")
         self.assertEqual((keep / "mine.md").read_text(), "mine\n")

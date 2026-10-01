@@ -90,6 +90,11 @@ MANAGED_DESTINATIONS: tuple[ManagedDestination, ...] = (
     # so install.sh links the same set a second time here (only when ~/.claude
     # already exists). Same directory-per-skill shape as the shared root.
     ManagedDestination("tree", ".claude/skills", note="Claude Code skills root"),
+    # Claude Code config: the statusline pair and its theme are linked;
+    # settings.json is merged (see EXEMPT_SHARED_WRITERS).
+    ManagedDestination("file", ".claude/statusline.sh"),
+    ManagedDestination("file", ".claude/subagent-statusline.sh"),
+    ManagedDestination("file", ".claude/claude-powerline.json"),
     # OMP configuration under ~/.omp/agent.
     ManagedDestination("file", ".omp/agent/AGENTS.md"),
     ManagedDestination("file", ".omp/agent/config.yml"),
@@ -97,6 +102,7 @@ MANAGED_DESTINATIONS: tuple[ManagedDestination, ...] = (
     ManagedDestination("file", ".omp/agent/lsp.yml"),
     ManagedDestination("glob", ".omp/agent/themes", ("*.json",)),
     ManagedDestination("glob", ".omp/agent/agents", ("*.md",)),
+    ManagedDestination("glob", ".omp/agent/commands", ("*.md",)),
     # OMP overlays, linked file by file into ~/.config/omp so the runtime
     # .active-overlay file (not ours) is left alone.
     ManagedDestination("glob", ".config/omp", ("*",), note="OMP overlays"),
@@ -120,13 +126,16 @@ MANAGED_DESTINATIONS: tuple[ManagedDestination, ...] = (
 
 # Intentional shared writers: `install.sh` merges repo-owned keys into these
 # live files instead of symlinking them (pi-web-access's own credential
-# store lives at the same path). A dotfiles source targeting one of these is
-# not a collision — it is the other declared writer, same as S16 used to be
-# for `~/.codex/config.toml` before that surface was retired. There is no
-# Codex/Claude-only exemption to carry forward; this is the only one left.
+# store lives at the same path; Claude Code writes settings.json itself and
+# herdr owns its hook entry; OMP owns mcp.json and only gets missing servers
+# seeded). A dotfiles source targeting one of these is not a collision — it
+# is the other declared writer, same as S16 used to be for
+# `~/.codex/config.toml` before that surface was retired.
 EXEMPT_SHARED_WRITERS: tuple[str, ...] = (
     ".pi/web-search.json",
     ".pi/agent/web-search.json",
+    ".claude/settings.json",
+    ".omp/agent/mcp.json",
 )
 
 # --------------------------------------------------------------------------
