@@ -69,12 +69,13 @@ scope, or when it can't produce evidence.
 Your judgment, per item: the cheapest worker that will get it right, using
 whichever lever your surface gives you.
 
-- **Pi and OMP** — use [specialist-delegation](../specialist-delegation/SKILL.md)
+- **Pi and OMP** — use the `specialist-delegation` skill
+  (`skill://specialist-delegation`, [on disk](../specialist-delegation/SKILL.md))
   for role selection, handoff packets, and verification. Per-job defaults live
   in Pi agent frontmatter and OMP `task.agentModelOverrides`; pick the role
   (`code-worker`, `builder`, `sonic` in OMP) rather than overriding models, and
   reserve stronger models for judgment-heavy work.
-  [workstreams](../workstreams/SKILL.md) supplies dependency and exclusive
+  `workstreams` (`skill://workstreams`, [on disk](../workstreams/SKILL.md)) supplies dependency and exclusive
   edit-ownership checks when needed, not a second scheduler over this checklist.
   Keep this skill's checklist and checkpoint policy as the single execution
   loop. Before ticking an item, perform the acceptance verification in

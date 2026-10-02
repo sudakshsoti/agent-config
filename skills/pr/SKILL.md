@@ -17,9 +17,10 @@ description.
    pattern in `git branch -r` when there is one. Local commits the base holds
    beyond `origin/<base>` travel with the new branch; after switching, run
    `git branch -f <base> origin/<base>` so the base stays clean.
-4. Commit uncommitted task changes per the Commit section of
-   [`../commit-push/SKILL.md`](../commit-push/SKILL.md), then push per
-   [`../push/SKILL.md`](../push/SKILL.md).
+4. Commit uncommitted task changes per the Commit section of the `commit-push`
+   skill (`skill://commit-push`, [`../commit-push/SKILL.md`](../commit-push/SKILL.md)),
+   then push per the `push` skill
+   (`skill://push`, [`../push/SKILL.md`](../push/SKILL.md)).
 5. `gh pr create --base <base> --title <title> --body-file -` (add `--draft`
    when asked). The title follows the commit style; one commit reuses its
    subject. Fill `.github/pull_request_template.md` when it exists; otherwise

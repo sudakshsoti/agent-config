@@ -27,7 +27,7 @@ Done when `git status --short` lists only the unrelated changes from step 2.
 
 ## Push
 
-Follow [`../push/SKILL.md`](../push/SKILL.md).
+Follow the `push` skill: `skill://push` in OMP, [`../push/SKILL.md`](../push/SKILL.md) on disk.
 
 Report: each commit's short hash and subject, the pushed range, and any files
 left unstaged.

@@ -19,7 +19,7 @@ separate specialist proof, or a shared integration gate.
 
 Do the work directly for a one-file change, tightly coupled edits, or work whose
 briefings cost more than the implementation. Several independent lookups need
-only [specialist-delegation](../specialist-delegation/SKILL.md). Serial
+only `specialist-delegation` (`skill://specialist-delegation`, [on disk](../specialist-delegation/SKILL.md)). Serial
 execution is a valid outcome; do not invent parallelism to justify a workflow.
 
 Before dispatch:

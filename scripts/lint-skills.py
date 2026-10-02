@@ -44,6 +44,10 @@ NAME_RE = re.compile(r"^[a-z0-9-]+$")
 CATALOGUE_RE = re.compile(r"^- `([a-z0-9-]+)` — ")
 STATED_COUNT_RE = re.compile(r"covers the (\d+) repo-owned skills")
 BANNED_IN_NAME = ("claude", "anthropic")
+# OMP drops `..` in skill:// URLs, so skill://a/../b/SKILL.md reads a/b/SKILL.md
+# and fails. Every relative link to another skill carries its skill:// form on
+# the same line (6 failed commit-push/pr runs, 2026-09-26..10-02).
+SIBLING_LINK_RE = re.compile(r"\]\(\.\./([a-z0-9-]+)/SKILL\.md\)")
 
 
 
@@ -97,6 +101,14 @@ def lint_skill(path, dirname):
             "body is %d bytes > %d (~5k tokens) — push bulk into references/"
             % (size, WARN_BODY_BYTES)
         )
+
+    for line_no, line in enumerate(body.splitlines(), 1):
+        for target in SIBLING_LINK_RE.findall(line):
+            if "skill://%s" % target not in line:
+                fails.append(
+                    "body line %d links ../%s/SKILL.md without `skill://%s` on that line"
+                    % (line_no, target, target)
+                )
 
     return fails, warns
 

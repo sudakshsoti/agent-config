@@ -109,6 +109,16 @@ else
   fi
 fi
 
+# CI parity. CI runs with an empty HOME and the runner sets XDG_CONFIG_HOME,
+# so a check that reads ~/.pi or ignores XDG_CONFIG_HOME passes here and fails
+# on the PR (#69, #70). Run every check under that shape. After the npm
+# bootstrap, so npm keeps the real ~/.npm cache.
+ci_scratch="$(mktemp -d)"
+trap 'rm -rf "$ci_scratch"' EXIT
+mkdir -p "$ci_scratch/home" "$ci_scratch/xdg-config"
+export HOME="$ci_scratch/home" XDG_CONFIG_HOME="$ci_scratch/xdg-config"
+unset PI_CODING_AGENT_DIR
+
 # Static checks first. They are not discovered: they do not follow the
 # scripts/test-* naming rule.
 run "lint-skills.py" python3 "$repo_root/scripts/lint-skills.py" "$repo_root"
