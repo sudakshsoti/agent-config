@@ -33,3 +33,7 @@
 - [stated] `title` is removed from Ghostty's `shell-integration-features` so the shell does not write the running command into the row. — User, 2026-09-19.
 - [stated] The pane divider is Flexoki base-850 `#343331`, replacing the inherited cool blue-grey. — User, 2026-09-19.
 - [stated] Rows keep their position: `reorderOnNotification` is off, because spatial memory is the fastest way back to a session. — User, 2026-09-19.
+
+# OMP composer shape
+
+- [stated] `composer.shape` is `rule`, not `rail`: Collie (the Herdr phone client) only detects OMP's `box`, `rule` and `pi` composers, and refuses every phone reply on an unrecognised one ("The agent's input box isn't on screen"). `rule` is the closest supported look to `rail`. Revisit only if Collie gains `rail` support. — User, 2026-10-02.

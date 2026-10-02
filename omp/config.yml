@@ -201,7 +201,7 @@ tui:
   maxInlineImageRows: 20
   maxInlineImages: 8
 composer:
-  shape: rail
+  shape: rule
 spelling:
   autocomplete: "off"
   autocorrect: false
