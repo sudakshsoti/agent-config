@@ -122,7 +122,7 @@ runs at `high`, not `xhigh`: Claude thinking is the scarce plan resource.
 
 - Pin it explicitly on an agent (`model: anthropic/claude-opus-5-5`).
   `scripts/check-model-routing.py` permits this only while the package is
-  installed, so removing the package also reverts the pin to a hard failure
+  listed in the tracked `pi/settings.json` `packages[]`, so removing the package also reverts the pin to a hard failure
   rather than a silent wrong route.
 - Never set it as `defaultProvider`, an `enabledModels` cycle entry, or
   `web-search.json` `summaryModel`. The check rejects all three unconditionally,

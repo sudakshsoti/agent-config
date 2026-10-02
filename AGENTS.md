@@ -273,7 +273,7 @@ Secrets belong in dotfiles (1Password + age), never here.
   disables; and no `pi/agents/*.md`, `pi/settings.json` or
   `pi/web-search.json` entry may use `openrouter/*`, which Pi cannot reach.
   `anthropic/*` is conditional: an explicit agent pin passes only while
-  `@gotgenes/pi-anthropic-auth` is installed, and Claude is always rejected as
+  `@gotgenes/pi-anthropic-auth` is in `pi/settings.json` `packages[]`, and Claude is always rejected as
   a Pi default, cycle entry or summary model. Tests:
   `scripts/test-check-model-routing.py`.
 - OMP rewrites `omp/config.yml` and removes comments while preserving values;
@@ -321,7 +321,8 @@ Secrets belong in dotfiles (1Password + age), never here.
   page prohibits that, and it has already broken twice on Pi prompt changes
   (0.86.0 restructure, `pi#9838`). **Never make it the default or a fallback** —
   `check-model-routing.py` allows an explicit agent pin only while the package
-  is installed, and rejects `anthropic` as `defaultProvider`, in
+  is declared in `pi/settings.json` `packages[]` (not read from `~/.pi`, so CI
+  agrees with the box), and rejects `anthropic` as `defaultProvider`, in
   `enabledModels`, and as `summaryModel`. OMP remains the Claude harness on the
   subscription proper; Pi is still the flat-rate harness by default. The
   OpenRouter key stays dead (HTTP 401 "User not found"). Evidence:

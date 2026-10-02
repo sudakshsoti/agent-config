@@ -15,9 +15,10 @@ of them errors at runtime; they just quietly route work to the wrong model:
 3. **Selector pinned to a provider the same file disables.** That request
    fails at runtime, but only for whichever role happens to fire first.
 4. **A Claude pin in Pi.** Pi reaches `anthropic/*` only while the
-   `@gotgenes/pi-anthropic-auth` extension is installed *and* an OAuth
-   credential exists; `openrouter/*` has a dead key. Those pins fail on first
-   request otherwise, per
+   `@gotgenes/pi-anthropic-auth` extension is declared in the tracked
+   `pi/settings.json` `packages[]` (install links it into `~/.pi`) *and* an
+   OAuth credential exists; `openrouter/*` has a dead key. Those pins fail on
+   first request otherwise, per
    `docs/research/harness-provider-access-2026-09.md`.
 
   ./scripts/check-model-routing.py [repo-root]
@@ -57,21 +58,15 @@ PI_UNREACHABLE = frozenset({"openrouter"})
 PI_ANTHROPIC_SHIM = "@gotgenes/pi-anthropic-auth"
 
 
-def _installed_pi_packages():
-    """Return the `packages[]` entries Pi currently has installed.
+def _declared_pi_packages(pi_settings):
+    """Return the bare names in the tracked `pi/settings.json` `packages[]`.
 
-    Read from the live settings file so the check reflects the machine, not a
-    hardcoded expectation. A missing or unreadable file means "not installed",
-    which keeps the conservative behaviour if Pi is not set up here.
+    The repo's declared set, not the machine's: install links that file into
+    `~/.pi/agent/`, so it is what a box gets, and unlike `~/.pi` it exists on
+    CI. A missing settings file means no package is declared.
     """
-    path = os.path.expanduser(os.environ.get("PI_SETTINGS", "~/.pi/agent/settings.json"))
-    try:
-        with open(path, encoding="utf-8") as handle:
-            data = json.load(handle) or {}
-    except (OSError, ValueError):
-        return frozenset()
     return frozenset(
-        _package_name(entry) for entry in (data.get("packages") or [])
+        _package_name(entry) for entry in ((pi_settings or {}).get("packages") or [])
     )
 
 
@@ -88,14 +83,6 @@ def _package_name(entry):
         head, _, tail = name.rpartition("@")
         return head if head and tail else name
     return name.split("@", 1)[0]
-
-
-# `anthropic/*` is reachable from Pi only with the shim installed. Route it
-# deliberately (an explicit pin), never as a default or fallback: Anthropic
-# bills the subscription against an extra-usage balance without the shim, and
-# the shim impersonates Claude Code, which Anthropic's legal page prohibits and
-# actively detects. See docs/research/pi-claude-subscription-2026-10.md.
-PI_CLAUDE_ALLOWED = PI_ANTHROPIC_SHIM in _installed_pi_packages()
 
 
 def parse_config(text, path):
@@ -276,11 +263,14 @@ def check(config, agents, pi_agents, pi_settings=None, pi_search=None):
 
     # 4. Pi may not pin a provider it cannot reach.
     #
-    # `anthropic/*` is the one conditional case. With the shim installed an
-    # explicit agent pin is a deliberate routing decision and is allowed; as a
-    # default or in the Ctrl+P cycle it is not, because the shim impersonates
-    # Claude Code and should never be the face of the harness. Without the shim
-    # the provider is unreachable and every use is a failure.
+    # `anthropic/*` is the one conditional case. With the shim declared in
+    # pi/settings.json an explicit agent pin is a deliberate routing decision
+    # and is allowed; as a default or in the Ctrl+P cycle it is not, because
+    # the shim impersonates Claude Code (which Anthropic's legal page prohibits
+    # and actively detects) and should never be the face of the harness.
+    # Without the shim the provider is unreachable and every use is a failure.
+    # See docs/research/pi-claude-subscription-2026-10.md.
+    claude_allowed = PI_ANTHROPIC_SHIM in _declared_pi_packages(pi_settings)
     for name, text in sorted(pi_agents.items()):
         fields = frontmatter(text, f"pi/agents/{name}", failures)
         declared = fields.get("model")
@@ -297,10 +287,10 @@ def check(config, agents, pi_agents, pi_settings=None, pi_search=None):
                 f"pi/agents/{name}: model {declared!r} uses {provider!r}, "
                 "which Pi has no working credential path to"
             )
-        elif provider == "anthropic" and not PI_CLAUDE_ALLOWED:
+        elif provider == "anthropic" and not claude_allowed:
             failures.append(
                 f"pi/agents/{name}: model {declared!r} pins Claude, but "
-                f"{PI_ANTHROPIC_SHIM!r} is not installed in Pi, so the "
+                f"{PI_ANTHROPIC_SHIM!r} is not in pi/settings.json packages[], so the "
                 "subscription bills third-party usage and the request fails"
             )
 

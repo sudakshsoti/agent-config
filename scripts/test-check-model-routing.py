@@ -55,6 +55,10 @@ Body.
 """
 
 PI_SETTINGS = '{"defaultProvider": "opencode-go", "defaultModel": "deepseek-v4.1-flash"}\n'
+PI_SETTINGS_WITH_SHIM = (
+    '{"defaultProvider": "opencode-go", "defaultModel": "deepseek-v4.1-flash",'
+    ' "packages": ["npm:pi-memory", "npm:@gotgenes/pi-anthropic-auth"]}\n'
+)
 
 
 class RoutingCheckTest(unittest.TestCase):
@@ -147,12 +151,7 @@ class RoutingCheckTest(unittest.TestCase):
         agent = PI_AGENT.replace(
             "model: opencode-go/glm-5.3-flash", "model: anthropic/claude-opus-5"
         )
-        original = MODULE.PI_CLAUDE_ALLOWED
-        MODULE.PI_CLAUDE_ALLOWED = False
-        try:
-            failures = self.run_check(pi_agent=agent)
-        finally:
-            MODULE.PI_CLAUDE_ALLOWED = original
+        failures = self.run_check(pi_agent=agent)
         self.assertTrue(any("pins Claude" in f for f in failures), failures)
 
     def test_claude_pin_is_allowed_when_shim_is_installed(self):
@@ -160,37 +159,26 @@ class RoutingCheckTest(unittest.TestCase):
         agent = PI_AGENT.replace(
             "model: opencode-go/glm-5.3-flash", "model: anthropic/claude-opus-5"
         )
-        original = MODULE.PI_CLAUDE_ALLOWED
-        MODULE.PI_CLAUDE_ALLOWED = True
-        try:
-            failures = self.run_check(pi_agent=agent)
-        finally:
-            MODULE.PI_CLAUDE_ALLOWED = original
+        failures = self.run_check(pi_agent=agent, pi_settings=PI_SETTINGS_WITH_SHIM)
         self.assertFalse(any("pins Claude" in f for f in failures), failures)
 
     def test_claude_default_provider_is_reported_even_with_shim(self):
         """The shim must never become the face of the harness."""
-        settings = '{"defaultProvider": "anthropic", "defaultModel": "claude-opus-5"}\n'
-        original = MODULE.PI_CLAUDE_ALLOWED
-        MODULE.PI_CLAUDE_ALLOWED = True
-        try:
-            failures = self.run_check(pi_settings=settings)
-        finally:
-            MODULE.PI_CLAUDE_ALLOWED = original
+        settings = (
+            '{"defaultProvider": "anthropic", "defaultModel": "claude-opus-5",'
+            ' "packages": ["npm:@gotgenes/pi-anthropic-auth"]}\n'
+        )
+        failures = self.run_check(pi_settings=settings)
         self.assertTrue(any("defaultProvider" in f for f in failures), failures)
 
     def test_claude_enabled_model_is_reported_even_with_shim(self):
         """Claude must stay out of the Ctrl+P cycle regardless of the shim."""
         settings = (
             '{"defaultProvider": "opencode-go", "defaultModel": "deepseek-v4.1-flash",'
-            ' "enabledModels": ["anthropic/claude-opus-5:high"]}\n'
+            ' "enabledModels": ["anthropic/claude-opus-5:high"],'
+            ' "packages": ["npm:@gotgenes/pi-anthropic-auth"]}\n'
         )
-        original = MODULE.PI_CLAUDE_ALLOWED
-        MODULE.PI_CLAUDE_ALLOWED = True
-        try:
-            failures = self.run_check(pi_settings=settings)
-        finally:
-            MODULE.PI_CLAUDE_ALLOWED = original
+        failures = self.run_check(pi_settings=settings)
         self.assertTrue(any("enabledModels" in f for f in failures), failures)
 
     def test_scoped_and_pinned_package_names_parse(self):
@@ -202,21 +190,10 @@ class RoutingCheckTest(unittest.TestCase):
         self.assertEqual(MODULE._package_name("npm:pi-memory@1.2.3"), "pi-memory")
         self.assertEqual(MODULE._package_name("npm:@scope/name"), "@scope/name")
 
-    def test_unparseable_pi_settings_means_shim_absent(self):
-        """A missing/broken settings file must fail closed, not open."""
-        import tempfile, os
-
-        with tempfile.TemporaryDirectory() as tmp:
-            missing = os.path.join(tmp, "nope.json")
-            original = os.environ.get("PI_SETTINGS")
-            os.environ["PI_SETTINGS"] = missing
-            try:
-                self.assertEqual(MODULE._installed_pi_packages(), frozenset())
-            finally:
-                if original is None:
-                    os.environ.pop("PI_SETTINGS", None)
-                else:
-                    os.environ["PI_SETTINGS"] = original
+    def test_missing_pi_settings_means_shim_absent(self):
+        """No settings file must fail closed, not open."""
+        self.assertEqual(MODULE._declared_pi_packages(None), frozenset())
+        self.assertEqual(MODULE._declared_pi_packages({}), frozenset())
 
     def test_unreachable_pi_default_provider_is_reported(self):
         settings = '{"defaultProvider": "anthropic", "defaultModel": "claude-opus-5"}\n'
