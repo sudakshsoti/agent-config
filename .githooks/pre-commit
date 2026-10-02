@@ -16,7 +16,9 @@ python3 "$repo_root/scripts/lint-skills.py" "$repo_root" || status=1
 echo
 python3 "$repo_root/scripts/check-manifest.py" "$repo_root" || status=1
 echo
-python3 "$repo_root/scripts/check-model-routing.py" "$repo_root" || status=1
+# Scratch HOME: the routing check must judge tracked files, not ~/.pi (#70).
+HOME="$(mktemp -d)" XDG_CONFIG_HOME="$(mktemp -d)" \
+  python3 "$repo_root/scripts/check-model-routing.py" "$repo_root" || status=1
 echo
 python3 "$repo_root/scripts/test-apply-json-config.py" || status=1
 echo

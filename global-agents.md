@@ -15,6 +15,10 @@ When instructions conflict, prefer the safer interpretation and surface the conf
 
 When a task grows beyond its original scope, state the new boundary before continuing.
 
+## Blockers and decisions
+
+When you stop for a blocker or a decision, open with one plain-English sentence on what happened and one on what you need from me. Identifiers (env vars, flags, paths, test names) come after those two sentences.
+
 ## Delegation and model economy
 
 Use the least capable agent and model that can complete a task reliably.

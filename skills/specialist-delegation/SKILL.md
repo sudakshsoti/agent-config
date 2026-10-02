@@ -25,7 +25,7 @@ not delegate merely to use more agents, duplicate a running investigation, or
 ask a child to recursively delegate a bounded lookup.
 
 For multiple implementation streams with dependencies or shared edit risks,
-load [workstreams](../workstreams/SKILL.md) first. Independent lookups do
+load `workstreams` (`skill://workstreams`, [on disk](../workstreams/SKILL.md)) first. Independent lookups do
 not need a workflow graph.
 
 ## Select by role, permission, and judgment
