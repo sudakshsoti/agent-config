@@ -3,8 +3,8 @@ description: Implements an approved UX plan in React, shadcn/ui, Tailwind CSS or
 display_name: Builder
 color: green
 tools: all
-model: opencode-go/muse-spark-1.3-contributor
-thinking: xhigh
+model: anthropic/claude-opus-5-5
+thinking: high
 max_turns: 30
 prompt_mode: append
 ---

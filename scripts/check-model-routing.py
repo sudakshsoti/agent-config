@@ -14,9 +14,11 @@ of them errors at runtime; they just quietly route work to the wrong model:
    stopped existing. A key naming no agent is never reported.
 3. **Selector pinned to a provider the same file disables.** That request
    fails at runtime, but only for whichever role happens to fire first.
-4. **A Claude pin in Pi.** Pi cannot reach `anthropic/*` (the subscription
-   bills third-party clients against an extra-usage balance) or `openrouter/*`
-   (dead key). Those pins fail on first request, per
+4. **A Claude pin in Pi.** Pi reaches `anthropic/*` only while the
+   `@gotgenes/pi-anthropic-auth` extension is declared in the tracked
+   `pi/settings.json` `packages[]` (install links it into `~/.pi`) *and* an
+   OAuth credential exists; `openrouter/*` has a dead key. Those pins fail on
+   first request otherwise, per
    `docs/research/harness-provider-access-2026-09.md`.
 
   ./scripts/check-model-routing.py [repo-root]
@@ -49,7 +51,38 @@ BUNDLED_AGENTS = frozenset({"task", "scout", "sonic", "reviewer", "security-revi
 
 # Providers Pi has no working credential path to. Keep in sync with
 # docs/research/harness-provider-access-2026-09.md.
-PI_UNREACHABLE = frozenset({"anthropic", "openrouter"})
+PI_UNREACHABLE = frozenset({"openrouter"})
+
+# The extension that makes `anthropic/*` reachable from Pi, and the
+# `packages[]` entry that must be present for that to be true.
+PI_ANTHROPIC_SHIM = "@gotgenes/pi-anthropic-auth"
+
+
+def _declared_pi_packages(pi_settings):
+    """Return the bare names in the tracked `pi/settings.json` `packages[]`.
+
+    The repo's declared set, not the machine's: install links that file into
+    `~/.pi/agent/`, so it is what a box gets, and unlike `~/.pi` it exists on
+    CI. A missing settings file means no package is declared.
+    """
+    return frozenset(
+        _package_name(entry) for entry in ((pi_settings or {}).get("packages") or [])
+    )
+
+
+def _package_name(entry):
+    """Reduce a `packages[]` entry to its bare package name.
+
+    `npm:@scope/name@1.2.3` -> `@scope/name`, `npm:name` -> `name`. The version
+    separator is the LAST `@`, never the first: a scoped name carries its own.
+    """
+    if not entry.startswith("npm:"):
+        return entry
+    name = entry[4:]
+    if name.startswith("@"):
+        head, _, tail = name.rpartition("@")
+        return head if head and tail else name
+    return name.split("@", 1)[0]
 
 
 def parse_config(text, path):
@@ -229,6 +262,15 @@ def check(config, agents, pi_agents, pi_settings=None, pi_search=None):
             )
 
     # 4. Pi may not pin a provider it cannot reach.
+    #
+    # `anthropic/*` is the one conditional case. With the shim declared in
+    # pi/settings.json an explicit agent pin is a deliberate routing decision
+    # and is allowed; as a default or in the Ctrl+P cycle it is not, because
+    # the shim impersonates Claude Code (which Anthropic's legal page prohibits
+    # and actively detects) and should never be the face of the harness.
+    # Without the shim the provider is unreachable and every use is a failure.
+    # See docs/research/pi-claude-subscription-2026-10.md.
+    claude_allowed = PI_ANTHROPIC_SHIM in _declared_pi_packages(pi_settings)
     for name, text in sorted(pi_agents.items()):
         fields = frontmatter(text, f"pi/agents/{name}", failures)
         declared = fields.get("model")
@@ -239,27 +281,36 @@ def check(config, agents, pi_agents, pi_settings=None, pi_search=None):
         if not match:
             failures.append(f"pi/agents/{name}: model {declared!r} is not provider/model[:effort]")
             continue
-        if match.group("provider") in PI_UNREACHABLE:
+        provider = match.group("provider")
+        if provider in PI_UNREACHABLE:
             failures.append(
-                f"pi/agents/{name}: model {declared!r} uses {match.group('provider')!r}, "
+                f"pi/agents/{name}: model {declared!r} uses {provider!r}, "
                 "which Pi has no working credential path to"
+            )
+        elif provider == "anthropic" and not claude_allowed:
+            failures.append(
+                f"pi/agents/{name}: model {declared!r} pins Claude, but "
+                f"{PI_ANTHROPIC_SHIM!r} is not in pi/settings.json packages[], so the "
+                "subscription bills third-party usage and the request fails"
             )
 
     if pi_settings is not None:
+        # Default and cycle entries always stay off Claude, shim or not.
+        always_unreachable = PI_UNREACHABLE | {"anthropic"}
         provider = pi_settings.get("defaultProvider")
-        if provider in PI_UNREACHABLE:
+        if provider in always_unreachable:
             failures.append(
                 f"pi/settings.json: defaultProvider {provider!r} is unreachable from Pi"
             )
         for entry in pi_settings.get("enabledModels") or []:
-            if entry.split("/", 1)[0] in PI_UNREACHABLE:
+            if entry.split("/", 1)[0] in always_unreachable:
                 failures.append(
                     f"pi/settings.json: enabledModels entry {entry!r} is unreachable from Pi"
                 )
 
     if pi_search is not None:
         summary = pi_search.get("summaryModel") or ""
-        if summary.split("/", 1)[0] in PI_UNREACHABLE:
+        if summary.split("/", 1)[0] in PI_UNREACHABLE | {"anthropic"}:
             failures.append(
                 f"pi/web-search.json: summaryModel {summary!r} is unreachable from Pi"
             )

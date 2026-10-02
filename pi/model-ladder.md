@@ -1,11 +1,16 @@
 # Pi model ladder
 
-Pi runs entirely on OpenCode Go, and the only credential is an OpenCode Go API
-key: the `openai-codex`, `anthropic` and `openrouter` credentials were removed
-from `~/.pi/agent/auth.json` on 2026-09-16. Pi is therefore a Go-only harness.
-Restoring a Claude path requires re-adding a credential first (see below).
-`docs/research/harness-provider-access-2026-09.md` holds the probe evidence.
-Claude 5x work belongs in OMP, whose routing is in `omp/config.yml`.
+Pi's ladder runs on OpenCode Go, and the only credential it holds today is an
+OpenCode Go API key: the `openai-codex`, `anthropic` and `openrouter`
+credentials were removed from `~/.pi/agent/auth.json` on 2026-09-16. Pi is
+therefore a Go-only harness in practice. A Claude path exists again in principle
+through the `@gotgenes/pi-anthropic-auth` extension (installed 2026-10-02), but
+it stays inert until `/login anthropic` re-adds the credential — see
+[Reaching Claude from Pi](#reaching-claude-from-pi) below.
+`docs/research/harness-provider-access-2026-09.md` holds the original probe
+evidence and `docs/research/pi-claude-subscription-2026-10.md` the newer
+findings. Claude 5x work belongs in OMP by default, whose routing is in
+`omp/config.yml`.
 
 The default ladder is deliberately Muse-heavy: Muse Spark 1.3 Contributor anchors
 nearly everything because it is the strongest model on Go (Artificial Analysis
@@ -26,7 +31,8 @@ Ctrl+P before the work starts.
 
 | Task / agent | Provider and model | Effort |
 | --- | --- | --- |
-| Main session, `builder` implementing an approved UI plan | `opencode-go/muse-spark-1.3-contributor` | xhigh |
+| Main session | `opencode-go/muse-spark-1.3-contributor` | xhigh |
+| `builder` implementing an approved UI plan | `anthropic/claude-opus-5-5` | high |
 | `Plan` planning a screen or feature | `opencode-go/muse-spark-1.3-contributor` | high |
 | `code-worker` precisely scoped routine fixes, tests and mechanical refactors | `opencode-go/muse-spark-1.3-contributor` | high |
 | `workflow` coordinating multi-part implementation | `opencode-go/muse-spark-1.3-contributor` | high |
@@ -93,22 +99,60 @@ on an agent call.
 The GLM cycle entry pins `:high` so switching away from Muse never sends Muse's
 `xhigh` to a model that only accepts low/high/max.
 Other authenticated Go models remain selectable through `/model` or explicit
-agent overrides. No non-Go providers remain reachable: their credentials were
-removed from `~/.pi/agent/auth.json` on 2026-09-16.
+agent overrides. The OpenRouter key is dead and was removed from
+`~/.pi/agent/auth.json` on 2026-09-16.
 
-## Restoring a Claude path in Pi
+## Reaching Claude from Pi
 
-Both options require **re-adding the credential first** (it was removed on
-2026-09-16; each is restorable via `/connect` or a fresh OAuth login), and then:
+Pi reaches Claude only through the `@gotgenes/pi-anthropic-auth` extension
+(installed 2026-10-02, requires Pi ≥ 0.86.0; this box runs Pi 1.0.0). It
+de-fingerprints Pi's system prompt and injects Claude Code's billing header,
+which is what stops Anthropic classifying the request as third-party traffic
+and billing it against extra usage instead of the plan.
 
-- buy extra usage at `claude.ai/settings/usage`; a working `anthropic` OAuth
-  credential then works from Pi, metered against that balance rather than the
-  plan — note that without extra usage Anthropic rejects the login outright
-  (HTTP 400, "Third-party apps now draw from your extra usage");
-- or add a live OpenRouter API key and route `anthropic/claude-sonnet-5-5` or
-  `anthropic/claude-opus-5` through `openrouter`, metered per token.
+**It does not work until the credential exists.** `~/.pi/agent/auth.json` holds
+only `opencode-go`, because the `anthropic` OAuth credential was removed on
+2026-09-16. Run `/login anthropic` in Pi; it is an interactive browser flow and
+is per box, like every other login in this repo.
 
-Until then, treat OMP as the Claude harness and Pi as the flat-rate harness.
+When it is live, Claude is a **manual escalation, not a ladder rung**, and
+`builder` is its one deliberate consumer — the UI implementer, where Claude's
+frontend judgement beats Muse Spark and the fragile route earns its keep. It
+runs at `high`, not `xhigh`: Claude thinking is the scarce plan resource.
+
+- Pin it explicitly on an agent (`model: anthropic/claude-opus-5-5`).
+  `scripts/check-model-routing.py` permits this only while the package is
+  listed in the tracked `pi/settings.json` `packages[]`, so removing the package also reverts the pin to a hard failure
+  rather than a silent wrong route.
+- Never set it as `defaultProvider`, an `enabledModels` cycle entry, or
+  `web-search.json` `summaryModel`. The check rejects all three unconditionally,
+  because the extension impersonates Claude Code and must not become the face of
+  the harness.
+- Never put it in a fallback: Pi has no fallback chains, and a silent Claude
+  route is exactly the failure mode the check exists to prevent.
+
+Two halves must both hold, and either can rot silently:
+
+1. the repo-owned `pi/extensions/anthropic-prompt-shim/` extension removes the
+   prompt line Anthropic's classifier keys on;
+2. `@gotgenes/pi-anthropic-auth` supplies the billing header.
+
+Run `./scripts/check-claude-path.py` after every `pi update`; it reports Pi
+version against the shim's floor, the installed package, the credential, whether
+the installed Pi still builds the trigger line, and whether any agent pins
+Claude while a prerequisite is unmet. It exits 0 with findings rather than
+gating `check.sh`, because a missing credential is normal on a fresh box.
+
+The other options remain:
+
+- buy extra usage at `claude.ai/settings/usage` for a metered path that needs no
+  extension, billed per token rather than against the plan;
+- or add a live OpenRouter key and route `anthropic/claude-sonnet-5-5` through
+  `openrouter`, also metered per token.
+
+OMP remains the Claude harness on the subscription proper; Pi is the flat-rate
+harness by default. Full evidence and the ToS/breakage caveats:
+`docs/research/pi-claude-subscription-2026-10.md`.
 
 `~/.pi/agent/settings.json` and the files in `~/.pi/agent/agents/` link to this repository's Pi configuration.
 No installation or copy step is needed for edits to existing linked files.
