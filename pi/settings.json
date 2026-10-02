@@ -75,7 +75,8 @@
     "npm:pi-mcp-adapter",
     "npm:@plannotator/pi-extension",
     "npm:pi-simplify",
-    "npm:pi-memory"
+    "npm:pi-memory",
+    "npm:@gotgenes/pi-anthropic-auth"
   ],
   "lastChangelogVersion": "0.85.1",
   "tuiMode": "fullscreen"

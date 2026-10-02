@@ -1,5 +1,11 @@
 # Harness provider access — local probes (2026-09-16)
 
+> **Superseded in part (2026-10-02).** The Pi/Anthropic rows below record the
+> state before a workaround existed. Pi can now reach Claude through the
+> `@gotgenes/pi-anthropic-auth` extension, once `/login anthropic` re-adds the
+> credential; see `pi-claude-subscription-2026-10.md`. The OpenRouter rows still
+> stand, and the raw probes below remain the evidence for why plain Pi fails.
+
 Local, first-party probes run from this checkout on 2026-09-16 to establish which
 providers each installed harness can actually reach. Every row is a real request,
 not a catalogue entry: `omp models` and `pi --list-models` list models the

@@ -271,8 +271,11 @@ Secrets belong in dotfiles (1Password + age), never here.
   `task`/`scout`/`sonic`/`reviewer`/`security-reviewer`); every selector must parse as
   `provider/model[:effort]` and must not name a provider the same file
   disables; and no `pi/agents/*.md`, `pi/settings.json` or
-  `pi/web-search.json` entry may use `anthropic/*` or `openrouter/*`, which
-  Pi cannot reach. Tests: `scripts/test-check-model-routing.py`.
+  `pi/web-search.json` entry may use `openrouter/*`, which Pi cannot reach.
+  `anthropic/*` is conditional: an explicit agent pin passes only while
+  `@gotgenes/pi-anthropic-auth` is installed, and Claude is always rejected as
+  a Pi default, cycle entry or summary model. Tests:
+  `scripts/test-check-model-routing.py`.
 - OMP rewrites `omp/config.yml` and removes comments while preserving values;
   keep rationale in `design/decisions.md` or here, never in that file. A bare
   `omp -p --model <id>` can hide failures behind fallback; probe with retry
@@ -296,7 +299,7 @@ Secrets belong in dotfiles (1Password + age), never here.
   contributor tier, while a one-token standard-tier prompt measured 1%
   (`docs/research/muse-code-subscription-2026-09.md`).
 - Pi has no OMP-style `modelRoles` or `fallbackChains`; per-job models are in
-  `pi/agents/*.md` frontmatter. Pi runs entirely on OpenCode Go; default is
+  `pi/agents/*.md` frontmatter. Pi runs on OpenCode Go by default; default is
   `opencode-go/muse-spark-1.3-contributor` xhigh. Routing: main and builder →
   Muse Spark 1.3 Contributor xhigh; Plan, workflow, code-worker and
   general-purpose → Muse Spark high; scout/Explore → Muse Spark minimal;
@@ -305,21 +308,32 @@ Secrets belong in dotfiles (1Password + age), never here.
   Kimi K3 not routed (scarcest Go cap, user cost decision); DeepSeek V4.1 Flash
   is the manual throttle fallback via Ctrl+P. Muse is Meta's training-eligible
   tier: any session touching private or sensitive material must be rerouted to
-  GLM/DeepSeek. Full table and the Claude-restoration options:
-  `pi/model-ladder.md`.
-- Pi cannot reach Claude. The Anthropic subscription rejects third-party
+  GLM/DeepSeek. Claude is now reachable from Pi through the
+  `@gotgenes/pi-anthropic-auth` shim, but only as an explicit agent pin — see
+  the entry below. Full table: `pi/model-ladder.md`.
+- Pi reaches Claude only through the `@gotgenes/pi-anthropic-auth` extension
+  (installed 2026-10-02), which de-fingerprints Pi's system prompt and injects
+  Claude Code's billing header. Without it the subscription rejects third-party
   clients with HTTP 400 "Third-party apps now draw from your extra usage"
-  (`earendil-works/pi#3372`) and the stored OpenRouter key answers HTTP 401
-  "User not found". OMP is the Claude harness; Pi is the flat-rate harness.
-  Restoring a Pi path needs extra usage credits or a live OpenRouter key, both
-  machine-local spend. Probes:
+  (`earendil-works/pi#3372`, which Pi's maintainer closed as a ToS violation he
+  would not work around). The extension is a deliberate dependency on
+  untrusted upstream behaviour: it impersonates Claude Code, Anthropic's legal
+  page prohibits that, and it has already broken twice on Pi prompt changes
+  (0.86.0 restructure, `pi#9838`). **Never make it the default or a fallback** —
+  `check-model-routing.py` allows an explicit agent pin only while the package
+  is installed, and rejects `anthropic` as `defaultProvider`, in
+  `enabledModels`, and as `summaryModel`. OMP remains the Claude harness on the
+  subscription proper; Pi is still the flat-rate harness by default. The
+  OpenRouter key stays dead (HTTP 401 "User not found"). Evidence:
+  `docs/research/pi-claude-subscription-2026-10.md` and
   `docs/research/harness-provider-access-2026-09.md`.
 - Pi `enabledModels` is the Ctrl+P cycle list, not an access restriction. It
   deduplicates by provider/model ID, retaining the first effort preset; use
   `/thinking` or explicit agent thinking overrides instead of duplicate entries.
   The only credential in untracked `~/.pi/agent/auth.json` is the
   `opencode-go` API key; the `openai-codex` and `anthropic` OAuth credentials
-  and the OpenRouter key were removed on 2026-09-16.
+  and the OpenRouter key were removed on 2026-09-16. Restoring the Claude path
+  needs `/login anthropic` again (machine-local, per box).
 - Fetch before pushing. If another process advanced the branch, preserve
   unrelated dirty files, rebase, then restore them.
 - `scripts/check.sh` bootstraps ignored `node_modules/` with `npm ci` when

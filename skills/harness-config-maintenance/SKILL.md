@@ -42,10 +42,15 @@ Keep these distinctions intact:
   Remove a provider from routing only when its *subscription or credential* is
   gone, and then disable it explicitly rather than leaving it reachable by
   fallback.
-- OMP is the Claude harness: `anthropic/*` works there on the subscription.
-  Pi cannot use it — the subscription bills third-party clients against an
-  "extra usage" balance, so `anthropic/*` in Pi fails at request time. Do not
-  route a Pi agent onto `anthropic/*` without first proving access with a probe.
+- OMP is the Claude harness: `anthropic/*` works there on the subscription
+  proper. Pi reaches Claude **only** through the `@gotgenes/pi-anthropic-auth`
+  extension, which impersonates Claude Code; without it the subscription bills
+  third-party clients against an "extra usage" balance and requests fail at
+  runtime. That extension is an explicit, revocable dependency, never a
+  default: `scripts/check-model-routing.py` permits an agent pin only while the
+  package is installed and always rejects Claude as a Pi default, cycle entry
+  or summary model. Do not route a Pi agent onto `anthropic/*` without first
+  proving access with a probe, and never put it in a fallback chain.
 - Do not encode a fallback or routing decision in only one harness when the
   behavior is intended to be shared. Update the relevant source and document
   intentional differences.
