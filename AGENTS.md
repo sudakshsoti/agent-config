@@ -99,6 +99,7 @@ Secrets belong in dotfiles (1Password + age), never here.
 | `~/.omp/agent/mcp.json`, `~/.omp/agent/extensions/`, `~/.omp/agent/agent.db` (logins), `~/.claude.json`, `~/.claude/plugins/`, `~/.claude/hooks/`, `~/.pi/agent/auth.json`, `~/.pi/agent/models-store.json`, `~/.pi/agent/sessions/`, `~/.pi/agent/npm/` | **neither** | credentials or runtime state; untracked. Logins (`/login`, `claude`) are per box |
 | `~/.local/bin/omp-*-overlay`, `~/.zshrc`, Brewfile, fonts | **dotfiles** | chezmoi |
 | `scripts/` | agent-config | checks and installer helpers, referenced by `check.sh` |
+| `repo-audit/`, `scripts/repo-audit.py` | agent-config | weekly audit runner, prompt and repo list; the box timer that runs it is dotfiles' `repo-audit.timer` |
 
 ## Skills
 
@@ -132,6 +133,22 @@ Secrets belong in dotfiles (1Password + age), never here.
 - `python3 scripts/audit-local.py [--home DIR] [--dotfiles DIR] [--json]` is an
   opt-in, read-only, offline local drift audit; it exits 0 with findings and is
   not run by `check.sh`.
+- `scripts/repo-audit.py` is the weekly **repo audit**: on the homelab box
+  (dotfiles' `repo-audit.timer`, Sunday 00:30 IST) it audits each repo in
+  `repo-audit/repos.txt` with one headless `omp -p` session on
+  `anthropic/claude-sonnet-5-5:high` running `repo-audit/prompt.md`
+  (architecture deepening per `improve-codebase-architecture`, plus doc drift,
+  dead references, stale plans and failing checks). The session only writes a
+  JSON file; the script files at most 5 issues per repo labelled
+  `needs-triage` and `enhancement`, each carrying a
+  `<!-- repo-audit:<key> -->` marker so a finding already filed, in any
+  state, is never filed again. Reject a finding with `wontfix` (and an
+  `.out-of-scope/` note for a recurring idea) so the next run skips it. Try
+  a change with
+  `python3 scripts/repo-audit.py --repo <owner/repo> --dry-run` on the box.
+  It runs on Sonnet 5.5 `high`, not GLM (user decision 2026-10-04): the
+  architecture findings need depth, and `/triage` is the human check that a
+  second model lineage would otherwise provide.
 - Never `npx skills add`: its machine-local `~/.agents/.skill-lock.json` has no
   restore command and is invisible to this repo. Every `~/.agents/skills/*`
   entry must be a symlink; audit with:
