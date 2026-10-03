@@ -159,7 +159,7 @@ ticket's branch and opens its PR.
   pattern). A change fails the ticket permanently; the files are removed
   before any patch, stash or commit, so they never reach them.
 - **Failures.** Temporary (timeout, worker crash, no final JSON, red checks,
-  `partial`) get one retry: the attempt is saved as a patch
+  `partial`, branch setup failure) get one retry: the attempt is saved as a patch
   and a handoff note (`logs/<N>.handoff.md`), the tree is reset (stashed as
   `overnight #N attempt <k>`), and when the ticket's turn comes the patch is
   reapplied before the worker starts. A patch that no longer applies means a
@@ -189,7 +189,8 @@ the base.
 - Branch `<prefix>/<N>`. No in-run blocker: from `origin/<base>`, PR against
   the base. One completed in-run blocker: stacked on that blocker's branch, PR
   against that branch. Several: from the base with their branches merged in
-  (`git merge`; a conflict fails the ticket with that reason), PR against the
+  (`git merge`; a conflict, like any branch setup failure, fails only that
+  ticket, as a temporary failure, so it gets its one retry), PR against the
   base naming the PRs it contains.
 - After the gate passes and the commit lands, the runner pushes the branch and
   opens a ready-for-review PR titled with the commit subject. The body says
@@ -225,4 +226,5 @@ To continue an interrupted or stopped run: `"$S/overnight.sh" --resume
 given on resume stays on; the state remembers the mode and the model of the
 original run. Resuming also retries publishing for every done ticket that has
 no PR. To start over, `mv` `.scratch/overnight/state.json` to
-`.scratch/overnight/state.prev-<YYYYMMDD-HHMMSS>.json`.
+`.scratch/overnight/state.prev-<YYYYMMDD-HHMMSS>.json` (deleting it works too);
+the next launch then begins a fresh run.
