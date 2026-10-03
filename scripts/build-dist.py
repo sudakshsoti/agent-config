@@ -139,16 +139,16 @@ class Index:
             yield relpath[len(prefix) + 1 :], data, mode == "100755"
 
 
-def parse_manifest(text):
+def parse_manifest(text, path=MANIFEST):
     names, errors = [], []
     for lineno, raw in enumerate(text.splitlines(), 1):
         line = raw.split("#", 1)[0].strip()
         if not line:
             continue
         if not lint.NAME_RE.match(line):
-            errors.append("%s:%d: %r is not a skill name" % (MANIFEST, lineno, line))
+            errors.append("%s:%d: %r is not a skill name" % (path, lineno, line))
         elif line in names:
-            errors.append("%s:%d: %r is listed twice" % (MANIFEST, lineno, line))
+            errors.append("%s:%d: %r is listed twice" % (path, lineno, line))
         else:
             names.append(line)
     return names, errors
@@ -288,18 +288,18 @@ class DirSource:
 
 
 def skill_dirs_from_plugins(root):
-    """{skill name: directory} for every external skill checked out in vendor/.
+    """({skill name: directory}, {shadowed skill name}) for external skills in vendor/.
 
     Mirrors install.sh: the source root is the explicit :subdir, else skills/ if
     present, else the repo root; the skill's name is its frontmatter `name`; the
     allowlist on the plugins.txt line narrows what counts; a repo-owned
-    skills/<name> shadows an external one.
+    skills/<name> shadows an external one and is reported in the second set.
     """
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import manifest
 
     entries, _ = manifest.parse_plugins_file(os.path.join(root, "plugins.txt"))
-    found = {}
+    found, shadowed = {}, set()
     for entry in entries:
         clone = os.path.join(root, "vendor", entry.source.replace("/", "-"))
         if not os.path.isdir(clone):
@@ -326,9 +326,10 @@ def skill_dirs_from_plugins(root):
             if entry.skills and name not in entry.skills:
                 continue
             if os.path.isdir(os.path.join(root, "skills", name)):
+                shadowed.add(name)
                 continue
             found.setdefault(name, directory)
-    return found
+    return found, shadowed
 
 
 def build_vendor(root):
@@ -341,15 +342,22 @@ def build_vendor(root):
     if not os.path.isfile(path):
         return 0
     with open(path, encoding="utf-8") as fh:
-        names, errors = parse_manifest(fh.read())
-    available = skill_dirs_from_plugins(root)
+        names, errors = parse_manifest(fh.read(), VENDOR_MANIFEST)
+    available, shadowed = skill_dirs_from_plugins(root)
     dist = os.path.join(root, DIST, "vendor")
     wanted, stale = {}, []
     for name in names:
+        if name in shadowed:
+            errors.append("%s: a repo-owned skills/%s shadows the vendored copy" % (name, name))
+            continue
         if name not in available:
             errors.append("%s: not found in vendor/ (run ./install.sh to fetch it)" % name)
             continue
-        entries = package(DirSource(available[name]), name, "")
+        try:
+            entries = package(DirSource(available[name]), name, "")
+        except BuildError as exc:
+            errors.append("%s: %s" % (name, exc))
+            continue
         fails = validate(name, entries)
         if fails:
             errors.extend("%s: %s" % (name, f) for f in fails)
