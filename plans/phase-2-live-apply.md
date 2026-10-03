@@ -1,3 +1,5 @@
+Status: planned
+
 # Phase 2 live-apply runbook
 
 Status: prepared for a human-run session (#42). Nothing here has been run

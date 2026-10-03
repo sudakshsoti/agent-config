@@ -394,6 +394,20 @@ Secrets belong in dotfiles (1Password + age), never here.
   `node_modules/@earendil-works/pi-tui` is missing; it carries `pi-token-speed`,
   consumed by `pi/settings.json`. Never commit `node_modules/`.
 
+## Plans and docs
+
+- Plans and runbooks live in `plans/`. The first line of each tracked `.md`
+  there is exactly `Status: planned` or `Status: active`. A finished plan is
+  deleted, not archived; git history keeps it. There is no `done` status.
+- `scripts/check-docs-placement.py` (run by `scripts/check.sh` and pre-commit)
+  checks tracked files only: it fails a `plans/` file without that status line,
+  and any `.md` under `docs/` outside `docs/research/` and `docs/agents/`.
+- Research notes in `docs/research/` are dated history and need no status.
+  Decisions go in `design/decisions.md`.
+- OMP plan mode autosaves approved plans to `plans/` (`plan.autosaveDir` in
+  `omp/config.yml`). Add the status line before committing an autosaved plan;
+  an untracked autosave does not fail the check.
+
 ## Agent skills
 
 ### Issue tracker
