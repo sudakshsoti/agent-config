@@ -27,6 +27,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -116,12 +117,26 @@ def run(cmd: list[str], **kw) -> subprocess.CompletedProcess:
     return subprocess.run(cmd, check=True, text=True, capture_output=True, **kw)
 
 
+def run_read(cmd: list[str], attempts: int = 4, wait: int = 30) -> subprocess.CompletedProcess:
+    """Retry a read-only command, so a GitHub blip after an hour-long session
+    does not discard its findings. Never used for `gh issue create`: a retried
+    create can file a duplicate."""
+    for attempt in range(1, attempts + 1):
+        try:
+            return run(cmd)
+        except subprocess.CalledProcessError:
+            if attempt == attempts:
+                raise
+            time.sleep(wait * attempt)
+    raise AssertionError("unreachable")
+
+
 def sync_clone(repo: str, cache: Path) -> Path:
     clone = cache / repo.replace("/", "-")
     if not (clone / ".git").is_dir():
         clone.parent.mkdir(parents=True, exist_ok=True)
         run(["gh", "repo", "clone", repo, str(clone), "--", "--quiet"])
-    run(["git", "-C", str(clone), "fetch", "--quiet", "--prune", "origin"])
+    run_read(["git", "-C", str(clone), "fetch", "--quiet", "--prune", "origin"])
     run(["git", "-C", str(clone), "remote", "set-head", "origin", "--auto"])
     run(["git", "-C", str(clone), "reset", "--quiet", "--hard", "origin/HEAD"])
     run(["git", "-C", str(clone), "clean", "-ffdxq"])
@@ -155,8 +170,8 @@ def audit_repo(repo: str, args, cache: Path, state: Path) -> int:
         raise AuditError(f"session wrote no findings file (log: {log})")
     findings = parse_findings(out.read_text())
 
-    listed = run(["gh", "issue", "list", "--repo", repo, "--state", "all",
-                  "--limit", "1000", "--json", "body"])
+    listed = run_read(["gh", "issue", "list", "--repo", repo, "--state", "all",
+                       "--limit", "1000", "--json", "body"])
     known = existing_keys([i["body"] for i in json.loads(listed.stdout)])
     chosen = select(findings, known, args.max_issues)
     skipped = len(findings) - len(chosen)

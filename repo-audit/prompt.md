@@ -30,6 +30,13 @@ Then list what is already tracked or already rejected:
 
     gh issue list --repo {{REPO}} --state all --limit 300 --json number,title,state,labels
 
+Titles hide most of what an issue covers: its spec often lives in a comment
+(an "Agent Brief"). So before keeping any finding, search open issues for
+each file it names, comments included, and read every match:
+
+    gh issue list --repo {{REPO}} --state open --search '"<path>" in:body,comments' --json number,title
+    gh issue view <number> --repo {{REPO}} --comments
+
 Skip any finding that an open issue already covers, that a closed `wontfix`
 issue rejected, that an `.out-of-scope/` file rejects, or that an ADR
 deliberately decided. Do not re-litigate an ADR unless the friction you
