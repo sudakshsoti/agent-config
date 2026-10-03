@@ -65,11 +65,9 @@
 #       One-line `/name` wrappers that load the same-named user-invoked skill,
 #       so `/pr` works without the `/skill:` prefix. The skill stays the source.
 #     omp/overlays/*         -> ~/.config/omp/*
-#       Model-role overlays read by ~/.local/bin/omp-*-overlay and the
-#       ompgo/ompcodex zsh wrappers. Linked file by file so .active-overlay —
-#       runtime state owned by those scripts — is left alone. The consumers
-#       live in dotfiles and read a fixed ~/.config/omp path, so neither side
-#       needs to know about the other.
+#       Holds search-keys.tpl, the 1Password template behind
+#       `op inject -o ~/.omp/.env`. Linked file by file so other files in
+#       ~/.config/omp stay untouched.
 #     global-agents.md       -> ~/.omp/agent/AGENTS.md
 #       Harness-neutral shared preferences, linked so one edit reaches every
 #       installed harness. None of these tools rewrite the file.
@@ -683,8 +681,8 @@ else
     done
   fi
 
-  # 4b. OMP overlays: linked individually so ~/.config/omp/.active-overlay, which
-  #     is runtime state written by the overlay scripts, is never touched.
+  # 4b. OMP overlays folder (search-keys.tpl): linked individually so other
+  #     files in ~/.config/omp are never touched.
   if [ -d "$REPO/omp/overlays" ]; then
     mkdir -p "$OMP_OVERLAYS"
     for overlay in "$REPO"/omp/overlays/*; do
