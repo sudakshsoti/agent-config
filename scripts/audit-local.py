@@ -51,8 +51,9 @@ drift.
 Out of scope (by design, not oversight): repairing, pruning or declaring
 vendor checkouts; running `chezmoi managed`; anything from the pre-4a7edc49
 codex/config.toml partition (removed, no longer a destination) or the
-~/.config/omp host-overlay-link surface (issue #38 is still open; those links
-are an intended destination, not drift).
+~/.config/omp host-overlay-link surface (decided in #38, wontfix: the folder
+holds search-keys.tpl, linked on purpose; those links are an intended
+destination, not drift).
 """
 
 from __future__ import annotations
