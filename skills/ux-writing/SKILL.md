@@ -1,6 +1,6 @@
 ---
 name: ux-writing
-description: "Use for writing, editing, or auditing interface microcopy: controls, forms, errors, onboarding, empty states, notifications, voice, tone. Not for long-form prose (writing-editor) or visual and type decisions."
+description: "Use for writing, editing, or auditing interface microcopy: controls, forms, errors, onboarding, empty states, notifications, voice, tone. Not for long-form prose (writing-editor), AI-sounding prose cleanup (humanizer), or visual and type decisions."
 disable-model-invocation: true
 ---
 

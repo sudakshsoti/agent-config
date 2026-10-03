@@ -1,6 +1,6 @@
 ---
 name: vbc-design
-description: "Design and assess US value-based-care software across population health, care management, quality, risk adjustment, claims, SDoH, portals, and clinical workflows."
+description: "Use when designing or assessing US value-based-care software: population health, care management, quality, risk adjustment, claims, SDoH, portals, clinical workflows. Not for industry-agnostic product strategy (design-strategy), bedside clinical decisions (clinical-reasoning), or non-US care settings."
 disable-model-invocation: true
 ---
 

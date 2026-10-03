@@ -1,6 +1,6 @@
 ---
 name: design-strategy
-description: "Use for industry-agnostic product and UX strategy: business-model reasoning, positioning, workflow critique, journey maps, decision logs, teardowns, or stakeholder narratives. It is not for US healthcare, which belongs to vbc-design; visual direction belongs to design-visual-system."
+description: "Use for industry-agnostic product and UX strategy: business-model reasoning, positioning, workflow critique, journey maps, decision logs, teardowns, or stakeholder narratives. Not for US value-based care (vbc-design), clinical decisions (clinical-reasoning), organisational power and negotiation (strategy-counsel), or visual direction (design-visual-system)."
 ---
 
 # Design strategy

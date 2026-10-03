@@ -1,6 +1,6 @@
 ---
 name: vibe
-description: "Use for any interface change (tweak, new screen, risky UI/data change) to choose process depth and build-review; not for non-UI work or design critique alone."
+description: "Use for any interface change (tweak, new screen, risky UI/data change) to choose process depth and build-review. Not for non-UI work, or for design critique alone (design-interface, design-visual-system, design-typography)."
 ---
 
 # Vibe

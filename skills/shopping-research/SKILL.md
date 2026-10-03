@@ -1,6 +1,6 @@
 ---
 name: shopping-research
-description: "Research purchases in India with current comparisons, INR pricing, seller checks, deal timing, review credibility, counterfeit warnings, and after-sales considerations."
+description: "Use when the user asks whether, which, where, or when to buy a product in India; never volunteer purchases. Not for taste or wardrobe discussion, or for non-India markets."
 disable-model-invocation: true
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: backlog
-description: "Manage a Linear-only project backlog through capture, triage, grooming, acceptance criteria, milestones, and next-session planning."
+description: "Use to manage a Linear-only project backlog: capture, triage, grooming, acceptance criteria, milestones, next-session planning. Not for personal tasks (gtd) or a session-end summary of what is left (handoff)."
 disable-model-invocation: true
 ---
 

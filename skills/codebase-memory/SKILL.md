@@ -1,6 +1,6 @@
 ---
 name: codebase-memory
-description: "Query a codebase knowledge graph for architecture, callers, dependencies, dead code, impact analysis, and structural refactoring evidence."
+description: "Use to query a codebase knowledge graph for architecture, callers, dependencies, dead code, impact analysis, and structural refactoring evidence. Not for agent-config harness changes (harness-config-maintenance) or skill install and retirement (skill-lifecycle)."
 disable-model-invocation: true
 ---
 
