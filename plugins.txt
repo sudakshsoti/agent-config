@@ -28,21 +28,24 @@
 
 external BexTuychiev/firecrawl-claude-code-skill firecrawl-web
 
+# emilkowalski/skills — all upstream skills, linked into the shared root. It
+# sits above mattpocock/skills on purpose: both ship `prototype`, the earliest
+# bare line wins, and emilkowalski's must win (user decision 2026-10-04).
+external emilkowalski/skills
+
 # mattpocock/skills — every bucket (user decision 2026-10-04). Each bucket is
 # its own line because the installer reads one directory level per source.
 # `deprecated` is omitted: upstream keeps it empty. `in-progress` is beta and
 # upstream says its skills may change or vanish without warning. A repo-owned
 # skills/<name> wins a name collision, so upstream `handoff` and `pr` are
-# shadowed by ours (install prints a SKIP warning for each). Model-invocable
-# skills in these buckets add to the always-loaded skill list; user-invoked
-# ones (`disable-model-invocation: true`) do not.
+# shadowed by ours, and upstream `prototype` by emilkowalski's line above
+# (install prints a SKIP warning for each). Model-invocable skills in these
+# buckets add to the always-loaded skill list; user-invoked ones
+# (`disable-model-invocation: true`) do not.
 external mattpocock/skills:skills/engineering
 external mattpocock/skills:skills/productivity
 external mattpocock/skills:skills/misc
 external mattpocock/skills:skills/in-progress
-
-# emilkowalski/skills — all upstream skills, linked into the shared root.
-external emilkowalski/skills
 
 # frontend-design, from its canonical home in the claude-code repo. It is a
 # single SKILL.md with no hooks, commands or agents, so a plain external source
@@ -63,7 +66,7 @@ external anthropics/claude-code:plugins/frontend-design/skills frontend-design
 # and inputmode tables, aria-disabled discipline) belongs folded into those
 # local skills, where skill bodies cost nothing until the skill is invoked.
 # `variant` is also excluded: it duplicates `prototype`, which the bare
-# mattpocock/skills line above already installs.
+# emilkowalski/skills line above already installs.
 external jakubkrehel/skills break explain-interface interface-review
 
 # superpowers is deliberately NOT installed. Its skills are vendored into
