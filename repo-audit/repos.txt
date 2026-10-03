@@ -1,0 +1,6 @@
+# Repositories the weekly repo audit covers (scripts/repo-audit.py).
+# One GitHub owner/repo per line; `#` starts a comment. Each repo needs the
+# `needs-triage` and `enhancement` labels, which the filed issues carry.
+sudakshsoti/agent-config
+sudakshsoti/homelab
+sudakshsoti/brew-guide
