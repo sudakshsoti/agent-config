@@ -45,11 +45,11 @@ tracker.
 
 - Git: read-only (`status`, `diff`, `log`, `show`). The runner makes the
   commit; you make no commits, pushes, stashes, resets, checkouts or branches.
-- GitHub and the tracker: read-only. You post no comments, labels, closes or
-  PRs.
-- Protected paths are off-limits: env files (`.env*`), keys (`*.pem`,
-  `*.key`, SSH private keys), CI workflows (`.github/workflows/`) and git
-  internals (`.git/`). A change there fails the ticket.
+- GitHub and the tracker: read-only. You post no comments, labels, closes,
+  PRs or merges.
+- Protected paths are off-limits. The runner fails the ticket on any change
+  to a repo-relative path matching this `grep -E` pattern, and removes those
+  files first: `{{PROTECTED_RE}}`
 - Work in this one session: no subagents, deploys or publishing.
 - Scope is the ticket's acceptance criteria. When something outside them is
   needed (missing information, a failing precondition, a design decision),

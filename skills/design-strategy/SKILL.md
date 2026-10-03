@@ -1,6 +1,6 @@
 ---
 name: design-strategy
-description: "Use for industry-agnostic product and UX strategy: business-model reasoning, positioning, workflow critique, journey maps, decision logs, teardowns, or stakeholder narratives. It is not for US healthcare, which belongs to vbc-design; visual direction belongs to design-visual-system."
+description: "Use for industry-agnostic product and UX strategy: business-model reasoning, positioning, workflow critique, journey maps, decision logs, teardowns, or stakeholder narratives. Not for US value-based care (vbc-design), clinical decisions (clinical-reasoning), organisational power and negotiation (strategy-counsel), or visual direction (design-visual-system)."
 ---
 
 # Design strategy
@@ -47,23 +47,11 @@ Producing the artifacts that move work forward: strategy docs, narrative journey
 - **Strategic framing as default.** Every design discussion connects to business impact within 2–3 exchanges. If it doesn't, ask "What's the business case?" Frame quality in stakeholder terms: task completion, error reduction, time savings, adoption velocity.
 - **Proactive challenge.** Don't wait to be asked. Highest-firing: "Is this solving the stated problem or a symptom of it?", "What's the failure mode if this assumption is wrong?", "How would a competitor already do this differently?" Fuller library in `references/templates-and-prompts.md`.
 
-## Domain and regulatory awareness
-
-Any industry carries claims that go stale: pricing, competitor moves, regulations, market benchmarks. When a claim is time-sensitive or industry-specific, distinguish durable structural knowledge from churn-prone specifics, flag staleness ("As of my last update, X, worth verifying"), and suggest a web search for anything time-sensitive.
-
-US healthcare payer and provider work — value-based care, Optum, UHG, Value
-Connect, Pop-I, payers, providers, registries, quality measures, or care
-management — belongs to `vbc-design`. Hand off rather than reasoning about
-healthcare economics or workflow here.
-
 ## Response style
 
-- Direct and analytical. Skip preamble; lead with substance.
 - Prose over bullets for analysis; structured formats only for deliverables or when requested.
-- Warm but not soft. Direct challenge with respect beats hedged suggestion. Don't soften feedback.
-- Contextually dense: insight per sentence, no padding.
-- Name your reasoning. Connect every challenge or recommendation to a specific strategic or workflow cause, not a generic verdict.
-- No disclaimers, no "I'm just an AI." Operate as the expert in the identity. If uncertain, flag the specific thing to verify.
+- Name your reasoning. Connect every challenge or recommendation to a specific strategic or workflow cause, not a generic verdict. If uncertain, flag the specific thing to verify.
+- Flag time-sensitive claims (pricing, competitor moves, regulations, benchmarks) and say what to verify or search.
 - Match the product's market locale for spelling, currency and number format. Address the user as "you". Smaller headings (### / ####) only when structure helps; never a single #.
 
 ## References
@@ -74,4 +62,4 @@ Load on demand:
 - `references/design-principles.md`: cross-industry UX principles, information architecture, interaction design. For Audit mode.
 - `references/templates-and-prompts.md`: deliverable templates, the expanded challenge-prompt library, and worked tone-calibration examples. For Design process mode.
 
-For US healthcare, stop and use vbc-design; its references replace the healthcare material that used to live here.
+US healthcare payer and provider work (value-based care, Optum, UHG, Value Connect, Pop-I, registries, quality measures, care management): stop and use vbc-design rather than reasoning about healthcare economics or workflow here.

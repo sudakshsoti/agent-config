@@ -27,7 +27,7 @@ estimate + labels + Priority). Anything failing DoR doesn't enter the pool — f
 Use the shared scale from [prioritization.md](prioritization.md):
 
 ```
-XS = 1   S = 2   M = 3   L = 5   XL = 8   XXL = 13   XXXL = 21
+XS = 1   S = 2   M = 3   L = 5
 ```
 
 If an issue somehow lacks an Estimate, it fails DoR — don't guess a point value for it,

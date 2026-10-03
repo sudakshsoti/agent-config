@@ -65,11 +65,9 @@
 #       One-line `/name` wrappers that load the same-named user-invoked skill,
 #       so `/pr` works without the `/skill:` prefix. The skill stays the source.
 #     omp/overlays/*         -> ~/.config/omp/*
-#       Model-role overlays read by ~/.local/bin/omp-*-overlay and the
-#       ompgo/ompcodex zsh wrappers. Linked file by file so .active-overlay —
-#       runtime state owned by those scripts — is left alone. The consumers
-#       live in dotfiles and read a fixed ~/.config/omp path, so neither side
-#       needs to know about the other.
+#       Holds search-keys.tpl, the 1Password template behind
+#       `op inject -o ~/.omp/.env`. Linked file by file so other files in
+#       ~/.config/omp stay untouched.
 #     global-agents.md       -> ~/.omp/agent/AGENTS.md
 #       Harness-neutral shared preferences, linked so one edit reaches every
 #       installed harness. None of these tools rewrite the file.
@@ -152,7 +150,8 @@
 #   `name:` rather than its directory. The optional :<subdir> pins which tree to
 #   read when a repo ships several copies. Vendored by reference, never copied:
 #   upstream files do not enter this repo's history and are not linted here.
-#   A repo-owned skills/<name> always wins a name collision.
+#   Name collisions resolve by fixed precedence (AGENTS.md, Skills); each loser
+#   is skipped with a warning and counted in `skipped`.
 #
 # Idempotent; safe to re-run. Run once after cloning on a new machine.
 #
@@ -403,6 +402,33 @@ record_skill() { # record_skill <name> <source-dir>
   SKILL_SOURCES="$SKILL_SOURCES$1"$'\t'"$2"$'\n'
 }
 
+# resolve_external_candidates: when several external lines ship the same skill
+# name, exactly one wins, by the precedence in AGENTS.md (Skills). Losers are
+# skipped with a warning, never an error. Repo-owned skills were already
+# filtered out when each candidate was collected.
+EXTERNAL_CANDIDATES=""
+resolve_external_candidates() {
+  local name dir repo verdict
+  [ -n "$EXTERNAL_CANDIDATES" ] || return 0
+  while IFS=$'\t' read -r name dir repo verdict; do
+    [ -n "$name" ] || continue
+    if [ "$verdict" = "W" ]; then
+      record_skill "$name" "$dir"
+      if [ "$FILL_SHARED" = "1" ]; then
+        link_skill_into "$dir" "$SKILLS_ROOT/$name"
+      fi
+    else
+      echo "⚠️  SKIP $name (external $repo) — shadowed by external ${verdict#L:}"
+      skipped=$((skipped + 1))
+    fi
+  done < <(printf '%s' "$EXTERNAL_CANDIDATES" | awk -F'\t' '
+    { name[NR] = $1; dir[NR] = $2; repo[NR] = $3
+      rank = $4 # explicit beats bare; earlier beats later within a kind
+      if (!($1 in best) || rank > bestrank[$1]) { best[$1] = NR; bestrank[$1] = rank } }
+    END { for (i = 1; i <= NR; i++)
+      printf "%s\t%s\t%s\t%s\n", name[i], dir[i], repo[i], (best[name[i]] == i ? "W" : "L:" repo[best[name[i]]]) }')
+}
+
 if [ "$SKILLS_ONLY" = "1" ]; then
   if [ "$PRUNE" = "1" ]; then
     echo "--skills-only cannot be combined with --prune"
@@ -512,6 +538,8 @@ if [ "$FILL_SHARED" = "1" ] || [ "$FILL_CLAUDE" = "1" ]; then
       # linked. Empty means every skill found — right for a small, curated repo,
       # wrong for a grab bag whose extras are dead weight in the context budget.
       want="$rest"
+      explicit=0
+      [ -n "$want" ] && explicit=1
       # Where the skill dirs live. An explicit subdir wins; otherwise skills/ if
       # present, else the repo root. A repo that is itself one skill puts SKILL.md
       # at the root, so that is checked separately below.
@@ -550,10 +578,9 @@ if [ "$FILL_SHARED" = "1" ] || [ "$FILL_CLAUDE" = "1" ]; then
           skipped=$((skipped + 1))
           return 1
         fi
-        record_skill "$name" "$dir"
-        if [ "$FILL_SHARED" = "1" ]; then
-          link_skill_into "$dir" "$SKILLS_ROOT/$name"
-        fi
+        # Linking waits until every line is read, so precedence can see all
+        # candidates (see resolve_external_candidates).
+        EXTERNAL_CANDIDATES="$EXTERNAL_CANDIDATES$name"$'\t'"$dir"$'\t'"$repo"$'\t'"$explicit"$'\n'
         return 0
       }
 
@@ -575,6 +602,7 @@ if [ "$FILL_SHARED" = "1" ] || [ "$FILL_CLAUDE" = "1" ]; then
         external=$((external + 1))
       fi
     done <"$REPO/plugins.txt"
+    resolve_external_candidates
   fi
 else
   echo "note: no shared-skill-root consumer present (~/.codex, ~/.pi/agent, ~/.config/opencode, ~/.omp/agent) and no ~/.claude — skipping ~/.agents/skills and ~/.claude/skills"
@@ -650,8 +678,8 @@ else
     done
   fi
 
-  # 4b. OMP overlays: linked individually so ~/.config/omp/.active-overlay, which
-  #     is runtime state written by the overlay scripts, is never touched.
+  # 4b. OMP overlays folder (search-keys.tpl): linked individually so other
+  #     files in ~/.config/omp are never touched.
   if [ -d "$REPO/omp/overlays" ]; then
     mkdir -p "$OMP_OVERLAYS"
     for overlay in "$REPO"/omp/overlays/*; do

@@ -1,6 +1,6 @@
 ---
 name: execute-plan
-description: "Use when the user points to a markdown checklist plan and wants hands-off execution: delegate independent items, choose suitable agents, verify each slice, and commit it. Agent-agnostic checklist execution; in Pi or OMP, use workstreams when dependency and integration coordination is the primary task."
+description: "Use when the user points to a markdown checklist plan and wants hands-off execution. Not for dependency and integration coordination across workstreams (workstreams) or unattended ticket runs (overnight-run)."
 allowed-tools: Read, Edit, Bash(git*), Task, Glob, Grep
 ---
 
@@ -9,7 +9,9 @@ allowed-tools: Read, Edit, Bash(git*), Task, Glob, Grep
 You are the **orchestrator**. Drive a checklist plan to completion by delegating
 each item to a fresh subagent. Your own context stays small — that is the point.
 Don't re-investigate source files, run builds, or write the code yourself,
-except for the Pi/OMP acceptance-verification step described below.
+except for the Pi/OMP acceptance-verification step described below. The
+`allowed-tools` frontmatter applies to Claude Code only; Pi and OMP ignore it, and
+their acceptance checks need more than `Bash(git*)`.
 
 Plan path is in `$ARGUMENTS`; default `PLAN.md`, else glob `*PLAN*.md` and say
 which one you found.
@@ -24,14 +26,13 @@ commits in a parallel batch. Everything else is your judgment.
    that. Re-read only if a worker reports the plan is wrong.
 2. Dispatch the next unchecked item (file order) to a worker, or a batch of items
    that don't overlap.
-3. On return: tick the boxes and commit the ticks if the workers didn't.
+3. On return: confirm each worker ticked its box inside its own item commit. Tick and commit any it missed.
 4. Nothing left → stop, report each item with its commit hash.
 
 ## Running in parallel
 
 Look ahead a few items and dispatch the ones that don't touch the same files
-together, as Task calls in a **single message**. Keep the fan-out small enough
-that you can actually read the returns.
+together, as Task calls in a **single message**. Run at most 3 items in parallel.
 
 Serial when they'd collide, when the plan states an order, when one item consumes
 another's output, or when you can't tell what an item touches. Uncertain means
@@ -54,11 +55,10 @@ The worker hasn't seen this conversation, so the packet carries everything: repo
 path, plan file path, the exact item text, and what's out of scope (sibling items
 or shared files it must not touch — this item only, then stop).
 
-Say how you want the work proved and what to return: the verify output, files
+Tell each worker to tick its own box inside its item commit. Say how you want the work proved and what to return: the verify output, files
 changed, commit hash. Not "done". Whether that proof is a test, an existing suite
-staying green, or a clean build and a read of the diff is your call, item by item
-— a plan of renames doesn't need tests and a plan of behaviour changes isn't
-served by a build check. If you want a test written, say which and why; a worker
+staying green, or a clean build and a read of the diff is your call, item by item.
+If you want a test written, say which and why; a worker
 here shouldn't be inventing test strategy on its own.
 
 Tell it to stop and report rather than commit a guess: when live code contradicts
@@ -82,10 +82,7 @@ whichever lever your surface gives you.
   loop. Before ticking an item, perform the acceptance verification in
   specialist-delegation; this is the Pi/OMP exception to the shortcut below.
 
-If your surface won't let you set either per subagent, dispatch anyway. A fresh
-context scoped to one item is most of the win; the routing is the saving on top.
-
-Escalate when you're unsure, when the plan flags an item as risky, and when a
+Escalate to the next role up in `specialist-delegation` when you're unsure, when the plan flags an item as risky, and when a
 worker fails or comes back confused. Name what you routed to and why in a clause,
 so the routing is auditable.
 
@@ -99,7 +96,6 @@ so the routing is auditable.
   higher-priority instructions require more. In Pi and OMP, inspect the actual changes
   and run the relevant acceptance checks using specialist-delegation before
   ticking the item. This verifies the result without redoing worker discovery.
-- **Don't ask for approval between items.** Keep going.
 - Stop early if an item is genuinely ambiguous or a commit fails. Say which item
   and why, and leave the plan file reflecting real progress so a later run resumes
   from the first `- [ ]`.

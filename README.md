@@ -31,8 +31,7 @@ Three destinations, and nothing else.
   for this checkout only.
 - `omp/config.yml` — OMP's baseline settings: model roles (`default` plus the
   per-task worker roles), thinking level, statusline and task options. This is
-  the config OMP actually loads; the overlays below are layered on top of it per
-  invocation. Plain OMP runs Claude 5 models from `anthropic` plus `opencode-go`
+  the config OMP actually loads. Plain OMP runs Claude 5 models from `anthropic` plus `opencode-go`
   for discovery and cross-lineage review; `openai-codex` is disabled.
   Symlinked to `~/.omp/agent/config.yml`, so `omp config set` and TUI toggles
   edit the repo copy directly — check `git diff` before committing. Only linked
@@ -42,14 +41,8 @@ Three destinations, and nothing else.
   `adversary` is the cross-lineage plan reviewer behind `/peer-review`;
   `builder`, `code-worker`, `plan`, `critic`, `research` and `workflow` port
   Pi's roles, with models set in `task.agentModelOverrides`.
-- `omp/overlays/*` — model-role overlays symlinked into `~/.config/omp/`.
-  `ompgo` loads `go-overlay.yml` for a flat-rate Go session. `ompcodex` loads
-  `codex-only-overlay.yml`; the base config disables `openai-codex`, but an
-  overlay *replaces* `disabledProviders` rather than merging, so that session
-  still reaches Codex while its credential lasts. Retiring it needs the
-  dotfiles-side wrapper removed too. Both shell functions use `omp --config`
-  for one session without changing the base config.
-  `search-keys.tpl` is the 1Password template behind
+- `omp/overlays/*` — holds only `search-keys.tpl`, symlinked file by file
+  into `~/.config/omp/`. It is the 1Password template behind
   `op inject -o ~/.omp/.env` — `op://` references only, never a literal key.
 - `pi/settings.json` — Pi's default model, Ctrl+P model list, thinking level,
   theme and package list. Pi's per-job models live in `pi/agents/*.md`

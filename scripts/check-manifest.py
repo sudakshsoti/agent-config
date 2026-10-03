@@ -5,7 +5,7 @@ Three things fail here:
   - a malformed line (see scripts/manifest.py for the grammar);
   - a skill name listed twice on one `external` line's allowlist;
   - a skill name listed on two different `external` lines' allowlists.
-    install.sh links whichever one runs last and silently shadows the other,
+    #90 collision precedence (AGENTS.md, Skills) would pick one silently,
     so two explicit claims on the same name is drift, not a valid config.
 
 Two things are reported but never fail, because both are legitimate:

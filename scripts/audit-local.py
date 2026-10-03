@@ -27,12 +27,17 @@ Findings are categorised `info` or `warn`:
   shadowed-repo         (info) an external skill name that a repo-owned
                          skills/<name> shadows at install time — by design,
                          not a problem.
-  duplicate-external    a skill name that more than one external source would
-                         provide; install.sh links whichever runs last.
-                         Detected by reading each declared source's actual
-                         vendor checkout (via its SKILL.md frontmatter
-                         `name:`), so bare sources — which import every skill
-                         they ship — are covered too.
+  shadowed-external     a skill name that more than one external source
+                         ships; exactly one wins at install time (an
+                         allowlist line naming the skill beats a bare line;
+                         among the same kind the earlier plugins.txt line
+                         wins) and the finding lists the skill, the winning
+                         source and every losing source. Detected by reading
+                         each declared source's actual vendor checkout (via
+                         its SKILL.md frontmatter `name:`), so bare sources —
+                         which import every skill they ship — are covered
+                         too. Names a repo-owned skill shadows are reported
+                         as shadowed-repo only.
   chezmoi-collision      a dotfiles-tracked path that collides with one of
                          this repo's managed install destinations (see
                          ownership_collisions.py). If the dotfiles checkout is
@@ -46,8 +51,9 @@ drift.
 Out of scope (by design, not oversight): repairing, pruning or declaring
 vendor checkouts; running `chezmoi managed`; anything from the pre-4a7edc49
 codex/config.toml partition (removed, no longer a destination) or the
-~/.config/omp host-overlay-link surface (issue #38 is still open; those links
-are an intended destination, not drift).
+~/.config/omp host-overlay-link surface (decided in #38, wontfix: the folder
+holds search-keys.tpl, linked on purpose; those links are an intended
+destination, not drift).
 """
 
 from __future__ import annotations
@@ -273,17 +279,18 @@ def audit_external_name_collisions(repo, entries, findings):
                     f"skills/{name} (repo-owned always wins at install time)",
                 )
             )
-        if len(sources) > 1:
-            labels = ", ".join(f"{source} (plugins.txt:{line_no})" for source, line_no, _ in sources)
-            bare_note = " — includes a bare source (no explicit allowlist)" if any(
-                is_bare for _, _, is_bare in sources
-            ) else ""
+        if len(sources) > 1 and name not in repo_owned:
+            # Mirror install.sh: explicit allowlist beats bare, earlier line
+            # beats later within a kind (sources are already in file order).
+            winner = next((src for src in sources if not src[2]), sources[0])
+            losers = [src for src in sources if src is not winner]
+            label = lambda src: f"{src[0]} (plugins.txt:{src[1]})"  # noqa: E731
             findings.append(
                 Finding(
                     "warn",
-                    "duplicate-external",
-                    f"skill name '{name}' is provided by more than one external source: "
-                    f"{labels}{bare_note}",
+                    "shadowed-external",
+                    f"skill '{name}': {label(winner)} wins; shadowed: "
+                    f"{', '.join(label(src) for src in losers)}",
                 )
             )
 

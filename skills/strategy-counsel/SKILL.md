@@ -1,6 +1,6 @@
 ---
 name: strategy-counsel
-description: "Advise on power, incentives, negotiation, escalation, alliances, and scope disputes inside organisations or arm's-length relationships, recommending one path and its warning sign."
+description: "Use for office politics, negotiation, escalation, alliances, and scope or obligation disputes with peers, managers, family, or vendors. Not for legal matters, emotional distress, career narrative, or product and design strategy (design-strategy)."
 disable-model-invocation: true
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: design-visual-system
-description: "Use for visual direction in a product UI: art direction, colour, hierarchy, responsive layout, CSS tokens, `@theme`, and OKLCH, while first classifying the surface intent. It owns visual system decisions; use design-typography for typography-primary work and design-interface for behaviour and states."
+description: "Use for visual direction in a product UI: colour, hierarchy, responsive layout, CSS tokens, `@theme`, and OKLCH, while first classifying the surface intent. Not for a token or colour tweak inside an existing system, typography-primary work (design-typography), or behaviour and states (design-interface)."
 ---
 
 # Design visual system
@@ -55,9 +55,7 @@ reading; “compact utility” is the default direction for repeated scan-and-ac
 use, not merely one style option.
 
 Structure is information. Numbering, eyebrows, dividers and labels must encode
-something true, not merely decorate. Match execution complexity to the direction:
-maximalism needs enough craft to hold together; minimalism needs precision in
-spacing, type and detail.
+something true, not merely decorate.
 
 Begin reference, utility and dashboard surfaces with a solid background. Add
 texture, grids, patterns or translucent layering only when they encode information
@@ -72,7 +70,6 @@ Before building, make a compact visual plan: token system, type roles, layout
 concept and one signature element that embodies the brief. Critique that plan
 against the actual brief: remove or revise anything that could be the generic
 answer for a similar product, explain why, then build from the revised plan.
-Spend boldness in the signature element and keep everything around it disciplined.
 Use deliberate, real content; never use filler copy or invented metrics to prop
 up a composition.
 
@@ -101,22 +98,18 @@ its container.
   tracking and a body measure of roughly 60-75 characters. Use no more than two
   weights unless a third has a defined job.
 - **Interactive elements have five states:** rest, hover, active, focus-visible
-  and disabled. Keep a visible `:focus-visible` ring.
-- **WCAG 2.2 contrast ratios are the conformance check.** Report APCA Lc as an
-  additional perceptual measure where useful, never as a replacement for WCAG.
-- **390px works.** Avoid horizontal overflow and clipping; provide 44px minimum
-  tap targets where applicable.
-- **Empty and error states exist** wherever data loads.
+  and disabled.
+- **Accessibility and state thresholds belong to `skill://design-interface`.**
+  For focus indicators, contrast ratios, 390px reflow, tap-target size and
+  empty or error states, read it and apply its thresholds; do not restate them here.
 - **Form controls are styled.** An unstyled `<select>` or `<input>` is rarely an
   intentional system decision.
 
-Think in type systems, not fonts; in OKLCH and perceptual uniformity, not isolated
-hex values; and in optical rhythm, not raw geometric alignment. Ship production
-CSS to support the decision.
+Ship production CSS to support the decision.
 
 `references/` holds the concrete values behind these checks: `surfaces-and-icons.md`
 for radius, shadow-as-border and icon mechanics, `colour-systems.md` for ramp
-formation, token grammar and APCA/WCAG thresholds, `layout-mechanics.md` for
+formation, token grammar and APCA thresholds, `layout-mechanics.md` for
 spacing and adaptivity measurements, and `motion-values.md` for the numeric
 overrides to the vendored `animate` and `emil-design-eng` skills.
 
@@ -159,12 +152,9 @@ Sentinel, Berkeley Mono and MonoLisa. Reads foundry discourse. Peer-level
 conversation; skip scaffolding. Recommend from the whole world of type when a
 better face exists; the library is context, not a shortlist.
 
-**The Dinamo licence is desktop only.** Never propose Diatype or Diatype
-Semi-Mono as a webfont without naming the separate web licence it needs and its
-cost. Serving a font from a site behind basic authentication is still web serving.
-Where a web licence is not in place, self-host a free OFL variable face; do not
-fall back to a system stack, which is a decision not taken. See
-`design-typography`, "When the licence is the constraint".
+**Web licences and font fallbacks.** Before proposing a desktop-licensed face (for
+example Dinamo Diatype) as a webfont, or a system stack as the final answer, read
+`skill://design-typography`, "When the licence is the constraint".
 
 Match the product's market locale for spelling, currency and number format. No
 em dashes.
@@ -177,8 +167,7 @@ clean sans". Use OKLCH for colour and include APCA Lc only as supplementary
 reporting beside WCAG 2.2 conformance. CSS must be production quality, not
 illustrative pseudocode. Comments belong only on non-obvious constraints.
 
-Default to flowing prose. Use bullets for three or more comparable items or steps.
-Be direct: no filler, hedging or conviction-free recommendations.
+Use bullets for three or more comparable items or steps.
 
 ## Search behaviour
 

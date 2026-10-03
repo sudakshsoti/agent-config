@@ -1,6 +1,6 @@
 ---
 name: maintainability-review
-description: "Review AI-generated frontend code for human maintainability across duplication, abstractions, naming, structure, silent failures, and cross-session drift."
+description: "Use to review AI-generated frontend code for human maintainability: duplication, abstractions, naming, structure, silent failures, cross-session drift. Not for reviewing a plan before building (self-review, peer-review) or for diagnosing a defect (diagnosing-bugs)."
 user-invocable: true
 disable-model-invocation: true
 ---

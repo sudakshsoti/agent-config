@@ -1,6 +1,6 @@
 ---
 name: backlog
-description: "Manage a Linear-only project backlog through capture, triage, grooming, acceptance criteria, milestones, and next-session planning."
+description: "Use to manage a Linear-only project backlog: capture, triage, grooming, acceptance criteria, milestones, next-session planning. Not for personal tasks (gtd) or a session-end summary of what is left (handoff)."
 disable-model-invocation: true
 ---
 
@@ -10,12 +10,12 @@ The backlog lives in **Linear only**. There is no `TODO.md` and no other tracker
 is the **single source of truth** for whichever team/project you're operating in. Operate
 it with the Linear MCP tools (`list_teams`, `list_projects`, `list_issues`, `get_issue`,
 `save_issue`, `save_comment`, `create_attachment`, `list_issue_labels`, `list_milestones`,
-`get_milestone`, `save_milestone`).
+`get_milestone`, `save_milestone`, `list_issue_statuses`). Never create a `TODO.md`
+or scatter `// TODO`s in code — they are invisible to the backlog; file a Linear issue.
 
-You are not a ticket scribe — you are the product manager for this project. Capture
-cleanly, **triage with judgment**, prioritize with a stated framework, keep the backlog
-lean, batch ready work into sittable **sessions**, and tell the operator what to do next.
-Route every request into one of the five modes below.
+Capture cleanly, triage, prioritize with a stated framework, batch ready work into
+sittable **sessions**, and tell the operator what to do next. Route every request into
+one of the five modes below.
 
 - "track this", "file a ticket", "we should do X later" → **1 · Capture + triage**
 - "what should I work on", "what's next", "I have 30 min" → **2 · What next**
@@ -48,8 +48,7 @@ else in a fresh conversation:
 - **Priority** — `Urgent / High / Medium / Low`. **Risk is folded in** — a high-blast-radius
   change (could break something badly, lose data, or open a hole) earns a higher priority
   than its upside alone would justify. There is no separate Risk field.
-- **Effort** — Native **Estimate** on the extended **T-shirt** scale `XS · S · M · L · XL ·
-  XXL · XXXL`: `XS`≈15 min · `S`≈1 hr · `M`≈half day · `L`≈weekend (the ceiling for a
+- **Effort** — Native **Estimate** on the extended **T-shirt** scale `XS · S · M · L · XL`: `XS`≈15 min · `S`≈1 hr · `M`≈half day · `L`≈weekend (the ceiling for a
   single issue). **`XL` and bigger = decompose before filing** — that's an epic, not an
   issue. Each size also maps to an **effort point** used for WSJF and for milestone
   batching (Mode 5) → [references/prioritization.md](references/prioritization.md). If the
@@ -83,7 +82,7 @@ Don't just create an issue. Run the four triage verbs, then file with the full s
    highest-value PM habit — a backlog of near-duplicates is a graveyard.
 2. **Decide the verb:** **Accept** (file it), **Duplicate** (merge as above), **Decline**
    (don't file — say why), **Snooze** (file at `Low`, it can resurface).
-3. **Write it like a PM, not a sticky note** — title is an outcome, body has **what / why /
+3. **Title is an outcome**, body has **what / why /
    acceptance** (see Mode 4). No "fix the thing" tickets.
 4. **Decompose** anything `XL` (or with >1 acceptance theme) into independently shippable
    issues _before_ filing. Smallest unit that produces visible progress.
@@ -103,7 +102,7 @@ candidate.
 
 ## Mode 2 — What next
 
-Recommend, don't dump the list. The operator gives time/energy ("I have an hour", "low
+The operator gives time/energy ("I have an hour", "low
 energy"); you return a **ranked shortlist of 3–5 with one recommended pick and the reason**.
 
 1. Pull candidates: `list_issues` in the not-started states, **unblocked** (no open
@@ -123,9 +122,9 @@ energy"); you return a **ranked shortlist of 3–5 with one recommended pick and
 If the operator's ask is really "give me a whole sitting's worth of work" rather than one
 item, that's Mode 5, not Mode 2 — hand off there.
 
-## Mode 3 — Weekly grooming (the keystone, ~20–30 min)
+## Mode 3 — Weekly grooming
 
-Keep the backlog lean and honest. Run the full sweep — checklist in
+Run the full sweep — checklist in
 [references/prioritization.md](references/prioritization.md):
 
 - **Prune** — close/cancel anything no longer relevant. Low-priority items that never get
@@ -172,7 +171,7 @@ sessions.
    Definition-of-Ready met (Mode 4). Anything not Ready is not eligible — fix it first or
    leave it out.
 2. **Convert Estimate → effort points** using the shared scale in
-   [references/prioritization.md](references/prioritization.md) (`XS`=1 … `XL`=8).
+   [references/prioritization.md](references/prioritization.md).
 3. **Pick a session capacity.** Default band is **5–8 points** ("a comfortable single
    sitting" — roughly one `L`, or one `M` + one `S`, or three/four small items). Ask the
    operator if their actual sessions run shorter/longer and adjust the band, don't just
@@ -206,25 +205,3 @@ sessions.
   differ per team.
 - **Milestones** with `list_milestones` / `get_milestone` / `save_milestone` (scoped to a
   project). Assign an issue to one via `save_issue(milestone: "<name or id>")`.
-
-## Don't
-
-- Don't create a `TODO.md` or scatter `// TODO`s in code — they're invisible to the
-  backlog. Capture every "we should…" as a Linear issue.
-- Don't guess the team/project silently (Mode 0) — a misfiled issue is worse than a
-  clarifying question.
-- Don't impose a label scheme (`area:`/`type:`) a team hasn't already adopted — check
-  `list_issue_labels` first and follow what's actually there.
-- Don't file an issue without Priority + Effort at minimum, and without the team's real
-  taxonomy where one exists.
-- Don't create a near-duplicate — dedupe first (Mode 1), and dedupe milestones the same
-  way (Mode 5 step 6).
-- Don't file a `Dropped` row from a scoping doc — it stays there with its rationale, not
-  in Linear. Only `Later` rows get filed, batched (Mode 1).
-- Don't promote an item past the Definition-of-Ready gate.
-- Don't pull a not-Ready issue into a milestone (Mode 5) — Ready is the gate for both.
-- Don't blow past the WIP limit — finish one before starting another.
-- Don't build a lopsided milestone (one `XL`-worth of items and nothing else) just to hit
-  a headcount — pack to the point budget, not the item count.
-- Don't file an item in two places or treat anything but Linear as authoritative — there
-  is one tracker, no "mirror".

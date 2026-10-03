@@ -24,17 +24,51 @@ reports anything else rather than guessing.
 
   ./scripts/lint-skills.py [repo-root]
 
+Third contract, dangling references. An audit found ten references to things
+that no longer exist (a removed skill, an archived field, a deleted agent). For
+every live skills/*/SKILL.md and skills/*/references/**/*.md, `lint_references`
+fails when:
+
+  - a relative markdown link, or a backticked path starting `references/`,
+    `scripts/` or `skills/`, resolves to nothing — tried relative to the file,
+    its skill directory, then the repo root;
+  - a skill named in a hand-off context (`skill://x`, "the `x` skill",
+    "hand off to `x`", "load `x`", "-> `x`") or in the parentheses of a
+    description's "Not for ..." sentence is not a known skill.
+
+Known skills are the live repo-owned skills/*/ directories, the skills named on
+`external` lines in plugins.txt, any SKILL.md found under vendor/ (when cloned;
+named by its frontmatter `name:`, as install.sh links it), and the names in the
+tracked external-skills.txt. Vendored skills are therefore never false-failed in
+CI where vendor/ is absent, provided plugins.txt or external-skills.txt names
+them; a bare `external` line cannot be enumerated offline, so its skills go in
+external-skills.txt. skills/_archive/ is neither scanned nor a live target.
+Skipped as not-a-reference: fenced code blocks, placeholders (`<name>`, `*`,
+`{}`), bare directory mentions (`references/`), `skills/_archive/...` paths
+(history citations), and lines that say the
+thing is gone (archived/deleted/removed/retired/no longer).
+
+Fourth contract, external-skills.txt drift. When vendor/<slug> exists for a bare
+`external` source, that source's section of external-skills.txt (the names under
+its `# <owner/repo>[:<subdir>]` heading) must equal the frontmatter `name:` values
+the clone ships, enumerated as install.sh does (audit-local.py's helpers). A name
+the clone ships but the section lacks, or the section lists but the clone does
+not ship, fails and names both. With no clone (CI) the check is silent.
+
 FAILs exit 1. WARNs never do — two skills are legitimately over the body
 threshold today and shrinking them is somebody else's issue; a WARN that broke
 the build would just get deleted.
 """
 
+import importlib.util
 import os
 import re
 import sys
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from frontmatter import parse_frontmatter  # noqa: E402
+from manifest import parse_plugins_file  # noqa: E402
 
 MAX_NAME = 64
 MAX_DESCRIPTION = 1024
@@ -49,6 +83,26 @@ BANNED_IN_NAME = ("claude", "anthropic")
 # the same line (6 failed commit-push/pr runs, 2026-09-26..10-02).
 SIBLING_LINK_RE = re.compile(r"\]\(\.\./([a-z0-9-]+)/SKILL\.md\)")
 
+
+# Tracked list of the skills that bare `external` lines in plugins.txt ship
+# (their names are unknowable offline, and CI has no vendor/).
+EXTERNAL_SKILLS_FILE = "external-skills.txt"
+PATH_RE = re.compile(r"`((?:references|scripts|skills)/[^`\s]*)`")
+LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+SCHEME_RE = re.compile(r"^[a-z][a-z0-9+.-]*:")
+PLACEHOLDER_RE = re.compile(r"[<>*{}$]|\.\.\.")
+FENCE_RE = re.compile(r"^\s*(```|~~~)")
+INLINE_CODE_RE = re.compile(r"`[^`]*`")
+GONE_RE = re.compile(r"archived|deleted|removed|retired|no longer", re.I)
+SKILL_REF_RES = (
+    re.compile(r"skill://([a-z0-9][a-z0-9-]*)"),
+    re.compile(r"`([a-z][a-z0-9-]*)` skills?\b"),
+    re.compile(r"(?:hand[ -]?off to|\bload(?: the)?|→|->) `([a-z][a-z0-9-]*)`", re.I),
+)
+NOT_FOR_RE = re.compile(r"Not for(.*?)\.(?:\s|$)", re.S | re.I)
+PAREN_NAMES_RE = re.compile(
+    r"\((?:use )?([a-z][a-z0-9-]*(?:\s*(?:,|\bor\b|\band\b)\s*[a-z][a-z0-9-]*)*)\)"
+)
 
 
 def lint_skill(path, dirname):
@@ -160,6 +214,175 @@ def lint_catalogue(skills_dir, dirnames):
     return fails, []
 
 
+def load_external_skills(repo_root):
+    """Names listed in external-skills.txt (one per line, `#` comments); {} if absent."""
+    text = read_text(os.path.join(repo_root, EXTERNAL_SKILLS_FILE))
+    names = set()
+    for line in (text or "").splitlines():
+        name = line.split("#", 1)[0].strip()
+        if name:
+            names.add(name)
+    return names
+
+
+SECTION_HEADING_RE = re.compile(r"^#\s*([^\s/#]+/[^\s/#:]+(?::\S+)?)\s*$")
+
+
+def external_skills_sections(repo_root):
+    """external-skills.txt names grouped by `# <owner/repo>[:<subdir>]` heading."""
+    text = read_text(os.path.join(repo_root, EXTERNAL_SKILLS_FILE))
+    sections, current = {}, None
+    for line in (text or "").splitlines():
+        heading = SECTION_HEADING_RE.match(line.strip())
+        if heading:
+            current = sections.setdefault(heading.group(1), set())
+            continue
+        name = line.split("#", 1)[0].strip()
+        if name and current is not None:
+            current.add(name)
+    return sections
+
+
+def _audit_local():
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "audit-local.py")
+    spec = importlib.util.spec_from_file_location("audit_local", path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module  # dataclasses resolve their module by name
+    spec.loader.exec_module(module)
+    return module
+
+
+def lint_external_drift(repo_root):
+    """Fail where a cloned bare source ships different names than its section lists."""
+    entries, _ = parse_plugins_file(os.path.join(repo_root, "plugins.txt"))
+    sections = external_skills_sections(repo_root)
+    audit = None
+    fails, seen = [], set()
+    for entry in entries:
+        token = entry.source + (":" + entry.subdir if entry.subdir else "")
+        clone = Path(repo_root, "vendor", audit_slug(entry.source))
+        if entry.skills or token in seen or not clone.is_dir():
+            continue
+        seen.add(token)
+        audit = audit or _audit_local()
+        shipped = set(audit.discover_external_names(audit.external_source_root(clone, entry), entry))
+        listed = sections.get(token, set())
+        where = "%s section %r" % (EXTERNAL_SKILLS_FILE, token)
+        if token not in sections:
+            where = "%s has no section %r; it" % (EXTERNAL_SKILLS_FILE, token)
+        missing, extra = sorted(shipped - listed), sorted(listed - shipped)
+        if missing:
+            fails.append("%s lacks names vendor/%s ships: %s" % (where, audit_slug(entry.source), ", ".join(missing)))
+        if extra:
+            fails.append("%s lists names vendor/%s does not ship: %s" % (where, audit_slug(entry.source), ", ".join(extra)))
+    return fails
+
+
+def audit_slug(source):
+    """install.sh: slug="${repo%/*}-${repo#*/}"."""
+    return source.replace("/", "-", 1)
+
+
+def vendored_skill_name(skill_md):
+    """A vendored skill's name: frontmatter `name:`, else its directory (as install.sh)."""
+    text = read_text(skill_md)
+    fields, _, _ = parse_frontmatter(text) if text else (None, None, None)
+    name = fields.get("name") if fields else None
+    value = (name.value or "").strip() if name is not None else ""
+    return value or os.path.basename(os.path.dirname(skill_md))
+
+
+def known_skills(repo_root, dirnames):
+    """Live repo-owned skills + plugins.txt-named + external-skills.txt + cloned vendor/."""
+    known = set(dirnames) | load_external_skills(repo_root)
+    entries, _ = parse_plugins_file(os.path.join(repo_root, "plugins.txt"))
+    for entry in entries:
+        known.update(entry.skills)
+        vendor = os.path.join(repo_root, "vendor", entry.source.replace("/", "-"))
+        for dirpath, subdirs, files in os.walk(vendor):
+            subdirs[:] = [d for d in subdirs if d not in (".git", "node_modules")]
+            if "SKILL.md" in files:
+                known.add(vendored_skill_name(os.path.join(dirpath, "SKILL.md")))
+    return known
+
+
+def _blank_fences(text):
+    """Return text with fenced code block lines emptied (line numbers kept)."""
+    out, fenced = [], False
+    for line in text.splitlines():
+        if FENCE_RE.match(line):
+            fenced = not fenced
+            out.append("")
+        else:
+            out.append("" if fenced else line)
+    return out
+
+
+def _path_exists(target, file_dir, skill_dir, repo_root):
+    target = target.split("#", 1)[0].rstrip(":")
+    if not target:
+        return True
+    return any(
+        os.path.exists(os.path.normpath(os.path.join(base, target)))
+        for base in (file_dir, skill_dir, repo_root)
+    )
+
+
+def _lint_reference_file(path, skill_dir, repo_root, known):
+    fails = []
+    text = read_text(path)
+    if text is None:
+        return ["cannot read %s" % path]
+    file_dir = os.path.dirname(path)
+    rel = os.path.relpath(path, repo_root)
+    lines = _blank_fences(text)
+
+    for line_no, line in enumerate(lines, 1):
+        gone = bool(GONE_RE.search(line))
+        targets = [m for m in PATH_RE.findall(line)]
+        targets += LINK_RE.findall(INLINE_CODE_RE.sub("", line))
+        for target in targets:
+            if SCHEME_RE.match(target) or target.startswith("#") or PLACEHOLDER_RE.search(target):
+                continue
+            if "_archive" in target.split("/") or target.endswith("/"):
+                continue  # history citation, or a bare directory-convention mention
+            if not _path_exists(target, file_dir, skill_dir, repo_root):
+                fails.append("%s:%d: %s does not exist" % (rel, line_no, target))
+        if gone:
+            continue
+        for regex in SKILL_REF_RES:
+            for name in regex.findall(line):
+                if name not in known:
+                    fails.append("%s:%d: references unknown skill %r" % (rel, line_no, name))
+
+    fields, _, _ = parse_frontmatter(text)
+    desc = fields.get("description") if fields else None
+    if desc is not None and desc.value:
+        for sentence in NOT_FOR_RE.findall(desc.value):
+            for group in PAREN_NAMES_RE.findall(sentence):
+                for name in re.split(r"\s*(?:,|\bor\b|\band\b)\s*", group):
+                    if name and name not in known:
+                        fails.append(
+                            "%s: description 'Not for' clause references unknown skill %r" % (rel, name)
+                        )
+    return fails
+
+
+def lint_references(repo_root, dirnames):
+    """Return fails for dangling paths and skill names (see module docstring)."""
+    known = known_skills(repo_root, dirnames)
+    fails = []
+    for dirname in sorted(dirnames):
+        skill_dir = os.path.join(repo_root, "skills", dirname)
+        files = [os.path.join(skill_dir, "SKILL.md")]
+        for dirpath, subdirs, names in os.walk(os.path.join(skill_dir, "references")):
+            subdirs.sort()
+            files += [os.path.join(dirpath, n) for n in sorted(names) if n.endswith(".md")]
+        for path in files:
+            fails += _lint_reference_file(path, skill_dir, repo_root, known)
+    return fails
+
+
 def main(argv):
     if len(argv) > 2:
         sys.stderr.write("usage: lint-skills.py [repo-root]\n")
@@ -209,7 +432,23 @@ def main(argv):
         print("  ok    %d source skills match skills/README.md" % len(sources))
 
     print()
-    failed += len(cat_fails)
+    print("skill references")
+    ref_fails = lint_references(repo_root, sources)
+    for detail in ref_fails:
+        print("  FAIL  %s" % detail)
+    if not ref_fails:
+        print("  ok    no dangling paths or unknown skills in %d source skills" % len(sources))
+
+    print()
+    print("external-skills.txt drift")
+    drift_fails = lint_external_drift(repo_root)
+    for detail in drift_fails:
+        print("  FAIL  %s" % detail)
+    if not drift_fails:
+        print("  ok    external-skills.txt matches every cloned bare source")
+
+    print()
+    failed += len(cat_fails) + len(ref_fails) + len(drift_fails)
     summary = "%d passed, %d failed" % (passed, failed)
     if warned:
         summary += ", %d warnings (not fatal)" % warned

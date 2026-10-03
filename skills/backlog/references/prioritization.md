@@ -19,12 +19,11 @@ This is the default lens. The scores below are tie-breakers when the 2×2 is cro
 ## Effort points — the shared scale (used by WSJF and by Mode 5 milestone batching)
 
 ```
-XS = 1   S = 2   M = 3   L = 5   XL = 8   XXL = 13   XXXL = 21
+XS = 1   S = 2   M = 3   L = 5
 ```
 
-Fibonacci-ish on purpose — the gap between sizes should feel real. `XL` and above should
-usually be decomposed rather than filed as one issue; treat their appearance in the Ready
-pool as a smell.
+Fibonacci-ish on purpose — the gap between sizes should feel real. `XL` has no points: decompose
+it before filing, and treat one in the Ready pool as a smell.
 
 ## ICE — the everyday scorer (Mode 2)
 
@@ -36,7 +35,7 @@ ICE = Impact × Confidence × Ease     (each 1–10, higher = better)
   capability, user value)?
 - **Confidence** — how sure are you it'll work and is worth it? (Low confidence = a
   research spike first.)
-- **Ease** — inverse of Effort points: `XS`≈10, `S`≈8, `M`≈6, `L`≈4, `XL`≈2, `XXL`/`XXXL`≈1
+- **Ease** — inverse of Effort points: `XS`≈10, `S`≈8, `M`≈6, `L`≈4
   (and those should be decomposed, not scored).
 
 Score the top of the backlog, rank descending, sanity-check against the 2×2. Re-score

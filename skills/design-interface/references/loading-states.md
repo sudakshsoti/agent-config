@@ -16,10 +16,10 @@ The duration tree behind a loading-state choice. This is the calibration behind 
 
 A skeleton hints at the shape of the incoming content — rectangles where text will sit, circles where an avatar will sit — not a decorative loading animation. It must match the real layout's item count, widths and gaps, or the layout jumps when content arrives. Skip the skeleton for a load expected under roughly 300ms; the flash reads worse than no treatment.
 
-## Sources
-
-- `skills/design-engineering/references/components/empty-loading-states.md` @ `81805dc89d40889639a95502bfb578a098266dc8`.
-
 ## Gotcha
 
 Agents read this tree as "always show a spinner" and add one to a state change that resolves in a frame — the first row of the table says nothing, not a spinner, is correct under 800ms.
+
+## Sources
+
+- Retired skill design-engineering, file skills/design-engineering/references/components/empty-loading-states.md @ `81805dc89d40889639a95502bfb578a098266dc8`.

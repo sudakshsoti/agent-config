@@ -32,8 +32,7 @@ Users must be able to understand the information and interface.
 
 **For UX Writers:**
 
-- Use plain language (7th-8th grade reading level)
-- Keep sentences short (8-14 words for critical content)
+- Use plain language (reading-level and sentence-length targets: benchmarks.md)
 - Define technical terms on first use
 - Provide clear instructions and error messages
 
@@ -108,11 +107,11 @@ Use ARIA labels when visual context isn't available to screen readers:
 
 ## Cognitive Accessibility
 
-### Comprehension Research
+### Sentence Length
 
-- **8 words or fewer**: 100% comprehension
-- **14 words or fewer**: 90% comprehension
-- **25+ words**: Comprehension drops significantly
+- **8 words or fewer**: easiest to take in at a glance
+- **14 words or fewer**: aim for this in critical content
+- **25+ words**: too long
 
 ### Best Practices
 
@@ -159,27 +158,12 @@ Use ARIA labels when visual context isn't available to screen readers:
 
 ### Reading Level Targets
 
-**General Public**
-
-- Target: 7th-8th grade (Flesch-Kincaid)
-- Sentence length: 15-20 words average
-- Word choice: Common, everyday words
-
-**Professional Tools**
-
-- Target: 9th-10th grade
-- Sentence length: 20-25 words maximum
-- Word choice: Industry terms okay if audience expects them
-
-**Technical Products**
-
-- Target: 10th-11th grade
-- Sentence length: 25 words maximum
-- Word choice: Technical terms with clear definitions
+Grade targets by audience live in `references/benchmarks.md` (Reading Level
+Guidelines); sentence-length limits are under Sentence Length above.
 
 ### Plain Language Techniques
 
-**Active Voice (85% of the time)**
+**Active voice (unless passive is clearer)**
 
 - ❌ Passive: "Your account was created"
 - ✅ Active: "We created your account"

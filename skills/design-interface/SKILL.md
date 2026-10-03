@@ -1,13 +1,11 @@
 ---
 name: design-interface
-description: "Use when designing or reviewing interactive controls, forms, lists, dashboards, settings, documentation, or non-happy-path screen states. It specifies structure, labels, focus, hit areas, and field states; hand type scale or visual styling to design-typography or design-visual-system."
+description: "Use when designing or reviewing interactive controls, forms, lists, dashboards, settings, documentation, or non-happy-path screen states: structure, labels, focus, hit areas, field states. Not for marketing or brand pages (frontend-design), type scale (design-typography), or visual styling (design-visual-system)."
 ---
 
-# craft: interface
+# design-interface
 
-## Purpose and scope
-
-Carries no opinion on visual style of a control — that comes from `design/decisions.md`.
+Styling of a control comes from `design/decisions.md`; this skill owns structure, behaviour, states and the accessibility thresholds below.
 
 ## When to invoke
 
@@ -26,7 +24,7 @@ Before layout, write one line with: `class | primary job | new or repeat use | s
 
 Marketing/brand may spend the opening viewport on positioning. Reference/lookup-documentation, task utility, dashboard/data, and settings/form surfaces spend it on use. Tutorials, essays, and sequential guides classify as content/editorial rather than lookup documentation. On a repeat-use surface, onboarding and explanation move out of the normal path unless they are needed to prevent an error.
 
-## Rules (testable)
+## Surface layout
 
 - For reference/lookup-documentation, utility, dashboard, and settings surfaces at `390 × 844` CSS pixels, the first task-bearing control, data region, setting group, or reference entry starts within the top 40% of the viewport, and at least one complete useful unit is visible without scrolling. Verify from the rendered bounding boxes.
 - Count every block before the first useful unit. Identity/navigation needed for wayfinding may precede it; promotional copy, a restatement of the page purpose, duplicate prefix/key explanations, and generic “Start here” panels may not. Any other pre-content block must name the user error or decision it prevents.
@@ -34,39 +32,23 @@ Marketing/brand may spend the opening viewport on positioning. Reference/lookup-
 - First-run help is a state, not permanent page furniture. Verify the repeat-use state separately and confirm learned guidance no longer pushes the primary task down.
 - For frequently used surfaces, state a viewport utility target: which task-bearing units must be fully visible at the narrowest target width and height. Render and count them before completion.
 
-- Every interactive element must have a visible focus indicator reachable by keyboard alone. Verify by tabbing through the surface and confirming visible focus at each stop.
-- Tab order must follow the visual reading order. Verify by tabbing through and comparing against the visual sequence.
-- Every form control must have a programmatically associated label. Verify with an accessibility tree inspection, not by eye.
-- A pointer target is at least 24 by 24 CSS pixels (WCAG 2.2 SC 2.5.8); a touch target is at least 44 by 44 (Apple Human Interface Guidelines); where a platform specifies larger, the platform governs. Target area is grown with a pseudo-element rather than by resizing the visual, and grown areas must not overlap. Verify by measuring each interactive element's bounding rectangle in the render at the target viewport, and by checking adjacent grown areas do not intersect.
-- An error state must name what is wrong and, where fixable by the user, what to do about it. Verify by reading the error copy against those two criteria.
-- Heading levels must not skip a level and must appear in document order. Verify with an accessibility tree or heading-outline check.
-- Every control that can be disabled or loading must have a visually distinct disabled/loading state, and it must not be reachable by keyboard as if it were active. Verify by inspecting both the render and the focus behaviour.
-- Use native `disabled` only when a control is genuinely unavailable; reach for `aria-disabled="true"` when it must stay focusable, and never set both on one element. `aria-disabled` changes announcement only, so pointer activation, keyboard activation, and form submission must be blocked in code — verify by attempting all three against the disabled control. A tooltip attached to a natively `disabled` control never opens, because the control leaves the tab order and suppresses pointer events; put the reason in text beside the control instead, or switch to `aria-disabled`.
-- Text must reach a 4.5:1 contrast ratio against its background, or 3:1 where it is large scale (24px and above, or 18.66px and above when bold); any non-text boundary that conveys a control's edge or its state must reach 3:1. WCAG 2.2 SC 1.4.3 and SC 1.4.11. Decorative hairlines and dividers, which identify no control, are exempt. Verify by computing the ratio from the resolved foreground and background colours in devtools or a contrast checker, not by eye.
-- A surface with a repeating row or item that will carry 50 or more entries must have its density register stated as a number — items fully visible at the target viewport height — and the render must match what was stated within one item. Verify by counting the items fully visible in the render at that viewport; where rows are uniform, dividing the scrollable viewport height by the measured row pitch gives the same answer faster. Variable-height items — cards, grouped lists, kanban columns — are counted directly rather than computed from a pitch. Where the project has no `design/decisions.md` to hold the number, state it in the reply. This rule fixes no value: any register is compliant. An unstated register, or a render that misses its own by more than one item, is not.
-- A dialog, drawer or sheet that takes over the surface must move keyboard focus into itself when it opens, hold Tab inside it while it is open, and return focus to the element that invoked it when it closes. Verify by opening it from the keyboard, tabbing a full cycle and confirming focus never lands on a control behind it, then closing it and confirming focus returns. Toggling a CSS class is not opening a dialog.
-- A composite widget whose rows are themselves selectable or actionable — a grid, tree grid, listbox or menu — must not place one tab stop per row. Traversal inside it is by arrow key with a single tab stop for the whole widget: a roving `tabindex`, one row at `0` and the rest at `-1`, so Tab still reaches whatever follows it. Per-row controls such as selection checkboxes sit inside that scope and are not separately tabbable. This follows the ARIA APG keyboard-interface guidance and applies only to composites. Ordinary collections of independent items — cards with their own links, chat messages, lists of links — keep their native tab stops; forcing roving focus onto those removes reachability rather than adding it. Verify by counting elements matching `a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])` within the composite: the count must not scale with the row count.
-- Focus styling uses `:focus-visible`; an outline is never removed without a replacement indicator. Verify by focusing every interactive element by keyboard and diffing its computed outline, box-shadow and border against its resting state.
-- Prefer `outline-offset: 2px` alone over introducing a custom outline colour, because it keeps the browser's own focus ring, which already adapts across backgrounds and forced-colors mode. Where a custom ring colour is required, it must still be visible under `forced-colors: active`, where the system `Highlight` colour applies. Verify by toggling forced-colors emulation in devtools and confirming the ring remains visible.
-- Hover affordances are gated behind `@media (hover: hover) and (pointer: fine)`. Verify by emulating a coarse pointer with no hover and confirming no computed style changes on pointer-over.
-- Content hidden from view leaves the tab order, via `visibility: hidden`, `display: none` or `inert`. Opacity and off-screen transforms leave it focusable. Verify by tabbing through the surface with the element hidden and confirming focus never enters it.
-- Validation runs inline as the user types — soft while typing, hard on blur — rather than being deferred to submit; a failed submit still moves focus to the first invalid field. Verify by submitting an invalid form and reading `document.activeElement`.
-- The submit control is not disabled until the form is valid, because disabling it removes the route to the error messages. Verify by loading the empty form and reading the submit control's disabled state.
-- A submit attempt is never blocked by client-side validation; an incomplete or invalid submission still runs, so every field's error surfaces at once rather than only the first one caught while typing. Input is accepted as free text with no character filtering as the user types, and every value is trimmed before validation, since autocomplete and text expansion add trailing spaces. Verify by submitting a form with several invalid fields at once and confirming every error appears together, and by validating a value with leading or trailing whitespace.
-- An invalid field carries `aria-invalid` and an `aria-describedby` pointing at its message. Verify in the accessibility tree, not the DOM.
-- A status region is `aria-live="polite"`; `assertive` is for errors only. Verify in the accessibility tree.
-- A repeated polite announcement renders as a stable, empty `aria-live="polite"` region before its text is ever populated, rather than being inserted into the DOM already carrying content; a dynamically inserted `role="alert"` is announced inconsistently across screen-reader and browser combinations, so test the specific combinations the project targets. Keep each message short and self-contained, because `aria-atomic` re-reads the whole region on every change. Never move focus to a toast; stage a loading update with `aria-busy="true"` on the region, then announce the outcome. Verify in the accessibility tree that the live region exists before its content changes.
-- An auto-dismissing toast never carries the only path to an action; auto-dismissal suits low-stakes confirmation only. Where a toast must time out, 5 seconds is the floor, and hovering or focusing it pauses the timer. Verify by checking whether the toast's action remains reachable elsewhere after it disappears.
-- A decorative image carries an empty `alt`, not a missing one. Verify in the accessibility tree: a missing alt exposes the filename.
-- A visually-hidden utility class sizes its box at `1px`, not `0`, because some screen readers skip zero-sized elements; pair `clip: rect(0 0 0 0)` with `clip-path: inset(50%)` rather than relying on `clip` alone. Verify in the accessibility tree that the hidden text is exposed while confirming it paints nothing in the render.
-- Empty and error are different states and must read differently. Verify by rendering both and diffing their text content.
-- A composite of interactive elements uses a documented z-index scale or `isolation: isolate`, not ad-hoc values. Verify by listing every non-auto computed z-index on the surface and checking each against the declared scale.
-- Content must reflow to a 320 CSS pixel viewport width without horizontal scrolling, except for parts that need a second dimension to be usable — a data table, a map, a diagram, a toolbar that must stay in view (WCAG 2.2 SC 1.4.10). Where such a part exists, its horizontal scroll is confined to its own container and named as intentional in the reply or in `design/decisions.md`. Verify by rendering at 320px wide with the longest realistic string in place, comparing `document.documentElement.scrollWidth` against its `clientWidth`, and confirming every element whose own `scrollWidth` exceeds its `clientWidth` is one of those named exceptions.
-- Feedback comes in four kinds — status, completion, warning, error — and a surface names which kind each feedback event on it produces (Apple Human Interface Guidelines — feedback foundations). Verification: list every feedback event on the surface and confirm each maps to one of the four kinds.
-- Every screen answers four wayfinding questions: where am I, where can I go, what is there, and how do I get out (Apple Human Interface Guidelines — navigation foundations). Verification: point at the element answering each of the four on the render; a screen with no exit is a defect.
-- A control sits adjacent to what it affects, and proximity encodes the relationship (Apple Human Interface Guidelines — layout foundations). Verification: name the affected element for each control and measure its distance to that element against its distance to the nearest unrelated control; a control that needs a label to explain what it changes has weak mapping.
-- A navigation label names its own contents, not an umbrella term (Apple Human Interface Guidelines — navigation foundations). Verification: read each nav label, name what is actually behind it, and confirm a label that could equally sit above any other section fails.
-- Where repeated navigation or chrome precedes primary content, a "Skip to content" link is the first focusable element on the page and becomes visible on focus. Its jump target carries `scroll-margin-top` sized to any sticky header, so the target is not hidden underneath it after the jump. Verify by tabbing once from a fresh page load and confirming the skip link is the first stop, then activating it and checking the target's position against the sticky header's height.
+## Focus and keyboard
+
+- Every interactive element has a visible focus indicator reachable by keyboard alone, drawn with `:focus-visible`; an outline is never removed without a replacement indicator. Verify by focusing every interactive element by keyboard and diffing its computed outline, box-shadow and border against its resting state.
+
+## Read the branch reference
+
+Read only the file for the branch the surface reaches, before building or reviewing that part:
+
+- Forms, labels, validation, submit, error copy → `references/forms-validation.md`; field attributes (`autocomplete`, `inputmode`, `type`) → `references/form-attributes.md`.
+- Toasts, status messages, `aria-live` → `references/live-regions-toasts.md`.
+- Dialogs, drawers, sheets, grids, trees, listboxes, menus, hidden content, focus-ring colour, skip link → `references/focus-dialogs-composites.md`.
+- Disabled, loading or unavailable controls → `references/disabled-state.md`.
+- Tap/click target size, text and boundary contrast, 320px reflow → `references/target-contrast-reflow.md`; undersized-target exceptions → `references/target-size-exceptions.md`.
+- Loading, skeletons, spinners, progress (a control acknowledges a press within 100ms) → `references/loading-states.md`.
+- Offline, over-quota, logout, permission-denied, stale states → `references/state-qa.md`.
+- Tooltip, popover, badge, tag, sheet, or other easily confused components → `references/component-confusables.md`.
+- Long lists (density register), headings, hover, z-index, navigation labels, wayfinding, feedback kinds → `references/layout-navigation-feedback.md`.
 
 ## Escalation triggers
 
@@ -83,16 +65,8 @@ These are review thresholds this skill owns — `vibe` and other review flows de
 
 ## States nobody demos
 
-A checklist, not a rule list — it carries no verify clauses. Twelve states recur across the source material with zero baseline projects behind the claim yet: loading, empty, partial, error, offline, permission-denied, stale, over-quota, maintenance, onboarding, power-user, sync conflict. Walk a surface against this list before calling it done.
+Walk the surface against these twelve recurring states before calling it done: loading, empty, partial, error, offline, permission-denied, stale, over-quota, maintenance, onboarding, power-user, sync conflict. This is a checklist, not a rule list; it carries no verify clauses.
 
-## Open questions / to be evidenced
+## Completion
 
-- Which empty/overflow states recur often enough across projects to deserve a named checklist rather than a general reminder? The twelve-state list under "States nobody demos" is imported unevidenced — which of these recur in real baseline work?
-- How much keyboard-order divergence from visual order is tolerable before it counts as a failure, and does that differ by control type?
-- What is the right verification method for "long realistic string" — a fixed stress string, or content pulled from the real project?
-
-Measured thresholds, worked examples and cited sources go in `references/` — see `references/README.md`.
-
-## Anti-patterns
-
-- Reviewing only the default, populated, happy-path state.
+Done when every rule that applies has been applied and its verify step run, with the results listed in the reply.

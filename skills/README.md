@@ -44,7 +44,9 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 The list below covers the 35 repo-owned skills that are active. Keep it
 synchronized with the actual `skills/*/SKILL.md` directories;
 `scripts/lint-skills.py` validates each skill's frontmatter and fails when this
-list and the source tree disagree.
+list and the source tree disagree. It also fails when a skill's `SKILL.md` or
+`references/` points at a file or skill that does not exist (skills named on a
+`plugins.txt` `external` line count as existing).
 The active design set is `design-interface`, `design-visual-system`, and
 `design-typography`; they classify surface intent before applying hierarchy.
 `frontend-artifact` is deprecated and retained under `skills/_archive/` for
@@ -60,7 +62,7 @@ lookup-documentation work.
 - `design-interface` — Design and review controls, forms, lists, dashboards, settings, documentation, and non-happy-path states.
 - `design-strategy` — Industry-agnostic product and UX strategy, positioning, workflow critique, and decision logs.
 - `design-typography` — Choose typefaces, pairings, hierarchy, scales, OpenType features, and font loading.
-- `design-visual-system` — Define product UI art direction, colour, hierarchy, responsive layout, and CSS tokens.
+- `design-visual-system` — Define product UI visual direction, colour, hierarchy, responsive layout, and CSS tokens.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
 - `vibe` — The interface workflow: quick tweak, shape first or risky change; Plan, Builder and Critic roles that run as subagents where the harness has them and sequentially otherwise. `pi/prompts/vibe.md` is a thin wrapper that invokes it.
 - `geopolitics` — Opinionated analyst for wars, sanctions, trade, defence, elections, negotiations, and other statecraft between countries.

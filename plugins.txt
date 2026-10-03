@@ -14,8 +14,11 @@
 # pins which tree to read when a repo ships several copies. Naming individual
 # skills after the directive links only those — a bare repo links every skill it
 # ships, which consumes the shared context budget and is only right for a small,
-# curated collection. A repo-owned skills/<name> always shadows an external
-# skill of the same name.
+# curated collection.
+#
+# Name collisions (two sources shipping the same skill name) resolve by fixed
+# precedence, stated in AGENTS.md (Skills). Two allowlists naming the same skill
+# are rejected by scripts/check-manifest.py.
 #
 # Vendored by reference, never copied: upstream files do not enter this repo's
 # history and are not linted by scripts/lint-skills.py.
@@ -59,8 +62,8 @@ external anthropics/claude-code:plugins/frontend-design/skills frontend-design
 # radius, icon stroke/RTL rules, APCA thresholds, Radix ramp model, autocomplete
 # and inputmode tables, aria-disabled discipline) belongs folded into those
 # local skills, where skill bodies cost nothing until the skill is invoked.
-# `variant` is also excluded: it duplicates emilkowalski's `prototype`, which is
-# already installed and better specified.
+# `variant` is also excluded: it duplicates `prototype`, which the bare
+# mattpocock/skills line above already installs.
 external jakubkrehel/skills break explain-interface interface-review
 
 # superpowers is deliberately NOT installed. Its skills are vendored into

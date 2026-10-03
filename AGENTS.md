@@ -107,12 +107,26 @@ Secrets belong in dotfiles (1Password + age), never here.
   `plugins.txt` clone third-party sources into ignored `vendor/`, vendored by
   reference only. A bare external repo imports every skill and can consume the
   shared context budget; name only the skills wanted on an `external` line.
+  Name collisions resolve by fixed precedence: repo-owned `skills/<name>` beats
+  every external source; an `external` line naming the skill beats a bare line;
+  among lines of the same kind the earliest one in `plugins.txt` wins. Losers are
+  skipped with a `SKIP … shadowed by` warning, not an error.
 - Skill `name` must equal its directory, be lowercase kebab-case, and contain
   neither `claude` nor `anthropic`. Multi-line descriptions require `|` or `>-`;
   an unquoted colon-space can parse as a nested mapping and break loading.
 - `python3 scripts/lint-skills.py` enforces these rules and synchronizes the
   `skills/README.md` list, including its sentence stating the count of 35
-  repo-owned skills. `python3 scripts/check-manifest.py` (run by `check.sh`)
+  repo-owned skills. It also fails on dangling references in
+  `SKILL.md` and `references/**/*.md`: links or `references/`, `scripts/`, `skills/`
+  paths that do not resolve, and skill names in hand-off contexts or a
+  description's "Not for … (x)" clause that are not repo-owned, named on a
+  `plugins.txt` `external` line, cloned under `vendor/` (by frontmatter `name:`),
+  or listed in `external-skills.txt` (the skills of bare `external` sources;
+  add a name there when upstream ships a new one). Where `vendor/<slug>` is
+  cloned for a bare source, the lint also fails when that source's
+  `external-skills.txt` section (heading `# <owner/repo>[:<subdir>]`) and the
+  frontmatter `name:` values the clone ships differ, in either direction; CI,
+  with no clone, skips it. `python3 scripts/check-manifest.py` (run by `check.sh`)
   rejects malformed `plugins.txt` lines and duplicate external allowlisting;
   `scripts/manifest.py` is the shared parser.
 - `distribution.txt` lists the skills shipped to claude.ai as `dist/<name>.zip`
@@ -172,21 +186,22 @@ Secrets belong in dotfiles (1Password + age), never here.
   | `default` role | `anthropic/claude-opus-5-5:medium` |
   | `plan`/`designer`/`vision` roles; `plan` agent | `anthropic/claude-opus-5-5:high` |
   | `critic` agent | `anthropic/claude-opus-5-5:medium` |
-  | `slow` role | `anthropic/claude-opus-5-5:xhigh` (explicit escalation only) |
-  | `security-reviewer` role and agent | `anthropic/claude-opus-5-5:high` |
+  | `slow` role | `anthropic/claude-opus-5-5:xhigh` |
+  | `security-reviewer` role; `security-reviewer` agent | `anthropic/claude-opus-5-5:high` |
   | `builder` agent | `anthropic/claude-sonnet-5-5:medium` |
-  | `task` role and agent; `workflow` agent | `anthropic/claude-sonnet-5-5:medium` |
-  | `code-worker`/`sonic` agents | `muse-code/muse-spark-1.3-contributor:high` / `:low` |
+  | `task` role; `task`/`workflow` agents | `anthropic/claude-sonnet-5-5:medium` |
+  | `code-worker` agent | `muse-code/muse-spark-1.3-contributor:high` |
+  | `sonic` agent | `muse-code/muse-spark-1.3-contributor:low` |
   | `smol`/`tiny`/`commit` roles | `opencode-go/glm-5.3-flash:low` |
-  | `adversary`/`reviewer`/`advisor` | `opencode-go/glm-5.3-flash:high` |
+  | `adversary`/`reviewer`/`advisor` roles; `adversary`/`reviewer` agents | `opencode-go/glm-5.3-flash:high` |
   | `scout` agent | `opencode-go/glm-5.3-flash:low` |
   | `research` agent | `muse-code/muse-spark-1.3-contributor:high` |
   | `disabledProviders` | `[openai-codex]` |
-  | `usageAwareFallback` / `usageReservePct` / policy | `true` / `20` / `auto` |
+  | `retry.usageAwareFallback` / `retry.usageReservePct` / `retry.usageReservePolicy` | `true` / `20` / `auto` |
   | `task.maxEffort` / `providers.autoThinkingMaxEffort` | `high` / `high` |
 
-  Agent models are set in `task.agentModelOverrides`, which beats agent
-  frontmatter. OMP's bundled `scout`, `reviewer`,
+  `slow` is explicit escalation only. Agent models are set in
+  `task.agentModelOverrides`, which beats agent frontmatter. OMP's bundled `scout`, `reviewer`,
   `security-reviewer`, `task` and `sonic` are kept, not shadowed: `/review`
   depends on bundled `reviewer`. Pi `Explore`/`public-scout` map to OMP
   `scout`, Pi `reviewer` to `adversary`, Pi `general-purpose` to `task`.
@@ -304,7 +319,24 @@ Secrets belong in dotfiles (1Password + age), never here.
   `pi/web-search.json` entry may use `openrouter/*`, which Pi cannot reach.
   `anthropic/*` is conditional: an explicit agent pin passes only while
   `@gotgenes/pi-anthropic-auth` is in `pi/settings.json` `packages[]`, and Claude is always rejected as
-  a Pi default, cycle entry or summary model. Tests:
+  a Pi default, cycle entry or summary model. It also compares the docs with
+  the config, in both directions, naming the line and both values: the OMP table
+  above and the `pi/model-ladder.md` ladder table (found by header row, not
+  position), plus any text between `<!-- routing:current -->` and
+  `<!-- routing:end -->` in either doc. Table rows must be `name`/`name` groups
+  each followed by `role`/`roles`/`agent`/`agents` (groups split by `;`, one
+  backticked `provider/model:level` value), or the backticked setting keys
+  `disabledProviders`, `retry.usageAwareFallback`, `retry.usageReservePct`,
+  `retry.usageReservePolicy`, `task.maxEffort` and
+  `providers.autoThinkingMaxEffort`; a row it cannot parse fails, never skips.
+  Every non-blank marked line must read `` `name` → `provider/model` level ``
+  (names joined by ` and ` or `, `; no bullet prefix). Every matching table is
+  checked (a second table with the same header is not ignored), and a missing
+  separator row, an empty table or marked block, or a marker line with extra text
+  fails (backticked marker mentions in prose are fine). Names resolve in the doc's own source
+  (AGENTS.md: OMP roles/agents; ladder: Pi agents, plus `main` for the Pi
+  default); prefix `omp:` or `pi:` to cross over. Text outside the markers is
+  never read. Fix drift in the docs, not by bending the config. Tests:
   `scripts/test-check-model-routing.py`.
 - OMP rewrites `omp/config.yml` and removes comments while preserving values;
   keep rationale in `design/decisions.md` or here, never in that file. A bare
@@ -322,21 +354,36 @@ Secrets belong in dotfiles (1Password + age), never here.
   OAuth-logged Muse Code subscription ($5/month Everyday Usage, 5-hour and
   weekly windows, both visible in `omp usage -p muse-code`), and `opencode-go`
   serves it over `https://opencode.ai/zen/go/v1` against the shared Go cap.
-  Plain OMP routes `code-worker`, `sonic` and `research` to `muse-code`; no
-  role or agent uses `opencode-go/muse-spark-*` any more. The Muse window is
+  Plain OMP routes these to `muse-code`; no role or agent uses
+  `opencode-go/muse-spark-*` any more:
+
+  <!-- routing:current -->
+  `code-worker` and `research` → `muse-code/muse-spark-1.3-contributor` high
+  `sonic` → `muse-code/muse-spark-1.3-contributor` low
+  <!-- routing:end -->
+
+  The Muse window is
   cost-weighted, not prompt-counted: a full `code-worker`-shaped turn (two
   edits plus test runs) measured under 1% of the 5-hour window on the
   contributor tier, while a one-token standard-tier prompt measured 1%
   (`docs/research/muse-code-subscription-2026-09.md`).
 - Pi has no OMP-style `modelRoles` or `fallbackChains`; per-job models are in
   `pi/agents/*.md` frontmatter. Pi runs on OpenCode Go by default; default is
-  `opencode-go/muse-spark-1.3-contributor` xhigh. Routing: main and builder →
-  Muse Spark 1.3 Contributor xhigh; Plan, workflow, code-worker and
-  general-purpose → Muse Spark high; scout/Explore → Muse Spark minimal;
-  reviewer and Critic → GLM 5.3 Flash high (second lineage); research and
-  public-scout → Muse Spark (public or user-approved disposable material only);
-  Kimi K3 not routed (scarcest Go cap, user cost decision); DeepSeek V4.1 Flash
-  is the manual throttle fallback via Ctrl+P. Muse is Meta's training-eligible
+  `opencode-go/muse-spark-1.3-contributor` xhigh. Routing, checked against
+  `pi/settings.json` and `pi/agents/*.md` (`pi:` scopes a name to Pi):
+
+  <!-- routing:current -->
+  `pi:main` → `opencode-go/muse-spark-1.3-contributor` xhigh
+  `pi:builder` → `anthropic/claude-opus-5-5` high
+  `pi:Plan`, `pi:workflow`, `pi:code-worker`, `pi:general-purpose` and `pi:research` → `opencode-go/muse-spark-1.3-contributor` high
+  `pi:scout`, `pi:Explore` and `pi:public-scout` → `opencode-go/muse-spark-1.3-contributor` minimal
+  `pi:reviewer` and `pi:Critic` → `opencode-go/glm-5.3-flash` high
+  <!-- routing:end -->
+
+  `reviewer` and `Critic` are the second lineage; `research` and `public-scout`
+  take public or user-approved disposable material only. Kimi K3 not routed
+  (scarcest Go cap, user cost decision); DeepSeek V4.1 Flash is the manual
+  throttle fallback via Ctrl+P. Muse is Meta's training-eligible
   tier: any session touching private or sensitive material must be rerouted to
   GLM/DeepSeek. Claude is now reachable from Pi through the
   `@gotgenes/pi-anthropic-auth` shim, but only as an explicit agent pin — see
@@ -370,6 +417,20 @@ Secrets belong in dotfiles (1Password + age), never here.
 - `scripts/check.sh` bootstraps ignored `node_modules/` with `npm ci` when
   `node_modules/@earendil-works/pi-tui` is missing; it carries `pi-token-speed`,
   consumed by `pi/settings.json`. Never commit `node_modules/`.
+
+## Plans and docs
+
+- Plans and runbooks live in `plans/`. The first line of each tracked `.md`
+  there is exactly `Status: planned` or `Status: active`. A finished plan is
+  deleted, not archived; git history keeps it. There is no `done` status.
+- `scripts/check-docs-placement.py` (run by `scripts/check.sh` and pre-commit)
+  checks tracked files only: it fails a `plans/` file without that status line,
+  and any `.md` under `docs/` outside `docs/research/` and `docs/agents/`.
+- Research notes in `docs/research/` are dated history and need no status.
+  Decisions go in `design/decisions.md`.
+- OMP plan mode autosaves approved plans to `plans/` (`plan.autosaveDir` in
+  `omp/config.yml`). Add the status line before committing an autosaved plan;
+  an untracked autosave does not fail the check.
 
 ## Agent skills
 

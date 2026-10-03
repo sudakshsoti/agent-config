@@ -1,6 +1,6 @@
 ---
 name: peer-review
-description: "Use when an engineering plan needs an adversarial, cross-lineage review of assumptions, blind spots, over-engineering, alternatives, and ship/fix/rethink risk. It reviews another agent’s plan; use self-review for the in-lineage pass and diagnosing-bugs for implementation defects."
+description: "Use for a cross-lineage adversarial review of an engineering plan another agent wrote, or when `/peer-review` is requested. Not for your own plan (self-review), frontend code (maintainability-review), or implementation defects (diagnosing-bugs)."
 user-invocable: true
 ---
 
@@ -33,11 +33,7 @@ dispatch the native reviewer role:
   can end on a Claude model, so report the model that actually ran; if it is a
   Claude model, label the review "same-lineage" rather than cross-lineage.
 - **Pi** — dispatch the `reviewer` subagent (read-only, on a second model
-  lineage). Do not use `Critic`; that role reviews rendered interfaces, not
-  plans.
+  lineage).
 
 On any other surface, run the prompt above in a session that is not on the same
 vendor as the plan's author.
-
-The in-lineage counterpart — reviewing your own plan before anyone else reads it
-— is the separate `self-review` skill, and is deliberately in-lineage.

@@ -1,6 +1,6 @@
 ---
 name: humanizer
-description: "Rewrite AI-sounding prose by removing stock wording, inflated claims, vague sourcing, repetition, passive voice, filler, and chatbot artefacts without changing meaning."
+description: "Use to rewrite AI-sounding prose so it reads human: strip stock wording, inflated claims, vague sourcing, filler, and chatbot artefacts without changing meaning. Not for essay ideas or structure (writing-editor), interface microcopy (ux-writing), or Obsidian note syntax (obsidian-markdown)."
 disable-model-invocation: true
 license: MIT
 metadata:

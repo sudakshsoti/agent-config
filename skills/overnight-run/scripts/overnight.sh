@@ -3,32 +3,35 @@
 #
 # Strictly serial: gate usage, run one fresh worker per ready-for-agent ticket,
 # gate the build, commit or stash, repeat. The invoking agent session only
-# writes .scratch/overnight/plan.json and launches this under tmux (or a herdr
-# tab) with caffeinate.
+# writes .scratch/overnight/plan.json and launches this in a detached terminal
+# multiplexer (tmux, herdr, ...). On macOS the run holds its own caffeinate
+# idle-sleep assertion; nothing extra is needed on Linux.
 #
 #   overnight.sh [--dry-run] [--deadline HH:MM] [--max-tickets N]
-#                [--worker claude|omp] [--visible|--headless] [--pr-per-ticket] [--resume]
+#                [--worker claude|omp] [--visible|--headless] [--resume]
 #                [--stop]
 #
 # --stop           ask the live run in this repo to end after its current ticket
 #                  (or during a usage sleep); it writes its report and exits 0.
 #                  For an immediate abort, kill -TERM the pid in state.json,
-#                  never caffeinate or the tmux pane.
+#                  never the multiplexer pane.
 # --visible        default for an omp worker inside herdr (--headless opts out):
 #                  each worker runs as the interactive omp TUI in its own herdr
 #                  tab, closed when it ends.
-# --pr-per-ticket  each ticket runs in its own worktree (<repo>-overnight/<N>)
-#                  on ticket/<N>-<slug>, stacked on the previous passed ticket
-#                  (the first on origin/main). A pass is committed, pushed and
-#                  opened as a draft PR against its base; a fail keeps its
-#                  worktree. Nothing is merged. plan.json "setup" (e.g. "npm ci")
-#                  runs in each new worktree.
+# Every passed ticket gets its own branch <prefix>/<N> and its own pull request.
+# A ticket with no in-run blocker branches from origin/<base> and its PR targets
+# <base>; with one completed in-run blocker it stacks on that blocker's branch
+# and its PR targets that branch; with several it branches from <base>, merges
+# their branches in, and its PR targets <base>. Once the build gate passes and
+# the commit lands, the runner pushes the branch and opens the PR. Nothing is
+# ever merged and auto-merge is never enabled. A failed ticket is stashed and
+# its branch removed. A push or PR failure leaves the ticket done with a publish
+# error; --resume retries publishing for every done ticket without a PR.
 #
 # plan.json (written by the preflight):
-#   {"branch": "overnight/YYYY-MM-DD", "queue": [12, 14],
+#   {"prefix": "overnight/YYYY-MM-DD", "base": "main", "queue": [12, 14],
 #    "waived": [[14, 9]],             # [issue, blocker] edges to ignore
-#    "checks": {"typecheck": "...", "build": "...", "lint": "...", "test": "..."},
-#    "setup": "npm ci"}                # --pr-per-ticket only; "" or absent = none
+#    "checks": {"typecheck": "...", "build": "...", "lint": "...", "test": "..."}}
 # "" means the repo has no such command. The build gate after each worker is
 # typecheck + build + lint + test; the tree-health check after a stash skips
 # test. worker_model is optional: OVERNIGHT_WORKER_MODEL, then plan worker_model,
@@ -43,8 +46,8 @@
 #   logs/          worker stdout/stderr, briefs, results, check logs, for a human only
 #   sessions/      --visible worker transcripts (omp --resume <file> to replay)
 #
-# Tracker access is read-only (gh issue view, gh api GET). Without
-# --pr-per-ticket nothing is pushed; with it, only ticket branches and draft PRs.
+# Tracker access is read-only (gh issue view, gh api GET). The only writes are
+# git push of ticket branches and gh pr create, once per passed ticket.
 #
 # SC2016 off: the single-quoted $names are jq variables, not shell ones.
 # shellcheck disable=SC2016
@@ -64,7 +67,6 @@ WORKER_MODEL="${OVERNIGHT_WORKER_MODEL:-}"                             # overrid
 RATE_LIMIT_BACKOFF_SECS="${OVERNIGHT_RATE_LIMIT_BACKOFF_SECS:-1800}" # limit the gate cannot see
 MAX_REQUEUES=3                                                       # per ticket, then the run stops
 MAX_RETRIES=1                                                        # per ticket, temporary failures only
-PR_BASE="${OVERNIGHT_PR_BASE:-main}"                                 # --pr-per-ticket stack root
 VISIBLE_IDLE_SECS=60 # --visible: quiet time after a terminal turn that counts as finished
 LIMIT_RE="You('|’)ve hit your .* limit|Request rejected \(429\)"
 MODEL_MISSING_RE='Model "[^"]+" not found|issue with the selected model|unrecognized_model'
@@ -93,7 +95,6 @@ deadline_hm="07:00"
 max_tickets=0
 worker=""
 visible= # empty = auto: on for an omp worker inside herdr
-pr_mode=0
 stop_req=0
 while (($#)); do
   case "$1" in
@@ -101,7 +102,6 @@ while (($#)); do
   --resume) resume=1 ;;
   --visible) visible=1 ;;
   --headless) visible=0 ;;
-  --pr-per-ticket) pr_mode=1 ;;
   --stop) stop_req=1 ;;
   --deadline)
     deadline_hm="${2:?--deadline needs HH:MM}"
@@ -146,6 +146,9 @@ fi
 [[ -f "$plan" ]] || die "no $plan — run the overnight-run preflight first"
 jq -e '(.queue | type) == "array" and (.checks | type) == "object"' "$plan" >/dev/null ||
   die "$plan needs a queue array and a checks object"
+prefix="$(jq -r '.prefix // ""' "$plan")"
+base="$(jq -r '.base // "main"' "$plan")"
+[[ -n "$prefix" ]] || die "$plan needs a prefix: the ticket branches are <prefix>/<N>"
 for tool in git jq gh perl; do
   command -v "$tool" >/dev/null 2>&1 || die "$tool not on PATH"
 done
@@ -530,6 +533,8 @@ def pick:
 def run_order:
   ([pick] | first) as $n
   | if $n == null then [] else [$n] + (.queue -= [$n] | .done += [{n: $n}] | run_order) end;
+# The in-run blockers of $n that its branch builds on: planned, not waived.
+def inrun($n): . as $s | [live_edges($n)[].number | select(. as $b | $s.planned | any(.[]; . == $b))];
 '
 settle_and_pick() {
   st_apply "$FRONTIER_DEFS settle"
@@ -545,7 +550,7 @@ render_brief() {
   done_when="$(gh issue view "$n" --json body --jq .body 2>/dev/null | acceptance_criteria || true)"
   [[ -n "$done_when" ]] ||
     done_when="The ticket states no separate acceptance criteria; treat the ticket's own wording as the criteria."
-  OB_N="$n" OB_TITLE="$title" OB_RESULT_FILE="$3" OB_HANDOFF="$4" OB_DONE_WHEN="$done_when" \
+  OB_N="$n" OB_TITLE="$title" OB_RESULT_FILE="$3" OB_HANDOFF="$4" OB_DONE_WHEN="$done_when" OB_PROTECTED_RE="$PROTECTED_RE" \
     OB_IMPLEMENT_SKILL="$implement_skill" OB_CODE_REVIEW_SKILL="$code_review_skill" \
     OB_TYPECHECK="$(jq -r '.checks.typecheck // "" | if . == "" then "n/a" else . end' "$plan")" \
     OB_BUILD="$(jq -r '.checks.build // "" | if . == "" then "n/a" else . end' "$plan")" \
@@ -609,7 +614,7 @@ write_report() {
     def cell: tostring | gsub("\\|"; "/") | gsub("\n"; " ");
     . as $s
     | "# Overnight run \(.date)", "",
-      "- \(if .pr_mode then "Draft PR per ticket, stacked from `\(.pr_base)`" else "Branch `\(.branch)`" end), worker `\(.worker)`\(if .visible then " (visible)" else "" end), model `\(.model)`, gated provider `\(.provider // "anthropic")`",
+      "- Branches `\(.prefix)/<N>` off `\(.base)`, one PR each, nothing merged; worker `\(.worker)`\(if .visible then " (visible)" else "" end), model `\(.model)`, gated provider `\(.provider // "anthropic")`",
       "- Started \(.started_at | hm), ended \(.ended_at // now | floor | hm), deadline \(.deadline | hm)",
       "- Stop reason: **\(.stop_reason // "still running")**",
       "- Account check: \(.account)", "",
@@ -624,17 +629,26 @@ write_report() {
         | ([$s.skipped[] | select(.n == $n)] | first) as $k
         | (((.retries // {})[$n | tostring] // 0) + 1) as $att
         | "| #\($n) | \($s | title($n) | cell) | "
-          + (if $d then "done | `\($d.sha)`\(if $d.pr then " [PR](\($d.pr))" elif $d.branch then " `\($d.branch)` (no PR)" else "" end) | \($d.secs | dur) | \($d.unmet | map(tostring) | join("; ") | cell) | \($att)"
+          + (if $d then "done | `\($d.sha)` `\($d.branch)` \(if $d.pr then "[PR](\($d.pr))" else "(no PR: \($d.publish_error // "not published" | cell))" end) | \($d.secs | dur) | \($d.unmet | map(tostring) | join("; ") | cell) | \($att)"
              elif $f then "failed | — | \($f.secs | dur) | \($f.unmet | map(tostring) | join("; ") | cell) | \($att)"
              elif $k then "skipped-blocked | — | — | — | —"
              else "not run | — | — | — | —" end) + " |"),
+      "", "## Pull requests", "",
+      "Nothing is merged. Review and merge bottom-up: a stacked PR targets the branch beneath it, so merge that one first, with a merge commit or rebase, never a squash.", "",
+      (if (.done | length) == 0 then "None." else
+        (.done | to_entries[] | "\(.key + 1). #\(.value.n) `\(.value.branch)` → `\(.value.pr_base)`: "
+          + (if .value.pr then .value.pr else "no PR (\(.value.publish_error // "not published" | cell)); `--resume` retries" end)
+          + ((.value.parents // []) | if length == 1 then " — stacked on #\(.[0])" elif length > 1 then " — contains #\(map(tostring) | join(", #"))" else "" end)) end),
+      "",
+      "Stacking order: " + ([.done[] | select((.parents // []) | length > 0) | "\(.parents | map("#\(.)") | join(", ")) → #\(.n)"]
+        | if length == 0 then "none, every PR targets `\($s.base)`." else join("; ") end),
       "", "## Failures", "",
       (if (.failed | length) == 0 then "None." else
         (.failed[] | "- #\(.n): \(.reason). "
           + (if .class then "Class: \(.class). " else "" end)
           + ((.red_checks // []) | if length > 0 then "Red checks: \(join(", ")). " else "" end)
           + ((.protected // []) | if length > 0 then "Protected paths touched: \(map("`\(.)`") | join(", ")). " else "" end)
-          + (if .worktree then "Worktree `\(.worktree)` on `\(.branch)`" else "Stash `\(.stash_name)`\(if .stash then " at `\(.stash)`" else " (nothing to stash)" end)" end)
+          + "Stash `\(.stash_name)`\(if .stash then " at `\(.stash)`" else " (nothing to stash)" end)"
           + (if .patch then ". Patch `\(.patch)`" else "" end)
           + (if .handoff then ". Handoff `\(.handoff)`" else "" end)
           + "\(if .notes != "" then ". Worker: \(.notes | cell)" else "" end)") end),
@@ -679,13 +693,15 @@ on_exit() {
 
 requeue() {
   local n="$1" why="$2"
-  if ((pr_mode)); then
-    drop_worktree "$n" ""
-  else
-    git reset -q --hard
-    git clean -fdq
+  # run_ticket purged protected files before calling; say so in the log.
+  if [[ -n "$protected_hit" ]]; then
+    why="$why; protected paths removed first: $(paste -sd ' ' - <<<"$protected_hit")"
   fi
-  st_apply '.queue = [$n] + (.queue - [$n]) | .requeues[$n | tostring] += 1 | .current = null' --argjson n "$n"
+  git reset -q --hard
+  git clean -fdq
+  detach_at_base
+  drop_branch "$tbranch"
+  st_apply '.queue = [$n] + (.queue - [$n]) | .requeues = (.requeues // {}) | .requeues[$n | tostring] += 1 | .current = null' --argjson n "$n"
   gate
   record_usage "requeued #$n: $why"
   log "#$n requeued ($why); gate: $gate_reading"
@@ -699,75 +715,135 @@ requeue() {
   fi
 }
 
-# ticket_slug <title> — lower-case and hyphenated, at most 40 characters.
-ticket_slug() {
-  tr '[:upper:]' '[:lower:]' <<<"$1" | tr -cs 'a-z0-9' '-' | cut -c 1-40 | sed -E 's/^-+//; s/-+$//'
+# detach_at_base — detach at origin/<base> (this checkout may not be able to
+# switch to the base branch itself). The tree must be clean.
+detach_at_base() { git switch -q --detach "origin/$base"; }
+
+# drop_branch <branch> — force-delete a local branch if it exists; HEAD must
+# not be on it.
+drop_branch() {
+  if git show-ref -q --verify "refs/heads/$1"; then git branch -q -D "$1"; fi
 }
 
-# drop_worktree <n> <label> — PR mode: remove ticket n's worktree and branch
-# (tbranch, wt), stashing uncommitted work as "overnight #n <label>" when label
-# is non-empty. Leaves the shell in $root.
-drop_worktree() {
-  local n="$1" label="$2"
-  cd "$root"
-  if [[ -d "$wt" ]]; then
-    if [[ -n "$label" && -n "$(git -C "$wt" status --porcelain 2>/dev/null)" ]]; then
-      (cd "$wt" && purge_protected "$(protected_hits)")
-      git -C "$wt" stash push -u -q -m "overnight #$n $label"
-      log "stashed #$n $label work as 'overnight #$n $label'"
-    fi
-    git worktree remove --force "$wt"
-  fi
-  git worktree prune
-  if git show-ref -q --verify "refs/heads/$tbranch"; then git branch -q -D "$tbranch"; fi
+# inrun_blockers <n> — n's live in-run blockers, one per line.
+inrun_blockers() { jq -r --argjson n "$1" "$FRONTIER_DEFS inrun(\$n)[]" "$state"; }
+
+# done_field <n> <field> — a field of done ticket n, empty when null.
+done_field() { jq -r --argjson n "$1" --arg f "$2" '.done[] | select(.n == $n) | .[$f] // empty' "$state"; }
+
+# last_line <file> — its last non-blank line.
+last_line() { grep -v '^[[:space:]]*$' "$1" | tail -n 1 || true; }
+
+# check_publish_access — dies unless the run can push branches and open PRs.
+check_publish_access() {
+  local perm
+  git remote get-url origin >/dev/null 2>&1 || die "no origin remote: the run pushes a branch and opens a PR per ticket"
+  gh auth status >/dev/null 2>&1 || die "gh is not authenticated (gh auth login): the run opens a PR per ticket"
+  perm="$(gh repo view --json viewerPermission --jq .viewerPermission 2>/dev/null || true)"
+  case "$perm" in
+  ADMIN | MAINTAIN | WRITE) ;;
+  *) die "gh lacks write access to this repository (permission: ${perm:-unreadable}); the run needs it to push branches and open PRs" ;;
+  esac
+  git fetch -q origin "$base" >/dev/null 2>&1 || true
+  git rev-parse -q --verify "origin/$base^{commit}" >/dev/null ||
+    die "origin/$base not found: fetch it, or fix \"base\" in $plan"
+  publish_access="write ($perm)"
 }
 
-# open_worktree <n> <title> — PR mode: a fresh worktree for ticket n on the
-# stack base, set up and entered; sets tbranch, tbase and wt. Returns 1 when
-# setup fails (the worktree stays entered and in place).
-open_worktree() {
-  local n="$1" baseref
-  tbranch="ticket/$n-$(ticket_slug "$2")"
-  tbase="$(sget ".stack_base // \"$PR_BASE\"")"
-  wt="$worktrees/$n"
-  drop_worktree "$n" "interrupted" # leftovers from an interrupted attempt
-  git fetch -q origin "$PR_BASE"
-  if [[ "$tbase" == "$PR_BASE" ]]; then baseref="origin/$PR_BASE"; else baseref="$tbase"; fi
-  mkdir -p "$worktrees"
-  git worktree add -q -b "$tbranch" "$wt" "$baseref"
-  cd "$wt"
-  if [[ -n "$setup_cmd" ]] && ! run_with_timeout "$CHECK_TIMEOUT_SECS" "$dir/logs/$n-setup.log" \
-    "$dir/logs/$n-setup.log" bash -c "$setup_cmd"; then
+# create_branch <n> <start-point> — creates the ticket branch from the start
+# point and enters it; on failure sets setup_error and returns 1.
+create_branch() {
+  git switch -q --no-track -c "$tbranch" "$2" 2>>"$dir/logs/$1-setup.log" && return 0
+  setup_error="could not create $tbranch from $2: $(last_line "$dir/logs/$1-setup.log")"
+  return 1
+}
+
+# open_branch <n> — creates ticket n's branch and enters it; sets tbranch, tbase
+# (its PR base) and tparents (its in-run blockers, space separated). One
+# blocker: stack on its branch. Several: branch from the base and merge theirs.
+# Any failure returns 1 with setup_error set to the reason, so it fails this
+# ticket only (a merge conflict names the blocker); it never stops the run.
+open_branch() {
+  local n="$1" p
+  tbranch="$prefix/$n"
+  tbase="$base"
+  tparents="$(inrun_blockers "$n" | paste -sd ' ' -)"
+  setup_error=""
+  git fetch -q origin "$base" 2>>"$dir/logs/fetch.log" ||
+    log "git fetch origin $base failed; using the last fetched origin/$base"
+  # leftovers from an interrupted attempt
+  if ! { detach_at_base && drop_branch "$tbranch"; } 2>>"$dir/logs/$n-setup.log"; then
+    setup_error="could not return to origin/$base: $(last_line "$dir/logs/$n-setup.log")"
     return 1
   fi
-}
-
-# publish <n> <subject> <result> — PR mode: push tbranch and open a draft PR
-# against tbase; sets pr_url, "" when either step failed.
-publish() {
-  local n="$1" subject="$2" result="$3" body publog
-  publog="$dir/logs/$n-publish.log"
-  pr_url=""
-  if ! git push -q -u origin "$tbranch" >>"$publog" 2>&1; then
-    log "#$n push failed; see $publog"
+  # shellcheck disable=SC2086
+  set -- $tparents
+  if (($# == 1)); then
+    tbase="$(done_field "$1" branch)"
+    create_branch "$n" "$tbase"
     return
   fi
-  body="$(jq -r --arg n "$n" --arg base "$tbase" --arg root_base "$PR_BASE" --arg date "$(sget .date)" '
-    def list: if type == "array" then . else [.] end | map(tostring)
-      | if length == 0 then "None." else map("- " + .) | join("\n") end;
-    "Closes #\($n).", "",
-    (if $base != $root_base
-      then "Stacked on `\($base)`: merge that PR first, with a merge commit or rebase rather than a squash.\n"
-      else empty end),
-    "Draft opened by the overnight run on \($date); not yet reviewed by a human.", "",
-    "## Worker notes", "", (.notes // "" | if . == "" then "None." else . end), "",
-    "## Unmet criteria", "", (.unmet_criteria // [] | list), "",
-    "## Routes to check", "", (.routes_to_check // [] | list)' <<<"$result")"
-  if ! pr_url="$(gh pr create --draft --base "$tbase" --head "$tbranch" \
-    --title "$subject (#$n)" --body "$body" 2>>"$publog")"; then
-    pr_url=""
-    log "#$n draft PR failed; see $publog"
+  create_branch "$n" "origin/$base" || return 1
+  for p in "$@"; do
+    if ! git merge -q --no-ff -m "Merge #$p into #$n" "$(done_field "$p" branch)" >>"$dir/logs/$n-merge.log" 2>&1; then
+      git merge --abort >/dev/null 2>&1 || git reset -q --hard
+      setup_error="merge conflict: #$p's branch does not merge with the base and the other blockers' branches"
+      return 1
+    fi
+  done
+}
+
+# pr_body <done-entry-json> — the PR description: closes the issue, names the
+# PRs it stacks on or contains, and summarises the worker's result.
+pr_body() {
+  jq -r --argjson all "$(sget .done)" '
+    def list: if length == 0 then "None." else map("- \(.)") | join("\n") end;
+    def pr($p): ($all[] | select(.n == $p)) as $d
+      | "#\($p) (\(if $d.pr then $d.pr else "branch `\($d.branch)`, no PR yet" end))";
+    "Closes #\(.n).", "",
+    (if (.parents | length) == 1 then
+       "Stacked on \(pr(.parents[0])): review and merge that PR first, with a merge commit or rebase rather than a squash.", ""
+     elif (.parents | length) > 1 then
+       "Contains the work of \(.parents | map(pr(.)) | join(", ")), whose branches are merged in. Review and merge those PRs first, with merge commits or rebase rather than squashes.", ""
+     else empty end),
+    "## Result", "",
+    "### Checks", "", ((.checks // {}) | to_entries | map("\(.key): \(.value)") | list), "",
+    "### Unmet criteria", "", (.unmet | map(tostring) | list), "",
+    "### Routes to check", "", (.routes | map(tostring) | list), "",
+    "### Notes", "", (.notes | if . == "" then "None." else . end)' <<<"$1"
+}
+
+# publish_done <n> — push done ticket n's branch and open its PR against its PR
+# base, recording the URL or the error on its done entry. Never merges. A
+# failure leaves the ticket done; --resume retries it.
+publish_done() {
+  local n="$1" rec branch pr_base title publog url="" err=""
+  rec="$(jq -c --argjson n "$n" '.done[] | select(.n == $n)' "$state")"
+  branch="$(jq -r .branch <<<"$rec")"
+  pr_base="$(jq -r .pr_base <<<"$rec")"
+  title="$(jq -r .title <<<"$rec")"
+  publog="$dir/logs/$n-publish.log"
+  : >"$publog"
+  if ! git push -q -u origin "$branch" >>"$publog" 2>&1; then
+    err="push of $branch failed: $(last_line "$publog")"
+  elif ! url="$(gh pr create --base "$pr_base" --head "$branch" --title "$title" \
+    --body "$(pr_body "$rec")" 2>>"$publog")"; then
+    url=""
+    err="PR creation for $branch failed: $(last_line "$publog")"
   fi
+  st_apply '(.done[] | select(.n == $n)) |= (.pr = (if $url == "" then null else $url end)
+      | .publish_error = (if $err == "" then null else $err end))' \
+    --argjson n "$n" --arg url "$url" --arg err "$err"
+  if [[ -n "$err" ]]; then log "#$n not published: $err"; else log "#$n PR: $url"; fi
+}
+
+# publish_pending — retry publishing for every done ticket that has no PR, in
+# the order they finished, so a stacked PR follows the branch beneath it.
+publish_pending() {
+  local n
+  for n in $(sget '.done[] | select(.branch != null and .pr == null) | .n'); do
+    publish_done "$n"
+  done
 }
 
 # write_handoff <n> <k> <reason> <class> <retry> <patch> <result-obj> <file> —
@@ -827,16 +903,14 @@ fail_ticket() {
   write_handoff "$n" "$k" "$reason" "$class" "$retry" "$patch" "$robj" "$hand"
 
   if ((retry)); then
-    if ((pr_mode)); then
-      drop_worktree "$n" ""
-    elif [[ -n "$(git status --porcelain)" ]]; then
+    if [[ -n "$(git status --porcelain)" ]]; then
       git stash push -u -q -m "overnight #$n attempt $k"
     fi
+    detach_at_base
+    drop_branch "$tbranch"
     st_apply '.retries = (.retries // {}) | .retries[$n | tostring] += 1 | .current = null' --argjson n "$n"
     log "#$n failed ($reason); temporary, will retry once${patch:+ from $patch}"
-    if ((!pr_mode)); then
-      build_gate "$n-after-stash" static || stop "red build after stashing #$n attempt $k: $gate_failures" 1
-    fi
+    build_gate "$n-after-stash" static || stop "red build after stashing #$n attempt $k: $gate_failures" 1
     return
   fi
 
@@ -845,19 +919,12 @@ fail_ticket() {
   local fields='class: $class, red_checks: ($red | split(" ") | map(select(. != ""))),
     protected: ($prot | split("\n") | map(select(. != ""))),
     patch: (if $patch == "" then null else $patch end), handoff: $hand'
-  if ((pr_mode)); then
-    st_apply ".failed += [{n: \$n, reason: \$reason, worktree: \$wt, branch: \$tb, secs: \$secs,
-        unmet: \$unmet, notes: (\$r.notes // \"\"), $fields}]
-      | .order += [\$n] | .queue -= [\$n] | .current = null" \
-      --argjson n "$n" --arg reason "$reason" --arg wt "$wt" --arg tb "$tbranch" \
-      --argjson secs "$secs" --argjson unmet "$unmet" --argjson r "$robj" "${extra[@]}"
-    log "#$n failed ($class): $reason (worktree $wt kept)"
-    return
-  fi
   if [[ -n "$(git status --porcelain)" ]]; then
     git stash push -u -q -m "overnight #$n"
     stash="$(git rev-parse --short refs/stash)"
   fi
+  detach_at_base
+  drop_branch "$tbranch"
   st_apply ".failed += [{n: \$n, reason: \$reason, stash_name: \"overnight #\(\$n)\",
       stash: (if \$stash == \"\" then null else \$stash end), secs: \$secs, unmet: \$unmet,
       notes: (\$r.notes // \"\"), $fields}]
@@ -870,7 +937,7 @@ fail_ticket() {
 
 run_ticket() {
   local n="$1" title k retries out err brief start secs rc=0 text result status unmet reason class
-  local sessions resultf head_before pr_url="" handoff handoff_ref=none patch_prev
+  local sessions resultf head_before handoff handoff_ref=none patch_prev
   title="$(sget ".titles[\"$n\"] // \"\"")"
   retries="$(sget "(.retries // {})[\"$n\"] // 0")"
   k=$((retries + 1))
@@ -885,24 +952,18 @@ run_ticket() {
   brief="${out%.out}.brief.md"
   resultf="${out%.out}.result.json"
   sessions="$dir/sessions/$(sget .tickets_run)-$n"
-  if ((pr_mode)); then
-    if ! open_worktree "$n" "$title"; then
-      log "#$n setup failed; see $dir/logs/$n-setup.log"
-      fail_ticket "$n" "setup failed: see $dir/logs/$n-setup.log" temporary '{}' 0 '[]' 0
-      return
-    fi
-  else
-    tbranch="$branch"
+  if ! open_branch "$n"; then
+    log "#$n setup failed: $setup_error"
+    fail_ticket "$n" "setup failed: $setup_error" temporary '{}' 0 '[]' 0
+    return
   fi
   if ((retries > 0)); then
     if [[ -s "$patch_prev" ]]; then
       if git apply --index --binary "$patch_prev" 2>>"$dir/logs/$n-apply.log"; then
         printf '\n## Retry\n\nPrevious patch applied: the working tree holds attempt %s.\n' "$retries" >>"$handoff"
       else
-        if ((!pr_mode)); then
-          git reset -q --hard
-          git clean -fdq
-        fi
+        git reset -q --hard
+        git clean -fdq
         printf '\n## Retry\n\nprevious patch did not apply; started clean\n' >>"$handoff"
         log "#$n previous patch did not apply; started clean"
       fi
@@ -914,11 +975,7 @@ run_ticket() {
   render_brief "$n" "$title" "$resultf" "$handoff_ref" >"$brief"
   worker_cmd "$brief" "$sessions"
   head_before="$(git rev-parse HEAD)"
-  if ((pr_mode)); then
-    log "#$n start (attempt $k): $title — $tbranch on $tbase in $wt"
-  else
-    log "#$n start (attempt $k): $title"
-  fi
+  log "#$n start (attempt $k): $title — $tbranch, PR base $tbase"
   start="$(date +%s)"
   local timeout_secs="$TICKET_TIMEOUT_SECS"
   [[ "$worker" == omp ]] && timeout_secs=$((TICKET_TIMEOUT_SECS + 120)) # omp --max-time fires first
@@ -962,6 +1019,10 @@ run_ticket() {
     { ((visible)) && grep -Eq "$LIMIT_RE" <<<"$(session_tail "$sessions")"; }; then
     limit_hit=1
   fi
+  # Protected paths: once per attempt, before any requeue, patch, stash or
+  # commit. The files are removed first, so they reach none of them.
+  protected_hit="$(protected_hits)"
+  if [[ -n "$protected_hit" ]]; then purge_protected "$protected_hit"; fi
   if ((limit_hit)); then
     requeue "$n" "rate-limit text in worker output"
     return
@@ -974,11 +1035,7 @@ run_ticket() {
     fi
   fi
 
-  # Protected paths: once per attempt, before any patch, stash or commit. The
-  # files are removed first, so they reach none of them.
-  protected_hit="$(protected_hits)"
   if [[ -n "$protected_hit" ]]; then
-    purge_protected "$protected_hit"
     reason="protected paths touched: $(paste -sd ' ' - <<<"$protected_hit")"
     class=permanent
   elif ((timed_out)); then
@@ -1010,20 +1067,18 @@ run_ticket() {
     stat="$(git diff --cached --shortstat)"
     if git commit -q -m "$subject (#$n)"; then
       sha="$(git rev-parse --short HEAD)"
-      if ((pr_mode)); then
-        publish "$n" "$subject" "$result"
-        st_apply '.stack_base = $b' --arg b "$tbranch" # dependants need this code, PR or not
-        cd "$root"
-        git worktree remove --force "$wt" || log "#$n worktree $wt left in place"
-      fi
-      st_apply '.done += [{n: $n, sha: $sha, secs: $secs, unmet: $unmet, stat: $stat,
-          branch: (if $pm == 1 then $tb else null end), pr: (if $pr == "" then null else $pr end),
+      detach_at_base
+      # shellcheck disable=SC2086
+      st_apply '.done += [{n: $n, sha: $sha, branch: $tb, pr_base: $pb, parents: $parents,
+          title: $title, pr: null, publish_error: null, secs: $secs, unmet: $unmet, stat: $stat,
           routes: ($r.routes_to_check // []), checks: ($r.checks // {}), notes: ($r.notes // "")}]
         | .order += [$n] | .queue -= [$n] | .current = null' \
         --argjson n "$n" --arg sha "$sha" --argjson secs "$secs" --argjson unmet "$unmet" \
-        --arg stat "$stat" --argjson r "$result" --argjson pm "$pr_mode" \
-        --arg tb "$tbranch" --arg pr "$pr_url"
-      log "#$n done: $sha $stat${pr_url:+ · $pr_url}"
+        --arg stat "$stat" --argjson r "$result" --arg tb "$tbranch" --arg pb "$tbase" \
+        --argjson parents "$(jq -nc '$ARGS.positional | map(tonumber)' --args $tparents)" \
+        --arg title "$subject (#$n)"
+      publish_done "$n"
+      log "#$n done: $sha $stat"
       return
     fi
     git reset -q
@@ -1035,14 +1090,11 @@ run_ticket() {
 
 # --- setup -----------------------------------------------------------------
 
-branch="$(git branch --show-current)"
 visible_req="$visible" # what the command line asked for; empty = auto
 if ((resume)); then
   [[ -f "$state" ]] || die "--resume needs $state"
-  [[ "$(sget .branch)" == "$branch" ]] || die "state.json is for $(sget .branch); $branch is checked out"
   [[ -n "$worker" ]] || worker="$(sget .worker)"
   [[ -n "$visible" ]] || visible="$(sget '.visible // false | if . then 1 else 0 end')"
-  ((pr_mode)) || pr_mode="$(sget '.pr_mode // false | if . then 1 else 0 end')"
 fi
 if [[ -z "$worker" ]]; then
   if [[ -n "${CLAUDECODE:-}" ]]; then worker=claude; else worker=omp; fi
@@ -1071,12 +1123,7 @@ elif ((!in_herdr)); then
 else
   visible_line="no (resumed run was headless)"
 fi
-setup_cmd="$(jq -r '.setup // ""' "$plan")"
-worktrees="$root-overnight"
-if ((pr_mode)); then
-  git remote get-url origin >/dev/null 2>&1 || die "--pr-per-ticket needs an origin remote"
-  gh auth status >/dev/null 2>&1 || die "--pr-per-ticket needs gh to be logged in"
-fi
+check_publish_access
 implement_skill="$(skill_path implement)" || die "implement skill not installed"
 code_review_skill="$(skill_path code-review)" || die "code-review skill not installed"
 claude_help=""
@@ -1091,14 +1138,13 @@ account="$(account_check)"
 mkdir -p "$dir/logs"
 
 new_state() {
-  jq -n --argjson plan "$(cat "$plan")" --arg branch "$branch" --arg worker "$worker" \
+  jq -n --argjson plan "$(cat "$plan")" --arg prefix "$prefix" --arg base "$base" --arg worker "$worker" \
     --arg model "$model" --arg model_arg "$model_arg" --arg provider "$provider" \
     --argjson deadline "$deadline" --arg account "$account" --argjson pid "$$" \
-    --arg date "$(date +%Y-%m-%d)" --argjson visible "$visible" --argjson pr_mode "$pr_mode" \
-    --arg pr_base "$PR_BASE" '
-    {date: $date, branch: $branch, worker: $worker, model: $model, model_arg: $model_arg, pid: $pid,
+    --arg date "$(date +%Y-%m-%d)" --argjson visible "$visible" '
+    {date: $date, prefix: $prefix, base: $base, worker: $worker, model: $model, model_arg: $model_arg, pid: $pid,
      provider: $provider, account: $account,
-     visible: ($visible == 1), pr_mode: ($pr_mode == 1), pr_base: $pr_base, stack_base: null,
+     visible: ($visible == 1),
      started_at: (now | floor), ended_at: null, deadline: $deadline,
      planned: $plan.queue, queue: $plan.queue, waived: ($plan.waived // []),
      titles: {}, edges: {}, done: [], failed: [], skipped: [], order: [], usage: [],
@@ -1115,7 +1161,7 @@ if ((dry_run)); then
   gate
   echo "overnight dry run — nothing will run"
   echo "  repo        $root"
-  echo "  branch      $branch (plan: $(jq -r '.branch // "unset"' "$plan"))"
+  echo "  base        origin/$base; ticket branches $prefix/<N>"
   printf '  worker     '
   printf ' %q' "${worker_argv[@]:0:${#worker_argv[@]}-1}"
   printf ' "<worker-brief.md for #N>"'
@@ -1126,10 +1172,8 @@ if ((dry_run)); then
   echo "  model       $model_arg — from $model_source; $model_check"
   echo "  gate provider  $provider"
   echo "  visible     $visible_line"
-  if ((pr_mode)); then
-    echo "  PRs         worktrees in $worktrees; ticket/<N>-<slug> stacked from origin/$PR_BASE; draft PR per pass"
-    echo "  setup       ${setup_cmd:-none}"
-  fi
+  echo "  PRs         one per passed ticket, pushed and opened by the runner; nothing is merged"
+  echo "  gh access   $publish_access"
   echo "  skills      $implement_skill · $code_review_skill"
   echo "  build gate  $(jq -r '[.checks | to_entries[] | "\(.key): \(if .value == "" then "n/a" else .value end)"] | join(" · ")' "$plan") (test skipped in the after-stash health check)"
   echo "  protected   $PROTECTED_RE"
@@ -1140,14 +1184,18 @@ if ((dry_run)); then
   git check-ignore -q "$dir/state.json" || echo "  note        $dir/ is not git-ignored yet; a real run adds it to .git/info/exclude"
   echo "  run order if every ticket succeeds:"
   [[ "$(sget '.queue | length')" == 0 ]] && echo "    (empty)"
-  sget "$FRONTIER_DEFS"'
+  jq -r --arg prefix "$prefix" --arg base "$base" "$FRONTIER_DEFS"'
     . as $s | (run_order) as $order
     | ($order[] as $n | "    #\($n) \($s.titles[$n | tostring])" + (
         [($s.edges[$n | tostring] // [])[] | select(.state != "closed")
          | .number as $b
          | "#\($b) " + (if ($s.waived | any(.[]; . == [$n, $b])) then "open, waived" else "in run" end)]
-        | if length == 0 then "" else " — after " + join(", ") end)),
-      ($s.queue - $order | .[] | "    #\(.) blocker cycle inside the queue — would be skipped")'
+        | if length == 0 then "" else " — after " + join(", ") end),
+        "      branch \($prefix)/\($n), "
+        + ($s | inrun($n) | if length == 0 then "from \($base), PR base \($base)"
+            elif length == 1 then "stacked on \($prefix)/\(.[0]), PR base \($prefix)/\(.[0])"
+            else "from \($base) merging \(map("\($prefix)/\(.)") | join(", ")), PR base \($base)" end)),
+      ($s.queue - $order | .[] | "    #\(.) blocker cycle inside the queue — would be skipped")' "$state"
   if [[ "$(sget '.skipped | length')" != 0 ]]; then
     echo "  skipped-blocked:"
     sget '.skipped[] | "    #\(.n) \(.why)"'
@@ -1161,7 +1209,6 @@ if ((dry_run)); then
   exit 0
 fi
 
-[[ "$branch" == "$(jq -r '.branch // ""' "$plan")" ]] || die "checked-out branch $branch is not the plan's branch"
 ensure_ignored
 if ((resume)); then
   if [[ -n "$(git status --porcelain)" ]]; then
@@ -1172,14 +1219,21 @@ if ((resume)); then
     log "stashed interrupted #$current work as 'overnight #$current interrupted'"
   fi
   st_apply '.current = null | .stop_reason = null | .ended_at = null | .deadline = $d | .worker = $w
-      | .visible = ($v == 1) | .pr_mode = ($p == 1) | .pr_base = (.pr_base // $b)
+      | .visible = ($v == 1)
       | .model = $m | .model_arg = $ma | .provider = $pv | .retries = (.retries // {}) | .pid = $pid' \
-    --argjson d "$deadline" --arg w "$worker" --argjson v "$visible" --argjson p "$pr_mode" --arg b "$PR_BASE" \
+    --argjson d "$deadline" --arg w "$worker" --argjson v "$visible" \
     --arg m "$model" --arg ma "$model_arg" --arg pv "$provider" --argjson pid "$$"
 else
   [[ ! -f "$state" ]] || die "$state exists; pass --resume or move it aside"
   [[ -z "$(git status --porcelain)" ]] || die "working tree is not clean"
   new_state >"$state"
+fi
+# macOS only: hold an idle-sleep assertion for exactly this process's lifetime.
+# `-w` ties it to our pid, so it is released on any exit, SIGKILL included.
+# Elsewhere (a Linux server does not idle-sleep) there is nothing to do.
+if command -v caffeinate >/dev/null 2>&1; then
+  caffeinate -i -w "$$" >/dev/null 2>&1 &
+  disown $! 2>/dev/null || true
 fi
 trap on_exit EXIT
 trap 'exit 129' HUP
@@ -1189,7 +1243,8 @@ rm -f "$stop_file" # a stale request never stops a new run
 fetch_tracker
 gate
 record_usage "start"
-log "overnight run on $branch with $worker, model $model_arg, visible: $visible_line; gate: $gate_reading"
+log "overnight run: base origin/$base, branches $prefix/<N>, $worker, model $model_arg, visible: $visible_line; gate: $gate_reading"
+if ((resume)); then publish_pending; fi
 
 # --- the loop --------------------------------------------------------------
 

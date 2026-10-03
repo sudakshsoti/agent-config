@@ -1,6 +1,6 @@
 ---
 name: codebase-memory
-description: "Query a codebase knowledge graph for architecture, callers, dependencies, dead code, impact analysis, and structural refactoring evidence."
+description: "Use to query a codebase knowledge graph for architecture, callers, dependencies, dead code, impact analysis, and structural refactoring evidence. Not for agent-config harness changes (harness-config-maintenance) or skill install and retirement (skill-lifecycle)."
 disable-model-invocation: true
 ---
 
@@ -10,17 +10,17 @@ Graph tools return precise structural results in ~500 tokens vs ~80K for grep.
 
 ## Quick Decision Matrix
 
-| Question                | Tool call                                               |
-| ----------------------- | ------------------------------------------------------- |
-| Who calls X?            | `trace_path(direction="inbound")`                       |
-| What does X call?       | `trace_path(direction="outbound")`                      |
-| Full call context       | `trace_path(direction="both")`                          |
-| Find by name pattern    | `search_graph(name_pattern="...")`                      |
-| Dead code               | `search_graph(max_degree=0, exclude_entry_points=true)` |
-| Cross-service edges     | `query_graph` with Cypher                               |
-| Impact of local changes | `detect_changes()`                                      |
-| Risk-classified trace   | `trace_path(risk_labels=true)`                          |
-| Text search             | `search_code` or Grep                                   |
+| Question                | Tool call                                               | Caveat                                                                                                |
+| ----------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Who calls X?            | `trace_path(direction="inbound")`                       | Misses cross-service callers; use `direction="both"`. Needs the exact name: `search_graph` first.      |
+| What does X call?       | `trace_path(direction="outbound")`                      | Misses cross-service callees; use `direction="both"`. Needs the exact name: `search_graph` first.      |
+| Full call context       | `trace_path(direction="both")`                          | Needs the exact name: `search_graph(name_pattern=...)` first.                                         |
+| Find by name pattern    | `search_graph(name_pattern="...")`                      | 10 results per page; check `has_more` and use `offset`.                                               |
+| Dead code               | `search_graph(max_degree=0, exclude_entry_points=true)` | Degree filters also count rows; `query_graph` is capped at 200 rows.                                  |
+| Cross-service edges     | `query_graph` with Cypher                               | `search_graph(relationship="HTTP_CALLS")` filters nodes by degree, not edges; Cypher shows real edges. |
+| Impact of local changes | `detect_changes()`                                      | Maps the git diff to affected symbols.                                                                |
+| Risk-classified trace   | `trace_path(risk_labels=true)`                          | Adds a risk label to each hop so high-blast-radius callers sort first.                                |
+| Text search             | `search_code` or Grep                                   |                                                                                                       |
 
 ## Exploration Workflow
 
@@ -56,16 +56,10 @@ CONTAINS_FILE, CONTAINS_FOLDER, CONTAINS_PACKAGE
 
 ## Cypher Examples (for query_graph)
 
+Property names below (`url_path`, `confidence`, `file_path`) are examples: confirm them with `get_graph_schema` first.
+
 ```
 MATCH (a)-[r:HTTP_CALLS]->(b) RETURN a.name, b.name, r.url_path, r.confidence LIMIT 20
 MATCH (f:Function) WHERE f.name =~ '.*Handler.*' RETURN f.name, f.file_path
 MATCH (a)-[r:CALLS]->(b) WHERE a.name = 'main' RETURN b.name
 ```
-
-## Gotchas
-
-1. `search_graph(relationship="HTTP_CALLS")` filters nodes by degree — use `query_graph` with Cypher to see actual edges.
-2. `query_graph` has a 200-row cap — use `search_graph` with degree filters for counting.
-3. `trace_path` needs exact names — use `search_graph(name_pattern=...)` first.
-4. `direction="outbound"` misses cross-service callers — use `direction="both"`.
-5. Results default to 10 per page — check `has_more` and use `offset`.

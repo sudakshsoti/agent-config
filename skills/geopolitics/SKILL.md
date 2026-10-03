@@ -1,6 +1,6 @@
 ---
 name: geopolitics
-description: "Analyse international affairs through power, conflict, trade, sanctions, elections, energy, technology, supply chains, evidence, and probability calls."
+description: "Use when analysing wars, sanctions, trade statecraft, elections, defence, or diplomacy between states. Not for domestic-only policy, company or market analysis, organisational negotiation (strategy-counsel), or technical energy or tech work."
 disable-model-invocation: true
 ---
 

@@ -1,6 +1,8 @@
+Status: planned
+
 # Phase 2 live-apply runbook
 
-Status: prepared for a human-run session (#42). Nothing here has been run
+Prepared for a human-run session (#42). Nothing here has been run
 against a real HOME. An agent must not run these steps.
 
 Phase 2 was reconciled with the OMP/Pi narrowing (`4a7edc49`). That removed
@@ -8,8 +10,8 @@ several surfaces the original steps assumed: `sync.sh`, `codex/config.toml`,
 the sandbox bundle, and the `docs/ownership.{md,tsv}` contract, which never
 reached `main`. The old steps L1 (dotfiles `docs/ownership-contract-followup`
 merge for the Codex key partition) and L4 (removing host `~/.config/omp`
-overlay links) are therefore dropped. L4 returns only if #38 is decided in
-favour of retiring the host overlays.
+overlay links) are therefore dropped. L4 is dropped for good: #38 was decided
+the other way and closed as wontfix (`.out-of-scope/retire-config-omp-links.md`).
 
 ## Preconditions
 
@@ -75,4 +77,4 @@ deleted automatically.
 
 - Deleting undeclared `vendor/` checkouts.
 - Any dotfiles merge or `chezmoi apply`.
-- Retiring host overlay links (#38, on hold).
+- Retiring host overlay links (#38, closed wontfix).
