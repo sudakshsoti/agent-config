@@ -21,6 +21,13 @@ of them errors at runtime; they just quietly route work to the wrong model:
    first request otherwise, per
    `docs/research/harness-provider-access-2026-09.md`.
 
+5. **Docs vs config drift.** `AGENTS.md`'s OMP routing table and
+   `pi/model-ladder.md`'s ladder table state the routing in prose; between
+   `<!-- routing:current -->` and `<!-- routing:end -->` single-line claims
+   are checked too. The `default` role sat as Opus in the docs and Sonnet in
+   the config for five days. Docs are corrected to the config, never the
+   reverse.
+
   ./scripts/check-model-routing.py [repo-root]
 
 Stdlib only, like `lint-skills.py` (whose frontmatter parser it shares via
@@ -56,6 +63,31 @@ PI_UNREACHABLE = frozenset({"openrouter"})
 # The extension that makes `anthropic/*` reachable from Pi, and the
 # `packages[]` entry that must be present for that to be true.
 PI_ANTHROPIC_SHIM = "@gotgenes/pi-anthropic-auth"
+
+# Doc surfaces whose routing claims are compared with the config.
+OMP_DOC = "AGENTS.md"
+PI_DOC = "pi/model-ladder.md"
+OMP_TABLE_HEADER = ["Roles/settings", "Value"]
+PI_TABLE_HEADER = ["Task / agent", "Provider and model", "Effort"]
+MARK_START = "<!-- routing:current -->"
+MARK_END = "<!-- routing:end -->"
+
+# Settings rows of the OMP table: documented key -> dotted path in omp/config.yml.
+OMP_SETTINGS = (
+    "disabledProviders",
+    "retry.usageAwareFallback",
+    "retry.usageReservePct",
+    "retry.usageReservePolicy",
+    "task.maxEffort",
+    "providers.autoThinkingMaxEffort",
+)
+
+_TICKED = re.compile(r"`([^`]+)`")
+_GROUP_RE = re.compile(r"^(`[^`]+`(?:/`[^`]+`)*) (roles?|agents?)$")
+_TICKED_LIST_RE = re.compile(r"^`[^`]+`(?: / `[^`]+`)*$")
+_MARKED_LINE_RE = re.compile(
+    r"^(?:- )?(?P<names>`[^`]+`(?:(?: and |, )`[^`]+`)*) \u2192 `(?P<model>[^`]+)` (?P<level>\S+)$"
+)
 
 
 def _declared_pi_packages(pi_settings):
@@ -194,12 +226,267 @@ def selectors(node, trail=""):
         yield trail, node
 
 
-def check(config, agents, pi_agents, pi_settings=None, pi_search=None):
+# --- Docs vs config -------------------------------------------------------
+
+
+def _dig(node, dotted):
+    for part in dotted.split("."):
+        if not isinstance(node, dict) or part not in node:
+            return None
+        node = node[part]
+    return node
+
+
+def _render(value):
+    if isinstance(value, list):
+        return "[" + ", ".join(str(v) for v in value) + "]"
+    return None if value is None else str(value)
+
+
+def _split_row(line):
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+
+def _table_rows(text, header):
+    """Return [(lineno, cells)] for the table whose header row is `header`, or None."""
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        if line.lstrip().startswith("|") and _split_row(line) == header:
+            rows = []
+            for offset in range(index + 2, len(lines)):  # skip the separator row
+                if not lines[offset].lstrip().startswith("|"):
+                    break
+                rows.append((offset + 1, _split_row(lines[offset])))
+            return rows
+    return None
+
+
+def _pi_agent_selector(name, pi_agents):
+    """Return (`provider/model:level`, error) for a Pi agent's frontmatter."""
+    text = pi_agents.get(f"{name}.md")
+    if text is None:
+        return None, f"no pi/agents/{name}.md"
+    fields = frontmatter(text, f"pi/agents/{name}.md", [])
+    model = fields.get("model")
+    if not model:
+        return None, f"pi/agents/{name}.md has no `model:`"
+    if SELECTOR_RE.match(model) and SELECTOR_RE.match(model).group("effort"):
+        return model, None
+    thinking = fields.get("thinking")
+    return (f"{model}:{thinking}" if thinking else model), None
+
+
+def _pi_default_selector(pi_settings):
+    if not pi_settings:
+        return None
+    provider, model = pi_settings.get("defaultProvider"), pi_settings.get("defaultModel")
+    level = pi_settings.get("defaultThinkingLevel")
+    if not provider or not model:
+        return None
+    return f"{provider}/{model}" + (f":{level}" if level else "")
+
+
+def _mismatch(where, subject, doc_value, source, config_value):
+    return (
+        f"{where}: {subject} is {doc_value!r} in the docs but {source} is {config_value!r}"
+    )
+
+
+def _check_omp_table(text, config, failures):
+    roles = config.get("modelRoles") or {}
+    overrides = (config.get("task") or {}).get("agentModelOverrides") or {}
+    rows = _table_rows(text, OMP_TABLE_HEADER)
+    if rows is None:
+        failures.append(f"{OMP_DOC}: routing table with header {'| '.join(OMP_TABLE_HEADER)!r} not found")
+        return
+    for lineno, cells in rows:
+        where = f"{OMP_DOC}:{lineno}"
+        if len(cells) != 2:
+            failures.append(f"{where}: routing row must have 2 cells, got {len(cells)}")
+            continue
+        first, value = cells
+        parts = [part.strip() for part in first.split(";")]
+        groups = [_GROUP_RE.match(part) for part in parts]
+        if all(groups):
+            selector = _TICKED.fullmatch(value)
+            if not selector or not SELECTOR_RE.match(selector.group(1)):
+                failures.append(
+                    f"{where}: value {value!r} is not one backticked provider/model:level selector"
+                )
+                continue
+            for group in groups:
+                kind = "role" if group.group(2).startswith("role") else "agent"
+                source = roles if kind == "role" else overrides
+                prefix = "modelRoles" if kind == "role" else "task.agentModelOverrides"
+                for name in _TICKED.findall(group.group(1)):
+                    actual = source.get(name)
+                    if actual is None:
+                        failures.append(f"{where}: {kind} `{name}` is not in {prefix} of omp/config.yml")
+                    elif actual != selector.group(1):
+                        failures.append(
+                            _mismatch(where, f"{kind} `{name}`", selector.group(1), f"{prefix}.{name}", actual)
+                        )
+        elif _TICKED_LIST_RE.match(first) and _TICKED_LIST_RE.match(value):
+            keys = _TICKED.findall(first)
+            values = _TICKED.findall(value)
+            if len(keys) != len(values):
+                failures.append(f"{where}: {len(keys)} setting(s) but {len(values)} value(s)")
+                continue
+            for key, doc_value in zip(keys, values):
+                if key not in OMP_SETTINGS:
+                    failures.append(f"{where}: `{key}` is not a checked setting ({', '.join(OMP_SETTINGS)})")
+                    continue
+                actual = _render(_dig(config, key))
+                if actual != doc_value:
+                    failures.append(_mismatch(where, f"setting `{key}`", doc_value, key, actual))
+        else:
+            failures.append(
+                f"{where}: cannot parse routing row {first!r} | {value!r} (expected "
+                "`name`/`name` role|agent groups separated by ';', or backticked setting keys)"
+            )
+
+
+def _check_pi_table(text, pi_agents, pi_settings, failures):
+    rows = _table_rows(text, PI_TABLE_HEADER)
+    if rows is None:
+        failures.append(f"{PI_DOC}: ladder table with header {'| '.join(PI_TABLE_HEADER)!r} not found")
+        return
+    for lineno, cells in rows:
+        where = f"{PI_DOC}:{lineno}"
+        if len(cells) != 3:
+            failures.append(f"{where}: ladder row must have 3 cells, got {len(cells)}")
+            continue
+        first, model_cell, effort_cell = cells
+        model = _TICKED.fullmatch(model_cell)
+        effort = effort_cell.strip("`")
+        shape = SELECTOR_RE.match(model.group(1)) if model else None
+        if not shape or shape.group("effort") or effort not in EFFORTS:
+            failures.append(
+                f"{where}: cannot parse {model_cell!r} | {effort_cell!r} "
+                "(expected a backticked provider/model and an effort level)"
+            )
+            continue
+        doc = f"{model.group(1)}:{effort}"
+        if first.startswith("Main session"):
+            actual = _pi_default_selector(pi_settings)
+            if actual != doc:
+                failures.append(_mismatch(where, "Main session", doc, "pi/settings.json default", actual))
+        elif first.startswith("Manual fallback"):
+            cycle = (pi_settings or {}).get("enabledModels") or []
+            if doc not in cycle:
+                failures.append(
+                    f"{where}: Manual fallback is {doc!r} in the docs but pi/settings.json "
+                    f"enabledModels is {cycle!r}"
+                )
+        else:
+            names = _TICKED.findall(first)
+            if not names:
+                failures.append(f"{where}: cannot parse row {first!r}: no backticked agent name")
+            for name in names:
+                actual, error = _pi_agent_selector(name, pi_agents)
+                if error:
+                    failures.append(f"{where}: agent `{name}`: {error}")
+                elif actual != doc:
+                    failures.append(
+                        _mismatch(where, f"agent `{name}`", doc, f"pi/agents/{name}.md", actual)
+                    )
+
+
+def _marked_lines(label, text, failures):
+    """Yield (lineno, line) for non-blank lines between routing markers."""
+    inside = False
+    start = 0
+    for lineno, raw in enumerate(text.splitlines(), 1):
+        stripped = raw.strip()
+        if stripped == MARK_START:
+            if inside:
+                failures.append(f"{label}:{lineno}: {MARK_START} inside an open marked block (opened line {start})")
+            inside, start = True, lineno
+        elif stripped == MARK_END:
+            if not inside:
+                failures.append(f"{label}:{lineno}: {MARK_END} without {MARK_START}")
+            inside = False
+        elif inside and stripped:
+            yield lineno, stripped
+    if inside:
+        failures.append(f"{label}:{start}: {MARK_START} never closed by {MARK_END}")
+
+
+def _check_marked(label, text, native, config, pi_agents, pi_settings, failures):
+    """Check `name` -> `provider/model` level sentences between the markers.
+
+    A name resolves in the doc's native source (AGENTS.md: OMP roles and agents;
+    pi/model-ladder.md: Pi agents and `main`). Prefix it `omp:` or `pi:` to
+    reach the other source.
+    """
+    roles = config.get("modelRoles") or {}
+    overrides = (config.get("task") or {}).get("agentModelOverrides") or {}
+    for lineno, line in _marked_lines(label, text, failures):
+        where = f"{label}:{lineno}"
+        match = _MARKED_LINE_RE.match(line)
+        if not match:
+            failures.append(
+                f"{where}: cannot parse marked line {line!r} (expected "
+                "`name` \u2192 `provider/model` level; several names joined by ' and ' or ', ')"
+            )
+            continue
+        doc = f"{match.group('model')}:{match.group('level')}"
+        if not SELECTOR_RE.match(doc) or not SELECTOR_RE.match(doc).group("effort"):
+            failures.append(f"{where}: {doc!r} is not provider/model with a valid level")
+            continue
+        for name in _TICKED.findall(match.group("names")):
+            scope, _, bare = name.rpartition(":")
+            scope = scope or native
+            if scope not in ("omp", "pi"):
+                failures.append(f"{where}: unknown scope {scope!r} in `{name}` (use omp: or pi:)")
+                continue
+            if scope == "omp":
+                found = {
+                    f"modelRoles.{bare}": roles.get(bare),
+                    f"task.agentModelOverrides.{bare}": overrides.get(bare),
+                }
+                found = {k: v for k, v in found.items() if v is not None}
+                if not found:
+                    failures.append(f"{where}: `{name}` is neither a modelRoles nor an agentModelOverrides entry")
+                for source, actual in found.items():
+                    if actual != doc:
+                        failures.append(_mismatch(where, f"`{name}`", doc, source, actual))
+            elif bare == "main":
+                actual = _pi_default_selector(pi_settings)
+                if actual != doc:
+                    failures.append(_mismatch(where, f"`{name}`", doc, "pi/settings.json default", actual))
+            else:
+                actual, error = _pi_agent_selector(bare, pi_agents)
+                if error:
+                    failures.append(f"{where}: `{name}`: {error}")
+                elif actual != doc:
+                    failures.append(_mismatch(where, f"`{name}`", doc, f"pi/agents/{bare}.md", actual))
+
+
+def check_docs(docs, config, pi_agents, pi_settings):
+    """Compare routing claims in AGENTS.md and pi/model-ladder.md with the config."""
+    failures = []
+    for label, native in ((OMP_DOC, "omp"), (PI_DOC, "pi")):
+        text = docs.get(label)
+        if text is None:
+            failures.append(f"{label}: missing, cannot compare its routing claims with the config")
+            continue
+        if label == OMP_DOC:
+            _check_omp_table(text, config, failures)
+        else:
+            _check_pi_table(text, pi_agents, pi_settings, failures)
+        _check_marked(label, text, native, config, pi_agents, pi_settings, failures)
+    return failures
+
+
+def check(config, agents, pi_agents, pi_settings=None, pi_search=None, docs=None):
     """Return routing failures for already-read inputs; performs no I/O.
 
     config: parsed omp/config.yml mapping.
     agents / pi_agents: {filename: text} for omp/agents/*.md and pi/agents/*.md.
     pi_settings / pi_search: parsed pi/settings.json / pi/web-search.json, or None.
+    docs: {repo-relative path: text} of AGENTS.md and pi/model-ladder.md, or None
+        to skip the docs-vs-config comparison.
     """
     failures = []
     roles = config.get("modelRoles") or {}
@@ -315,6 +602,9 @@ def check(config, agents, pi_agents, pi_settings=None, pi_search=None):
                 f"pi/web-search.json: summaryModel {summary!r} is unreachable from Pi"
             )
 
+    if docs is not None:
+        failures.extend(check_docs(docs, config, pi_agents, pi_settings))
+
     return failures
 
 
@@ -340,12 +630,19 @@ def check_repo(repo):
     """Read the repo's routing files and run `check` over them."""
     with open(os.path.join(repo, "omp", "config.yml"), encoding="utf-8") as handle:
         config, failures = parse_config(handle.read(), "omp/config.yml")
+    docs = {}
+    for relative in (OMP_DOC, PI_DOC):
+        path = os.path.join(repo, relative)
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as handle:
+                docs[relative] = handle.read()
     return failures + check(
         config,
         _read_dir(os.path.join(repo, "omp", "agents"), ".md"),
         _read_dir(os.path.join(repo, "pi", "agents"), ".md"),
         _read_json(os.path.join(repo, "pi", "settings.json")),
         _read_json(os.path.join(repo, "pi", "web-search.json")),
+        docs,
     )
 
 
