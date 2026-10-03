@@ -59,6 +59,8 @@ export PATH="$T/bin:$PATH"
 cat >"$T/bin/gh" <<'EOF'
 #!/usr/bin/env bash
 c="${OT_CASE:?}"
+echo "$*" | tr '\n' ' ' >>"$c/gh.calls"
+echo >>"$c/gh.calls"
 jqf="" field="" prev=""
 for a in "$@"; do
   [[ "$prev" == --jq ]] && jqf="$a"
@@ -73,8 +75,36 @@ case "$1 $2" in
   n="$(sed -E 's#.*/issues/([0-9]+)/.*#\1#' <<<"$2")"
   { cat "$c/edges/$n.json" 2>/dev/null || echo '[]'; } | jq -c "$jqf"
   ;;
-"auth status") ;;
-"pr create") echo "https://example.test/pull/1" ;;
+"auth status") [[ ! -f "$c/gh-unauth" ]] ;;
+"repo view") cat "$c/perm" 2>/dev/null || echo WRITE ;;
+"pr create")
+  head="" base="" title="" body="" prev=""
+  for a in "$@"; do
+    case "$prev" in
+    --head) head="$a" ;;
+    --base) base="$a" ;;
+    --title) title="$a" ;;
+    --body) body="$a" ;;
+    esac
+    prev="$a"
+  done
+  if [[ -f "$c/pr-fail" ]]; then
+    echo "GraphQL: simulated failure" >&2
+    exit 1
+  fi
+  # Like GitHub: both the head and the base must exist on the remote.
+  for ref in "$head" "$base"; do
+    git ls-remote --exit-code --heads origin "$ref" >/dev/null || {
+      echo "branch $ref is not on the remote" >&2
+      exit 1
+    }
+  done
+  mkdir -p "$c/prs"
+  id=$(($(ls "$c/prs" | wc -l) + 1))
+  jq -n --arg head "$head" --arg base "$base" --arg title "$title" --arg body "$body" \
+    '{head: $head, base: $base, title: $title, body: $body}' >"$c/prs/$id.json"
+  echo "https://example.test/pull/$id"
+  ;;
 *) exit 1 ;;
 esac
 EOF
@@ -147,12 +177,14 @@ bad() {
 # pipeline by closing it early.
 check() { if (set +o pipefail; eval "$2"); then ok "$1"; else bad "$1  [$2]"; fi; }
 
-# mk_case <name> — sets C (case dir), R (repo) and the stub-visible OT_CASE.
+# mk_case <name> — sets C (case dir), R (repo, with a bare origin that holds
+# main) and the stub-visible OT_CASE.
 mk_case() {
   C="$T/$1"
   R="$C/repo"
   export OT_CASE="$C"
   mkdir -p "$R/.github/workflows" "$R/.scratch/overnight" "$C/issues" "$C/edges" "$C/behave"
+  git init -q --bare "$C/origin.git"
   (
     cd "$R" || exit 1
     git init -q
@@ -160,9 +192,10 @@ mk_case() {
     echo hi >README.md
     git add -A
     git commit -q -m init
-    git switch -q -c overnight/test
+    git remote add origin "$C/origin.git"
+    git push -q origin main
   )
-  TEST_CMD='' SETUP_CMD=''
+  TEST_CMD=''
 }
 issue() { jq -n --arg t "$2" --arg b "${3:-}" '{title: $t, body: $b}' >"$C/issues/$1.json"; }
 # edge <issue> <blocker> — the blocker is open and in the run.
@@ -172,11 +205,11 @@ edge() {
   jq -c --argjson b "$2" '. + [{number: $b, state: "open"}]' "$f" >"$f.tmp" && mv "$f.tmp" "$f"
 }
 behave() { cat >"$C/behave/$1.sh"; } # behave <n>[-<attempt>] < script
-# plan <queue-json> [model] — model defaults to none; TEST_CMD/SETUP_CMD apply.
+# plan <queue-json> [model] — model defaults to none; TEST_CMD applies.
 plan() {
-  jq -n --argjson q "$1" --arg m "${2-}" --arg test "$TEST_CMD" --arg setup "$SETUP_CMD" \
-    '{branch: "overnight/test", queue: $q, waived: [],
-      checks: {typecheck: "", build: "", lint: "", test: $test}, setup: $setup}
+  jq -n --argjson q "$1" --arg m "${2-}" --arg test "$TEST_CMD" \
+    '{prefix: "overnight/test", base: "main", queue: $q, waived: [],
+      checks: {typecheck: "", build: "", lint: "", test: $test}}
      + (if $m == "" then {} else {worker_model: $m} end)' >"$R/.scratch/overnight/plan.json"
 }
 # run_runner [args...] — sets RC; output in $C/run.out and $C/run.err.
@@ -192,6 +225,13 @@ stash_files() {
   git -C "$R" diff --name-only "stash@{0}^1" "stash@{0}"
   git -C "$R" ls-tree -r --name-only "stash@{0}^3" 2>/dev/null || true
 }
+# subjects — every commit subject in the repo, on any branch.
+subjects() { git -C "$R" log --all --format=%s; }
+# origin_ref <branch> — its sha on the bare origin, empty when absent.
+origin_ref() { git --git-dir="$C/origin.git" rev-parse -q --verify "refs/heads/$1" || true; }
+# pr_field <head-branch> <field> — a field of the PR the stub gh recorded.
+pr_field() { jq -sr --arg h "$1" --arg f "$2" '[.[] | select(.head == $h)][0][$f] // empty' "$C"/prs/*.json 2>/dev/null; }
+npr() { find "$C/prs" -type f 2>/dev/null | wc -l | tr -d ' '; }
 logs="\$R/.scratch/overnight/logs"
 
 # --- cases -------------------------------------------------------------------
@@ -210,7 +250,7 @@ B
   check "retry: worker ran 1, 1 (retry), 2" '[[ "$(inv)" == "1 1 2" ]]'
   check "retry: model passed to the worker" '[[ "$(sed -n 1p "$C/invocations.log")" == "1 $MODEL 1 0" ]]'
   check "retry: first attempt started on a clean tree, retry on the patch" '[[ "$(sed -n 2p "$C/invocations.log")" == "1 $MODEL 2 1" ]]'
-  check "retry: committed with the retry's work" '[[ "$(sq ".done | map(.n) | join(\",\")")" == "1,2" ]] && git -C "$R" log --format=%s | grep -qx "do ticket (#1)"'
+  check "retry: committed with the retry's work" '[[ "$(sq ".done | map(.n) | join(\",\")")" == "1,2" ]] && subjects | grep -qx "do ticket (#1)"'
   check "retry: retry counted in state" '[[ "$(sq ".retries[\"1\"]")" == 1 ]]'
   check "retry: attempt patch saved" 'grep -q "^+half" '"$logs"'/1-attempt1.patch'
   check "retry: handoff names reason, notes and unmet criteria" 'grep -q "worker reported partial" '"$logs"'/1.handoff.md && grep -q "half done" '"$logs"'/1.handoff.md && grep -q "criterion X" '"$logs"'/1.handoff.md'
@@ -289,7 +329,7 @@ B
   run_runner
   check "protected: permanent failure, never retried" '[[ "$(sq ".failed[0].class")" == permanent && "$(sq ".failed[0].reason")" == "protected paths touched:"* && "$(inv)" == "1 2" ]]'
   check "protected: hits listed in state" '[[ "$(sq ".failed[0].protected | sort | join(\",\")")" == ".env,.github/workflows/ci.yml,keys/server.pem" ]]'
-  check "protected: nothing committed for #1" '! git -C "$R" log --format=%s | grep -q "(#1)"'
+  check "protected: nothing committed for #1" '! subjects | grep -q "(#1)"'
   check "protected: other work still stashed" 'stash_files | grep -qx src.txt'
   check "protected: files absent from the stash" '! stash_files | grep -Eq "\.env|\.pem|workflows"'
   check "protected: secret in no stash, patch or handoff" '! git -C "$R" grep -q hunter2 "stash@{0}^3" && ! git -C "$R" grep -q hunter2 "stash@{0}" && ! grep -rq hunter2 '"$logs"'/*.patch '"$logs"'/1.handoff.md'
@@ -308,7 +348,7 @@ echo notes >notes.txt
 result done
 B
   run_runner
-  check "protected: id_rsa.pub is allowed by default" '[[ "$(sq ".done | map(.n) | join(\",\")")" == 1 ]] && git -C "$R" ls-tree -r --name-only HEAD | grep -qx id_rsa.pub'
+  check "protected: id_rsa.pub is allowed by default" '[[ "$(sq ".done | map(.n) | join(\",\")")" == 1 ]] && git -C "$R" ls-tree -r --name-only overnight/test/1 | grep -qx id_rsa.pub'
 }
 
 case_protected_override() {
@@ -320,7 +360,7 @@ echo FOO=1 >.env
 result done
 B
   OVERNIGHT_PROTECTED_RE='^nothing-matches$' run_runner
-  check "protected: OVERNIGHT_PROTECTED_RE overrides the default" '[[ "$(sq ".done | map(.n) | join(\",\")")" == 1 ]] && git -C "$R" ls-tree -r --name-only HEAD | grep -qx .env'
+  check "protected: OVERNIGHT_PROTECTED_RE overrides the default" '[[ "$(sq ".done | map(.n) | join(\",\")")" == 1 ]] && git -C "$R" ls-tree -r --name-only overnight/test/1 | grep -qx .env'
 }
 
 case_red_tests() {
@@ -337,7 +377,7 @@ B
   check "red tests: ticket fails naming the check" '[[ "$(sq ".failed[0].reason")" == "checks red: test" && "$(sq ".failed[0].red_checks | join(\",\")")" == test ]]'
   check "red tests: report says which check went red" 'report | grep -E "^- #1:" | grep -q "Red checks: test"'
   check "red tests: handoff carries the red check log" 'grep -q "Red check: test" '"$logs"'/1.handoff.md'
-  check "red tests: nothing committed for #1, #2 committed" '! git -C "$R" log --format=%s | grep -q "(#1)" && git -C "$R" log --format=%s | grep -q "(#2)"'
+  check "red tests: nothing committed for #1, #2 committed" '! subjects | grep -q "(#1)" && subjects | grep -q "(#2)"'
   check "red tests: gate ran the tests, the after-stash health check did not" '[[ -f '"$logs"'/2-test.log && ! -e '"$logs"'/1-after-stash-test.log ]]'
 }
 
@@ -351,19 +391,181 @@ case_commit_refused() {
   check "commit hook refusal: permanent, no retry" '[[ "$(inv)" == 1 && "$(sq ".failed[0].class")" == permanent && "$(sq ".failed[0].reason")" == "git commit failed"* ]]'
 }
 
-case_setup_failure() {
-  mk_case setup_failure
-  for n in 1 2; do issue "$n" "T$n" "Body"; done
-  git init -q --bare "$C/origin.git"
-  git -C "$R" remote add origin "$C/origin.git"
-  git -C "$R" push -q origin main
-  SETUP_CMD='[ "$(basename "$PWD")" != 1 ]'
+
+case_pr_independent() {
+  mk_case pr_independent
+  issue 1 "T1" "Body"
+  issue 2 "T2" "Body"
   plan '[1,2]' "$MODEL"
-  run_runner --pr-per-ticket
-  check "setup failure: run continues, only #2's worker ran" '[[ $RC == 0 && "$(inv)" == 2 ]]'
-  check "setup failure: #1 failed as temporary after its retry" '[[ "$(sq ".failed[0].n")" == 1 && "$(sq ".failed[0].class")" == temporary && "$(sq ".failed[0].reason")" == "setup failed: see"* && "$(sq ".retries[\"1\"]")" == 1 ]]'
-  check "setup failure: #2 committed with a draft PR" '[[ "$(sq ".done[0].n")" == 2 && "$(sq ".done[0].pr")" == https://* ]]'
-  check "setup failure: run not stopped by it" '[[ "$(sq .stop_reason)" == "queue empty" ]]'
+  local base_sha
+  base_sha="$(git -C "$R" rev-parse main)"
+  behave 1 <<'B'
+result done "worker note for one"
+RESULT="$(jq -c '.checks = {typecheck: "pass", lint: "n/a"} | .routes_to_check = ["/settings"]' <<<"$RESULT")"
+B
+  run_runner
+  check "pr: run finishes with both tickets done" '[[ $RC == 0 && "$(sq ".done | map(.n) | join(\",\")")" == "1,2" ]]'
+  check "pr: two branches off the base, pushed" '[[ -n "$(origin_ref overnight/test/1)" && -n "$(origin_ref overnight/test/2)" && "$(git -C "$R" merge-base overnight/test/1 main)" == "$base_sha" && "$(git -C "$R" merge-base overnight/test/2 main)" == "$base_sha" ]]'
+  check "pr: no commit lands on the base, locally or on origin" '[[ "$(git -C "$R" rev-parse main)" == "$base_sha" && "$(origin_ref main)" == "$base_sha" ]]'
+  check "pr: two PRs against the base, titled with the commit subject" '[[ "$(npr)" == 2 && "$(pr_field overnight/test/1 base)" == main && "$(pr_field overnight/test/2 base)" == main && "$(pr_field overnight/test/1 title)" == "do ticket (#1)" && "$(pr_field overnight/test/1 title)" == "$(git -C "$R" log -1 --format=%s overnight/test/1)" ]]'
+  check "pr: each body closes its issue" 'pr_field overnight/test/1 body | grep -qx "Closes #1\." && pr_field overnight/test/2 body | grep -qx "Closes #2\."'
+  check "pr: body summarises checks, unmet criteria, routes and notes" 'b="$(pr_field overnight/test/1 body)" && grep -q "typecheck: pass" <<<"$b" && grep -q "criterion X" <<<"$b" && grep -q "/settings" <<<"$b" && grep -q "worker note for one" <<<"$b"'
+  check "pr: body, title and commits carry no agent attribution" '! { pr_field overnight/test/1 body; pr_field overnight/test/1 title; git -C "$R" log --all --format=%B; } | grep -Eqi "claude|co-authored|generated|agent|omp"'
+  check "pr: state and report show branch and PR link" '[[ "$(sq ".done[0].pr")" == https://example.test/pull/1 && "$(sq ".done[0].branch")" == overnight/test/1 ]] && report | grep -E "^\| #1 " | grep -q "overnight/test/1.*example.test/pull/1" && report | grep -q "^1\. #1 .*overnight/test/1.*main.*pull/1"'
+  check "pr: no merge command and no auto-merge, ever" '! grep -Eq "^(pr merge|api .*merge)|--auto( |$)" "$C/gh.calls" && grep -q "^pr create" "$C/gh.calls"'
+  check "pr: the checkout ends detached on the base, clean" '[[ -z "$(git -C "$R" branch --show-current)" && "$(git -C "$R" rev-parse HEAD)" == "$base_sha" && -z "$(git -C "$R" status --porcelain)" ]]'
+}
+
+case_pr_stacked() {
+  mk_case pr_stacked
+  issue 1 "T1" "Body"
+  issue 2 "T2" "Body"
+  edge 2 1
+  plan '[2,1]' "$MODEL"
+  local base_sha
+  base_sha="$(git -C "$R" rev-parse main)"
+  behave 2 <<'B'
+[[ -f work-1.txt ]] && echo yes >"$OT_CASE/saw-1"
+B
+  run_runner
+  check "stacked: both done, A before B" '[[ $RC == 0 && "$(sq ".done | map(.n) | join(\",\")")" == "1,2" ]]'
+  check "stacked: A targets the base, B targets A's branch" '[[ "$(pr_field overnight/test/1 base)" == main && "$(pr_field overnight/test/2 base)" == overnight/test/1 ]]'
+  check "stacked: B's branch holds A's commit and B saw A's work" 'git -C "$R" merge-base --is-ancestor overnight/test/1 overnight/test/2 && [[ -f "$C/saw-1" ]]'
+  check "stacked: B's PR names what it stacks on" 'pr_field overnight/test/2 body | grep -q "Stacked on #1 (https://example.test/pull/1)"'
+  check "stacked: the report states the order A -> B" 'report | grep -q "Stacking order: #1 → #2"'
+  check "stacked: nothing lands on the base" '[[ "$(git -C "$R" rev-parse main)" == "$base_sha" && "$(origin_ref main)" == "$base_sha" ]]'
+}
+
+case_pr_multi() {
+  mk_case pr_multi
+  for n in 1 2 3; do issue "$n" "T$n" "Body"; done
+  edge 3 1
+  edge 3 2
+  plan '[1,2,3]' "$MODEL"
+  local base_sha
+  base_sha="$(git -C "$R" rev-parse main)"
+  behave 3 <<'B'
+[[ -f work-1.txt && -f work-2.txt ]] && echo yes >"$OT_CASE/saw-both"
+B
+  run_runner
+  check "multi: all three done" '[[ $RC == 0 && "$(sq ".done | map(.n) | join(\",\")")" == "1,2,3" ]]'
+  check "multi: the PR targets the base and the worker saw both blockers' work" '[[ "$(pr_field overnight/test/3 base)" == main && -f "$C/saw-both" ]]'
+  check "multi: the branch contains both blockers' commits" 'git -C "$R" merge-base --is-ancestor overnight/test/1 overnight/test/3 && git -C "$R" merge-base --is-ancestor overnight/test/2 overnight/test/3'
+  check "multi: the PR names both blockers' PRs" 'b="$(pr_field overnight/test/3 body)" && grep -q "https://example.test/pull/1" <<<"$b" && grep -q "https://example.test/pull/2" <<<"$b" && grep -q "^Closes #3\.$" <<<"$b"'
+  check "multi: nothing lands on the base; the merge was never a PR merge" '[[ "$(origin_ref main)" == "$base_sha" ]] && ! grep -Eq "^pr merge" "$C/gh.calls"'
+}
+
+case_pr_conflict() {
+  mk_case pr_conflict
+  for n in 1 2 3 4; do issue "$n" "T$n" "Body"; done
+  edge 3 1
+  edge 3 2
+  plan '[1,2,3,4]' "$MODEL"
+  local base_sha
+  base_sha="$(git -C "$R" rev-parse main)"
+  behave 1 <<'B'
+echo one >shared.txt
+B
+  behave 2 <<'B'
+echo two >shared.txt
+B
+  run_runner
+  check "conflict: the run continues past it" '[[ $RC == 0 && "$(sq ".done | map(.n) | join(\",\")")" == "1,2,4" ]]'
+  check "conflict: #3 fails permanently with the merge conflict as its reason" '[[ "$(sq ".failed[0].n")" == 3 && "$(sq ".failed[0].class")" == permanent && "$(sq ".failed[0].reason")" == "merge conflict: #"* ]] && report | grep -E "^- #3:" | grep -q "merge conflict"'
+  check "conflict: #3's worker never ran, #4 started on a clean tree" '[[ "$(inv)" == "1 2 4" && "$(sed -n 3p "$C/invocations.log")" == "4 $MODEL 1 0" ]]'
+  check "conflict: no branch for #3, locally or on origin; no merge left half-done" '[[ -z "$(git -C "$R" branch --list overnight/test/3)" && -z "$(origin_ref overnight/test/3)" && ! -e "$R/.git/MERGE_HEAD" && -z "$(git -C "$R" status --porcelain)" ]]'
+  check "conflict: #4 branched from the base" '[[ "$(git -C "$R" merge-base overnight/test/4 main)" == "$base_sha" ]]'
+}
+
+case_pr_failed() {
+  mk_case pr_failed
+  for n in 1 2 3; do issue "$n" "T$n" "Body"; done
+  plan '[1,2,3]' "$MODEL"
+  local base_sha
+  base_sha="$(git -C "$R" rev-parse main)"
+  behave 1 <<'B'
+result blocked "needs a design decision"
+B
+  behave 2-1 <<'B'
+RESULT="You've hit your usage limit"
+B
+  behave 2-2 <<'B'
+git rev-parse HEAD >"$OT_CASE/head-2-2"
+git branch --format='%(refname:short)' --list 'overnight/test/*' >"$OT_CASE/branches-2-2"
+B
+  OVERNIGHT_RATE_LIMIT_BACKOFF_SECS=0 run_runner
+  check "failed: run finishes; #1 failed, #2 requeued then done, #3 done" '[[ $RC == 0 && "$(inv)" == "1 2 2 3" && "$(sq ".failed | map(.n) | join(\",\")")" == 1 && "$(sq ".done | map(.n) | join(\",\")")" == "2,3" && "$(sq ".requeues[\"2\"]")" == 1 ]]'
+  check "failed: #1 leaves no branch, locally or on origin" '[[ -z "$(git -C "$R" branch --list overnight/test/1)" && -z "$(origin_ref overnight/test/1)" ]]'
+  check "failed: #1's stash is recorded as before" 'git -C "$R" stash list | grep -q "overnight #1$" && stash_files | grep -qx work-1.txt && [[ -n "$(sq ".failed[0].stash")" ]]'
+  check "failed: the requeued attempt started on a clean tree at the base, on a fresh branch" '[[ "$(sed -n 3p "$C/invocations.log")" == "2 $MODEL 2 0" && "$(cat "$C/head-2-2")" == "$base_sha" && "$(cat "$C/branches-2-2")" == overnight/test/2 ]]'
+  check "failed: the next ticket starts clean from the base" '[[ "$(sed -n 4p "$C/invocations.log")" == "3 $MODEL 1 0" && "$(git -C "$R" merge-base overnight/test/3 main)" == "$base_sha" ]]'
+  check "failed: only the passed tickets got PRs" '[[ "$(npr)" == 2 && -z "$(pr_field overnight/test/1 head)" ]]'
+}
+
+case_pr_publish_failure() {
+  mk_case pr_publish_failure
+  issue 1 "T1" "Body"
+  issue 2 "T2" "Body"
+  edge 2 1
+  plan '[1,2]' "$MODEL"
+  git -C "$R" remote set-url origin "$C/nowhere.git"
+  run_runner
+  check "publish failure: green tickets are done with a publish error, no PR" '[[ $RC == 0 && "$(sq ".done | map(.n) | join(\",\")")" == "1,2" && "$(sq ".done[0].pr")" == null && "$(sq ".done[0].publish_error")" == "push of overnight/test/1 failed"* && "$(sq ".failed | length")" == 0 && "$(npr)" == 0 ]]'
+  check "publish failure: branches are kept locally; the report shows the error" '[[ -n "$(git -C "$R" branch --list overnight/test/1)" && -n "$(git -C "$R" branch --list overnight/test/2)" ]] && report | grep -E "^\| #1 " | grep -q "no PR: push of overnight/test/1 failed"'
+  git -C "$R" remote set-url origin "$C/origin.git"
+  run_runner --resume
+  check "publish failure: --resume opens the missing PRs without re-running a worker" '[[ $RC == 0 && "$(inv)" == "1 2" && "$(npr)" == 2 && "$(sq ".done[0].pr")" == https://* && "$(sq ".done[1].pr")" == https://* && "$(sq ".done[0].publish_error")" == null ]]'
+  check "publish failure: the stacked PR follows its blocker" '[[ "$(pr_field overnight/test/1 base)" == main && "$(pr_field overnight/test/2 base)" == overnight/test/1 ]]'
+}
+
+case_pr_create_failure() {
+  mk_case pr_create_failure
+  issue 1 "T1" "Body"
+  plan '[1]' "$MODEL"
+  touch "$C/pr-fail"
+  run_runner
+  check "pr create failure: done with the error, branch pushed" '[[ $RC == 0 && "$(sq ".done[0].n")" == 1 && "$(sq ".done[0].pr")" == null && "$(sq ".done[0].publish_error")" == "PR creation for overnight/test/1 failed: GraphQL: simulated failure" && -n "$(origin_ref overnight/test/1)" ]]'
+  rm "$C/pr-fail"
+  run_runner --resume
+  check "pr create failure: --resume opens it, no worker re-run" '[[ $RC == 0 && "$(inv)" == 1 && "$(npr)" == 1 && "$(sq ".done[0].pr")" == https://* ]]'
+}
+
+case_gh_access() {
+  mk_case gh_access
+  issue 1 "T1" "Body"
+  plan '[1]' "$MODEL"
+  echo READ >"$C/perm"
+  run_runner --dry-run
+  check "gh access: a dry run stops without write access" '[[ $RC != 0 ]] && grep -q "write access" "$C/run.err"'
+  run_runner
+  check "gh access: so does a real run, before any state or worker" '[[ $RC != 0 ]] && grep -q "write access" "$C/run.err" && grep -q "READ" "$C/run.err" && [[ ! -e "$R/.scratch/overnight/state.json" && ! -e "$C/invocations.log" ]]'
+  rm "$C/perm"
+  touch "$C/gh-unauth"
+  run_runner
+  check "gh access: an unauthenticated gh stops the run" '[[ $RC != 0 ]] && grep -q "not authenticated" "$C/run.err" && [[ ! -e "$C/invocations.log" ]]'
+  rm "$C/gh-unauth"
+  run_runner --dry-run
+  check "gh access: with write access the dry run reports it" '[[ $RC == 0 ]] && grep -q "gh access   write (WRITE)" "$C/run.out"'
+}
+
+case_pr_dry_run() {
+  mk_case pr_dry_run
+  for n in 1 2 3 4; do issue "$n" "T$n" "Body"; done
+  edge 3 1
+  edge 3 2
+  edge 4 1
+  plan '[1,2,3,4]' "$MODEL"
+  run_runner --dry-run
+  check "dry run: independent ticket shows its branch and the base as PR base" '[[ $RC == 0 ]] && grep -q "branch overnight/test/1, from main, PR base main" "$C/run.out"'
+  check "dry run: single blocker stacks, PR base is the blocker's branch" 'grep -q "branch overnight/test/4, stacked on overnight/test/1, PR base overnight/test/1" "$C/run.out"'
+  check "dry run: several blockers merge, PR base is the base" 'grep -q "branch overnight/test/3, from main merging overnight/test/1, overnight/test/2, PR base main" "$C/run.out"'
+  check "dry run: creates no branch, pushes nothing, opens nothing" '[[ -z "$(git -C "$R" branch --list "overnight/*")" && -z "$(origin_ref overnight/test/1)" && ! -e "$C/prs" ]]'
+}
+
+case_no_merge() {
+  check "no merge: the runner has no PR-merge or auto-merge call" '! grep -Eq "pr +merge|enableAutoMerge|enable-auto|--auto( |\$)" "$runner"'
+  local brief="$repo_root/skills/overnight-run/scripts/worker-brief.md"
+  check "no merge: the worker brief still forbids git and GitHub writes" 'grep -q "^- Git: read-only" "$brief" && grep -q "^- GitHub and the tracker: read-only" "$brief" && grep -q "PRs or merges" "$brief"'
 }
 
 case_matrix() {
@@ -588,7 +790,8 @@ B
 # --- run ----------------------------------------------------------------------
 
 cases=(retry_success retry_exhausted dependent_order blocked protected protected_allowed
-  protected_override red_tests commit_refused setup_failure matrix resume_old_state
+  protected_override red_tests commit_refused pr_independent pr_stacked pr_multi
+  pr_conflict pr_failed pr_publish_failure pr_create_failure gh_access pr_dry_run no_merge matrix resume_old_state
   resume_no_model resume_interrupted notify model_rejected stop abort caffeinate)
 for c in "${cases[@]}"; do
   (
