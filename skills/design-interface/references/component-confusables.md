@@ -14,10 +14,6 @@ A badge is attached to another element and read-only — a count, or a status wo
 
 All three are overlays. A dialog interrupts the flow centre-screen to demand a decision now, with focus trapped and the background inert. A sheet slides in from a screen edge for secondary or contextual actions. A drawer is a bottom sheet pulled up from the base, a frequent mobile substitute for a dialog. Reach for a dialog when the choice must be made now; reach for a sheet or drawer when the surface is secondary and dismissible.
 
-## Sources
-
-- `skills/design-engineering/references/components/component-confusables.md` @ `81805dc89d40889639a95502bfb578a098266dc8`.
-
 ## Gotcha
 
 Agents use this list to rename a component instead of changing its behaviour — swapping the label from "tooltip" to "popover" on an element that still dismisses on pointer-leave fixes nothing. The behaviour has to change first; the name follows.
