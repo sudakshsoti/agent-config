@@ -43,7 +43,9 @@ Ctrl+P before the work starts.
 | `reviewer` adversarial review of plans and diffs on a second model lineage | `opencode-go/glm-5.3-flash` | high |
 | `Critic` visual review of implemented work | `opencode-go/glm-5.3-flash` | high |
 | Manual fallback when Muse or GLM throttles (Ctrl+P) | `opencode-go/deepseek-v4.1-flash` | high |
-| Anything that needs Claude judgement or Claude-grade frontend work | run it in OMP | — |
+
+Anything that needs Claude judgement or Claude-grade frontend work runs in OMP,
+not in this ladder.
 
 Rationale per model:
 
@@ -86,8 +88,13 @@ do not implement automatic escalation or quota-based routing.
 
 ## Scoped models
 
-`settings.json` sets `defaultProvider`/`defaultModel` to
-`opencode-go`/`muse-spark-1.3-contributor` at `xhigh`, and `enabledModels` to
+`settings.json` sets the default (checked against the Main session row):
+
+<!-- routing:current -->
+`main` → `opencode-go/muse-spark-1.3-contributor` xhigh
+<!-- routing:end -->
+
+`settings.json` sets `enabledModels` to
 Muse Spark 1.3 Contributor xhigh, GLM 5.3 Flash high and DeepSeek V4.1 Flash
 high, in that order (most-used first).
 This is the Ctrl+P quick-switch list, not an access restriction or an
