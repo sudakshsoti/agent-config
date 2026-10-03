@@ -3,8 +3,9 @@
 #
 # Strictly serial: gate usage, run one fresh worker per ready-for-agent ticket,
 # gate the build, commit or stash, repeat. The invoking agent session only
-# writes .scratch/overnight/plan.json and launches this under tmux (or a herdr
-# tab) with caffeinate.
+# writes .scratch/overnight/plan.json and launches this in a detached terminal
+# multiplexer (tmux, herdr, ...). On macOS the run holds its own caffeinate
+# idle-sleep assertion; nothing extra is needed on Linux.
 #
 #   overnight.sh [--dry-run] [--deadline HH:MM] [--max-tickets N]
 #                [--worker claude|omp] [--visible|--headless] [--pr-per-ticket] [--resume]
@@ -13,7 +14,7 @@
 # --stop           ask the live run in this repo to end after its current ticket
 #                  (or during a usage sleep); it writes its report and exits 0.
 #                  For an immediate abort, kill -TERM the pid in state.json,
-#                  never caffeinate or the tmux pane.
+#                  never the multiplexer pane.
 # --visible        default for an omp worker inside herdr (--headless opts out):
 #                  each worker runs as the interactive omp TUI in its own herdr
 #                  tab, closed when it ends.
@@ -1180,6 +1181,13 @@ else
   [[ ! -f "$state" ]] || die "$state exists; pass --resume or move it aside"
   [[ -z "$(git status --porcelain)" ]] || die "working tree is not clean"
   new_state >"$state"
+fi
+# macOS only: hold an idle-sleep assertion for exactly this process's lifetime.
+# `-w` ties it to our pid, so it is released on any exit, SIGKILL included.
+# Elsewhere (a Linux server does not idle-sleep) there is nothing to do.
+if command -v caffeinate >/dev/null 2>&1; then
+  caffeinate -i -w "$$" >/dev/null 2>&1 &
+  disown $! 2>/dev/null || true
 fi
 trap on_exit EXIT
 trap 'exit 129' HUP
