@@ -79,31 +79,9 @@ Four error types — validation (inline), system (modal/banner), blocking (full-
 - **Format**: Verb-first title + contextual description
 - **Example**: "Update required. Install the latest version to continue."
 
-## Formatting & Style Conventions
+## Formatting and Style
 
-### Capitalization
-
-- **Sentence case** (default): Body text, descriptions, helper text, error messages, success messages, tooltips, placeholder text
-- **Native apps**: follow the platform convention instead of sentence case (e.g. Title Case for macOS menus and buttons)
-- **Never** use all uppercase — it reduces readability and feels like shouting
-
-### Numbers and Dates
-
-- Use numerals, not words ("12" not "twelve") — saves space and scans faster
-- Spell out the month in dates: "August 5, 2025" or "5 August 2025" — never "8/5/2025" or "8.5.2025" (ambiguous across locales)
-- Spell out day of the week and month; abbreviate only when space is constrained (e.g., tables, mobile)
-
-### Tense
-
-- Prefer past tense over present perfect for status messages: "File uploaded" not "File has been uploaded"
-- Present perfect adds words without adding meaning in most UI contexts
-
-### Abbreviations
-
-- Only use abbreviations your users will immediately understand (common: PDF, URL, ID)
-- Spell out on first use if there's any doubt, then abbreviate after: "application programming interface (API)"
-- Latin abbreviations (e.g., i.e., etc.) — use proper punctuation: period after each letter, comma before and after in a sentence
-- When in doubt, spell it out
+Before finalizing any string, read references/formatting-style.md for capitalization (sentence case by default, platform convention in native apps), numbers and dates, tense, and abbreviations.
 
 ## Voice and Tone
 
@@ -151,6 +129,7 @@ This skill includes:
 
 - **references/error-patterns.md**: The four error message types (validation, system, blocking, permission) with patterns and examples
 - **references/tone-adaptation.md**: Tone matrices by user emotional state and by content type
+- **references/formatting-style.md**: Capitalization, numbers and dates, tense, abbreviations
 - **references/benchmarks.md**: Length and reading-level targets by content type and audience (the single home for these numbers)
 - **references/accessibility-guidelines.md**: Comprehensive guide to writing accessible UX text for all users
 - **references/voice-chart-template.md**: Template for creating a product voice chart
