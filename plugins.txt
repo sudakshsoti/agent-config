@@ -25,20 +25,18 @@
 
 external BexTuychiev/firecrawl-claude-code-skill firecrawl-web
 
-# The upstream repo also ships a marketplace plugin, but this curated allowlist
-# intentionally mirrors only the useful engineering skills into the shared root.
-# The two vocabulary skills are dependencies of grill-with-docs and
-# improve-codebase-architecture. ask-matt is retained as a router; its less-used
-# branches may name optional Matt skills outside this allowlist rather than
-# silently importing the whole collection and consuming the shared context budget.
-# implement-spec, retro and grill-me are user-invoked only
-# (`disable-model-invocation: true`), so they add nothing to the always-loaded
-# skill list. implement-spec drives tdd and code-review; retro reads
-# writing-for-agents; grill-me calls grilling.
-external mattpocock/skills:skills/engineering setup-matt-pocock-skills ask-matt triage to-spec to-tickets implement implement-spec tdd code-review grill-with-docs improve-codebase-architecture domain-modeling codebase-design diagnosing-bugs research wayfinder retro
-external mattpocock/skills:skills/productivity/writing-for-agents writing-for-agents
-external mattpocock/skills:skills/productivity/grilling grilling
-external mattpocock/skills:skills/productivity/grill-me grill-me
+# mattpocock/skills — every bucket (user decision 2026-10-04). Each bucket is
+# its own line because the installer reads one directory level per source.
+# `deprecated` is omitted: upstream keeps it empty. `in-progress` is beta and
+# upstream says its skills may change or vanish without warning. A repo-owned
+# skills/<name> wins a name collision, so upstream `handoff` and `pr` are
+# shadowed by ours (install prints a SKIP warning for each). Model-invocable
+# skills in these buckets add to the always-loaded skill list; user-invoked
+# ones (`disable-model-invocation: true`) do not.
+external mattpocock/skills:skills/engineering
+external mattpocock/skills:skills/productivity
+external mattpocock/skills:skills/misc
+external mattpocock/skills:skills/in-progress
 
 # emilkowalski/skills — all upstream skills, linked into the shared root.
 external emilkowalski/skills
