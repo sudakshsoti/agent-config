@@ -18,7 +18,7 @@
 #
 # Name collisions (two sources shipping the same skill name) resolve by fixed
 # precedence: a repo-owned skills/<name> beats every external source; a line that
-# names the skill beats a bare line; among lines of the same kind the last one
+# names the skill beats a bare line; among lines of the same kind the earliest one
 # in this file wins. Each loser is skipped with a warning. Two allowlists naming
 # the same skill are rejected by scripts/check-manifest.py.
 #

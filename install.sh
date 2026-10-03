@@ -154,7 +154,7 @@
 #   upstream files do not enter this repo's history and are not linted here.
 #   Name collisions resolve deterministically: a repo-owned skills/<name> beats
 #   every external source; an external line that names the skill beats a bare
-#   one; among lines of the same kind the last one in plugins.txt wins. Each
+#   one; among lines of the same kind the earliest one in plugins.txt wins. Each
 #   loser is skipped with a warning and counted in `skipped`.
 #
 # Idempotent; safe to re-run. Run once after cloning on a new machine.
@@ -408,7 +408,7 @@ record_skill() { # record_skill <name> <source-dir>
 
 # resolve_external_candidates: when several external lines ship the same skill
 # name, exactly one wins. An allowlist line that names the skill beats a bare
-# line; among lines of the same kind the last one in plugins.txt wins. Losers
+# line; among lines of the same kind the earliest one in plugins.txt wins. Losers
 # are skipped with a warning, never an error. Repo-owned skills were already
 # filtered out when each candidate was collected.
 EXTERNAL_CANDIDATES=""
@@ -428,8 +428,8 @@ resolve_external_candidates() {
     fi
   done < <(printf '%s' "$EXTERNAL_CANDIDATES" | awk -F'\t' '
     { name[NR] = $1; dir[NR] = $2; repo[NR] = $3
-      rank = $4 # explicit beats bare; later beats earlier within a kind
-      if (!($1 in best) || rank >= bestrank[$1]) { best[$1] = NR; bestrank[$1] = rank } }
+      rank = $4 # explicit beats bare; earlier beats later within a kind
+      if (!($1 in best) || rank > bestrank[$1]) { best[$1] = NR; bestrank[$1] = rank } }
     END { for (i = 1; i <= NR; i++)
       printf "%s\t%s\t%s\t%s\n", name[i], dir[i], repo[i], (best[name[i]] == i ? "W" : "L:" repo[best[name[i]]]) }')
 }

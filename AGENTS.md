@@ -108,7 +108,7 @@ Secrets belong in dotfiles (1Password + age), never here.
   shared context budget; name only the skills wanted on an `external` line.
   Name collisions resolve by fixed precedence: repo-owned `skills/<name>` beats
   every external source; an `external` line naming the skill beats a bare line;
-  among lines of the same kind the last one in `plugins.txt` wins. Losers are
+  among lines of the same kind the earliest one in `plugins.txt` wins. Losers are
   skipped with a `SKIP … shadowed by` warning, not an error.
 - Skill `name` must equal its directory, be lowercase kebab-case, and contain
   neither `claude` nor `anthropic`. Multi-line descriptions require `|` or `>-`;

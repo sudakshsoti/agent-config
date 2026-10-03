@@ -814,11 +814,16 @@ class InstallerTest(DisposableInstallCase):
         shared = links_under(self.test_home / ".agents")["skills/x"]
         return shared, shipped, result
 
-    def test_collision_bare_vs_bare_last_declared_wins(self):
-        winner, shipped, _ = self.collide("external a/one\nexternal b/two\n")
-        self.assertEqual(winner, str(shipped["b/two"]))
-        winner, shipped, _ = self.fresh_collide("external b/two\nexternal a/one\n")
+    def test_collision_bare_vs_bare_earliest_declared_wins(self):
+        winner, shipped, result = self.collide("external a/one\nexternal b/two\n")
         self.assertEqual(winner, str(shipped["a/one"]))
+        # One SKIP line for the loser, counted in `skipped`.
+        self.assertEqual(
+            result.stdout.count("SKIP x (external b/two) — shadowed by external a/one"), 1
+        )
+        self.assertIn("skipped=1 ", result.stdout)
+        winner, shipped, _ = self.fresh_collide("external b/two\nexternal a/one\n")
+        self.assertEqual(winner, str(shipped["b/two"]))
 
     def test_collision_explicit_beats_bare_in_either_order(self):
         winner, shipped, _ = self.collide("external a/one x\nexternal b/two\n")
@@ -826,10 +831,10 @@ class InstallerTest(DisposableInstallCase):
         winner, shipped, _ = self.fresh_collide("external b/two\nexternal a/one x\n")
         self.assertEqual(winner, str(shipped["a/one"]))
 
-    def test_collision_explicit_vs_explicit_last_declared_wins(self):
+    def test_collision_explicit_vs_explicit_earliest_declared_wins(self):
         # check-manifest.py rejects this statically; the installer still resolves it.
         winner, shipped, _ = self.collide("external a/one x\nexternal b/two x\n")
-        self.assertEqual(winner, str(shipped["b/two"]))
+        self.assertEqual(winner, str(shipped["a/one"]))
 
     def test_collision_repo_owned_beats_every_external(self):
         winner, shipped, result = self.collide(
