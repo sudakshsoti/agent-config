@@ -18,7 +18,8 @@ ticket's branch and opens its PR.
 - **Protected paths.** Env files, `*.pem`, `*.key`, SSH private keys,
   `.git/` and `.github/workflows/` (`OVERNIGHT_PROTECTED_RE` overrides the
   pattern). A change fails the ticket permanently; the files are removed
-  before any patch, stash or commit, so they never reach them.
+  before any requeue, patch, stash or commit, so they never reach them. The
+  worker brief carries the same pattern the runner enforces.
 - **Failures.** Temporary (timeout, worker crash, no final JSON, red checks,
   `partial`, branch setup failure) get one retry: the attempt is saved as a patch
   and a handoff note (`logs/<N>.handoff.md`), the tree is reset (stashed as

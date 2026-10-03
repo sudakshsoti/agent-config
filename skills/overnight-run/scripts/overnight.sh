@@ -550,7 +550,7 @@ render_brief() {
   done_when="$(gh issue view "$n" --json body --jq .body 2>/dev/null | acceptance_criteria || true)"
   [[ -n "$done_when" ]] ||
     done_when="The ticket states no separate acceptance criteria; treat the ticket's own wording as the criteria."
-  OB_N="$n" OB_TITLE="$title" OB_RESULT_FILE="$3" OB_HANDOFF="$4" OB_DONE_WHEN="$done_when" \
+  OB_N="$n" OB_TITLE="$title" OB_RESULT_FILE="$3" OB_HANDOFF="$4" OB_DONE_WHEN="$done_when" OB_PROTECTED_RE="$PROTECTED_RE" \
     OB_IMPLEMENT_SKILL="$implement_skill" OB_CODE_REVIEW_SKILL="$code_review_skill" \
     OB_TYPECHECK="$(jq -r '.checks.typecheck // "" | if . == "" then "n/a" else . end' "$plan")" \
     OB_BUILD="$(jq -r '.checks.build // "" | if . == "" then "n/a" else . end' "$plan")" \
@@ -693,10 +693,15 @@ on_exit() {
 
 requeue() {
   local n="$1" why="$2"
+  # run_ticket purged protected files before calling; say so in the log.
+  if [[ -n "$protected_hit" ]]; then
+    why="$why; protected paths removed first: $(paste -sd ' ' - <<<"$protected_hit")"
+  fi
   git reset -q --hard
   git clean -fdq
-  return_to_base "$tbranch"
-  st_apply '.queue = [$n] + (.queue - [$n]) | .requeues[$n | tostring] += 1 | .current = null' --argjson n "$n"
+  detach_at_base
+  drop_branch "$tbranch"
+  st_apply '.queue = [$n] + (.queue - [$n]) | .requeues = (.requeues // {}) | .requeues[$n | tostring] += 1 | .current = null' --argjson n "$n"
   gate
   record_usage "requeued #$n: $why"
   log "#$n requeued ($why); gate: $gate_reading"
@@ -710,12 +715,14 @@ requeue() {
   fi
 }
 
-# return_to_base [branch] — detach at origin/<base> (this checkout may not be
-# able to switch to the base branch itself) and delete the ticket branch, if
-# given. The tree must be clean.
-return_to_base() {
-  git switch -q --detach "origin/$base"
-  if [[ -n "${1:-}" ]] && git show-ref -q --verify "refs/heads/$1"; then git branch -q -D "$1"; fi
+# detach_at_base — detach at origin/<base> (this checkout may not be able to
+# switch to the base branch itself). The tree must be clean.
+detach_at_base() { git switch -q --detach "origin/$base"; }
+
+# drop_branch <branch> — force-delete a local branch if it exists; HEAD must
+# not be on it.
+drop_branch() {
+  if git show-ref -q --verify "refs/heads/$1"; then git branch -q -D "$1"; fi
 }
 
 # inrun_blockers <n> — n's live in-run blockers, one per line.
@@ -743,6 +750,14 @@ check_publish_access() {
   publish_access="write ($perm)"
 }
 
+# create_branch <n> <start-point> — creates the ticket branch from the start
+# point and enters it; on failure sets setup_error and returns 1.
+create_branch() {
+  git switch -q --no-track -c "$tbranch" "$2" 2>>"$dir/logs/$1-setup.log" && return 0
+  setup_error="could not create $tbranch from $2: $(last_line "$dir/logs/$1-setup.log")"
+  return 1
+}
+
 # open_branch <n> — creates ticket n's branch and enters it; sets tbranch, tbase
 # (its PR base) and tparents (its in-run blockers, space separated). One
 # blocker: stack on its branch. Several: branch from the base and merge theirs.
@@ -757,7 +772,7 @@ open_branch() {
   git fetch -q origin "$base" 2>>"$dir/logs/fetch.log" ||
     log "git fetch origin $base failed; using the last fetched origin/$base"
   # leftovers from an interrupted attempt
-  if ! return_to_base "$tbranch" 2>>"$dir/logs/$n-setup.log"; then
+  if ! { detach_at_base && drop_branch "$tbranch"; } 2>>"$dir/logs/$n-setup.log"; then
     setup_error="could not return to origin/$base: $(last_line "$dir/logs/$n-setup.log")"
     return 1
   fi
@@ -765,16 +780,10 @@ open_branch() {
   set -- $tparents
   if (($# == 1)); then
     tbase="$(done_field "$1" branch)"
-    if ! git switch -q --no-track -c "$tbranch" "$tbase" 2>>"$dir/logs/$n-setup.log"; then
-      setup_error="could not create $tbranch from $tbase: $(last_line "$dir/logs/$n-setup.log")"
-      return 1
-    fi
-    return 0
+    create_branch "$n" "$tbase"
+    return
   fi
-  if ! git switch -q --no-track -c "$tbranch" "origin/$base" 2>>"$dir/logs/$n-setup.log"; then
-    setup_error="could not create $tbranch from origin/$base: $(last_line "$dir/logs/$n-setup.log")"
-    return 1
-  fi
+  create_branch "$n" "origin/$base" || return 1
   for p in "$@"; do
     if ! git merge -q --no-ff -m "Merge #$p into #$n" "$(done_field "$p" branch)" >>"$dir/logs/$n-merge.log" 2>&1; then
       git merge --abort >/dev/null 2>&1 || git reset -q --hard
@@ -897,7 +906,8 @@ fail_ticket() {
     if [[ -n "$(git status --porcelain)" ]]; then
       git stash push -u -q -m "overnight #$n attempt $k"
     fi
-    return_to_base "$tbranch"
+    detach_at_base
+    drop_branch "$tbranch"
     st_apply '.retries = (.retries // {}) | .retries[$n | tostring] += 1 | .current = null' --argjson n "$n"
     log "#$n failed ($reason); temporary, will retry once${patch:+ from $patch}"
     build_gate "$n-after-stash" static || stop "red build after stashing #$n attempt $k: $gate_failures" 1
@@ -913,7 +923,8 @@ fail_ticket() {
     git stash push -u -q -m "overnight #$n"
     stash="$(git rev-parse --short refs/stash)"
   fi
-  return_to_base "$tbranch"
+  detach_at_base
+  drop_branch "$tbranch"
   st_apply ".failed += [{n: \$n, reason: \$reason, stash_name: \"overnight #\(\$n)\",
       stash: (if \$stash == \"\" then null else \$stash end), secs: \$secs, unmet: \$unmet,
       notes: (\$r.notes // \"\"), $fields}]
@@ -1008,6 +1019,10 @@ run_ticket() {
     { ((visible)) && grep -Eq "$LIMIT_RE" <<<"$(session_tail "$sessions")"; }; then
     limit_hit=1
   fi
+  # Protected paths: once per attempt, before any requeue, patch, stash or
+  # commit. The files are removed first, so they reach none of them.
+  protected_hit="$(protected_hits)"
+  if [[ -n "$protected_hit" ]]; then purge_protected "$protected_hit"; fi
   if ((limit_hit)); then
     requeue "$n" "rate-limit text in worker output"
     return
@@ -1020,11 +1035,7 @@ run_ticket() {
     fi
   fi
 
-  # Protected paths: once per attempt, before any patch, stash or commit. The
-  # files are removed first, so they reach none of them.
-  protected_hit="$(protected_hits)"
   if [[ -n "$protected_hit" ]]; then
-    purge_protected "$protected_hit"
     reason="protected paths touched: $(paste -sd ' ' - <<<"$protected_hit")"
     class=permanent
   elif ((timed_out)); then
@@ -1056,7 +1067,7 @@ run_ticket() {
     stat="$(git diff --cached --shortstat)"
     if git commit -q -m "$subject (#$n)"; then
       sha="$(git rev-parse --short HEAD)"
-      return_to_base
+      detach_at_base
       # shellcheck disable=SC2086
       st_apply '.done += [{n: $n, sha: $sha, branch: $tb, pr_base: $pb, parents: $parents,
           title: $title, pr: null, publish_error: null, secs: $secs, unmet: $unmet, stat: $stat,
