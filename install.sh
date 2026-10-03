@@ -150,10 +150,8 @@
 #   `name:` rather than its directory. The optional :<subdir> pins which tree to
 #   read when a repo ships several copies. Vendored by reference, never copied:
 #   upstream files do not enter this repo's history and are not linted here.
-#   Name collisions resolve deterministically: a repo-owned skills/<name> beats
-#   every external source; an external line that names the skill beats a bare
-#   one; among lines of the same kind the earliest one in plugins.txt wins. Each
-#   loser is skipped with a warning and counted in `skipped`.
+#   Name collisions resolve by fixed precedence (AGENTS.md, Skills); each loser
+#   is skipped with a warning and counted in `skipped`.
 #
 # Idempotent; safe to re-run. Run once after cloning on a new machine.
 #
@@ -405,9 +403,8 @@ record_skill() { # record_skill <name> <source-dir>
 }
 
 # resolve_external_candidates: when several external lines ship the same skill
-# name, exactly one wins. An allowlist line that names the skill beats a bare
-# line; among lines of the same kind the earliest one in plugins.txt wins. Losers
-# are skipped with a warning, never an error. Repo-owned skills were already
+# name, exactly one wins, by the precedence in AGENTS.md (Skills). Losers are
+# skipped with a warning, never an error. Repo-owned skills were already
 # filtered out when each candidate was collected.
 EXTERNAL_CANDIDATES=""
 resolve_external_candidates() {

@@ -109,7 +109,7 @@ Ship production CSS to support the decision.
 
 `references/` holds the concrete values behind these checks: `surfaces-and-icons.md`
 for radius, shadow-as-border and icon mechanics, `colour-systems.md` for ramp
-formation, token grammar and APCA/WCAG thresholds, `layout-mechanics.md` for
+formation, token grammar and APCA thresholds, `layout-mechanics.md` for
 spacing and adaptivity measurements, and `motion-values.md` for the numeric
 overrides to the vendored `animate` and `emil-design-eng` skills.
 

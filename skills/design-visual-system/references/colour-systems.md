@@ -70,15 +70,7 @@ Anti-patterns: `--color-blue-button` (appearance named at the semantic tier, lie
 
 ## Contrast: APCA alongside WCAG, never replacing it
 
-**WCAG 2.2 is the conformance check.** Report APCA Lc only as an additional perceptual measure, never as a substitute for a WCAG conformance claim (see `../SKILL.md` §2). Where a project must claim formal WCAG 2.x conformance, WCAG is the gate and APCA is the tiebreaker for anything already passing WCAG.
-
-WCAG 2 thresholds:
-
-| Content type | AA | AAA |
-| --- | --- | --- |
-| Normal text (<24px / <18.5px bold) | 4.5:1 | 7:1 |
-| Large text (≥24px / ≥18.5px bold) | 3:1 | 4.5:1 |
-| UI components and graphical objects | 3:1 | n/a |
+**WCAG 2.2 is the conformance check, and `skill://design-interface` owns its thresholds** (`skills/design-interface/references/target-contrast-reflow.md`). Report APCA Lc only as an additional perceptual measure, never as a substitute for a WCAG conformance claim. Where a project must claim formal WCAG 2.x conformance, WCAG is the gate and APCA is the tiebreaker for anything already passing WCAG.
 
 APCA Lc thresholds, used as the supplementary perceptual measure:
 

@@ -17,3 +17,7 @@ All three are overlays. A dialog interrupts the flow centre-screen to demand a d
 ## Gotcha
 
 Agents use this list to rename a component instead of changing its behaviour — swapping the label from "tooltip" to "popover" on an element that still dismisses on pointer-leave fixes nothing. The behaviour has to change first; the name follows.
+
+## Sources
+
+- Retired skill design-engineering, file skills/design-engineering/references/components/component-confusables.md @ `81805dc89d40889639a95502bfb578a098266dc8`.
