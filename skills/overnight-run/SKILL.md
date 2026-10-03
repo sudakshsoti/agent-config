@@ -10,13 +10,15 @@ Automate "/implement per ticket, fresh context between each" for tickets that
 `/to-tickets` already made agent-ready. There is no grilling, spec, triage or
 design work here.
 
-This session does the **preflight** only. It then starts `overnight.sh` in tmux
-(or a herdr tab) under `caffeinate -i` and ends. The script owns all looping,
-waiting, killing, committing and stashing; this session never sleeps and never
-implements.
+This session does the **preflight** only. It then starts `overnight.sh` in a
+detached terminal multiplexer (the operator's choice; tmux is the example) and
+ends. The script owns all looping, waiting, killing, committing and stashing,
+and on macOS it holds its own idle-sleep assertion; this session never sleeps
+and never implements.
 
-`S` is this skill's `scripts/` directory: `~/.claude/skills/overnight-run/scripts`
-in Claude Code, `~/.agents/skills/overnight-run/scripts` in OMP.
+`S` is this skill's `scripts/` directory: the `scripts/` folder beside this
+`SKILL.md`, wherever the harness installed it. Derive it from this file's path
+and quote it; never hard-code a per-harness home path.
 
 Arguments, if given, preset the deadline (default 07:00), a max-tickets cap
 (default none), the worker harness, and the two optional modes:
@@ -38,7 +40,8 @@ Arguments, if given, preset the deadline (default 07:00), a max-tickets cap
 ## Preflight
 
 Keep tracker access read-only for the whole run: `gh issue list/view` and
-`gh api` GETs only. Run every step; stop at the first failure and report it.
+`gh api` GETs only. Run the steps in order; a failed check ends the preflight with a report.
+Questions to the user are not failures.
 
 1. **Read the rules.** Read `AGENTS.md`, `docs/agents/issue-tracker.md`,
    `docs/agents/triage-labels.md` and any build-order or wave doc (e.g.
@@ -67,8 +70,8 @@ Keep tracker access read-only for the whole run: `gh issue list/view` and
      `$(git rev-parse --git-path info/exclude)`.
    - If `.scratch/overnight/state.json` exists: when its `pid` is alive and
      its `stop_reason` is null, a run is in progress; stop and report it.
-     Otherwise ask once: `--resume` it on its branch, or start over by
-     `mv`-ing it to `.scratch/overnight/state.prev-<YYYYMMDD-HHMMSS>.json`.
+     Otherwise ask once: `--resume` it on its branch, or start over (the `mv`
+     is in Morning).
    - Run branch: `overnight/<YYYY-MM-DD>`, or `-2`, `-3`, … when
      `git show-ref -q --verify refs/heads/<name>` finds the name taken.
      `git switch --no-track -c <run-branch> origin/main` (or `main`, if chosen
@@ -78,17 +81,17 @@ Keep tracker access read-only for the whole run: `gh issue list/view` and
      out. In PR-per-ticket mode this checkout only holds
      `.scratch/overnight/`; the tickets branch from `origin/main`.
 5. **Pick the worker.** Default: `omp` with omp's `modelRoles.task`
-   (`omp config get modelRoles --json | jq -r .value.task`, today
-   `anthropic/claude-sonnet-5-5:medium`). Leave `worker_model` out of
-   plan.json and the script resolves it; show the resolved value.
+   (`omp config get modelRoles --json | jq -r .value.task`). Leave
+   `worker_model` out of plan.json and the script resolves it; show the
+   value the dry run prints.
    - An override goes in plan.json `worker_model`, never in
-     `OVERNIGHT_WORKER_MODEL`: the tmux or herdr launch does not inherit this
+     `OVERNIGHT_WORKER_MODEL`: the multiplexer launch does not inherit this
      session's environment. Example: `opencode-go/deepseek-v4.1-flash:high`,
      to spend the OpenCode Go allowance instead of Anthropic.
    - The model must be an exact `omp models` selector, optionally with a
      `:<thinking>` suffix. `~`-prefixed aliases are not accepted.
-   - `--worker claude` takes an Anthropic model, or the same default, passed
-     as `--model claude-sonnet-5-5 --effort medium`. It always runs headless.
+   - `--worker claude` takes an Anthropic model, or the same default. It
+     always runs headless.
    - The usage gate follows the model's provider.
 6. **Write the plan** to `.scratch/overnight/plan.json`:
 
@@ -127,20 +130,24 @@ Keep tracker access read-only for the whole run: `gh issue list/view` and
    resolve them differently. `<run>` is the run branch with `/` replaced by
    `-`, which keeps the name unique per same-day run.
 
+   The command is the same on macOS and Linux. Host it in any multiplexer
+   that keeps a detached command alive; the operator picks. With tmux:
+
    ```bash
    tmux new-session -d -s "<run>" -c "$PWD" \
-     "caffeinate -i '$S/overnight.sh' --worker <w> --deadline <HH:MM> --visible|--headless [flags] 2>&1 | tee -a .scratch/overnight/run.log"
+     "'$S/overnight.sh' --worker <w> --deadline <HH:MM> --visible|--headless [flags] 2>&1 | tee -a .scratch/overnight/run.log"
    ```
 
-   Inside herdr (`HERDR_ENV=1`), skip tmux: create a tab with
+   Inside herdr (`HERDR_ENV=1`) use a tab instead: create it with
    `herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd "$PWD" --label
-   <run> --no-focus` and send the same `caffeinate -i …`
-   command to its root pane with `herdr pane run <pane> "<command>"`.
+   <run> --no-focus` and send the same `'$S/overnight.sh' …` command to its
+   root pane with `herdr pane run <pane> "<command>"`.
 
-   Print how to attach (`tmux attach -t <run>` or the herdr tab), the report
-   path, and the stop command `"$S/overnight.sh" --stop`, run from the repo.
-   Remind the user that `caffeinate -i` prevents only idle sleep (stay on
-   power with the lid open), then end the session.
+   Print how to attach (`tmux attach -t <run>`, the herdr tab or the
+   operator's multiplexer equivalent), the report path, and the stop command
+   `"$S/overnight.sh" --stop`, run from the repo. On macOS also remind the
+   user that the run prevents only idle sleep (stay on power with the lid
+   open); say nothing about it on other hosts. Then end the session.
 
 ## What the script does
 
@@ -192,12 +199,8 @@ rebase-merge: a squash forces conflicts in the PRs above it.
 
 ## Morning
 
-The report is `.scratch/overnight/<YYYY-MM-DD>.md`: planned vs actual queue,
-model and gated provider, per-ticket status, SHA or PR, duration, unmet
-criteria and attempts, failures with class (temporary or permanent), red
-checks, protected paths hit, patch and handoff paths, and stash names or
-worktree paths, skipped tickets with blockers, usage readings, the stop
-reason and the routes to check visually.
+The report is `.scratch/overnight/<YYYY-MM-DD>.md`; it documents itself
+(queue, per-ticket outcome, failures, stop reason). Read it first.
 
 **Stopping.** `"$S/overnight.sh" --stop` from the repo ends the run after the
 current ticket, or wakes it from a usage sleep. It writes the report and
