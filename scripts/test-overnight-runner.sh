@@ -530,11 +530,66 @@ B
   check "abort: --resume finishes both tickets" '[[ $RC == 0 && "$(sq ".done | map(.n) | join(\",\")")" == "1,2" ]]'
 }
 
+case_caffeinate() {
+  mk_case caffeinate
+  issue 1 "T1" "Body"
+  plan '[1]' "$MODEL"
+  mkdir -p "$C/bin"
+  # A stub that behaves like `caffeinate -i -w <pid>`: logs its argv, lives
+  # until that pid is gone, then logs the exit.
+  cat >"$C/bin/caffeinate" <<'S'
+#!/usr/bin/env bash
+echo "$*" >"$OT_CASE/caff.args"
+w=""
+[[ "$1 $2" == "-i -w" ]] && w="$3"
+while [[ -n "$w" ]] && kill -0 "$w" 2>/dev/null; do sleep 0.1; done
+echo gone >"$OT_CASE/caff.gone"
+S
+  chmod +x "$C/bin/caffeinate"
+  behave 1 <<'B'
+cp "$OT_CASE/caff.args" "$OT_CASE/caff.during" 2>/dev/null
+B
+  PATH="$C/bin:$PATH" run_runner --dry-run
+  check "caffeinate: a dry run takes no assertion" '[[ $RC == 0 && ! -e "$C/caff.args" ]]'
+  PATH="$C/bin:$PATH" run_runner
+  local i
+  for i in $(seq 50); do [[ -e "$C/caff.gone" ]] && break; sleep 0.1; done
+  check "caffeinate: held while the worker runs, tied to the runner pid" '[[ $RC == 0 && "$(cat "$C/caff.during")" == "-i -w $(sq .pid)" ]]'
+  check "caffeinate: released once the runner exits" '[[ -e "$C/caff.gone" ]]'
+  check "caffeinate: no warning noise" '! grep -qi "caffeinate\|sleep" "$C/run.err"'
+  # a caffeinate that fails must not fail or noise up the run
+  printf '#!/bin/sh\necho "caffeinate: broken" >&2\nexit 1\n' >"$C/bin/caffeinate"
+  rm -f "$C/caff.gone" "$R/.scratch/overnight/state.json"
+  git -C "$R" reset -q --hard main
+  PATH="$C/bin:$PATH" run_runner
+  check "caffeinate: a failing caffeinate is silent and harmless" '[[ $RC == 0 ]] && ! grep -qi "caffeinate: broken" "$C/run.err" "$C/run.out"'
+  # abort: SIGTERM mid-ticket still releases the assertion
+  rm -f "$C/caff.gone" "$C/invocations.log" "$R/.scratch/overnight/state.json"
+  git -C "$R" reset -q --hard main
+  cat >"$C/bin/caffeinate" <<'S'
+#!/usr/bin/env bash
+w="$3"
+while kill -0 "$w" 2>/dev/null; do sleep 0.1; done
+echo gone >"$OT_CASE/caff.gone"
+S
+  behave 1 <<'B'
+sleep 30
+B
+  (cd "$R" && PATH="$C/bin:$PATH" exec bash "$runner" --headless --worker omp --deadline "$DL") >"$C/run.out" 2>"$C/run.err" &
+  local pid=$!
+  for i in $(seq 100); do [[ -f "$C/invocations.log" ]] && break; sleep 0.1; done
+  check "caffeinate: still held mid-ticket" '[[ ! -e "$C/caff.gone" ]]'
+  kill -TERM "$pid"
+  wait "$pid" || true
+  for i in $(seq 50); do [[ -e "$C/caff.gone" ]] && break; sleep 0.1; done
+  check "caffeinate: released on abort" '[[ -e "$C/caff.gone" ]]'
+}
+
 # --- run ----------------------------------------------------------------------
 
 cases=(retry_success retry_exhausted dependent_order blocked protected protected_allowed
   protected_override red_tests commit_refused setup_failure matrix resume_old_state
-  resume_no_model resume_interrupted notify model_rejected stop abort)
+  resume_no_model resume_interrupted notify model_rejected stop abort caffeinate)
 for c in "${cases[@]}"; do
   (
     "case_$c"

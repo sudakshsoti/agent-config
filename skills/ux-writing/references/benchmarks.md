@@ -13,11 +13,11 @@ Research-backed metrics for creating effective UX text. Use these targets when d
 - **Body copy**: 15-20 words per sentence average
 - **Notifications**: 10-15 words for title + body
 
-**Comprehension Rates**
+**Sentence Length Limits**
 
-- 8 words or fewer: 100% user comprehension
-- 14 words or fewer: 90% user comprehension
-- 25 words: Maximum before significant comprehension drop
+- 8 words or fewer: easiest to take in at a glance
+- 14 words or fewer: aim for this in critical content
+- 25 words: hard maximum
 
 ## Character and Line Length
 
