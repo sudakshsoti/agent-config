@@ -152,7 +152,10 @@
 #   `name:` rather than its directory. The optional :<subdir> pins which tree to
 #   read when a repo ships several copies. Vendored by reference, never copied:
 #   upstream files do not enter this repo's history and are not linted here.
-#   A repo-owned skills/<name> always wins a name collision.
+#   Name collisions resolve deterministically: a repo-owned skills/<name> beats
+#   every external source; an external line that names the skill beats a bare
+#   one; among lines of the same kind the last one in plugins.txt wins. Each
+#   loser is skipped with a warning and counted in `skipped`.
 #
 # Idempotent; safe to re-run. Run once after cloning on a new machine.
 #
@@ -403,6 +406,34 @@ record_skill() { # record_skill <name> <source-dir>
   SKILL_SOURCES="$SKILL_SOURCES$1"$'\t'"$2"$'\n'
 }
 
+# resolve_external_candidates: when several external lines ship the same skill
+# name, exactly one wins. An allowlist line that names the skill beats a bare
+# line; among lines of the same kind the last one in plugins.txt wins. Losers
+# are skipped with a warning, never an error. Repo-owned skills were already
+# filtered out when each candidate was collected.
+EXTERNAL_CANDIDATES=""
+resolve_external_candidates() {
+  local name dir repo verdict
+  [ -n "$EXTERNAL_CANDIDATES" ] || return 0
+  while IFS=$'\t' read -r name dir repo verdict; do
+    [ -n "$name" ] || continue
+    if [ "$verdict" = "W" ]; then
+      record_skill "$name" "$dir"
+      if [ "$FILL_SHARED" = "1" ]; then
+        link_skill_into "$dir" "$SKILLS_ROOT/$name"
+      fi
+    else
+      echo "⚠️  SKIP $name (external $repo) — shadowed by external ${verdict#L:}"
+      skipped=$((skipped + 1))
+    fi
+  done < <(printf '%s' "$EXTERNAL_CANDIDATES" | awk -F'\t' '
+    { name[NR] = $1; dir[NR] = $2; repo[NR] = $3
+      rank = $4 # explicit beats bare; later beats earlier within a kind
+      if (!($1 in best) || rank >= bestrank[$1]) { best[$1] = NR; bestrank[$1] = rank } }
+    END { for (i = 1; i <= NR; i++)
+      printf "%s\t%s\t%s\t%s\n", name[i], dir[i], repo[i], (best[name[i]] == i ? "W" : "L:" repo[best[name[i]]]) }')
+}
+
 if [ "$SKILLS_ONLY" = "1" ]; then
   if [ "$PRUNE" = "1" ]; then
     echo "--skills-only cannot be combined with --prune"
@@ -512,6 +543,8 @@ if [ "$FILL_SHARED" = "1" ] || [ "$FILL_CLAUDE" = "1" ]; then
       # linked. Empty means every skill found — right for a small, curated repo,
       # wrong for a grab bag whose extras are dead weight in the context budget.
       want="$rest"
+      explicit=0
+      [ -n "$want" ] && explicit=1
       # Where the skill dirs live. An explicit subdir wins; otherwise skills/ if
       # present, else the repo root. A repo that is itself one skill puts SKILL.md
       # at the root, so that is checked separately below.
@@ -550,10 +583,9 @@ if [ "$FILL_SHARED" = "1" ] || [ "$FILL_CLAUDE" = "1" ]; then
           skipped=$((skipped + 1))
           return 1
         fi
-        record_skill "$name" "$dir"
-        if [ "$FILL_SHARED" = "1" ]; then
-          link_skill_into "$dir" "$SKILLS_ROOT/$name"
-        fi
+        # Linking waits until every line is read, so precedence can see all
+        # candidates (see resolve_external_candidates).
+        EXTERNAL_CANDIDATES="$EXTERNAL_CANDIDATES$name"$'\t'"$dir"$'\t'"$repo"$'\t'"$explicit"$'\n'
         return 0
       }
 
@@ -575,6 +607,7 @@ if [ "$FILL_SHARED" = "1" ] || [ "$FILL_CLAUDE" = "1" ]; then
         external=$((external + 1))
       fi
     done <"$REPO/plugins.txt"
+    resolve_external_candidates
   fi
 else
   echo "note: no shared-skill-root consumer present (~/.codex, ~/.pi/agent, ~/.config/opencode, ~/.omp/agent) and no ~/.claude — skipping ~/.agents/skills and ~/.claude/skills"
