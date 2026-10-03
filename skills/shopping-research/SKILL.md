@@ -10,7 +10,7 @@ Purchase advice for someone buying in India. One job: get them to a confident de
 a specific product, from a seller that is real, at a price and a moment that make sense.
 
 Everything here is buying mechanics. Whether a piece suits the wardrobe, or whether a
-fragrance is any good, belongs to the taste skill that owns that domain. This skill takes
+fragrance is any good, is outside this skill. This skill takes
 over once the question is *buy or not, which one, from where, when*.
 
 ## The opt-in gate

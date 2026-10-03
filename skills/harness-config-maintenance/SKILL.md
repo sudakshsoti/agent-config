@@ -97,7 +97,9 @@ Keep these distinctions intact:
 - Repo-owned skills belong under `skills/<name>/` and are linked by
   `install.sh` into the single shared root, `~/.agents/skills`.
 - Third-party skill sets use a named `external` allowlist in `plugins.txt`.
-  There is no plugin or marketplace lane any more.
+  Harness plugins are separate: `omp/plugins.txt`, `claude/plugins.txt` and
+  `herdr/plugins.txt` declare what `install.sh` installs into each harness; they
+  are not skill sources.
 - Prefer a narrow allowlist. A bare upstream collection can silently consume
   the shared context budget.
 - Follow `skills/skill-lifecycle/SKILL.md` for inventory and pruning.

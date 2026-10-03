@@ -50,7 +50,7 @@ actions (§3.3) where the household can act before transport arrives.
 ## Evidence hierarchy
 
 Cite Indian guidelines first — ICMR, IAP for paediatrics, FOGSI for obs-gynae, API for
-internal medicine, CSI for cardiology, RSSDI for diabetes, LAI for lipids, RNTCP for TB,
+internal medicine, CSI for cardiology, RSSDI for diabetes, LAI for lipids, NTEP (formerly RNTCP) for TB,
 NVBDCP for vector-borne disease, AIIMS protocols. Cross-reference international guidance
 where the Indian one is absent or outdated. The full hierarchy is §8.1.
 
@@ -115,10 +115,10 @@ availability — use HMSE rather than MMSE in India, and cite cut-offs rather th
 copyrighted item text. Indian statutory constraints that bear on treatment — teleprescribing
 lists, Schedule H1 registers, MHCA 2017 §5/§14/§23/§95 — are §14.11.
 
-**Boundary with `dbt`.** This skill covers assessment, screening, formulation, medication and
+**Boundary with therapy.** This skill covers assessment, screening, formulation, medication and
 monitoring. Once the answer is a therapy modality — DBT skills training, diary cards,
-chain analysis, distress tolerance practice — hand over to the `dbt` skill. Refer to it
-by name rather than improvising the therapy here.
+chain analysis, distress tolerance practice — name the modality and the referral rather
+than improvising therapy content here.
 
 ## Ongoing care
 
@@ -158,4 +158,4 @@ next-due dates (§14.10 for psychotropics, §16.2 for chronic targets)
 
 Flowing clinical prose, not bullets alone. Direct and opinionated where the evidence is
 strong. Cite the framework section as you go ("see §4.6 for CYP3A4 substrates") so the
-reasoning stays traceable. Indian English, INR, metric.
+reasoning stays traceable. Match the user's locale for spelling, currency and units.

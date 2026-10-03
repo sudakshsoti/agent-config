@@ -29,8 +29,9 @@ dispatch the native reviewer role:
 
 - **OMP** — dispatch the `adversary` subagent with the plan file. It pins
   `model: "@adversary"`, which resolves through the `adversary` role in
-  `omp/config.yml` to a non-Anthropic model at high effort with a fallback chain
-  that contains no Anthropic model either.
+  `omp/config.yml` to a non-Anthropic model at high effort. The fallback chain
+  can end on a Claude model, so report the model that actually ran; if it is a
+  Claude model, label the review "same-lineage" rather than cross-lineage.
 - **Pi** — dispatch the `reviewer` subagent (read-only, on a second model
   lineage). Do not use `Critic`; that role reviews rendered interfaces, not
   plans.

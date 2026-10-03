@@ -110,7 +110,7 @@ Secrets belong in dotfiles (1Password + age), never here.
   neither `claude` nor `anthropic`. Multi-line descriptions require `|` or `>-`;
   an unquoted colon-space can parse as a nested mapping and break loading.
 - `python3 scripts/lint-skills.py` enforces these rules and synchronizes the
-  `skills/README.md` list, including its sentence stating the count of 36
+  `skills/README.md` list, including its sentence stating the count of 35
   repo-owned skills. `python3 scripts/check-manifest.py` (run by `check.sh`)
   rejects malformed `plugins.txt` lines and duplicate external allowlisting;
   `scripts/manifest.py` is the shared parser.
@@ -260,6 +260,13 @@ Secrets belong in dotfiles (1Password + age), never here.
   smol and commit traffic also lands on MiMo-Pro `:high` during a GLM outage.
   No role was moved to MiMo: Pro's +4 index lead over GLM comes mostly from
   HLE/CritPt, the Terminal-Bench gap is within noise, and Pro hallucinates more.
+  The same chain gained `openrouter/deepseek/deepseek-v4.1-flash:high` between
+  `deepseek-v4.1-flash:max` and the Sonnet rung on 2026-10-04 (user decision):
+  all three Go rungs share one provider, so the OpenRouter rung keeps review
+  cross-lineage through a Go outage, and OpenRouter per-token billing (the
+  `omp.sh` key) during that outage is accepted. The model answered a
+  retry-disabled probe; Sonnet stays last so scout, smol and commit traffic
+  still runs if Go and OpenRouter are both down.
 - `openai-codex` is in the base `disabledProviders`, so no role, chain or
   `/model` pick in a **plain** session reaches the lapsing ChatGPT account.
   There are no routing overlays: `omp/overlays/` holds only `search-keys.tpl`.

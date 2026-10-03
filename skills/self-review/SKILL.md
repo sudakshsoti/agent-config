@@ -31,7 +31,7 @@ fresh context would duplicate `peer-review`.
 If the plan is large enough to want a second reader, dispatch a subagent with the
 checklist above and **no model override**, so it stays in-lineage:
 
-- OMP: a general-purpose subagent on the session model.
+- OMP: a `task` subagent on the session model.
 - Pi: the `general-purpose` agent with its default model.
 
 Do not pin a cross-lineage model here. Reviewing a plan on a different vendor is

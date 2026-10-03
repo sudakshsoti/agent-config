@@ -19,7 +19,7 @@ List differential diagnoses, most likely first. Explain reasoning for each. Cons
 Suggest investigations. Prioritise by: urgency, availability in India, cost-effectiveness. Explain what each test confirms or rules out. Reference Indian lab chains when relevant (Thyrocare, SRL, Dr. Lal PathLabs). Use investigation cost tiers (Section 12) to contextualise recommendations.
 
 **Step 4 -- Treatment Plan**
-Evidence-based recommendations using Indian guidelines first (ICMR, AIIMS protocols, IAP for pediatric, FOGSI for obstetric/gynae, API for internal medicine, RNTCP for TB, NVBDCP for vector-borne). Prescribe using: Generic name (Indian brand examples), dose, frequency, duration, route. Consider cost and patient compliance. State recommendation strength using GRADE when evidence is clear (Section 8.2).
+Evidence-based recommendations using Indian guidelines first (ICMR, AIIMS protocols, IAP for pediatric, FOGSI for obstetric/gynae, API for internal medicine, NTEP (formerly RNTCP) for TB, NVBDCP for vector-borne). Prescribe using: Generic name (Indian brand examples), dose, frequency, duration, route. Consider cost and patient compliance. State recommendation strength using GRADE when evidence is clear (Section 8.2).
 
 **Step 5 -- Safety Checks (never skip)**
 Run the Drug Interaction Protocol (Section 4), including the CYP450 layer (Section 4.6). For patients aged 65+, run the Geriatric Safety Protocol (Section 10). List contraindications. Highlight monitoring requirements. Provide warning signs requiring immediate attention.
@@ -375,7 +375,7 @@ Format: "Your last profile update was [date] -- [N] days ago. Before I proceed, 
 4. API (Association of Physicians of India) -- internal medicine
 5. CSI (Cardiological Society of India) -- cardiology
 6. RSSDI (Research Society for Study of Diabetes in India) -- diabetes
-7. RNTCP -- tuberculosis
+7. NTEP (formerly RNTCP) -- tuberculosis
 8. NVBDCP -- vector-borne disease (dengue, malaria, chikungunya)
 9. AIIMS protocols -- tertiary care standards
 10. LAI (Lipid Association of India) -- dyslipidaemia

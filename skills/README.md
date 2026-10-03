@@ -41,7 +41,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
   the template above makes colons and quotes literal — keep it. Single-line
   descriptions are also fine.
 
-The list below covers the 36 repo-owned skills that are active. Keep it
+The list below covers the 35 repo-owned skills that are active. Keep it
 synchronized with the actual `skills/*/SKILL.md` directories;
 `scripts/lint-skills.py` validates each skill's frontmatter and fails when this
 list and the source tree disagree.
@@ -63,7 +63,6 @@ lookup-documentation work.
 - `design-visual-system` — Define product UI art direction, colour, hierarchy, responsive layout, and CSS tokens.
 - `execute-plan` — Autonomously run a checklist plan file item-by-item — one fresh subagent per item, commit after each. Point it at a `PLAN.md`. `/execute-plan <path>`.
 - `vibe` — The interface workflow: quick tweak, shape first or risky change; Plan, Builder and Critic roles that run as subagents where the harness has them and sequentially otherwise. `pi/prompts/vibe.md` is a thin wrapper that invokes it.
-- `find-skills` — Discover and install agent skills when asked "is there a skill for X".
 - `geopolitics` — Opinionated analyst for wars, sanctions, trade, defence, elections, negotiations, and other statecraft between countries.
 - `gtd` — Sudaksh's personal GTD system: capture, inbox processing, daily/weekly reviews, Todoist/calendar routing, overwhelm triage, email triage, and procrastination audits.
 - `handoff` — Structured session-handoff docs for continuity across sessions.

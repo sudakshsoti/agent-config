@@ -44,7 +44,8 @@ collision costs one retry. This one goes in every packet of a batch.
 
 If one worker in a batch fails, the others still count — re-dispatch the failure.
 
-Consecutive mechanical items are also worth handing to a single `haiku` worker as
+Consecutive mechanical items are also worth handing to a single `code-worker` (or
+`sonic` for purely mechanical work) as
 an ordered list, committing per item.
 
 ## The handoff packet

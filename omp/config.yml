@@ -55,6 +55,7 @@ retry:
     opencode-go/glm-5.3-flash:
       - opencode-go/mimo-v2.6-pro:high
       - opencode-go/deepseek-v4.1-flash:max
+      - openrouter/deepseek/deepseek-v4.1-flash:high
       - anthropic/claude-sonnet-5-5:medium
     opencode-go/deepseek-v4.1-flash:
       - muse-code/muse-spark-1.3-contributor:high
