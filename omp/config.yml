@@ -123,8 +123,9 @@ statusLine:
   segmentOptions:
     {}
 startup:
-  quiet: false
+  quiet: true
   showSplash: false
+  changelogMode: hidden
 autoResume: false
 modelRoleStorage: global
 memory:
@@ -147,8 +148,8 @@ display:
   showTokenUsage: false
   collapseCompacted: true
   cacheMissMarker: false
-  hideToolActivity: false
-defaultThinkingLevel: auto
+  hideToolActivity: true
+defaultThinkingLevel: medium
 providers:
   autoThinkingMaxEffort: high
   fireworksTier: standard
