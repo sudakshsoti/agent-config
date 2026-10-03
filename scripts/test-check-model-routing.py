@@ -475,6 +475,12 @@ class RoutingCheckTest(unittest.TestCase):
         self.assert_fails(self.docs_check(omp_doc=OMP_DOC.replace("<!-- routing:end -->", "")), "never closed")
         self.assert_fails(self.docs_check(omp_doc=OMP_DOC.replace("<!-- routing:current -->", "")), "without")
 
+    def test_doc_without_any_marked_block_fails(self):
+        doc = OMP_DOC.replace("<!-- routing:current -->\n", "").replace("<!-- routing:end -->\n", "")
+        self.assert_fails(self.docs_check(omp_doc=doc), "AGENTS.md:", "no routing:current block")
+        doc = PI_DOC.replace("<!-- routing:current -->\n", "").replace("<!-- routing:end -->\n", "")
+        self.assert_fails(self.docs_check(pi_doc=doc), "pi/model-ladder.md:", "no routing:current block")
+
     def test_missing_doc_fails(self):
         parsed, _ = MODULE.parse_config(BASE_CONFIG, "omp/config.yml")
         failures = MODULE.check(parsed, {"builder.md": BUILDER}, {"Explore.md": PI_AGENT}, json.loads(PI_SETTINGS), docs={})

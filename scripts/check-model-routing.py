@@ -496,6 +496,8 @@ def check_docs(docs, config, pi_agents, pi_settings):
             _check_omp_table(text, config, failures)
         else:
             _check_pi_table(text, pi_agents, pi_settings, failures)
+        if not any(line.strip() == MARK_START for line in text.splitlines()):
+            failures.append(f"{label}: no routing:current block ({MARK_START} ... {MARK_END}); mark the current-state routing lines")
         _check_marked(label, text, native, config, pi_agents, pi_settings, failures)
     return failures
 
