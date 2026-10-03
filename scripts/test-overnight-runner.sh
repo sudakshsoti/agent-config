@@ -471,10 +471,24 @@ echo two >shared.txt
 B
   run_runner
   check "conflict: the run continues past it" '[[ $RC == 0 && "$(sq ".done | map(.n) | join(\",\")")" == "1,2,4" ]]'
-  check "conflict: #3 fails permanently with the merge conflict as its reason" '[[ "$(sq ".failed[0].n")" == 3 && "$(sq ".failed[0].class")" == permanent && "$(sq ".failed[0].reason")" == "merge conflict: #"* ]] && report | grep -E "^- #3:" | grep -q "merge conflict"'
+  check "conflict: #3 is retried once, then fails as temporary with the merge conflict as its reason" '[[ "$(sq ".failed[0].n")" == 3 && "$(sq ".failed[0].class")" == temporary && "$(sq ".retries[\"3\"]")" == 1 && "$(sq ".failed[0].reason")" == "setup failed: merge conflict: #"* ]] && report | grep -E "^- #3:" | grep -q "merge conflict" && [[ -s "$R/.scratch/overnight/logs/3.handoff.md" ]]'
   check "conflict: #3's worker never ran, #4 started on a clean tree" '[[ "$(inv)" == "1 2 4" && "$(sed -n 3p "$C/invocations.log")" == "4 $MODEL 1 0" ]]'
   check "conflict: no branch for #3, locally or on origin; no merge left half-done" '[[ -z "$(git -C "$R" branch --list overnight/test/3)" && -z "$(origin_ref overnight/test/3)" && ! -e "$R/.git/MERGE_HEAD" && -z "$(git -C "$R" status --porcelain)" ]]'
   check "conflict: #4 branched from the base" '[[ "$(git -C "$R" merge-base overnight/test/4 main)" == "$base_sha" ]]'
+}
+
+# A setup failure that is not a merge: the ticket branch cannot be created.
+case_setup_failure() {
+  mk_case setup_failure
+  for n in 1 2 3; do issue "$n" "T$n" "Body"; done
+  edge 2 1
+  plan '[1,2,3]' "$MODEL"
+  # refs/heads/overnight/test/1/x blocks creating refs/heads/overnight/test/1
+  git -C "$R" branch overnight/test/1/x main
+  run_runner
+  check "setup failure: the run finishes and only #1 fails, as temporary after one retry" '[[ $RC == 0 && "$(sq ".failed | map(.n) | join(\",\")")" == 1 && "$(sq ".failed[0].class")" == temporary && "$(sq ".retries[\"1\"]")" == 1 ]]'
+  check "setup failure: #1 never ran a worker, its dependent is skipped, #3 is done" '[[ "$(inv)" == 3 && "$(sq ".skipped | map(.n) | join(\",\")")" == 2 && "$(sq ".done | map(.n) | join(\",\")")" == 3 ]]'
+  check "setup failure: the handoff names the failure" 'grep -qi "setup" "$R/.scratch/overnight/logs/1.handoff.md"'
 }
 
 case_pr_failed() {
@@ -791,7 +805,7 @@ B
 
 cases=(retry_success retry_exhausted dependent_order blocked protected protected_allowed
   protected_override red_tests commit_refused pr_independent pr_stacked pr_multi
-  pr_conflict pr_failed pr_publish_failure pr_create_failure gh_access pr_dry_run no_merge matrix resume_old_state
+  pr_conflict setup_failure pr_failed pr_publish_failure pr_create_failure gh_access pr_dry_run no_merge matrix resume_old_state
   resume_no_model resume_interrupted notify model_rejected stop abort caffeinate)
 for c in "${cases[@]}"; do
   (

@@ -745,29 +745,40 @@ check_publish_access() {
 
 # open_branch <n> — creates ticket n's branch and enters it; sets tbranch, tbase
 # (its PR base) and tparents (its in-run blockers, space separated). One
-# blocker: stack on its branch. Several: branch from the base and merge theirs;
-# returns 1, with merge_conflict set to the blocker, when a merge conflicts.
+# blocker: stack on its branch. Several: branch from the base and merge theirs.
+# Any failure returns 1 with setup_error set to the reason, so it fails this
+# ticket only (a merge conflict names the blocker); it never stops the run.
 open_branch() {
   local n="$1" p
   tbranch="$prefix/$n"
   tbase="$base"
   tparents="$(inrun_blockers "$n" | paste -sd ' ' -)"
-  merge_conflict=""
+  setup_error=""
   git fetch -q origin "$base" 2>>"$dir/logs/fetch.log" ||
     log "git fetch origin $base failed; using the last fetched origin/$base"
-  return_to_base "$tbranch" # leftovers from an interrupted attempt
+  # leftovers from an interrupted attempt
+  if ! return_to_base "$tbranch" 2>>"$dir/logs/$n-setup.log"; then
+    setup_error="could not return to origin/$base: $(last_line "$dir/logs/$n-setup.log")"
+    return 1
+  fi
   # shellcheck disable=SC2086
   set -- $tparents
   if (($# == 1)); then
     tbase="$(done_field "$1" branch)"
-    git switch -q --no-track -c "$tbranch" "$tbase"
+    if ! git switch -q --no-track -c "$tbranch" "$tbase" 2>>"$dir/logs/$n-setup.log"; then
+      setup_error="could not create $tbranch from $tbase: $(last_line "$dir/logs/$n-setup.log")"
+      return 1
+    fi
     return 0
   fi
-  git switch -q --no-track -c "$tbranch" "origin/$base"
+  if ! git switch -q --no-track -c "$tbranch" "origin/$base" 2>>"$dir/logs/$n-setup.log"; then
+    setup_error="could not create $tbranch from origin/$base: $(last_line "$dir/logs/$n-setup.log")"
+    return 1
+  fi
   for p in "$@"; do
     if ! git merge -q --no-ff -m "Merge #$p into #$n" "$(done_field "$p" branch)" >>"$dir/logs/$n-merge.log" 2>&1; then
       git merge --abort >/dev/null 2>&1 || git reset -q --hard
-      merge_conflict="$p"
+      setup_error="merge conflict: #$p's branch does not merge with the base and the other blockers' branches"
       return 1
     fi
   done
@@ -931,8 +942,8 @@ run_ticket() {
   resultf="${out%.out}.result.json"
   sessions="$dir/sessions/$(sget .tickets_run)-$n"
   if ! open_branch "$n"; then
-    log "#$n merge conflict combining blockers; see $dir/logs/$n-merge.log"
-    fail_ticket "$n" "merge conflict: #$merge_conflict's branch does not merge with the base and the other blockers' branches" permanent '{}' 0 '[]' 0
+    log "#$n setup failed: $setup_error"
+    fail_ticket "$n" "setup failed: $setup_error" temporary '{}' 0 '[]' 0
     return
   fi
   if ((retries > 0)); then
