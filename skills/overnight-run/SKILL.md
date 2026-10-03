@@ -1,6 +1,6 @@
 ---
 name: overnight-run
-description: "Run ready-for-agent tickets unattended and serially, one fresh /implement worker per ticket, behind a usage gate. Invoke only when the user asks for an overnight, AFK or unattended run."
+description: "Use only when the user asks for an overnight, AFK, or unattended run: works ready-for-agent tickets serially, one fresh /implement worker per ticket, behind a usage gate. Not for a single plan checklist (execute-plan) or dependent workstreams (workstreams)."
 disable-model-invocation: true
 ---
 

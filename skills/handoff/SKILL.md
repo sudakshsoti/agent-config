@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: "Create structured session handoffs capturing decisions, progress, changes, and next steps for continuity across breaks, context switches, and resets."
+description: "Use when ending or pausing a session to write a structured handoff of decisions, progress, changes, and next steps for the next session. Not for tracker backlog upkeep (backlog) or personal task capture (gtd)."
 disable-model-invocation: true
 ---
 

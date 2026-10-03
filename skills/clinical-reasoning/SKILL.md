@@ -1,6 +1,6 @@
 ---
 name: clinical-reasoning
-description: "Provide India-focused clinician decision support for diagnosis, differentials, investigations, prescribing, interactions, dosing, and red-flag triage."
+description: "Use when a clinician needs India-specific case reasoning: differential, workup, prescribing, interaction or dose checks, red-flag triage. Not for patient-facing advice, psychotherapy, or US value-based-care software design (vbc-design)."
 disable-model-invocation: true
 ---
 

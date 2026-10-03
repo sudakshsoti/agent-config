@@ -1,6 +1,6 @@
 ---
 name: execute-plan
-description: "Use when the user points to a markdown checklist plan and wants hands-off execution: delegate independent items, choose suitable agents, verify each slice, and commit it. Agent-agnostic checklist execution; in Pi or OMP, use workstreams when dependency and integration coordination is the primary task."
+description: "Use when the user points to a markdown checklist plan and wants hands-off execution: delegate independent items, choose suitable agents, verify each slice, and commit it. Agent-agnostic checklist execution; in Pi or OMP, use workstreams when dependency and integration coordination is the primary task, overnight-run for unattended ticket runs."
 allowed-tools: Read, Edit, Bash(git*), Task, Glob, Grep
 ---
 

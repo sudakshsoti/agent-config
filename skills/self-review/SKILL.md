@@ -1,6 +1,6 @@
 ---
 name: self-review
-description: "Use immediately after proposing an engineering plan or when `/self-review` is requested; critique your own plan against a fixed checklist and revise it to address every point. It is the in-lineage review stage; use peer-review for an adversarial review by another model lineage."
+description: "Use immediately after proposing an engineering plan or when `/self-review` is requested; critique your own plan against a fixed checklist and revise it to address every point. It is the in-lineage review stage; use peer-review for an adversarial review by another model lineage, and maintainability-review for frontend code."
 user-invocable: true
 ---
 
