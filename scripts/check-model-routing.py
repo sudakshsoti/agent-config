@@ -86,7 +86,7 @@ _TICKED = re.compile(r"`([^`]+)`")
 _GROUP_RE = re.compile(r"^(`[^`]+`(?:/`[^`]+`)*) (roles?|agents?)$")
 _TICKED_LIST_RE = re.compile(r"^`[^`]+`(?: / `[^`]+`)*$")
 _MARKED_LINE_RE = re.compile(
-    r"^(?:- )?(?P<names>`[^`]+`(?:(?: and |, )`[^`]+`)*) \u2192 `(?P<model>[^`]+)` (?P<level>\S+)$"
+    r"^(?P<names>`[^`]+`(?:(?: and |, )`[^`]+`)*) \u2192 `(?P<model>[^`]+)` (?P<level>\S+)$"
 )
 
 
@@ -247,18 +247,35 @@ def _split_row(line):
     return [cell.strip() for cell in line.strip().strip("|").split("|")]
 
 
-def _table_rows(text, header):
-    """Return [(lineno, cells)] for the table whose header row is `header`, or None."""
+_SEPARATOR_CELL = re.compile(r"^:?-+:?$")
+_MARKER_LIKE = re.compile(r"<!--\s*routing:")
+
+
+def _table_rows(label, text, header, failures):
+    """Return [(lineno, cells)] from every table whose header row is `header`.
+
+    A header with no separator row, a malformed separator, or no rows below
+    it is reported, never skipped. Returns None when no table matches.
+    """
     lines = text.splitlines()
+    rows, found = [], False
     for index, line in enumerate(lines):
-        if line.lstrip().startswith("|") and _split_row(line) == header:
-            rows = []
-            for offset in range(index + 2, len(lines)):  # skip the separator row
-                if not lines[offset].lstrip().startswith("|"):
-                    break
-                rows.append((offset + 1, _split_row(lines[offset])))
-            return rows
-    return None
+        if not (line.lstrip().startswith("|") and _split_row(line) == header):
+            continue
+        found = True
+        separator = _split_row(lines[index + 1]) if index + 1 < len(lines) else []
+        if len(separator) != len(header) or not all(_SEPARATOR_CELL.match(c) for c in separator):
+            failures.append(f"{label}:{index + 2}: expected a table separator row under the header at line {index + 1}")
+            continue
+        body = 0
+        for offset in range(index + 2, len(lines)):
+            if not lines[offset].lstrip().startswith("|"):
+                break
+            rows.append((offset + 1, _split_row(lines[offset])))
+            body += 1
+        if not body:
+            failures.append(f"{label}:{index + 1}: table has no rows to check")
+    return rows if found else None
 
 
 def _pi_agent_selector(name, pi_agents):
@@ -292,10 +309,18 @@ def _mismatch(where, subject, doc_value, source, config_value):
     )
 
 
+def _omp_sources(config):
+    return config.get("modelRoles") or {}, (config.get("task") or {}).get("agentModelOverrides") or {}
+
+
+def _compare(failures, where, subject, doc_value, source, actual):
+    if actual != doc_value:
+        failures.append(_mismatch(where, subject, doc_value, source, actual))
+
+
 def _check_omp_table(text, config, failures):
-    roles = config.get("modelRoles") or {}
-    overrides = (config.get("task") or {}).get("agentModelOverrides") or {}
-    rows = _table_rows(text, OMP_TABLE_HEADER)
+    roles, overrides = _omp_sources(config)
+    rows = _table_rows(OMP_DOC, text, OMP_TABLE_HEADER, failures)
     if rows is None:
         failures.append(f"{OMP_DOC}: routing table with header {'| '.join(OMP_TABLE_HEADER)!r} not found")
         return
@@ -322,10 +347,8 @@ def _check_omp_table(text, config, failures):
                     actual = source.get(name)
                     if actual is None:
                         failures.append(f"{where}: {kind} `{name}` is not in {prefix} of omp/config.yml")
-                    elif actual != selector.group(1):
-                        failures.append(
-                            _mismatch(where, f"{kind} `{name}`", selector.group(1), f"{prefix}.{name}", actual)
-                        )
+                    else:
+                        _compare(failures, where, f"{kind} `{name}`", selector.group(1), f"{prefix}.{name}", actual)
         elif _TICKED_LIST_RE.match(first) and _TICKED_LIST_RE.match(value):
             keys = _TICKED.findall(first)
             values = _TICKED.findall(value)
@@ -336,9 +359,7 @@ def _check_omp_table(text, config, failures):
                 if key not in OMP_SETTINGS:
                     failures.append(f"{where}: `{key}` is not a checked setting ({', '.join(OMP_SETTINGS)})")
                     continue
-                actual = _render(_dig(config, key))
-                if actual != doc_value:
-                    failures.append(_mismatch(where, f"setting `{key}`", doc_value, key, actual))
+                _compare(failures, where, f"setting `{key}`", doc_value, key, _render(_dig(config, key)))
         else:
             failures.append(
                 f"{where}: cannot parse routing row {first!r} | {value!r} (expected "
@@ -347,7 +368,7 @@ def _check_omp_table(text, config, failures):
 
 
 def _check_pi_table(text, pi_agents, pi_settings, failures):
-    rows = _table_rows(text, PI_TABLE_HEADER)
+    rows = _table_rows(PI_DOC, text, PI_TABLE_HEADER, failures)
     if rows is None:
         failures.append(f"{PI_DOC}: ladder table with header {'| '.join(PI_TABLE_HEADER)!r} not found")
         return
@@ -368,9 +389,7 @@ def _check_pi_table(text, pi_agents, pi_settings, failures):
             continue
         doc = f"{model.group(1)}:{effort}"
         if first.startswith("Main session"):
-            actual = _pi_default_selector(pi_settings)
-            if actual != doc:
-                failures.append(_mismatch(where, "Main session", doc, "pi/settings.json default", actual))
+            _compare(failures, where, "Main session", doc, "pi/settings.json default", _pi_default_selector(pi_settings))
         elif first.startswith("Manual fallback"):
             cycle = (pi_settings or {}).get("enabledModels") or []
             if doc not in cycle:
@@ -386,27 +405,33 @@ def _check_pi_table(text, pi_agents, pi_settings, failures):
                 actual, error = _pi_agent_selector(name, pi_agents)
                 if error:
                     failures.append(f"{where}: agent `{name}`: {error}")
-                elif actual != doc:
-                    failures.append(
-                        _mismatch(where, f"agent `{name}`", doc, f"pi/agents/{name}.md", actual)
-                    )
+                else:
+                    _compare(failures, where, f"agent `{name}`", doc, f"pi/agents/{name}.md", actual)
 
 
 def _marked_lines(label, text, failures):
     """Yield (lineno, line) for non-blank lines between routing markers."""
     inside = False
-    start = 0
+    start = content = 0
     for lineno, raw in enumerate(text.splitlines(), 1):
         stripped = raw.strip()
-        if stripped == MARK_START:
+        if _MARKER_LIKE.search(re.sub(r"`[^`]*`", "", raw)) and stripped not in (MARK_START, MARK_END):
+            failures.append(
+                f"{label}:{lineno}: malformed routing marker {stripped!r}; a marker must be "
+                f"exactly {MARK_START} or {MARK_END} alone on its line"
+            )
+        elif stripped == MARK_START:
             if inside:
                 failures.append(f"{label}:{lineno}: {MARK_START} inside an open marked block (opened line {start})")
-            inside, start = True, lineno
+            inside, start, content = True, lineno, 0
         elif stripped == MARK_END:
             if not inside:
                 failures.append(f"{label}:{lineno}: {MARK_END} without {MARK_START}")
-            inside = False
+            if inside and not content:
+                failures.append(f"{label}:{start}: marked block has no lines to check")
+            inside, content = False, 0
         elif inside and stripped:
+            content += 1
             yield lineno, stripped
     if inside:
         failures.append(f"{label}:{start}: {MARK_START} never closed by {MARK_END}")
@@ -419,8 +444,7 @@ def _check_marked(label, text, native, config, pi_agents, pi_settings, failures)
     pi/model-ladder.md: Pi agents and `main`). Prefix it `omp:` or `pi:` to
     reach the other source.
     """
-    roles = config.get("modelRoles") or {}
-    overrides = (config.get("task") or {}).get("agentModelOverrides") or {}
+    roles, overrides = _omp_sources(config)
     for lineno, line in _marked_lines(label, text, failures):
         where = f"{label}:{lineno}"
         match = _MARKED_LINE_RE.match(line)
@@ -449,18 +473,15 @@ def _check_marked(label, text, native, config, pi_agents, pi_settings, failures)
                 if not found:
                     failures.append(f"{where}: `{name}` is neither a modelRoles nor an agentModelOverrides entry")
                 for source, actual in found.items():
-                    if actual != doc:
-                        failures.append(_mismatch(where, f"`{name}`", doc, source, actual))
+                    _compare(failures, where, f"`{name}`", doc, source, actual)
             elif bare == "main":
-                actual = _pi_default_selector(pi_settings)
-                if actual != doc:
-                    failures.append(_mismatch(where, f"`{name}`", doc, "pi/settings.json default", actual))
+                _compare(failures, where, f"`{name}`", doc, "pi/settings.json default", _pi_default_selector(pi_settings))
             else:
                 actual, error = _pi_agent_selector(bare, pi_agents)
                 if error:
                     failures.append(f"{where}: `{name}`: {error}")
-                elif actual != doc:
-                    failures.append(_mismatch(where, f"`{name}`", doc, f"pi/agents/{bare}.md", actual))
+                else:
+                    _compare(failures, where, f"`{name}`", doc, f"pi/agents/{bare}.md", actual)
 
 
 def check_docs(docs, config, pi_agents, pi_settings):

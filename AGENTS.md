@@ -313,7 +313,10 @@ Secrets belong in dotfiles (1Password + age), never here.
   `retry.usageReservePolicy`, `task.maxEffort` and
   `providers.autoThinkingMaxEffort`; a row it cannot parse fails, never skips.
   Every non-blank marked line must read `` `name` → `provider/model` level ``
-  (names joined by ` and ` or `, `). Names resolve in the doc's own source
+  (names joined by ` and ` or `, `; no bullet prefix). Every matching table is
+  checked (a second table with the same header is not ignored), and a missing
+  separator row, an empty table or marked block, or a marker line with extra text
+  fails (backticked marker mentions in prose are fine). Names resolve in the doc's own source
   (AGENTS.md: OMP roles/agents; ladder: Pi agents, plus `main` for the Pi
   default); prefix `omp:` or `pi:` to cross over. Text outside the markers is
   never read. Fix drift in the docs, not by bending the config. Tests:
