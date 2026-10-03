@@ -126,8 +126,7 @@ Use this checklist to evaluate UX text quality. Rate each criterion 0-10.
 
 **Plain language**
 
-- 7th grade reading level for general audience
-- 10th grade for professional contexts
+- Meets the reading-level target for the audience (benchmarks.md)
 - Avoids complex vocabulary and sentence structures
 
 **Meaningful, descriptive titles**
