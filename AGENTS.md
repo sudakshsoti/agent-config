@@ -115,7 +115,12 @@ Secrets belong in dotfiles (1Password + age), never here.
   an unquoted colon-space can parse as a nested mapping and break loading.
 - `python3 scripts/lint-skills.py` enforces these rules and synchronizes the
   `skills/README.md` list, including its sentence stating the count of 35
-  repo-owned skills. `python3 scripts/check-manifest.py` (run by `check.sh`)
+  repo-owned skills. It also fails on dangling references in
+  `SKILL.md` and `references/*.md`: links or `references/`, `scripts/`, `skills/`
+  paths that do not resolve, and skill names in hand-off contexts or a
+  description's "Not for … (x)" clause that are not repo-owned, named on a
+  `plugins.txt` `external` line, cloned under `vendor/`, or in the script's
+  `EXTERNAL_ALLOWLIST` (skills of bare `external` sources). `python3 scripts/check-manifest.py` (run by `check.sh`)
   rejects malformed `plugins.txt` lines and duplicate external allowlisting;
   `scripts/manifest.py` is the shared parser.
 - `distribution.txt` lists the skills shipped to claude.ai as `dist/<name>.zip`
