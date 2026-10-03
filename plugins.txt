@@ -78,3 +78,8 @@ external jakubkrehel/skills break explain-interface interface-review
 # so it adds nothing to the always-loaded skill list. The repo ships each skill as
 # plugins/<name>/skills/<name>; only show-me is allowlisted.
 external humanlayer/skills:plugins/show-me/skills show-me
+
+# danyuchn/asd-ste100-skill — a single root SKILL.md (ASD-STE100 Simplified
+# Technical English rewrites for agent-facing text) plus a stdlib-only linter,
+# scripts/ste-lint.py. Model-invocable, so its description is always loaded.
+external danyuchn/asd-ste100-skill asd-ste100

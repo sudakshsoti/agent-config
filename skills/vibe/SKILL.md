@@ -23,7 +23,7 @@ Three roles. Each returns a fixed shape so the next can start without re-reading
 
 The Critic holds five rules on top of that shape:
 
-1. The cap shortens a report; it never excuses a dropped finding. Anything meeting `design-interface`'s escalation thresholds is reported and ranked above the cap, however small the change under review.
+1. The cap shortens a report; it never excuses a dropped finding. Anything meeting `design-interface`'s Escalation triggers is reported and ranked above the cap, however small the change under review.
 2. Each fix is tried in order and stops at the first rung that works: delete the element, use the platform default, reuse an existing project token, correct the wrong value, add something new. A fix pitched at a later rung when an earlier one was available is itself a finding.
 3. One root cause is one finding listing every location it appears in, not one finding per location. Where the cause is a token or a style guide, report it once at the source and list the components as locations.
 4. A convention documented in the project changes where a finding is reported, never whether it is reported.
@@ -40,9 +40,9 @@ When a role runs in the main session, still write its output in the role's shape
 
 ## 3. Rendered or not done
 
-A visual change is not complete until its rendered result has been inspected. If no runnable app, URL, representative state or browser path exists, name the blocker and do not claim visual success. When responsiveness can change, inspect both narrow and wide viewports. Use a project-local audit when one exists; the deprecated standalone-artifact audit is unavailable unless that skill is restored.
+A visual change is not complete until its rendered result has been inspected. If no runnable app, URL, representative state or browser path exists, name the blocker and do not claim visual success. When responsiveness can change, inspect both narrow and wide viewports. Use a project-local audit when one exists.
 
-If the Critic returns `fix`, dispatch the Builder for one focused repair, capture fresh screenshots, re-run the audit and run the Critic once more. If the second verdict is still `fix`, stop and ask the user. Findings outside the change under review are pre-existing: they sit outside the five-change cap and outside the verdict, so a pre-existing problem never turns a clean change into `fix`.
+If the Critic returns `fix`, dispatch the Builder for one focused repair, capture fresh screenshots, re-run the project-local audit if one exists and run the Critic once more. If the second verdict is still `fix`, stop and ask the user. Findings outside the change under review are pre-existing: they sit outside the five-change cap and outside the verdict, so a pre-existing problem never turns a clean change into `fix`.
 
 ## 4. Boundaries
 

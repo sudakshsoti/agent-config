@@ -54,7 +54,6 @@ Every piece of UX text should be:
 **Conversational Tone**
 
 - Write how you speak
-- Use active voice 85% of the time
 - Include prepositions and articles
 - Avoid robotic phrasing
 
@@ -72,14 +71,14 @@ Apply these common patterns for interface elements.
 ### Titles
 
 - **Purpose**: Orient users to where they are
-- **Format**: Noun phrases, sentence case
+- **Format**: Noun phrases, sentence case (native apps: platform convention)
 - **Types**: Brand titles, content titles, category titles, task titles
 - **Examples**: "Account settings", "Your library", "Create new post"
 
 ### Buttons and Links
 
 - **Purpose**: Enable users to take action
-- **Format**: Active imperative verbs, sentence case
+- **Format**: Active imperative verbs, sentence case (native apps: platform convention)
 - **Pattern**: `[Verb] [object]`
 - **Examples**: "Save changes", "Delete account", "View details"
 - **Avoid**: Generic labels like "OK", "Submit", "Click here"
@@ -128,7 +127,7 @@ Four error types — validation (inline), system (modal/banner), blocking (full-
 ### Capitalization
 
 - **Sentence case** (default): Body text, descriptions, helper text, error messages, success messages, tooltips, placeholder text
-- **Title case**: Page titles, modal/dialog titles, menu and navigation items, form field labels
+- **Native apps**: follow the platform convention instead of sentence case (e.g. Title Case for macOS menus and buttons)
 - **Never** use all uppercase — it reduces readability and feels like shouting
 
 ### Numbers and Dates

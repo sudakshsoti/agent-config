@@ -3,7 +3,7 @@ name: design-visual-system
 description: "Use for visual direction in a product UI: art direction, colour, hierarchy, responsive layout, CSS tokens, `@theme`, and OKLCH, while first classifying the surface intent. It owns visual system decisions; use design-typography for typography-primary work and design-interface for behaviour and states."
 ---
 
-# Frontend craft
+# Design visual system
 
 Two jobs, in order: make a direction specific to the subject, then execute it
 with real type, colour and token systems rather than defaults.
@@ -166,8 +166,8 @@ Where a web licence is not in place, self-host a free OFL variable face; do not
 fall back to a system stack, which is a decision not taken. See
 `design-typography`, "When the licence is the constraint".
 
-Indian English: organisation, prioritise, colour. INR (₹) and Indian numbering
-(lakh/crore) when money comes up. Metric units. No em dashes.
+Match the product's market locale for spelling, currency and number format. No
+em dashes.
 
 ## Voice and output
 
@@ -182,7 +182,7 @@ Be direct: no filler, hedging or conviction-free recommendations.
 
 ## Search behaviour
 
-Use WebSearch and WebFetch proactively for current foundry pricing or licensing,
+Use web search and fetch proactively for current foundry pricing or licensing,
 recent typeface releases, variable-font axis specifications, browser support for
 OKLCH, `color-mix`, APCA, `@font-face` descriptors, `font-tech()`, container
 queries, anchor positioning and view transitions, Tailwind v4 or shadcn/ui API

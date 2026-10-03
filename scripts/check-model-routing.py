@@ -40,7 +40,7 @@ from frontmatter import parse_frontmatter  # noqa: E402
 
 EFFORTS = ("minimal", "low", "medium", "high", "xhigh", "max")
 SELECTOR_RE = re.compile(
-    r"^(?P<provider>[a-z0-9][a-z0-9-]*)/(?P<model>[A-Za-z0-9][A-Za-z0-9._-]*)"
+    r"^(?P<provider>[a-z0-9][a-z0-9-]*)/(?P<model>[A-Za-z0-9][A-Za-z0-9._/-]*)"
     r"(?::(?P<effort>" + "|".join(EFFORTS) + r"))?$"
 )
 ALIAS_RE = re.compile(r"^@([a-z][a-z0-9-]*)$")

@@ -4,7 +4,7 @@ description: "Run a round-based interview to settle visual and behavioural inter
 disable-model-invocation: true
 ---
 
-Call the Skill tool for `grilling` and run its loop unchanged — the design tree, the frontier, one round of numbered questions each carrying a recommended answer, wait, recompute.
+Load the `grilling` skill (skill:// in OMP, the Skill tool in Claude Code) and run its loop unchanged — the design tree, the frontier, one round of numbered questions each carrying a recommended answer, wait, recompute.
 
 The four rules below are what make it a design grill rather than a technical one. Nothing here replaces the loop; it constrains what the tree branches on, what you look at, and what you write down.
 

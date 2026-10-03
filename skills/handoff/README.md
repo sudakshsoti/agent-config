@@ -103,7 +103,7 @@ The handoff lets a fresh session hit the ground running without lengthy re-expla
 ## Related: Compaction Hook
 
 For in-session continuity (when context compacts but session continues), see the
-[compaction-hook](../compaction-hook/). It automatically improves what gets
+compaction hook. It automatically improves what gets
 preserved during compaction.
 
 | Handoff Skill            | Compaction Hook           |

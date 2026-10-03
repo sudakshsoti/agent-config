@@ -682,5 +682,5 @@ than escalate the dose — and ask specifically about avoidance.**
 
 This section covers assessment, screening, formulation, medication and monitoring.
 Once the answer is a therapy modality — DBT skills training, diary cards, chain
-analysis, distress tolerance, CBT protocols — hand over to the `dbt` skill or name
-the modality and the referral, rather than improvising therapy content here.
+analysis, distress tolerance, CBT protocols — name the modality and the referral,
+rather than improvising therapy content here.
