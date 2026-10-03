@@ -38,9 +38,9 @@ in step 8 covers both. Run the steps in order; a failed check ends the
 preflight with a report. Questions to the user are not failures.
 
 1. **Read the rules.** Read `AGENTS.md`, `docs/agents/issue-tracker.md`,
-   `docs/agents/triage-labels.md` and any build-order or wave doc (e.g.
-   `docs/agents/work-order.md`). The wave doc's order and exclusions override
-   issue-number order.
+   `docs/agents/triage-labels.md` and any build-order or wave doc, if one
+   exists. The run order comes from the issue labels and issue numbers; a wave
+   doc's order and exclusions override issue-number order.
 2. **Build the run set.** Take the open issues labelled with the repo's
    ready-for-agent label. Remove spec and parent issues, and anything the docs
    defer, hold or reserve for a human. Order by the wave doc, else by issue
