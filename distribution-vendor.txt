@@ -1,0 +1,61 @@
+# distribution-vendor.txt — vendored third-party skills packaged for claude.ai.
+#
+# Same format as distribution.txt (one skill name per line), but each name is
+# resolved from the vendor/ checkouts declared in plugins.txt. Zips land in
+# dist/vendor/, which is gitignored: third-party content is vendored by
+# reference and never enters this repo's history. Rebuild per machine with
+# ./scripts/build-dist.py after ./install.sh has fetched vendor/.
+#
+# Everything vendored is listed except:
+#   - firecrawl-web: needs a local Python CLI and API key;
+#   - frontend-design: Anthropic ships it built in on claude.ai.
+# Skills that assume a shell, git or gh (the mattpocock engineering set) are
+# listed for Claude Code on the web, where those exist; in plain claude.ai chat
+# they have nothing to run against. The packager strips
+# `disable-model-invocation`, so user-invoked-only skills become auto-invocable
+# there, same as the repo-owned ones in distribution.txt.
+
+# emilkowalski/skills
+animate
+animate-expo
+animation-vocabulary
+apple-design
+ask-sonner
+emil-design-eng
+find-animation-opportunities
+improve-animations
+mobile-native
+pick-ui-library
+prototype
+review-animations
+write-swift
+
+# mattpocock/skills
+ask-matt
+code-review
+codebase-design
+diagnosing-bugs
+domain-modeling
+grill-me
+grill-with-docs
+grilling
+implement
+implement-spec
+improve-codebase-architecture
+research
+retro
+setup-matt-pocock-skills
+tdd
+to-spec
+to-tickets
+triage
+wayfinder
+writing-for-agents
+
+# jakubkrehel/skills
+break
+explain-interface
+interface-review
+
+# humanlayer/skills
+show-me

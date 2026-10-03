@@ -24,6 +24,11 @@ differ between machines.
 The pre-commit hook uses --from-index, so a zip matches what is being
 committed; check.sh uses --check. Exit 1 on a validation failure or, with
 --check, on any stale, missing or unlisted zip.
+
+A working-tree build also packages the vendored third-party skills listed in
+distribution-vendor.txt into dist/vendor/. Those zips are gitignored (vendor/ is
+tracked by reference only), rebuilt per machine, and never part of --check or
+--from-index.
 """
 
 import importlib.util
@@ -36,6 +41,7 @@ import tempfile
 import zipfile
 
 MANIFEST = "distribution.txt"
+VENDOR_MANIFEST = "distribution-vendor.txt"
 DIST = "dist"
 ALLOWED_KEYS = ("name", "description", "license", "allowed-tools", "metadata", "compatibility")
 EXCLUDED_NAMES = {".DS_Store", "Thumbs.db"}
@@ -210,10 +216,10 @@ def validate(name, entries):
     return fails
 
 
-def package(source, name):
+def package(source, name, prefix=None):
     """Return {relpath: (bytes, executable)} for skills/<name>, ready to zip."""
     entries = {}
-    for relpath, data, executable in source.files("skills/" + name):
+    for relpath, data, executable in source.files(prefix or "skills/" + name):
         relpath = relpath.replace(os.sep, "/")
         parts = relpath.split("/")
         if parts[-1] in EXCLUDED_NAMES or any(p in EXCLUDED_DIRS for p in parts[:-1]):
@@ -251,6 +257,121 @@ def zip_contents(path):
             return out
     except (OSError, zipfile.BadZipFile):
         return None
+
+
+def write_zip(dist, name, entries):
+    os.makedirs(dist, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=dist, suffix=".tmp")
+    with os.fdopen(fd, "wb") as fh:
+        fh.write(zip_bytes(name, entries))
+    os.chmod(tmp, 0o644)
+    os.replace(tmp, os.path.join(dist, name + ".zip"))
+    print("  built   %s" % os.path.relpath(os.path.join(dist, name + ".zip")))
+
+
+class DirSource:
+    """One skill directory on disk; the prefix handed to files() is ignored."""
+
+    def __init__(self, path):
+        self.path = path
+
+    def files(self, prefix):
+        for dirpath, dirnames, filenames in os.walk(self.path):
+            dirnames[:] = sorted(d for d in dirnames if d not in EXCLUDED_DIRS)
+            for f in sorted(filenames):
+                full = os.path.join(dirpath, f)
+                rel = os.path.relpath(full, self.path)
+                if os.path.islink(full):
+                    raise BuildError("%s is a symlink; claude.ai zips cannot carry links" % full)
+                with open(full, "rb") as fh:
+                    yield rel, fh.read(), bool(os.stat(full).st_mode & 0o111)
+
+
+def skill_dirs_from_plugins(root):
+    """{skill name: directory} for every external skill checked out in vendor/.
+
+    Mirrors install.sh: the source root is the explicit :subdir, else skills/ if
+    present, else the repo root; the skill's name is its frontmatter `name`; the
+    allowlist on the plugins.txt line narrows what counts; a repo-owned
+    skills/<name> shadows an external one.
+    """
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import manifest
+
+    entries, _ = manifest.parse_plugins_file(os.path.join(root, "plugins.txt"))
+    found = {}
+    for entry in entries:
+        clone = os.path.join(root, "vendor", entry.source.replace("/", "-"))
+        if not os.path.isdir(clone):
+            continue
+        if entry.subdir:
+            src_root = os.path.join(clone, entry.subdir)
+        elif os.path.isdir(os.path.join(clone, "skills")):
+            src_root = os.path.join(clone, "skills")
+        else:
+            src_root = clone
+        if os.path.isfile(os.path.join(src_root, "SKILL.md")):
+            candidates = [src_root]
+        else:
+            candidates = [
+                os.path.join(src_root, d)
+                for d in sorted(os.listdir(src_root))
+                if os.path.isfile(os.path.join(src_root, d, "SKILL.md"))
+            ]
+        for directory in candidates:
+            with open(os.path.join(directory, "SKILL.md"), encoding="utf-8") as fh:
+                fields, _, _ = parse_frontmatter(fh.read())
+            field = fields.get("name")
+            name = (field.value or "").strip() if field else os.path.basename(directory)
+            if entry.skills and name not in entry.skills:
+                continue
+            if os.path.isdir(os.path.join(root, "skills", name)):
+                continue
+            found.setdefault(name, directory)
+    return found
+
+
+def build_vendor(root):
+    """Zip the vendored skills named in distribution-vendor.txt into dist/vendor/.
+
+    Third-party content is vendored by reference, so these zips are gitignored
+    and rebuilt per machine from the vendor/ checkouts.
+    """
+    path = os.path.join(root, VENDOR_MANIFEST)
+    if not os.path.isfile(path):
+        return 0
+    with open(path, encoding="utf-8") as fh:
+        names, errors = parse_manifest(fh.read())
+    available = skill_dirs_from_plugins(root)
+    dist = os.path.join(root, DIST, "vendor")
+    wanted, stale = {}, []
+    for name in names:
+        if name not in available:
+            errors.append("%s: not found in vendor/ (run ./install.sh to fetch it)" % name)
+            continue
+        entries = package(DirSource(available[name]), name, "")
+        fails = validate(name, entries)
+        if fails:
+            errors.extend("%s: %s" % (name, f) for f in fails)
+            continue
+        wanted[name] = entries
+        expected = {(name, p): v for p, v in entries.items()}
+        if zip_contents(os.path.join(dist, name + ".zip")) != expected:
+            stale.append(name)
+    if errors:
+        for e in errors:
+            print("  FAIL  %s" % e)
+        print("build-dist: %d vendored problem(s); no vendored zips written" % len(errors))
+        return 1
+    for name in stale:
+        write_zip(dist, name, wanted[name])
+    existing = sorted(f[:-4] for f in os.listdir(dist) if f.endswith(".zip")) if os.path.isdir(dist) else []
+    for name in existing:
+        if name not in names:
+            os.remove(os.path.join(dist, name + ".zip"))
+            print("  removed %s" % os.path.join(DIST, "vendor", name + ".zip"))
+    print("build-dist: %d vendored zip(s) up to date" % len(names))
+    return 0
 
 
 def main(argv):
@@ -313,20 +434,15 @@ def main(argv):
         print("build-dist: %d zip(s) up to date" % len(names))
         return 0
 
-    os.makedirs(dist, exist_ok=True)
     for name in stale:
-        target = os.path.join(dist, name + ".zip")
-        fd, tmp = tempfile.mkstemp(dir=dist, suffix=".tmp")
-        with os.fdopen(fd, "wb") as fh:
-            fh.write(zip_bytes(name, wanted[name]))
-        os.chmod(tmp, 0o644)
-        os.replace(tmp, target)
-        print("  built   %s" % os.path.join(DIST, name + ".zip"))
+        write_zip(dist, name, wanted[name])
     for name in unlisted:
         os.remove(os.path.join(dist, name + ".zip"))
         print("  removed %s" % os.path.join(DIST, name + ".zip"))
     print("build-dist: %d zip(s) up to date" % len(names))
-    return 0
+    if "--from-index" in flags:
+        return 0  # vendored checkouts are not in the index
+    return build_vendor(root)
 
 
 if __name__ == "__main__":

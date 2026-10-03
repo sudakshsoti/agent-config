@@ -121,6 +121,12 @@ Secrets belong in dotfiles (1Password + age), never here.
   `dist/`; `check.sh` runs `--check`. List only skills that work without a
   local harness: `research` and `design-grill` are excluded because they rely
   on Pi/OMP subagents, repo files or an unshipped skill.
+- `distribution-vendor.txt` does the same for vendored third-party skills,
+  resolved from `vendor/` via `plugins.txt`. A working-tree
+  `./scripts/build-dist.py` writes them to `dist/vendor/`, which is gitignored
+  (third-party content never enters this history); `--check` and `--from-index`
+  ignore them, so rebuild per machine after `./install.sh`. Everything
+  vendored is listed except `firecrawl-web` and `frontend-design`.
 - `scripts/ownership_collisions.py` (tested by `check.sh`) detects chezmoi
   entries claiming install destinations.
 - `python3 scripts/audit-local.py [--home DIR] [--dotfiles DIR] [--json]` is an

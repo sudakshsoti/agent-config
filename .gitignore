@@ -26,3 +26,6 @@ omp/config.yml.lock
 # ~/.agents/skills point in here. Tracked by reference (the plugins.txt line),
 # never by content — upstream files stay upstream.
 vendor/
+
+# Third-party skill zips built from vendor/ by scripts/build-dist.py.
+dist/vendor/

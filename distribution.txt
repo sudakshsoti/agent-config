@@ -7,7 +7,8 @@
 #
 # Only list skills that work without a local harness: no Pi/OMP subagents, no
 # repo files, no dependency on an unlisted skill. `research` and `design-grill`
-# are left out for exactly those reasons.
+# are left out for exactly those reasons. push, commit-push, pr and merge need a
+# shell with git and gh, so they are for Claude Code on the web.
 
 clinical-reasoning
 design-interface
@@ -25,3 +26,7 @@ ux-writing
 vbc-design
 vedic-astrology
 writing-editor
+commit-push
+merge
+pr
+push
