@@ -116,11 +116,12 @@ Secrets belong in dotfiles (1Password + age), never here.
 - `python3 scripts/lint-skills.py` enforces these rules and synchronizes the
   `skills/README.md` list, including its sentence stating the count of 35
   repo-owned skills. It also fails on dangling references in
-  `SKILL.md` and `references/*.md`: links or `references/`, `scripts/`, `skills/`
+  `SKILL.md` and `references/**/*.md`: links or `references/`, `scripts/`, `skills/`
   paths that do not resolve, and skill names in hand-off contexts or a
   description's "Not for … (x)" clause that are not repo-owned, named on a
-  `plugins.txt` `external` line, cloned under `vendor/`, or in the script's
-  `EXTERNAL_ALLOWLIST` (skills of bare `external` sources). `python3 scripts/check-manifest.py` (run by `check.sh`)
+  `plugins.txt` `external` line, cloned under `vendor/` (by frontmatter `name:`),
+  or listed in `external-skills.txt` (the skills of bare `external` sources;
+  add a name there when upstream ships a new one). `python3 scripts/check-manifest.py` (run by `check.sh`)
   rejects malformed `plugins.txt` lines and duplicate external allowlisting;
   `scripts/manifest.py` is the shared parser.
 - `distribution.txt` lists the skills shipped to claude.ai as `dist/<name>.zip`

@@ -1,0 +1,71 @@
+# external-skills.txt — skill names shipped by BARE `external` lines in
+# plugins.txt (no allowlist, so the names are unknowable without a clone).
+# scripts/lint-skills.py reads this so CI, which has no vendor/ checkout, can
+# still tell a real vendored skill from a typo. One name per line; `#` starts a
+# comment. A name here must be that skill's frontmatter `name:` (what install.sh
+# links), not its directory. Names that plugins.txt already allowlists, or that
+# a cloned vendor/ reveals, need no entry.
+#
+# When a bare line's upstream adds or renames a skill, add the name here under
+# its source. A reference to a skill listed nowhere still fails the lint.
+
+# mattpocock/skills:skills/engineering
+ask-matt
+code-review
+codebase-design
+diagnosing-bugs
+domain-modeling
+grill-with-docs
+implement
+implement-spec
+improve-codebase-architecture
+pr
+prototype
+research
+retro
+setup-matt-pocock-skills
+tdd
+to-spec
+to-tickets
+triage
+wayfinder
+wizard
+
+# mattpocock/skills:skills/productivity
+grill-me
+grilling
+handoff
+teach
+to-questionnaire
+wait-what
+writing-for-agents
+
+# mattpocock/skills:skills/misc
+git-guardrails-claude-code
+migrate-to-shoehorn
+scaffold-exercises
+setup-pre-commit
+
+# mattpocock/skills:skills/in-progress
+claude-handoff
+loop-me
+setup-ts-deep-modules
+writing-beats
+writing-fragments
+writing-shape
+
+# emilkowalski/skills
+animate
+animate-expo
+animation-vocabulary
+apple-design
+ask-sonner
+break-ui
+emil-design-eng
+find-animation-opportunities
+improve-animations
+mobile-native
+pick-ui-library
+prototype
+review-animations
+write-swift

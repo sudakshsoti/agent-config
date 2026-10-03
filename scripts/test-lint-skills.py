@@ -201,10 +201,57 @@ class ReferenceTest(unittest.TestCase):
         )
         self.assertEqual(fails, [])
 
-    def test_allowlisted_names_pass(self):
-        name = sorted(lint_skills.EXTERNAL_ALLOWLIST)[0]
-        fails = self.refs({"a": {"SKILL.md": skill_text("Use the `%s` skill." % name)}})
+    def test_external_skills_file_names_pass_and_others_fail(self):
+        listing = "# comment\nlisted-one  # trailing comment\n\nlisted-two\n"
+        body = "Use the `listed-one` skill, then hand off to `listed-two`."
+        fails = self.refs(
+            {"a": {"SKILL.md": skill_text(body)}}, extra={"external-skills.txt": listing}
+        )
         self.assertEqual(fails, [])
+        fails = self.refs(
+            {"a": {"SKILL.md": skill_text("Use the `ghost` skill.")}},
+            extra={"external-skills.txt": listing},
+        )
+        self.assertTrue(any("'ghost'" in f for f in fails), fails)
+
+    def test_missing_external_skills_file_is_empty_not_fatal(self):
+        fails = self.refs({"a": {"SKILL.md": skill_text("Use the `ghost` skill.")}})
+        self.assertTrue(any("'ghost'" in f for f in fails), fails)
+
+    def test_vendored_skill_known_by_frontmatter_name_not_directory(self):
+        vendored = "---\nname: real-name\ndescription: d\n---\n"
+        extra = {"vendor/o-r/skills/dirname/SKILL.md": vendored}
+        ok = self.refs(
+            {"a": {"SKILL.md": skill_text("Use the `real-name` skill.")}},
+            plugins="external o/r\n",
+            extra=extra,
+        )
+        self.assertEqual(ok, [])
+        bad = self.refs(
+            {"a": {"SKILL.md": skill_text("Use the `dirname` skill.")}},
+            plugins="external o/r\n",
+            extra=extra,
+        )
+        self.assertTrue(any("'dirname'" in f for f in bad), bad)
+
+    def test_vendored_skill_without_frontmatter_name_falls_back_to_directory(self):
+        extra = {"vendor/o-r/skills/bare-dir/SKILL.md": "no frontmatter\n"}
+        fails = self.refs(
+            {"a": {"SKILL.md": skill_text("Use the `bare-dir` skill.")}},
+            plugins="external o/r\n",
+            extra=extra,
+        )
+        self.assertEqual(fails, [])
+
+    def test_lowercase_not_for_clause_is_checked(self):
+        desc = '"Use when testing; not for other work (ghost)."'
+        fails = self.refs({"a": {"SKILL.md": skill_text("x", desc)}})
+        self.assertTrue(any("'ghost'" in f for f in fails), fails)
+
+    def test_real_external_skills_file_covers_bare_sources(self):
+        names = lint_skills.load_external_skills(str(ROOT))
+        for name in ("grilling", "diagnosing-bugs", "writing-for-agents", "animate", "emil-design-eng"):
+            self.assertIn(name, names)
 
     def test_archived_skills_are_not_live_targets_or_sources(self):
         skills = {

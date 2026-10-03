@@ -37,11 +37,12 @@ fails when:
     description's "Not for ..." sentence is not a known skill.
 
 Known skills are the live repo-owned skills/*/ directories, the skills named on
-`external` lines in plugins.txt, any skill directory found under vendor/ (when
-cloned), and EXTERNAL_ALLOWLIST. Vendored skills are therefore never
-false-failed in CI where vendor/ is absent, provided plugins.txt names them; a
-bare `external` line cannot be enumerated offline, so its skills go in
-EXTERNAL_ALLOWLIST. skills/_archive/ is neither scanned nor a live target.
+`external` lines in plugins.txt, any SKILL.md found under vendor/ (when cloned;
+named by its frontmatter `name:`, as install.sh links it), and the names in the
+tracked external-skills.txt. Vendored skills are therefore never false-failed in
+CI where vendor/ is absent, provided plugins.txt or external-skills.txt names
+them; a bare `external` line cannot be enumerated offline, so its skills go in
+external-skills.txt. skills/_archive/ is neither scanned nor a live target.
 Skipped as not-a-reference: fenced code blocks, placeholders (`<name>`, `*`,
 `{}`), bare directory mentions (`references/`), `skills/_archive/...` paths
 (history citations), and lines that say the
@@ -74,13 +75,9 @@ BANNED_IN_NAME = ("claude", "anthropic")
 SIBLING_LINK_RE = re.compile(r"\]\(\.\./([a-z0-9-]+)/SKILL\.md\)")
 
 
-# Skills that are not repo-owned and not named on a plugins.txt `external` line:
-# the skills of bare `external` sources (their names are unknowable without a
-# clone, and CI has no vendor/), plus harness built-ins. Keep this short.
-EXTERNAL_ALLOWLIST = frozenset({
-    "animate",           # bare external emilkowalski/skills
-    "emil-design-eng",   # bare external emilkowalski/skills
-})
+# Tracked list of the skills that bare `external` lines in plugins.txt ship
+# (their names are unknowable offline, and CI has no vendor/).
+EXTERNAL_SKILLS_FILE = "external-skills.txt"
 PATH_RE = re.compile(r"`((?:references|scripts|skills)/[^`\s]*)`")
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 SCHEME_RE = re.compile(r"^[a-z][a-z0-9+.-]*:")
@@ -93,7 +90,7 @@ SKILL_REF_RES = (
     re.compile(r"`([a-z][a-z0-9-]*)` skills?\b"),
     re.compile(r"(?:hand[ -]?off to|\bload(?: the)?|→|->) `([a-z][a-z0-9-]*)`", re.I),
 )
-NOT_FOR_RE = re.compile(r"Not for(.*?)\.(?:\s|$)", re.S)
+NOT_FOR_RE = re.compile(r"Not for(.*?)\.(?:\s|$)", re.S | re.I)
 PAREN_NAMES_RE = re.compile(
     r"\((?:use )?([a-z][a-z0-9-]*(?:\s*(?:,|\bor\b|\band\b)\s*[a-z][a-z0-9-]*)*)\)"
 )
@@ -208,9 +205,29 @@ def lint_catalogue(skills_dir, dirnames):
     return fails, []
 
 
+def load_external_skills(repo_root):
+    """Names listed in external-skills.txt (one per line, `#` comments); {} if absent."""
+    text = read_text(os.path.join(repo_root, EXTERNAL_SKILLS_FILE))
+    names = set()
+    for line in (text or "").splitlines():
+        name = line.split("#", 1)[0].strip()
+        if name:
+            names.add(name)
+    return names
+
+
+def vendored_skill_name(skill_md):
+    """A vendored skill's name: frontmatter `name:`, else its directory (as install.sh)."""
+    text = read_text(skill_md)
+    fields, _, _ = parse_frontmatter(text) if text else (None, None, None)
+    name = fields.get("name") if fields else None
+    value = (name.value or "").strip() if name is not None else ""
+    return value or os.path.basename(os.path.dirname(skill_md))
+
+
 def known_skills(repo_root, dirnames):
-    """Live repo-owned skills + plugins.txt-named + cloned vendor/ + allowlist."""
-    known = set(dirnames) | set(EXTERNAL_ALLOWLIST)
+    """Live repo-owned skills + plugins.txt-named + external-skills.txt + cloned vendor/."""
+    known = set(dirnames) | load_external_skills(repo_root)
     entries, _ = parse_plugins_file(os.path.join(repo_root, "plugins.txt"))
     for entry in entries:
         known.update(entry.skills)
@@ -218,7 +235,7 @@ def known_skills(repo_root, dirnames):
         for dirpath, subdirs, files in os.walk(vendor):
             subdirs[:] = [d for d in subdirs if d not in (".git", "node_modules")]
             if "SKILL.md" in files:
-                known.add(os.path.basename(dirpath))
+                known.add(vendored_skill_name(os.path.join(dirpath, "SKILL.md")))
     return known
 
 
