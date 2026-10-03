@@ -14,8 +14,13 @@
 # pins which tree to read when a repo ships several copies. Naming individual
 # skills after the directive links only those — a bare repo links every skill it
 # ships, which consumes the shared context budget and is only right for a small,
-# curated collection. A repo-owned skills/<name> always shadows an external
-# skill of the same name.
+# curated collection.
+#
+# Name collisions (two sources shipping the same skill name) resolve by fixed
+# precedence: a repo-owned skills/<name> beats every external source; a line that
+# names the skill beats a bare line; among lines of the same kind the earliest one
+# in this file wins. Each loser is skipped with a warning. Two allowlists naming
+# the same skill are rejected by scripts/check-manifest.py.
 #
 # Vendored by reference, never copied: upstream files do not enter this repo's
 # history and are not linted by scripts/lint-skills.py.

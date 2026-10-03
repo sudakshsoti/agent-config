@@ -782,6 +782,74 @@ class InstallerTest(DisposableInstallCase):
         self.assertIn("shadowed by this repo's skills/renamed-skill", result.stdout)
         self.assertNotIn("skills/odd-directory", links)
 
+    def vendor_skill(self, slug, dirname, name="x"):
+        skill = self.repo / "vendor" / slug / "skills" / dirname
+        skill.mkdir(parents=True)
+        (skill / "SKILL.md").write_text(
+            f"---\nname: {name}\ndescription: External.\n---\n", encoding="utf-8"
+        )
+        return skill
+
+    def fresh_collide(self, manifest):
+        remove_tree(self.repo / "vendor")
+        remove_tree(self.test_home / ".agents")
+        return self.collide(manifest)
+
+    def collide(self, manifest, repo_owned=False):
+        """Install a manifest whose sources all ship skill `x`; return (links, result)."""
+        shipped = {
+            "a/one": self.vendor_skill("a-one", "x"),
+            "b/two": self.vendor_skill("b-two", "x"),
+        }
+        if repo_owned:
+            ours = self.repo / "skills/x"
+            ours.mkdir()
+            (ours / "SKILL.md").write_text(
+                "---\nname: x\ndescription: Ours.\n---\n", encoding="utf-8"
+            )
+            shipped["ours"] = ours
+        (self.repo / "plugins.txt").write_text(manifest, encoding="utf-8")
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        shared = links_under(self.test_home / ".agents")["skills/x"]
+        return shared, shipped, result
+
+    def test_collision_bare_vs_bare_earliest_declared_wins(self):
+        winner, shipped, result = self.collide("external a/one\nexternal b/two\n")
+        self.assertEqual(winner, str(shipped["a/one"]))
+        # One SKIP line for the loser, counted in `skipped`.
+        self.assertEqual(
+            result.stdout.count("SKIP x (external b/two) — shadowed by external a/one"), 1
+        )
+        self.assertIn("skipped=1 ", result.stdout)
+        winner, shipped, _ = self.fresh_collide("external b/two\nexternal a/one\n")
+        self.assertEqual(winner, str(shipped["b/two"]))
+
+    def test_collision_explicit_beats_bare_in_either_order(self):
+        winner, shipped, _ = self.collide("external a/one x\nexternal b/two\n")
+        self.assertEqual(winner, str(shipped["a/one"]))
+        winner, shipped, _ = self.fresh_collide("external b/two\nexternal a/one x\n")
+        self.assertEqual(winner, str(shipped["a/one"]))
+
+    def test_collision_explicit_vs_explicit_earliest_declared_wins(self):
+        # check-manifest.py rejects this statically; the installer still resolves it.
+        winner, shipped, _ = self.collide("external a/one x\nexternal b/two x\n")
+        self.assertEqual(winner, str(shipped["a/one"]))
+
+    def test_collision_repo_owned_beats_every_external(self):
+        winner, shipped, result = self.collide(
+            "external a/one x\nexternal b/two\n", repo_owned=True
+        )
+        self.assertEqual(winner, str(shipped["ours"]))
+        self.assertIn("shadowed by this repo's skills/x", result.stdout)
+
+    def test_collision_is_the_same_in_the_claude_skills_root(self):
+        (self.test_home / ".claude").mkdir()
+        winner, shipped, _ = self.collide("external b/two\nexternal a/one x\n")
+        claude = links_under(self.test_home / ".claude")["skills/x"]
+        self.assertEqual(claude, winner)
+        self.assertEqual(winner, str(shipped["a/one"]))
+
     def test_external_allowlist_excludes_unnamed_skills(self):
         vendor_skills = self.repo / "vendor/example-skills/skills"
         for name in ("wanted", "unwanted"):

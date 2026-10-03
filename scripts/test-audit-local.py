@@ -99,7 +99,7 @@ class AuditLocalTest(unittest.TestCase):
         # acme/two: declared, cloned, explicitly claims dup-name.
         write(repo / "vendor/acme-two/skills/dup-name/SKILL.md", skill_md("dup-name"))
         # acme/six: declared bare (no allowlist), cloned, also ships dup-name
-        # -> duplicate-external across acme/two and acme/six, bare source.
+        # -> shadowed-external: acme/two's allowlist wins, acme/six loses.
         write(repo / "vendor/acme-six/skills/dup-name/SKILL.md", skill_md("dup-name"))
         write(repo / "vendor/acme-six/skills/six-only/SKILL.md", skill_md("six-only"))
         # acme/three: declared but never cloned -> missing-clone.
@@ -189,7 +189,7 @@ class AuditLocalTest(unittest.TestCase):
             "dangling-link",
             "foreign-link",
             "shadowed-repo",
-            "duplicate-external",
+            "shadowed-external",
             "chezmoi-collision",
         }
         found_categories = {
@@ -224,9 +224,12 @@ class AuditLocalTest(unittest.TestCase):
         self.assertIn("~/.agents/skills/realdir", out)
         self.assertIn("shadowed-repo", out)
         self.assertIn("shared-name", out)
-        self.assertIn("duplicate-external", out)
-        self.assertIn("dup-name", out)
-        self.assertIn("bare source", out)
+        self.assertIn(
+            "skill 'dup-name': acme/two (plugins.txt:2) wins; "
+            "shadowed: acme/six (plugins.txt:3)",
+            out,
+        )
+        self.assertNotIn("duplicate-external", out)
         self.assertIn("chezmoi-collision", out)
         self.assertIn(".agents/skills/stray", out)
         # The healthy in-repo link must never be reported as any kind of finding.
@@ -240,6 +243,11 @@ class AuditLocalTest(unittest.TestCase):
         categories = {f["category"] for f in payload["findings"]}
         self.assertIn("missing-clone", categories)
         self.assertIn("chezmoi-collision", categories)
+        clash = [f for f in payload["findings"] if f["category"] == "shadowed-external"]
+        self.assertEqual(len(clash), 1, clash)
+        self.assertEqual(clash[0]["level"], "warn")
+        self.assertIn("acme/two", clash[0]["message"])
+        self.assertIn("acme/six", clash[0]["message"])
         for finding in payload["findings"]:
             self.assertIn(finding["level"], ("info", "warn"))
             self.assertTrue(finding["message"])
