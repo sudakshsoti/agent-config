@@ -6,8 +6,13 @@
 # links), not its directory. Names that plugins.txt already allowlists, or that
 # a cloned vendor/ reveals, need no entry.
 #
-# When a bare line's upstream adds or renames a skill, add the name here under
-# its source. A reference to a skill listed nowhere still fails the lint.
+# Each source has a section headed by a `# <owner/repo>[:<subdir>]` comment (the
+# plugins.txt source token). When a bare line's upstream adds or renames a
+# skill, update that section. A reference to a skill listed nowhere still fails
+# the lint. Where vendor/<slug> is cloned, the lint compares that source's
+# section with the names the clone really ships and fails on any difference, in
+# either direction; CI has no clone, so it cannot catch drift (run the lint with
+# vendor/ present to refresh this file).
 
 # mattpocock/skills:skills/engineering
 ask-matt

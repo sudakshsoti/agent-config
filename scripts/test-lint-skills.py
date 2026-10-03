@@ -273,5 +273,59 @@ class ReferenceTest(unittest.TestCase):
         self.assertEqual(lint_skills.lint_references(str(ROOT), dirnames), [])
 
 
+class ExternalDriftTest(unittest.TestCase):
+    """external-skills.txt must match what a cloned bare source really ships."""
+
+    LISTING = "# o/r:skills/eng\none\ntwo\n\n# p/q\nthree\n"
+
+    def drift(self, listing, clones, plugins="external o/r:skills/eng\nexternal p/q\n"):
+        extra = {"external-skills.txt": listing}
+        for rel, name in clones.items():
+            extra[rel] = f"---\nname: {name}\ndescription: d\n---\n"
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_tree(tmp, {}, plugins, extra)
+            return lint_skills.lint_external_drift(str(root))
+
+    CLONES = {
+        "vendor/o-r/skills/eng/dir-one/SKILL.md": "one",
+        "vendor/o-r/skills/eng/two/SKILL.md": "two",
+        "vendor/p-q/skills/three/SKILL.md": "three",
+    }
+
+    def test_matching_section_passes(self):
+        self.assertEqual(self.drift(self.LISTING, self.CLONES), [])
+
+    def test_clone_ships_name_missing_from_section_fails(self):
+        clones = dict(self.CLONES, **{"vendor/o-r/skills/eng/new/SKILL.md": "fresh"})
+        fails = self.drift(self.LISTING, clones)
+        self.assertEqual(len(fails), 1, fails)
+        self.assertIn("o/r:skills/eng", fails[0])
+        self.assertIn("fresh", fails[0])
+
+    def test_section_lists_name_clone_lacks_fails(self):
+        fails = self.drift(self.LISTING.replace("three", "three\nghost"), self.CLONES)
+        self.assertEqual(len(fails), 1, fails)
+        self.assertIn("'p/q'", fails[0])
+        self.assertIn("ghost", fails[0])
+
+    def test_frontmatter_name_not_directory_is_compared(self):
+        fails = self.drift(self.LISTING.replace("one", "dir-one"), self.CLONES)
+        self.assertEqual(len(fails), 2, fails)
+
+    def test_source_without_a_section_fails(self):
+        fails = self.drift("# o/r:skills/eng\none\ntwo\n", self.CLONES)
+        self.assertTrue(any("no section 'p/q'" in f and "three" in f for f in fails), fails)
+
+    def test_no_clone_keeps_todays_behaviour(self):
+        self.assertEqual(self.drift("# o/r:skills/eng\nwhatever\n", {}), [])
+
+    def test_allowlisted_sources_are_not_compared(self):
+        clones = {"vendor/o-r/skills/a/SKILL.md": "a", "vendor/o-r/skills/b/SKILL.md": "b"}
+        self.assertEqual(self.drift("", clones, plugins="external o/r a\n"), [])
+
+    def test_real_tree_has_no_drift(self):
+        self.assertEqual(lint_skills.lint_external_drift(str(ROOT)), [])
+
+
 if __name__ == "__main__":
     unittest.main()

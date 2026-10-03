@@ -121,7 +121,11 @@ Secrets belong in dotfiles (1Password + age), never here.
   description's "Not for … (x)" clause that are not repo-owned, named on a
   `plugins.txt` `external` line, cloned under `vendor/` (by frontmatter `name:`),
   or listed in `external-skills.txt` (the skills of bare `external` sources;
-  add a name there when upstream ships a new one). `python3 scripts/check-manifest.py` (run by `check.sh`)
+  add a name there when upstream ships a new one). Where `vendor/<slug>` is
+  cloned for a bare source, the lint also fails when that source's
+  `external-skills.txt` section (heading `# <owner/repo>[:<subdir>]`) and the
+  frontmatter `name:` values the clone ships differ, in either direction; CI,
+  with no clone, skips it. `python3 scripts/check-manifest.py` (run by `check.sh`)
   rejects malformed `plugins.txt` lines and duplicate external allowlisting;
   `scripts/manifest.py` is the shared parser.
 - `distribution.txt` lists the skills shipped to claude.ai as `dist/<name>.zip`
