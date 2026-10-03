@@ -70,7 +70,7 @@ preflight with a report. Questions to the user are not failures.
      `$(git rev-parse --git-path info/exclude)`.
    - If `.scratch/overnight/state.json` exists: when its `pid` is alive and
      its `stop_reason` is null, a run is in progress; stop and report it.
-     Otherwise ask once: `--resume` it, or start over (see Morning).
+     Otherwise ask once: `--resume` it, or start over (both in `references/runbook.md`).
    - Branch prefix: `overnight/<YYYY-MM-DD>`, or `-2`, `-3`, … when any
      `refs/heads/<prefix>` or `refs/heads/<prefix>/*` (local or on `origin`)
      already exists. No run branch is created: each ticket gets
@@ -114,10 +114,8 @@ preflight with a report. Questions to the user are not failures.
    `FALLBACK_MAX_TICKETS` (4) tickets.
 8. **Confirm once.** Show one summary: the ordered queue, the worker command,
    the model and the provider being gated, the visibility (the dry run's
-   `visible` line), the thresholds (5h sleep at 70%; 7d
-   stop when 15+ points over elapsed pace past 5% elapsed, or at 90%; for Go
-   also a monthly hard stop at 90%), the caps (45 min per ticket, max
-   tickets, fallback cap), the deadline (default 07:00), the tickets without
+   `visible` line), the dry run's `limits` and `thresholds` lines verbatim, the
+   tickets without
    acceptance criteria (ask include or exclude for each; included ones run on
    the ticket's own wording), and the git policy below.
    Wait for one explicit yes.
@@ -147,41 +145,10 @@ preflight with a report. Questions to the user are not failures.
 
 ## What the script does
 
-Per ticket, strictly serial: usage gate → one fresh worker running
-`worker-brief.md` with a 45-minute wall clock → protected-paths check → build
-gate (typecheck + build + lint + **test**) → commit `<subject> (#N)` on pass.
-Rate-limited workers are reset and requeued, never failed. A red build after a
-stash (typecheck + build + lint, no test) halts the run. A pass also pushes the
-ticket's branch and opens its PR.
-
-- **Protected paths.** Env files, `*.pem`, `*.key`, SSH private keys,
-  `.git/` and `.github/workflows/` (`OVERNIGHT_PROTECTED_RE` overrides the
-  pattern). A change fails the ticket permanently; the files are removed
-  before any patch, stash or commit, so they never reach them.
-- **Failures.** Temporary (timeout, worker crash, no final JSON, red checks,
-  `partial`, branch setup failure) get one retry: the attempt is saved as a patch
-  and a handoff note (`logs/<N>.handoff.md`), the tree is reset (stashed as
-  `overnight #N attempt <k>`), and when the ticket's turn comes the patch is
-  reapplied before the worker starts. A patch that no longer applies means a
-  clean start, noted in the handoff. Permanent failures (`blocked`, `done`
-  with no changes, protected paths, refused commit) fail at once. A final
-  failure is stashed as `overnight #N` and
-  skips its dependents; a retry does not. A retry only starts when a whole
-  attempt fits before the deadline. A ticket that fails or is requeued leaves
-  no branch: the runner returns to `origin/<base>`, deletes the ticket's
-  branch and restarts it from the base.
-- **Notification.** A macOS notification fires on every stop, aborts
-  included; `OVERNIGHT_NOTIFY=0` silences it.
-- **Model rejected.** A worker that exits non-zero with a model-not-found
-  error stops the whole run (`stop_reason` "worker model … rejected"). The
-  ticket is neither failed nor retried; fix the model and `--resume`.
-
-The gate (`usage-gate.sh --provider <p>`) reads `omp usage --provider <p>
---json` after an `invalidate`, for the provider of the worker's model. Exit 0
-go, 10 sleep until the 5h reset + 120 s, 20 stop on a weekly or monthly
-window, 30 unknown. Thresholds live at the top of that file. On a work
-machine without OMP config the gate reads unknown, so the run caps at
-`FALLBACK_MAX_TICKETS` (4) tickets.
+Per ticket, strictly serial: usage gate → one fresh worker → protected-paths
+check → build gate → commit `<subject> (#N)` on pass, then push and PR. Read
+`references/runbook.md` when the user asks about failures, retries, protected
+paths, the usage gate, a stop, a resume, starting over or the morning report.
 
 **Git policy:** one branch, one commit and one PR per passed ticket, none on
 the base.
@@ -204,27 +171,4 @@ the base.
   a publish error, and `--resume` retries publishing for every such ticket
   without re-running a worker.
 - Between tickets the checkout is detached at `origin/<base>`.
-
-## Morning
-
-The report is `.scratch/overnight/<YYYY-MM-DD>.md`; it documents itself
-(queue, per-ticket outcome, failures, stop reason). Read it first. Its
-**Pull requests** section lists each ticket's branch, PR base and PR link (or
-the publish error), then states the stacking order. Review and merge
-bottom-up, with merge commits or rebase-merge: a squash forces conflicts in
-the PRs above it. The runner merges nothing.
-
-**Stopping.** `"$S/overnight.sh" --stop` from the repo ends the run after the
-current ticket, or wakes it from a usage sleep. It writes the report and
-exits 0. For an immediate abort, `kill -TERM "$(jq .pid
-.scratch/overnight/state.json)"`; the interrupted ticket is stashed on
-`--resume`. The `<N>-attempt<k>.patch` files and handoffs in `logs/` are kept
-on purpose, for retries and the report.
-
-To continue an interrupted or stopped run: `"$S/overnight.sh" --resume
-[--deadline HH:MM] [--visible|--headless]`, launched the same way. A mode flag
-given on resume stays on; the state remembers the mode and the model of the
-original run. Resuming also retries publishing for every done ticket that has
-no PR. To start over, `mv` `.scratch/overnight/state.json` to
-`.scratch/overnight/state.prev-<YYYYMMDD-HHMMSS>.json` (deleting it works too);
-the next launch then begins a fresh run.
+- Stacked PRs merge bottom-up with merge commits or rebase-merge, never squash.
