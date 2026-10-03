@@ -1,6 +1,6 @@
 ---
 name: specialist-delegation
-description: "Use in Pi or OMP when deciding whether to delegate work, selecting specialist subagents, or preparing and verifying a worker handoff. Owns individual dispatches; use workstreams for dependencies, edit ownership, and integration across multiple implementation streams."
+description: "Use in Pi or OMP when deciding whether to delegate work, selecting specialist subagents, or preparing and verifying a worker handoff. Not for dependencies, edit ownership, or integration across multiple implementation streams (workstreams)."
 compatibility: "Pi with the Agent subagent tool, or OMP with the task tool; check the live tool schema and available agent roles."
 ---
 

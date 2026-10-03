@@ -437,9 +437,49 @@ class RoutingCheckTest(unittest.TestCase):
         bad = doc.replace("`pi:Explore` \u2192 `opencode-go/glm-5.3-flash` low", "`pi:Explore` \u2192 `opencode-go/glm-5.3-flash` high")
         self.assert_fails(self.docs_check(omp_doc=bad), "`pi:Explore`")
 
+    def test_duplicate_table_is_checked_not_ignored(self):
+        extra = "\n| Roles/settings | Value |\n| --- | --- |\n| `task` role | `anthropic/claude-sonnet-5-5:high` |\n"
+        failures = self.docs_check(omp_doc=OMP_DOC + extra)
+        self.assert_fails(failures, "AGENTS.md:", "`task`", "claude-sonnet-5-5:high")
+        extra = "\n| Task / agent | Provider and model | Effort |\n| --- | --- | --- |\n| `Explore` discovery | `opencode-go/glm-5.3-flash` | high |\n"
+        self.assert_fails(self.docs_check(pi_doc=PI_DOC + extra), "pi/model-ladder.md:", "`Explore`")
+
+    def test_table_without_separator_or_rows_fails(self):
+        doc = OMP_DOC.replace("| --- | --- |\n", "")
+        self.assert_fails(self.docs_check(omp_doc=doc), "AGENTS.md:", "separator")
+        doc = "| Roles/settings | Value |\n| --- | --- |\n\n" + OMP_DOC.split("| --- | --- |\n", 1)[0].replace("| Roles/settings | Value |\n", "")
+        self.assert_fails(self.docs_check(omp_doc=doc), "no rows")
+
+    def test_suffixed_or_malformed_markers_fail_not_skip(self):
+        doc = OMP_DOC.replace("<!-- routing:current -->", "<!-- routing:current --> extra")
+        self.assert_fails(self.docs_check(omp_doc=doc), "AGENTS.md:", "malformed routing marker")
+        doc = OMP_DOC.replace("<!-- routing:end -->", "<!-- routing:end --> extra")
+        self.assert_fails(self.docs_check(omp_doc=doc), "malformed routing marker")
+        doc = OMP_DOC.replace("<!-- routing:current -->", "<!--routing:current-->")
+        self.assert_fails(self.docs_check(omp_doc=doc), "malformed routing marker")
+
+    def test_backticked_marker_mentions_are_prose(self):
+        doc = OMP_DOC + "\nUse `<!-- routing:current -->` and `<!-- routing:end -->` to mark lines.\n"
+        self.assertEqual(self.docs_check(omp_doc=doc), [])
+
+    def test_bullet_form_is_not_in_the_grammar(self):
+        doc = OMP_DOC.replace("`default` \u2192", "- `default` \u2192")
+        self.assert_fails(self.docs_check(omp_doc=doc), "AGENTS.md:", "cannot parse marked line")
+
+    def test_empty_marked_block_fails(self):
+        doc = OMP_DOC.replace("<!-- routing:current -->\n", "<!-- routing:current -->\n<!-- routing:end -->\n<!-- routing:current -->\n", 1).replace(
+            "`default` \u2192 `anthropic/claude-opus-5` medium\n", "", 1)
+        self.assert_fails(self.docs_check(omp_doc=doc), "no lines to check")
+
     def test_unbalanced_markers_fail(self):
         self.assert_fails(self.docs_check(omp_doc=OMP_DOC.replace("<!-- routing:end -->", "")), "never closed")
         self.assert_fails(self.docs_check(omp_doc=OMP_DOC.replace("<!-- routing:current -->", "")), "without")
+
+    def test_doc_without_any_marked_block_fails(self):
+        doc = OMP_DOC.replace("<!-- routing:current -->\n", "").replace("<!-- routing:end -->\n", "")
+        self.assert_fails(self.docs_check(omp_doc=doc), "AGENTS.md:", "no routing:current block")
+        doc = PI_DOC.replace("<!-- routing:current -->\n", "").replace("<!-- routing:end -->\n", "")
+        self.assert_fails(self.docs_check(pi_doc=doc), "pi/model-ladder.md:", "no routing:current block")
 
     def test_missing_doc_fails(self):
         parsed, _ = MODULE.parse_config(BASE_CONFIG, "omp/config.yml")

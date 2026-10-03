@@ -48,7 +48,7 @@ Keep kerning enabled with `font-kerning: normal`. Kerning adjusts specific glyph
 
 **Failure patterns.** A headline that only fits in the design-language screenshot, not at a translated or accessibility-scaled length. A body size reduced to preserve a fixed card height. One Latin fallback silently serving a different script. Preloading every family, weight, and subset, delaying more important content. Layout shift hidden by a screenshot taken after fonts finish loading.
 
-**Proof.** Inspect the rendered system at the project's actual breakpoints and at 390, 900 and 1440 CSS pixels wide; type proofed in source is not type proofed. At 390x844, the first useful unit of task content must start within the top 40% of the viewport, so reject a title treatment that pushes it lower. Check 200% browser zoom or operating-system text scaling, longest translated strings, fallback rendering, narrow and wide measures, and font-loading transitions. Completion requires no clipped, overlapping, or horizontally overflowing text; intentional line breaks must survive the target widths.
+**Proof.** Inspect the rendered system at the project's actual breakpoints and at 390, 900 and 1440 CSS pixels wide; type proofed in source is not type proofed. At 390x844, apply `skill://design-interface`'s first-useful-unit threshold and reject a title treatment that pushes task content past it. Check 200% browser zoom or operating-system text scaling, longest translated strings, fallback rendering, narrow and wide measures, and font-loading transitions. Completion requires no clipped, overlapping, or horizontally overflowing text; intentional line breaks must survive the target widths.
 
 ## Screen sizing and role numbers
 

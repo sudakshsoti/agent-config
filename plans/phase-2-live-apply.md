@@ -2,7 +2,7 @@ Status: planned
 
 # Phase 2 live-apply runbook
 
-Status: prepared for a human-run session (#42). Nothing here has been run
+Prepared for a human-run session (#42). Nothing here has been run
 against a real HOME. An agent must not run these steps.
 
 Phase 2 was reconciled with the OMP/Pi narrowing (`4a7edc49`). That removed

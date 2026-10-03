@@ -4,7 +4,7 @@ description: "Use when ending or pausing a session to write a structured handoff
 disable-model-invocation: true
 ---
 
-# Session Handoff Skill
+# Handoff
 
 Create structured documents that enable seamless continuity across agent
 sessions.
@@ -19,16 +19,7 @@ sessions.
 
 ## Handoff Process
 
-### Step 1: Assess Session State
-
-Quickly assess:
-
-1. **What phase are we in?** (exploration, planning, implementation, debugging,
-   review)
-2. **What's the active task?** (what we're trying to accomplish)
-3. **How far along are we?** (just started, mid-way, almost done)
-
-### Step 2: Ask What Matters
+### Step 1: Ask What Matters
 
 Ask the user:
 
@@ -36,21 +27,22 @@ Ask the user:
 > sure I capture? (Key decisions, code snippets, context about the problem,
 > things you'll forget, etc.)"
 
-### Step 3: Generate Handoff Document
+### Step 2: Generate Handoff Document
 
-Create a structured document:
+Create a structured document. Fill Current State from the session itself: the
+phase, the active task, and the last milestone reached.
 
 ```markdown
 # Session Handoff: [Brief Description]
 
-**Date:** [YYYY-MM-DD] **Project:** [project name/path] **Session Duration:**
-[approximate]
+**Date:** [YYYY-MM-DD]
+**Project:** [project name/path]
 
 ## Current State
 
-**Task:** [What we're working on] **Phase:**
-[exploration/planning/implementation/debugging/review] **Progress:** [where we
-are - percentage or milestone]
+**Task:** [What we're working on]
+**Phase:** [exploration/planning/implementation/debugging/review]
+**Progress:** [last milestone reached]
 
 ## What We Did
 
@@ -95,9 +87,11 @@ that would take time to re-establish]
 - `path/to/key/file.ts` — [why it matters]
 ```
 
-### Step 4: Write the File
+### Step 3: Write the File
 
-Write to: `handoff/[YYYY-MM-DD]-[brief-description].md`
+Write to: `handoff/[YYYY-MM-DD]-[brief-description].md` under the git root of the
+current project, creating `handoff/` if missing. The file stays untracked on
+purpose: add `handoff/` to `.git/info/exclude` if it is not already ignored.
 
 Confirm location with user:
 
@@ -161,13 +155,14 @@ re-explanation.
 ```markdown
 # Session Handoff: Auth System Implementation
 
-**Date:** 2025-01-15 **Project:** /Users/robert/projects/my-api **Session
-Duration:** ~2 hours
+**Date:** [YYYY-MM-DD]
+**Project:** /path/to/my-api
 
 ## Current State
 
-**Task:** Implementing user authentication for the API **Phase:** Implementation
-**Progress:** ~60% - basic flow works, need refresh tokens
+**Task:** Implementing user authentication for the API
+**Phase:** Implementation
+**Progress:** Basic JWT flow works; refresh tokens not started
 
 ## What We Did
 

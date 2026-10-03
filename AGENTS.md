@@ -121,7 +121,11 @@ Secrets belong in dotfiles (1Password + age), never here.
   description's "Not for … (x)" clause that are not repo-owned, named on a
   `plugins.txt` `external` line, cloned under `vendor/` (by frontmatter `name:`),
   or listed in `external-skills.txt` (the skills of bare `external` sources;
-  add a name there when upstream ships a new one). `python3 scripts/check-manifest.py` (run by `check.sh`)
+  add a name there when upstream ships a new one). Where `vendor/<slug>` is
+  cloned for a bare source, the lint also fails when that source's
+  `external-skills.txt` section (heading `# <owner/repo>[:<subdir>]`) and the
+  frontmatter `name:` values the clone ships differ, in either direction; CI,
+  with no clone, skips it. `python3 scripts/check-manifest.py` (run by `check.sh`)
   rejects malformed `plugins.txt` lines and duplicate external allowlisting;
   `scripts/manifest.py` is the shared parser.
 - `distribution.txt` lists the skills shipped to claude.ai as `dist/<name>.zip`
@@ -309,7 +313,10 @@ Secrets belong in dotfiles (1Password + age), never here.
   `retry.usageReservePolicy`, `task.maxEffort` and
   `providers.autoThinkingMaxEffort`; a row it cannot parse fails, never skips.
   Every non-blank marked line must read `` `name` → `provider/model` level ``
-  (names joined by ` and ` or `, `). Names resolve in the doc's own source
+  (names joined by ` and ` or `, `; no bullet prefix). Every matching table is
+  checked (a second table with the same header is not ignored), and a missing
+  separator row, an empty table or marked block, or a marker line with extra text
+  fails (backticked marker mentions in prose are fine). Names resolve in the doc's own source
   (AGENTS.md: OMP roles/agents; ladder: Pi agents, plus `main` for the Pi
   default); prefix `omp:` or `pi:` to cross over. Text outside the markers is
   never read. Fix drift in the docs, not by bending the config. Tests:

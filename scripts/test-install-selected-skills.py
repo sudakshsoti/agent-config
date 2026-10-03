@@ -843,6 +843,36 @@ class InstallerTest(DisposableInstallCase):
         self.assertEqual(winner, str(shipped["ours"]))
         self.assertIn("shadowed by this repo's skills/x", result.stdout)
 
+    def test_prototype_clash_resolves_to_mattpocock_with_one_skip(self):
+        # Mirrors the real manifest: mattpocock/skills is declared bare per bucket
+        # before bare emilkowalski/skills, and both ship `prototype`. The earliest
+        # bare line wins (maintainer decision, 2026-10-04), so Matt's copy is linked
+        # and the installer warns exactly once about Emil's.
+        matt = self.repo / "vendor/mattpocock-skills/skills/engineering/prototype"
+        emil = self.repo / "vendor/emilkowalski-skills/skills/prototype"
+        for skill in (matt, emil):
+            skill.mkdir(parents=True)
+            (skill / "SKILL.md").write_text(
+                "---\nname: prototype\ndescription: External.\n---\n", encoding="utf-8"
+            )
+        (self.repo / "plugins.txt").write_text(
+            "external mattpocock/skills:skills/engineering\n"
+            "external mattpocock/skills:skills/productivity\n"
+            "external emilkowalski/skills\n",
+            encoding="utf-8",
+        )
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        links = links_under(self.test_home / ".agents")
+        self.assertEqual(links["skills/prototype"], str(matt))
+        self.assertEqual(
+            result.stdout.count(
+                "SKIP prototype (external emilkowalski/skills) — shadowed by external mattpocock/skills"
+            ),
+            1,
+        )
+        self.assertEqual(result.stdout.count("SKIP prototype"), 1)
+
     def test_collision_is_the_same_in_the_claude_skills_root(self):
         (self.test_home / ".claude").mkdir()
         winner, shipped, _ = self.collide("external b/two\nexternal a/one x\n")

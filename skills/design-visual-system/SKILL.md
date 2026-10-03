@@ -1,6 +1,6 @@
 ---
 name: design-visual-system
-description: "Use for visual direction in a product UI: art direction, colour, hierarchy, responsive layout, CSS tokens, `@theme`, and OKLCH, while first classifying the surface intent. It owns visual system decisions; use design-typography for typography-primary work and design-interface for behaviour and states."
+description: "Use for visual direction in a product UI: colour, hierarchy, responsive layout, CSS tokens, `@theme`, and OKLCH, while first classifying the surface intent. Not for a token or colour tweak inside an existing system, typography-primary work (design-typography), or behaviour and states (design-interface)."
 ---
 
 # Design visual system
@@ -109,7 +109,7 @@ Ship production CSS to support the decision.
 
 `references/` holds the concrete values behind these checks: `surfaces-and-icons.md`
 for radius, shadow-as-border and icon mechanics, `colour-systems.md` for ramp
-formation, token grammar and APCA/WCAG thresholds, `layout-mechanics.md` for
+formation, token grammar and APCA thresholds, `layout-mechanics.md` for
 spacing and adaptivity measurements, and `motion-values.md` for the numeric
 overrides to the vendored `animate` and `emil-design-eng` skills.
 

@@ -1,6 +1,6 @@
 ---
 name: obsidian-markdown
-description: "Use when creating or editing Obsidian notes that rely on wikilinks, embeds, callouts, properties, comments, tags, or other Obsidian-specific Markdown. It owns vault syntax; use writing-editor for essays and humanizer for AI-tell cleanup rather than note-formatting guidance."
+description: "Use when creating or editing Obsidian notes that rely on wikilinks, embeds, callouts, properties, comments, tags, or other Obsidian-specific Markdown. Not for essay ideas or structure (writing-editor) or AI-tell cleanup (humanizer)."
 ---
 
 # Obsidian Flavored Markdown Skill

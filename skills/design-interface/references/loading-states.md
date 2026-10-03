@@ -19,3 +19,7 @@ A skeleton hints at the shape of the incoming content — rectangles where text 
 ## Gotcha
 
 Agents read this tree as "always show a spinner" and add one to a state change that resolves in a frame — the first row of the table says nothing, not a spinner, is correct under 800ms.
+
+## Sources
+
+- Retired skill design-engineering, file skills/design-engineering/references/components/empty-loading-states.md @ `81805dc89d40889639a95502bfb578a098266dc8`.

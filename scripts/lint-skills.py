@@ -48,14 +48,23 @@ Skipped as not-a-reference: fenced code blocks, placeholders (`<name>`, `*`,
 (history citations), and lines that say the
 thing is gone (archived/deleted/removed/retired/no longer).
 
+Fourth contract, external-skills.txt drift. When vendor/<slug> exists for a bare
+`external` source, that source's section of external-skills.txt (the names under
+its `# <owner/repo>[:<subdir>]` heading) must equal the frontmatter `name:` values
+the clone ships, enumerated as install.sh does (audit-local.py's helpers). A name
+the clone ships but the section lacks, or the section lists but the clone does
+not ship, fails and names both. With no clone (CI) the check is silent.
+
 FAILs exit 1. WARNs never do — two skills are legitimately over the body
 threshold today and shrinking them is somebody else's issue; a WARN that broke
 the build would just get deleted.
 """
 
+import importlib.util
 import os
 import re
 import sys
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from frontmatter import parse_frontmatter  # noqa: E402
@@ -216,6 +225,64 @@ def load_external_skills(repo_root):
     return names
 
 
+SECTION_HEADING_RE = re.compile(r"^#\s*([^\s/#]+/[^\s/#:]+(?::\S+)?)\s*$")
+
+
+def external_skills_sections(repo_root):
+    """external-skills.txt names grouped by `# <owner/repo>[:<subdir>]` heading."""
+    text = read_text(os.path.join(repo_root, EXTERNAL_SKILLS_FILE))
+    sections, current = {}, None
+    for line in (text or "").splitlines():
+        heading = SECTION_HEADING_RE.match(line.strip())
+        if heading:
+            current = sections.setdefault(heading.group(1), set())
+            continue
+        name = line.split("#", 1)[0].strip()
+        if name and current is not None:
+            current.add(name)
+    return sections
+
+
+def _audit_local():
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "audit-local.py")
+    spec = importlib.util.spec_from_file_location("audit_local", path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module  # dataclasses resolve their module by name
+    spec.loader.exec_module(module)
+    return module
+
+
+def lint_external_drift(repo_root):
+    """Fail where a cloned bare source ships different names than its section lists."""
+    entries, _ = parse_plugins_file(os.path.join(repo_root, "plugins.txt"))
+    sections = external_skills_sections(repo_root)
+    audit = None
+    fails, seen = [], set()
+    for entry in entries:
+        token = entry.source + (":" + entry.subdir if entry.subdir else "")
+        clone = Path(repo_root, "vendor", audit_slug(entry.source))
+        if entry.skills or token in seen or not clone.is_dir():
+            continue
+        seen.add(token)
+        audit = audit or _audit_local()
+        shipped = set(audit.discover_external_names(audit.external_source_root(clone, entry), entry))
+        listed = sections.get(token, set())
+        where = "%s section %r" % (EXTERNAL_SKILLS_FILE, token)
+        if token not in sections:
+            where = "%s has no section %r; it" % (EXTERNAL_SKILLS_FILE, token)
+        missing, extra = sorted(shipped - listed), sorted(listed - shipped)
+        if missing:
+            fails.append("%s lacks names vendor/%s ships: %s" % (where, audit_slug(entry.source), ", ".join(missing)))
+        if extra:
+            fails.append("%s lists names vendor/%s does not ship: %s" % (where, audit_slug(entry.source), ", ".join(extra)))
+    return fails
+
+
+def audit_slug(source):
+    """install.sh: slug="${repo%/*}-${repo#*/}"."""
+    return source.replace("/", "-", 1)
+
+
 def vendored_skill_name(skill_md):
     """A vendored skill's name: frontmatter `name:`, else its directory (as install.sh)."""
     text = read_text(skill_md)
@@ -373,7 +440,15 @@ def main(argv):
         print("  ok    no dangling paths or unknown skills in %d source skills" % len(sources))
 
     print()
-    failed += len(cat_fails) + len(ref_fails)
+    print("external-skills.txt drift")
+    drift_fails = lint_external_drift(repo_root)
+    for detail in drift_fails:
+        print("  FAIL  %s" % detail)
+    if not drift_fails:
+        print("  ok    external-skills.txt matches every cloned bare source")
+
+    print()
+    failed += len(cat_fails) + len(ref_fails) + len(drift_fails)
     summary = "%d passed, %d failed" % (passed, failed)
     if warned:
         summary += ", %d warnings (not fatal)" % warned

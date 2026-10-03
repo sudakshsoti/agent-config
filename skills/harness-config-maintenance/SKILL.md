@@ -1,6 +1,6 @@
 ---
 name: harness-config-maintenance
-description: "Use when changing OMP/Pi/Claude Code/herdr config, model routing, install.sh, plugins.txt, global-agents.md, or Pi/OMP agents and extensions in agent-config. Skill add, rename or retire: skill-lifecycle; prose quality: writing-for-agents."
+description: "Use when changing OMP/Pi/Claude Code/herdr config, model routing, install.sh, plugins.txt, global-agents.md, or Pi/OMP agents and extensions in agent-config. Not for adding, renaming or retiring a skill (skill-lifecycle) or prose quality (writing-for-agents)."
 ---
 
 # Harness configuration maintenance

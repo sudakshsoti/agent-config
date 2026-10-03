@@ -9,3 +9,7 @@ Go offline mid-session, not just at load. Log out mid-session, not just before i
 ## Gotcha
 
 The source's claim that most products fail this protocol within 60 seconds is recorded here as an assertion, not a measurement — no baseline project has timed it. Do not cite the 60-second figure as if it were tested; cite the protocol.
+
+## Sources
+
+- Retired skill design-engineering, file skills/design-engineering/references/philosophy/states-are-the-work.md @ `81805dc89d40889639a95502bfb578a098266dc8` (practice-asserted, not independently verified).

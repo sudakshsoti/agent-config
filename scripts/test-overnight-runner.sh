@@ -801,12 +801,149 @@ B
   check "caffeinate: released on abort" '[[ -e "$C/caff.gone" ]]'
 }
 
+case_protected_brief() {
+  mk_case protected_brief
+  issue 1 "T1" "Body"
+  plan '[1]' "$MODEL"
+  run_runner
+  check "brief: names the regex the runner enforces, default" '[[ $RC == 0 ]] && grep -qF -- "(^|/)\.env(\.|\$)|\.pem\$|\.key\$|(^|/)id_(rsa|ed25519|ecdsa|dsa)(\$|[^.]|\.[^p])|(^|/)\.git/|^\.github/workflows/" "$C/brief-1-1.md"'
+  check "brief: no looser .env* wording" '! grep -qF -- ".env*" "$C/brief-1-1.md"'
+  rm -f "$R/.scratch/overnight/state.json" "$C/count-1" "$C/invocations.log"
+  git -C "$R" reset -q --hard main
+  OVERNIGHT_PROTECTED_RE='^secrets/' run_runner
+  check "brief: names the override regex" '[[ $RC == 0 ]] && grep -qF -- "^secrets/" "$C/brief-1-1.md" && ! grep -qF -- "\.pem" "$C/brief-1-1.md"'
+}
+
+case_protected_requeue() {
+  mk_case protected_requeue
+  issue 1 "T1" "Body"
+  plan '[1]' "$MODEL"
+  behave 1-1 <<'B'
+echo "SECRET=hunter2" >.env
+echo work >src.txt
+RESULT="You've hit your usage limit"
+B
+  behave 1-2 <<'B'
+[[ ! -e .env && ! -e src.txt ]] && echo clean >"$OT_CASE/clean-2"
+B
+  OVERNIGHT_RATE_LIMIT_BACKOFF_SECS=0 run_runner
+  check "protected requeue: ticket requeued once and passes" '[[ $RC == 0 && "$(inv)" == "1 1" && "$(sq ".requeues[\"1\"]")" == 1 && "$(sq ".done | map(.n) | join(\",\")")" == 1 && "$(sq ".failed | length")" == 0 ]]'
+  check "protected requeue: protected paths purged first, and logged" 'cat "$C/run.out" "$C/run.err" | grep -q "requeued.*protected paths removed.*\.env"'
+  check "protected requeue: next attempt starts with no protected file" '[[ -e "$C/clean-2" ]]'
+  check "protected requeue: secret in no stash, commit or patch" '! git -C "$R" log --all -p | grep -q hunter2 && [[ -z "$(git -C "$R" stash list)" ]]'
+}
+
+case_resume_no_requeues() {
+  mk_case resume_no_requeues
+  for n in 1 2; do issue "$n" "T$n" "Body"; done
+  plan '[1,2]' "$MODEL"
+  run_runner --max-tickets 1
+  local s="$R/.scratch/overnight/state.json"
+  jq 'del(.requeues)' "$s" >"$s.tmp" && mv "$s.tmp" "$s"
+  behave 2-1 <<'B'
+RESULT="You've hit your usage limit"
+B
+  OVERNIGHT_RATE_LIMIT_BACKOFF_SECS=0 run_runner --resume
+  check "resume: state without requeues map requeues and continues" '[[ $RC == 0 && "$(inv)" == "1 2 2" && "$(sq ".requeues[\"2\"]")" == 1 && "$(sq ".done | map(.n) | join(\",\")")" == "1,2" ]]'
+}
+
+# gate_case <name> <fixture> — a case whose usage gate reads <fixture>. A stub
+# `sleep` (in $C/bin) logs its argument and, for a usage-sleep step (10 s),
+# flips the gate to the clear reading, so a usage sleep costs no wall time and ends.
+gate_case() {
+  mk_case "$1"
+  mkdir -p "$C/bin"
+  export USAGE_GATE_JSON="$C/gate.json"
+  cp "$fixtures/$2" "$USAGE_GATE_JSON"
+  cp "$T/gate.json" "$C/gate-clear.json"
+  printf '#!/bin/sh\necho "$1" >>"$OT_CASE/sleeps.log"\n[ "$1" -ge 10 ] && cp "$OT_CASE/gate-clear.json" "$OT_CASE/gate.json"\nexit 0\n' >"$C/bin/sleep"
+  chmod +x "$C/bin/sleep"
+}
+
+case_gate_sleep() {
+  gate_case gate_sleep go-provider-sleep-5h.json
+  issue 1 "T1" "Body"
+  plan '[1]' "$MODEL"
+  PATH="$C/bin:$PATH" run_runner
+  check "gate 10: sleeps until the reset + 120 s, then runs the ticket" '[[ $RC == 0 && -s "$C/sleeps.log" && "$(grep -cx 10 "$C/sleeps.log")" == 372 && "$(inv)" == 1 && "$(sq ".done | map(.n) | join(\",\")")" == 1 ]]'
+  check "gate 10: the sleep is recorded in usage" '[[ "$(sq "[.usage[] | select(.label == \"sleep 3720s\")] | length")" == 1 ]]'
+}
+
+case_gate_stop() {
+  gate_case gate_stop go-provider-pace-stop-7d.json
+  issue 1 "T1" "Body"
+  plan '[1]' "$MODEL"
+  PATH="$C/bin:$PATH" run_runner
+  check "gate 20: stops before any worker starts, queue kept" '[[ $RC == 0 && ! -e "$C/invocations.log" && "$(sq .stop_reason)" == "weekly limit" && "$(sq ".queue | join(\",\")")" == 1 ]]'
+}
+
+case_gate_unknown() {
+  gate_case gate_unknown go.json
+  for n in 1 2; do issue "$n" "T$n" "Body"; done
+  plan '[1,2]' "$MODEL"
+  behave 1 <<'B'
+result blocked "needs a design decision"
+B
+  FALLBACK_MAX_TICKETS=1 PATH="$C/bin:$PATH" run_runner
+  check "gate 30: an unreadable gate runs up to the fallback cap" '[[ $RC == 0 && "$(inv)" == 1 && "$(sq .stop_reason)" == "fallback cap (1 tickets on an unknown gate)" ]]'
+  check "gate 30: a failing worker is failed, not requeued" '[[ "$(sq ".failed | map(.n) | join(\",\")")" == 1 && "$(sq ".requeues // {} | length")" == 0 && "$(sq ".queue | join(\",\")")" == 2 ]]'
+  check "gate 30: the unknown reading is recorded" '[[ "$(sq "[.usage[] | select(.code == 30)] | length > 0")" == true ]]'
+}
+
+case_gate_requeue_sleep() {
+  gate_case gate_requeue_sleep go.json
+  cp "$fixtures/go-provider-go.json" "$USAGE_GATE_JSON"
+  cp "$fixtures/go-provider-sleep-5h.json" "$C/gate-trip.json"
+  issue 1 "T1" "Body"
+  plan '[1]' "$MODEL"
+  behave 1-1 <<'B'
+cp "$OT_CASE/gate-trip.json" "$USAGE_GATE_JSON"
+result blocked "out of quota"
+B
+  PATH="$C/bin:$PATH" run_runner
+  check "gate requeue 10: a worker failing under a 5h sleep is requeued, not failed" '[[ $RC == 0 && "$(inv)" == "1 1" && "$(sq ".requeues[\"1\"]")" == 1 && "$(sq ".failed | length")" == 0 && "$(sq ".done | map(.n) | join(\",\")")" == 1 && -s "$C/sleeps.log" ]]'
+}
+
+case_gate_requeue_stop() {
+  gate_case gate_requeue_stop go.json
+  cp "$fixtures/go-provider-go.json" "$USAGE_GATE_JSON"
+  cp "$fixtures/go-provider-pace-stop-7d.json" "$C/gate-trip.json"
+  issue 1 "T1" "Body"
+  plan '[1]' "$MODEL"
+  behave 1-1 <<'B'
+cp "$OT_CASE/gate-trip.json" "$USAGE_GATE_JSON"
+echo partial >work-1.txt
+result partial "out of quota"
+B
+  PATH="$C/bin:$PATH" run_runner
+  check "gate requeue 20: a worker failing under a weekly stop is requeued and the run stops" '[[ $RC == 0 && "$(inv)" == 1 && "$(sq ".requeues[\"1\"]")" == 1 && "$(sq ".failed | length")" == 0 && "$(sq .stop_reason)" == "weekly limit" && "$(sq ".queue | join(\",\")")" == 1 ]]'
+  check "gate requeue 20: nothing stashed or committed, tree clean" '[[ -z "$(git -C "$R" stash list)" && -z "$(git -C "$R" status --porcelain)" ]] && ! subjects | grep -q "(#1)"'
+}
+
+case_waived_edges() {
+  mk_case waived_edges
+  for n in 1 2; do issue "$n" "T$n" "Body"; done
+  edge 1 9
+  edge 2 1
+  edge 2 9
+  plan '[1,2]' "$MODEL"
+  run_runner
+  check "waived: an open blocker outside the run skips its dependents" '[[ $RC == 0 && ! -e "$C/invocations.log" && "$(sq ".skipped | map(.n) | join(\",\")")" == "1,2" && "$(sq ".skipped[0].why")" == *"#9 is open and not in this run"* ]]'
+  rm -f "$R/.scratch/overnight/state.json"
+  jq '.waived = [[1, 9], [2, 9]]' "$R/.scratch/overnight/plan.json" >"$R/.scratch/overnight/plan.tmp" && mv "$R/.scratch/overnight/plan.tmp" "$R/.scratch/overnight/plan.json"
+  run_runner
+  check "waived: waived edges are ignored; the run goes in order" '[[ $RC == 0 && "$(inv)" == "1 2" && "$(sq ".done | map(.n) | join(\",\")")" == "1,2" ]]'
+  check "waived: #1 branches from the base; #2 stacks on #1 only" '[[ "$(sq ".done[0].parents | join(\",\")")" == "" && "$(sq ".done[1].parents | join(\",\")")" == 1 ]] && git -C "$R" merge-base --is-ancestor overnight/test/1 overnight/test/2'
+}
+
 # --- run ----------------------------------------------------------------------
 
 cases=(retry_success retry_exhausted dependent_order blocked protected protected_allowed
   protected_override red_tests commit_refused pr_independent pr_stacked pr_multi
   pr_conflict setup_failure pr_failed pr_publish_failure pr_create_failure gh_access pr_dry_run no_merge matrix resume_old_state
-  resume_no_model resume_interrupted notify model_rejected stop abort caffeinate)
+  resume_no_model resume_interrupted notify model_rejected stop abort caffeinate
+  protected_brief protected_requeue resume_no_requeues gate_sleep gate_stop gate_unknown
+  gate_requeue_sleep gate_requeue_stop waived_edges)
 for c in "${cases[@]}"; do
   (
     "case_$c"

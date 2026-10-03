@@ -158,23 +158,8 @@ Use ARIA labels when visual context isn't available to screen readers:
 
 ### Reading Level Targets
 
-**General Public**
-
-- Target: 7th-8th grade (Flesch-Kincaid)
-- Sentence length: 15-20 words average
-- Word choice: Common, everyday words
-
-**Professional Tools**
-
-- Target: 9th-10th grade
-- Sentence length: 20-25 words maximum
-- Word choice: Industry terms okay if audience expects them
-
-**Technical Products**
-
-- Target: 10th-11th grade
-- Sentence length: 25 words maximum
-- Word choice: Technical terms with clear definitions
+Grade targets by audience live in `references/benchmarks.md` (Reading Level
+Guidelines); sentence-length limits are under Sentence Length above.
 
 ### Plain Language Techniques
 
