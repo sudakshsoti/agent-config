@@ -1,6 +1,6 @@
 ---
 name: design-visual-system
-description: "Use for visual direction in a product UI: art direction, colour, hierarchy, responsive layout, CSS tokens, `@theme`, and OKLCH, while first classifying the surface intent. It owns visual system decisions; use design-typography for typography-primary work and design-interface for behaviour and states."
+description: "Use for visual direction in a product UI: colour, hierarchy, responsive layout, CSS tokens, `@theme`, and OKLCH, while first classifying the surface intent. Not for a token or colour tweak inside an existing system, typography-primary work (design-typography), or behaviour and states (design-interface)."
 ---
 
 # Design visual system

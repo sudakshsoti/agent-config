@@ -37,24 +37,22 @@ future session needs to pick up where you left off:
 
 ## How It Works
 
-**Step 1:** The agent assesses the current session state
-
-**Step 2:** Asks what you want to capture:
+**Step 1:** Asks what you want to capture:
 
 > "I'll create a handoff document. Is there anything specific you want to make
 > sure I capture?"
 
-**Step 3:** Generates a structured handoff document
+**Step 2:** Generates a structured handoff document
 
-**Step 4:** Saves to `handoff/[date]-[description].md`
+**Step 3:** Saves to `handoff/[date]-[description].md` under the project's git root (untracked on purpose)
 
 ## Handoff Document Structure
 
 ```markdown
 # Session Handoff: [Brief Description]
 
-**Date:** 2025-01-15 **Project:** /path/to/project **Session Duration:** ~2
-hours
+**Date:** [YYYY-MM-DD]
+**Project:** /path/to/project
 
 ## Current State
 
@@ -99,18 +97,3 @@ When starting a new session:
 3. Use @ mention if supported
 
 The handoff lets a fresh session hit the ground running without lengthy re-explanation.
-
-## Related: Compaction Hook
-
-For in-session continuity (when context compacts but session continues), see the
-compaction hook. It automatically improves what gets
-preserved during compaction.
-
-| Handoff Skill            | Compaction Hook           |
-| ------------------------ | ------------------------- |
-| Cross-session continuity | In-session continuity     |
-| Manual, explicit         | Automatic, silent         |
-| Creates files you keep   | Influences internal state |
-| Full context capture     | Preservation priorities   |
-
-Use both for complete coverage.
