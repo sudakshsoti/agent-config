@@ -37,3 +37,12 @@
 # OMP composer shape
 
 - [stated] `composer.shape` is `rule`, not `rail`: Collie (the Herdr phone client) only detects OMP's `box`, `rule` and `pi` composers, and refuses every phone reply on an unrecognised one ("The agent's input box isn't on screen"). `rule` is the closest supported look to `rail`. Revisit only if Collie gains `rail` support. — User, 2026-10-02.
+
+# Skill audit follow-up
+
+- [stated] The `opencode-go/glm-5.3-flash` fallback chain becomes `mimo-v2.6-pro:high` → `deepseek-v4.1-flash:max` → `openrouter/deepseek/deepseek-v4.1-flash:high` → `anthropic/claude-sonnet-5-5:medium`. All three Go rungs share one provider, so OpenRouter DeepSeek keeps review cross-lineage through a Go outage; Sonnet stays last so scout, smol and commit traffic still runs if Go and OpenRouter are both down. OpenRouter per-token billing (the `omp.sh` key) during a Go outage is accepted. — User, 2026-10-04.
+- [stated] `peer-review` reports the model that actually ran and labels a Claude fallback "same-lineage", instead of claiming the chain holds no Anthropic model. — User, 2026-10-04.
+- [stated] `find-skills` is retired to `skills/_archive/`; adding skills goes through `skill-lifecycle` and `plugins.txt`. — User, 2026-10-04.
+- [stated] `ux-writing` capitalisation: sentence case by default; native apps follow platform convention (e.g. Title Case for macOS menus and buttons). — User, 2026-10-04.
+- [stated] The Indian English / INR / Indian-numbering line is removed from `design-strategy`, `design-visual-system`, `vbc-design` and `clinical-reasoning`, because most products are American. It is replaced by "Match the product's market locale for spelling, currency and number format" (the user's locale in `clinical-reasoning`). "No disclaimers" and "address the user as you" stay, deduplicated within each file. — User, 2026-10-04.
+- [stated] `clinical-reasoning` keeps its Indian clinical content (guideline hierarchy, brand examples, NCR references); only the voice line changes. — User, 2026-10-04.
