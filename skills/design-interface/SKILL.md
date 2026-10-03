@@ -1,6 +1,6 @@
 ---
 name: design-interface
-description: "Use when designing or reviewing interactive controls, forms, lists, dashboards, settings, documentation, or non-happy-path screen states. It specifies structure, labels, focus, hit areas, and field states; hand type scale or visual styling to design-typography or design-visual-system."
+description: "Use when designing or reviewing interactive controls, forms, lists, dashboards, settings, documentation, or non-happy-path screen states: structure, labels, focus, hit areas, field states. Not for marketing or brand pages (frontend-design), type scale (design-typography), or visual styling (design-visual-system)."
 ---
 
 # craft: interface

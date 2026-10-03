@@ -1,6 +1,6 @@
 ---
 name: gtd
-description: "Run personal GTD workflows for capture, clarification, Todoist routing, calendar commitments, email triage, reviews, Waiting For, and Someday/Maybe."
+description: "Use for personal GTD: capture, clarification, Todoist routing, calendar commitments, email triage, reviews, Waiting For, Someday/Maybe. Not for project backlogs (backlog) or session handoff notes (handoff)."
 disable-model-invocation: true
 ---
 

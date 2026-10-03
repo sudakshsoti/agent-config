@@ -1,6 +1,6 @@
 ---
 name: design-typography
-description: "Use for typeface selection, pairing, hierarchy, scales, OpenType features, font loading, language coverage, and type-led layout across screen, print, or brand work. It owns typography; use design-interface for non-type interaction structure and design-visual-system for broader colour, imagery, and layout."
+description: "Use for typeface and font choice, pairing, OpenType features, font loading, and language or script coverage across screen, print, or brand work. Not for general UI styling (design-visual-system), interaction structure (design-interface), or copy (ux-writing)."
 ---
 
 # Typography craft
