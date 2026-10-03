@@ -44,7 +44,9 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
 The list below covers the 35 repo-owned skills that are active. Keep it
 synchronized with the actual `skills/*/SKILL.md` directories;
 `scripts/lint-skills.py` validates each skill's frontmatter and fails when this
-list and the source tree disagree.
+list and the source tree disagree. It also fails when a skill's `SKILL.md` or
+`references/` points at a file or skill that does not exist (skills named on a
+`plugins.txt` `external` line count as existing).
 The active design set is `design-interface`, `design-visual-system`, and
 `design-typography`; they classify surface intent before applying hierarchy.
 `frontend-artifact` is deprecated and retained under `skills/_archive/` for
