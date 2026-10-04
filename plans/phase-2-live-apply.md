@@ -31,15 +31,15 @@ the other way and closed as wontfix (`.out-of-scope/retire-config-omp-links.md`)
 - **P3 — harnesses idle.** No OMP or Pi session is running, because both write
   through the links being refreshed.
 - **P4 — retired-harness links you still use.** `--prune` (L5) also runs
-  the retired-harness cleanup from `4a7edc49`. It removes every symlink into
-  this checkout at `~/.claude/CLAUDE.md`, `~/.claude/claude-powerline.json`,
-  `~/.claude/skills/*`, `~/.claude/agents/*`, `~/.codex/AGENTS.md`,
+  the retired-harness cleanup. It removes symlinks into this checkout at
+  `~/.claude/CLAUDE.md`, `~/.claude/agents/*`, `~/.codex/AGENTS.md`,
   `~/.codex/agents/*`, `~/.codex/prompts/*` and
-  `~/.config/opencode/AGENTS.md`. On 2026-09-14 these links were live on this
-  machine, including `~/.claude/CLAUDE.md` and dozens of `~/.claude/skills`
-  entries that Claude Code still loads. If Claude Code, Codex or OpenCode
-  should keep them, skip L5 or move those links out of the way first. Only
-  dotfiles or a hand-made link should own them after the cull.
+  `~/.config/opencode/AGENTS.md`, plus marker-carrying copies in
+  `~/.codex/skills`. `~/.claude/skills/*` and `~/.claude/claude-powerline.json`
+  are live install destinations again and are kept. Without the
+  `~/.claude/CLAUDE.md` link, Claude Code sees `global-agents.md` only through
+  a hand-added `@` include. On 2026-10-04 none of these links existed on the
+  Mac.
 
 ## Steps
 
@@ -72,6 +72,9 @@ Expect `exit=0` with no `dangling-link`, `non-symlink-entry` or
 `chezmoi-collision` findings; no non-symlink output; a clean tree.
 `undeclared-checkout` findings are informational: vendor clones are never
 deleted automatically.
+Real directories left in `~/.agents/skills` by other tools (on 2026-10-04:
+`.trash` and `synced`) trip `non-symlink-entry`; move them aside rather than
+deleting them.
 
 ## Out of scope
 
