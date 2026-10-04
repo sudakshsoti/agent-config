@@ -59,3 +59,6 @@ interface-review
 
 # humanlayer/skills
 show-me
+
+# danyuchn/asd-ste100-skill
+asd-ste100
