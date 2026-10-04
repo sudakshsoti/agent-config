@@ -445,5 +445,8 @@ Use `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, and
 
 ### Domain docs
 
-The previously documented root `CONTEXT.md` and `docs/adr/` are absent in this
-checkout; do not assume they exist.
+`GLOSSARY.md` at the repo root is the domain vocabulary; `domain-modeling`,
+`wait-what` and the other mattpocock skills read and write that name only. It
+was `CONTEXT.md` before upstream v1.3.0, so a repo that still has one needs
+`git mv CONTEXT.md GLOSSARY.md`. `docs/adr/` is absent in this checkout; do not
+assume it exists.
