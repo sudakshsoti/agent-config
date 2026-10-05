@@ -46,3 +46,60 @@
 - [stated] `ux-writing` capitalisation: sentence case by default; native apps follow platform convention (e.g. Title Case for macOS menus and buttons). — User, 2026-10-04.
 - [stated] The Indian English / INR / Indian-numbering line is removed from `design-strategy`, `design-visual-system`, `vbc-design` and `clinical-reasoning`, because most products are American. It is replaced by "Match the product's market locale for spelling, currency and number format" (the user's locale in `clinical-reasoning`). "No disclaimers" and "address the user as you" stay, deduplicated within each file. — User, 2026-10-04.
 - [stated] `clinical-reasoning` keeps its Indian clinical content (guideline hierarchy, brand examples, NCR references); only the voice line changes. — User, 2026-10-04.
+
+# OMP model routing
+
+Moved from `AGENTS.md` on 2026-10-06; the live routing table stays there.
+
+- Routing rationale (2026-09-16, `docs/research/*-2026-09.md`): the ladder ran
+  on `openai-codex` until that subscription was dropped over frontend quality —
+  Luna sits at DesignArena rank 48 overall (1242), the weakest routed model on
+  every board. Claude Opus 5 is rank 8 (1338), above GPT-5.6 Sol medium (1334),
+  and it wins DesignArena UI Components outright (#5, 1361, ahead of Fable 5.1
+  at #12), so it takes `default` and the roles that *decide* or *judge* visual
+  work (`plan`, `designer`, `vision`, `critic`). Claude
+  Fable 5.1 is rank 6 overall and #2 on LMArena WebDev, but on Max-class plans
+  Fable burns regular weekly limits at roughly double rate and is capped at 50%
+  of them before it needs usage credits — on Pro-class plans it is
+  credits-only from the first message. So Fable stays manual `/model`
+  escalation, never a role pin. Sonnet 5 ($2/$10, AA index 38 vs Opus 5's 51)
+  carries `task`, `workflow` and `builder`: `builder` implements a plan that
+  `plan`/`designer` already fixed, so Sonnet 5's weaker from-scratch design
+  standing (DesignArena task boards ranks 22-37) costs little. It ran at
+  `high` effort until 2026-09-28, when it dropped to `medium` (user decision)
+  alongside `task` and `workflow`. Haiku
+  4.5 is no longer pinned to a role: per-turn housekeeping (`smol`, `tiny`,
+  `commit`) went to GLM 5.3 Flash, and `code-worker`/`sonic` to Muse Spark 1.3
+  Contributor (AA 48 vs DeepSeek V4.1 Flash's 40 and Sonnet 5's 38), because
+  pre-decided work belongs on the cheapest adequate quota. Haiku stays a
+  fallback rung only. `scout` stays on GLM: it is the highest-frequency agent
+  and Go's flat rate absorbs discovery without touching either subscription.
+  DeepSeek V4.1 Flash's $60 Go cap is a promo ending 2026-09-20 (then $15,
+  i.e. $3 per 5 hours), which is why `code-worker` left it on 2026-09-18; it
+  remains the second rung under Muse and the manual throttle fallback.
+  Anthropic publishes no per-model weekly message counts, so subscription
+  burn rate per role is not predictable from primary docs.
+  The Opus rung moved from `claude-opus-5` to `claude-opus-5-5` on 2026-09-23
+  (user request, successor swap only): same provider, same 1M/128K limits and
+  the same low/medium/high/xhigh/max effort set per `omp models`, and
+  `anthropic/claude-opus-5-5` answered a retry-disabled `omp -p` probe. The
+  benchmark figures above are the 2026-09-16 Opus 5 evidence and have not been
+  re-measured for 5.5; the role split they justify is unchanged.
+  The `opencode-go/glm-5.3-flash` fallback chain gained
+  `opencode-go/mimo-v2.6-pro:high` as its first rung on 2026-10-02 (user
+  decision), ahead of `deepseek-v4.1-flash:max`. Artificial Analysis v4.3.2
+  per-benchmark data: hallucination rate GLM-5.3-Flash 27.6%, MiMo-V2.6-Pro
+  40.6%, MiMo-V2.6-Flash 54.4%, DeepSeek V4.1 Flash (max) 96.5%; Terminal-Bench
+  4.0 34.8 / 32.8 / 22.7 / 26.8. Review roles therefore fall back to the
+  lower-hallucination model, not DeepSeek. MiMo-V2.6-Pro's Go cap is $15/month,
+  so DeepSeek stays as the next rung. Chains match by exact model, so scout,
+  smol and commit traffic also lands on MiMo-Pro `:high` during a GLM outage.
+  No role was moved to MiMo: Pro's +4 index lead over GLM comes mostly from
+  HLE/CritPt, the Terminal-Bench gap is within noise, and Pro hallucinates more.
+  The same chain gained `openrouter/deepseek/deepseek-v4.1-flash:high` between
+  `deepseek-v4.1-flash:max` and the Sonnet rung on 2026-10-04 (user decision):
+  all three Go rungs share one provider, so the OpenRouter rung keeps review
+  cross-lineage through a Go outage, and OpenRouter per-token billing (the
+  `omp.sh` key) during that outage is accepted. The model answered a
+  retry-disabled probe; Sonnet stays last so scout, smol and commit traffic
+  still runs if Go and OpenRouter are both down.

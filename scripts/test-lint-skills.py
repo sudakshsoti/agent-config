@@ -273,6 +273,36 @@ class ReferenceTest(unittest.TestCase):
         self.assertEqual(lint_skills.lint_references(str(ROOT), dirnames), [])
 
 
+class CommandWrapperTest(unittest.TestCase):
+    """omp/commands/*.md must load a skill some source still ships."""
+
+    def commands(self, wrappers, plugins="", extra=None):
+        extra = dict(extra or {})
+        for name, skill in wrappers.items():
+            extra[f"omp/commands/{name}.md"] = f"---\ndescription: d\n---\n\nRead `skill://{skill}` and follow it.\n"
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_tree(tmp, {"a": {"SKILL.md": skill_text("y")}}, plugins, extra)
+            return lint_skills.lint_commands(str(root), ["a"])
+
+    def test_wrapper_for_repo_owned_or_vendored_skill_passes(self):
+        fails = self.commands({"a": "a", "ext": "ext"}, plugins="external o/r ext\n")
+        self.assertEqual(fails, [])
+
+    def test_wrapper_for_vanished_skill_fails(self):
+        fails = self.commands({"gone": "gone"})
+        self.assertEqual(len(fails), 1, fails)
+        self.assertIn("omp/commands/gone.md", fails[0])
+        self.assertIn("'gone'", fails[0])
+
+    def test_wrapper_without_skill_url_fails(self):
+        fails = self.commands({}, extra={"omp/commands/bare.md": "---\ndescription: d\n---\n\nDo it.\n"})
+        self.assertEqual(len(fails), 1, fails)
+
+    def test_real_commands_pass(self):
+        dirnames = sorted(p.parent.name for p in (ROOT / "skills").glob("[!_]*/SKILL.md"))
+        self.assertEqual(lint_skills.lint_commands(str(ROOT), dirnames), [])
+
+
 class ExternalDriftTest(unittest.TestCase):
     """external-skills.txt must match what a cloned bare source really ships."""
 
