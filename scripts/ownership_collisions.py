@@ -29,8 +29,9 @@ Dropped from the original spec, and why:
   - The `~/.config/opencode/*` destinations from the old inventory table are
     gone. `~/.claude/skills` is a live destination again (Claude Code does not
     read the shared `~/.agents` root, so it gets its own link per skill), but
-    the rest of `~/.claude` — `CLAUDE.md`, `settings.json`, `agents/` — stays
-    out of scope and hand-managed. `install.sh` writes to exactly four roots
+    `~/.claude/agents/*.md` is linked from `claude/agents/`; the rest of
+    `~/.claude` — `CLAUDE.md`, `settings.json` — stays out of scope and
+    hand-managed. `install.sh` writes to exactly four roots
     now (see MANAGED_DESTINATIONS below), plus the `pi/web-search.json` shared
     merge.
   - `ownership.tsv` and `docs/ownership.md` never landed on `main`, so this
@@ -95,6 +96,8 @@ MANAGED_DESTINATIONS: tuple[ManagedDestination, ...] = (
     ManagedDestination("file", ".claude/statusline.sh"),
     ManagedDestination("file", ".claude/subagent-statusline.sh"),
     ManagedDestination("file", ".claude/claude-powerline.json"),
+    # Claude Code agents, one link per claude/agents/*.md.
+    ManagedDestination("glob", ".claude/agents", ("*.md",)),
     # OMP configuration under ~/.omp/agent.
     ManagedDestination("file", ".omp/agent/AGENTS.md"),
     ManagedDestination("file", ".omp/agent/config.yml"),

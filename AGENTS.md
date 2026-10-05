@@ -11,6 +11,7 @@ This file applies to this checkout. Shared, harness-neutral preferences live in
 | --- | --- | --- |
 | `~/.agents/skills/` | `skills/`, `vendor/` | one symlink per skill; filled only when a shared-root consumer exists |
 | `~/.claude/skills/` | `skills/`, `vendor/` | one symlink per skill; filled only when `~/.claude` already exists |
+| `~/.claude/agents/` | `claude/agents/` | one symlink per agent; only when `~/.claude` exists; on the work machine only with `--claude-agents` |
 | `~/.claude/` config | `claude/`, `snapshots/claude/mcp.json` | statusline pair + `claude-powerline.json` linked (identical real copies adopted); `settings.json` **merged**; plugins via `claude/plugins.txt` (skipped by `--no-external`); MCP servers added if missing. Only when `~/.claude` exists; run `claude` once on a new box first |
 | `~/.omp/agent/` + `~/.config/omp/` | `omp/`, `global-agents.md` | one symlink per file; OMP writes through links |
 | `~/.omp/agent/` extras | `omp/plugins.txt`, `snapshots/omp/mcp.json` | `omp plugin install` (skipped by `--no-external`; needs bun); MCP servers added to `mcp.json` if missing, never edited |
@@ -42,9 +43,12 @@ for credential-shaped keys.
   drop that pin and every skill is discovered twice in OMP. The pin is the
   load-bearing half of this arrangement, not a stylistic preference.
   `install.sh` never creates `~/.claude`, so a machine without Claude Code is
-  untouched. `~/.claude/CLAUDE.md`, `hooks/` (herdr writes it), `agents/` and
-  `~/.claude.json` stay out of scope; `--prune` still treats `CLAUDE.md` and
-  `~/.claude/agents` as retired surfaces.
+  untouched. `~/.claude/CLAUDE.md`, `hooks/` (herdr writes it) and
+  `~/.claude.json` stay out of scope; `--prune` still treats `CLAUDE.md` as a
+  retired surface. `~/.claude/agents` holds `scout` (Haiku), `code-worker` and
+  `builder` (Sonnet), Claude Code's half of `specialist-delegation`; `--prune`
+  keeps a link there only while it resolves into `claude/agents/`, and
+  `check-model-routing.py` fails any of them whose `model:` is not Claude.
 - Claude Code also syncs every skill uploaded to claude.ai back as
   `anthropic-skills:<name>`, which duplicates each linked skill in
   `distribution.txt` and `distribution-vendor.txt`. `claude/settings.json`
@@ -61,7 +65,9 @@ for credential-shaped keys.
   `claude/`, plugins, MCP seeding). Their model routing sends prompts and
   repository source to OpenCode Go and Muse Code, `claude-compact-openrouter`
   sends transcripts to Jev via OpenRouter, and employer code may only reach the
-  employer's sanctioned vendor. Dotfiles
+  employer's sanctioned vendor. `--claude-agents` opts back into
+  `claude/agents/` alone: those run only Claude inside Claude Code, so they add
+  no vendor. Dotfiles
   owns the profile; this repo only reads it. With no chezmoi or no profile the
   machine counts as unknown and installs as before, so apply dotfiles first.
   Claude.ai connectors (Gmail, Todoist, Notion) belong to the claude.ai account,
@@ -101,7 +107,7 @@ Secrets belong in dotfiles (1Password + age), never here.
 | `pi/settings.json`, `verbosity.json`, `subagents.json`, `pi-fff.json`, `keybindings.json`, `prompts/`, `themes/`, `extensions/`, `agents/` | agent-config | Pi writes through links |
 | `herdr/config.toml`, `herdr/plugins.txt` | agent-config | keybindings and pinned plugins; plugin state under `~/.config/herdr/plugins/` is untracked |
 | `pi/web-search.json` | **shared** | merged; credentials and unmanaged keys stay machine-local |
-| `claude/settings.json`, `statusline.sh`, `subagent-statusline.sh`, `claude-powerline.json`, `plugins.txt` | agent-config / **shared** (settings) | settings merged; the rest linked or declarative |
+| `claude/settings.json`, `statusline.sh`, `subagent-statusline.sh`, `claude-powerline.json`, `plugins.txt`, `agents/` | agent-config / **shared** (settings) | settings merged; the rest linked or declarative |
 | `omp/plugins.txt`, `snapshots/*/mcp.json` | agent-config | declared sets, add-only; snapshots refreshed from live by `scripts/snapshot-machine-config.sh` |
 | `~/.omp/agent/mcp.json`, `~/.omp/agent/extensions/`, `~/.omp/agent/agent.db` (logins), `~/.claude.json`, `~/.claude/plugins/`, `~/.claude/hooks/`, `~/.pi/agent/auth.json`, `~/.pi/agent/models-store.json`, `~/.pi/agent/sessions/`, `~/.pi/agent/npm/` | **neither** | credentials or runtime state; untracked. Logins (`/login`, `claude`) are per box |
 | `~/.local/bin/omp-*-overlay`, `~/.zshrc`, Brewfile, fonts | **dotfiles** | chezmoi |

@@ -28,6 +28,10 @@ of them errors at runtime; they just quietly route work to the wrong model:
    the config for five days. Docs are corrected to the config, never the
    reverse.
 
+6. **A non-Claude model on a Claude Code agent.** `claude/agents/*.md` runs
+   inside Claude Code, which serves only Claude; any other `model:` fails on
+   first launch, and an omitted one silently inherits the parent's Opus.
+
   ./scripts/check-model-routing.py [repo-root]
 
 Stdlib only, like `lint-skills.py` (whose frontmatter parser it shares via
@@ -631,6 +635,27 @@ def check(config, agents, pi_agents, pi_settings=None, pi_search=None, docs=None
     return failures
 
 
+CLAUDE_ALIASES = {"haiku", "sonnet", "opus", "fable", "inherit"}
+
+
+def check_claude_agents(agents):
+    """Failures for claude/agents/*.md: each needs a Claude alias or claude-* id."""
+    failures = []
+    for name, text in sorted(agents.items()):
+        fields = frontmatter(text, f"claude/agents/{name}", failures)
+        declared = fields.get("model")
+        if not declared:
+            failures.append(
+                f"claude/agents/{name}: no `model:` key, so it inherits the parent's model"
+            )
+        elif declared not in CLAUDE_ALIASES and not declared.startswith("claude-"):
+            failures.append(
+                f"claude/agents/{name}: model {declared!r} is not a Claude alias "
+                f"({', '.join(sorted(CLAUDE_ALIASES))}) or claude-* id"
+            )
+    return failures
+
+
 def _read_dir(path, suffix):
     if not os.path.isdir(path):
         return {}
@@ -666,7 +691,7 @@ def check_repo(repo):
         _read_json(os.path.join(repo, "pi", "settings.json")),
         _read_json(os.path.join(repo, "pi", "web-search.json")),
         docs,
-    )
+    ) + check_claude_agents(_read_dir(os.path.join(repo, "claude", "agents"), ".md"))
 
 
 def main(argv):
