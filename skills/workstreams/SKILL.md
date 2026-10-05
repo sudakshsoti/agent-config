@@ -51,9 +51,9 @@ itself and return evidence, but cannot be told to dispatch `code-worker` or
 `builder`. Read the active role before use; do not bypass its allowlist or edit
 configuration to expand its authority.
 
-In agent-config, `pi/subagents.json` currently disables Pi named workflows (the
-installed settings normally live at `~/.pi/agent/subagents.json`); OMP has no
-separate workflow runtime to enable. These are
+In Pi, fan-out and sequencing run through the `workflow` tool (pi-dynamic-workflows:
+`phase()`, `pipeline()`, `parallel()`); its model tiers live in
+`pi/workflows/model-tiers.json`. OMP has no separate workflow runtime to enable. These are
 current configuration facts, not permanent requirements; inspect active role
 and tool definitions rather than assuming source paths exist in the target
 project. Ordinary Agent (Pi) or task (OMP) calls

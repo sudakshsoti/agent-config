@@ -1,13 +1,13 @@
 ---
 name: specialist-delegation
 description: "Use in Pi, OMP or Claude Code when deciding whether to delegate work, selecting specialist subagents, or preparing and verifying a worker handoff. Not for dependencies, edit ownership, or integration across multiple implementation streams (workstreams)."
-compatibility: "Pi or Claude Code with the Agent tool, or OMP with the task tool; check the live tool schema and available agent roles."
+compatibility: "Pi with the workflow tool, Claude Code with the Agent tool, or OMP with the task tool; check the live tool schema and available agent roles."
 ---
 
 # Specialist delegation
 
 Delegate a bounded outcome, not responsibility for understanding the task. This
-skill covers Pi (the `Agent` tool), OMP (the `task` tool) and Claude Code (its
+skill covers Pi (the `workflow` tool), OMP (the `task` tool) and Claude Code (its
 own `Agent` tool). If no delegation tool is available, work directly or report the limitation; do not
 invent an API or install another coordinator.
 
@@ -99,25 +99,30 @@ before editing, not permission to redesign adjacent code.
 
 ## Launch and coordinate
 
-- **Pi:** use `Agent` with the exact `subagent_type`, a short description, and
-  the packet. **Claude Code:** the same `Agent` call, plus `model` for a
+- **Pi:** use the `workflow` tool (pi-dynamic-workflows) with a short script
+  whose `agent(packet, { agentType: '<role>' })` call carries the packet; the
+  role's `model` and `tools` come from its `pi/agents/*.md`. Use `tier:
+  'small' | 'medium' | 'big'` only when no role fits. Children get Pi's coding
+  tools only, no extensions. **Claude Code:** the `Agent` call, the same `Agent` call, plus `model` for a
   built-in; continue a
   finished child with `SendMessage` to its ID. **OMP:** use `task` with the exact `agent`, the shared packet in
   `context`, and one `tasks` entry per assignment (`isolated` requests a
   worktree when enabled). Inspect the live schema rather than assuming optional
   tools exist.
-- Set `run_in_background: true` when other useful work can continue. Use false
-  only when the very next action depends on the result and there is nothing
-  else useful to do. Defaults vary across installations; be explicit.
-- Dispatch independent parallel calls in one message. Keep fan-out small enough
+- **Pi** workflows run in the background and the result is delivered into the
+  chat. **Claude Code and OMP:** set `run_in_background: true` when other useful
+  work can continue; use false only when the very next action depends on the
+  result. Defaults vary across installations; be explicit.
+- Dispatch independent parallel calls in one message (Pi: `parallel()` inside
+  one script). Keep fan-out small enough
   to review the returns. Never parallelize dependent or overlapping writes.
 - Record the returned ID and assigned scope. Continue different work while a
   background child runs; do not poll, sleep, or invent its likely result.
-- On completion notification, use `get_subagent_result` if the preview is
-  insufficient. Use `steer_subagent` for a running child, or the `Agent` tool's
-  `resume` argument with its ID after it finishes, when correcting the same
-  bounded task (if supported by the live schema). A new child needs a fresh
-  packet. Do not launch a replacement writer while the first may still write.
+- **Pi:** check a run with `workflow_control` (`list`, `status`, `pause`,
+  `resume`, `stop`); there is no mid-run steering, so stop and relaunch with a
+  corrected packet, or reuse a `thread:` name within one script. **Claude
+  Code:** use `SendMessage` to a finished child, or the live schema's resume
+  argument. A new child needs a fresh packet. Do not launch a replacement writer while the first may still write.
 
 ## Synthesize and verify
 

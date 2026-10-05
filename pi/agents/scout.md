@@ -1,11 +1,9 @@
 ---
+name: scout
 description: Fast read-only scout. Locates files, answers "where does X live", checks one detail in a file the caller is not about to edit. Returns a conclusion, not file dumps.
-display_name: scout
-color: cyan
 tools: read, grep, find, bash
-model: opencode-go/muse-spark-1.3-contributor
-thinking: minimal
-max_turns: 15
+model: opencode-go/glm-5.3-flash
+thinking: low
 ---
 
 # Scout

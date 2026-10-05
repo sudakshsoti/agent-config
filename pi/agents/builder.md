@@ -1,12 +1,8 @@
 ---
+name: builder
 description: Implements an approved UX plan in React, shadcn/ui, Tailwind CSS or standalone HTML.
-display_name: Builder
-color: green
-tools: all
-model: anthropic/claude-opus-5-5
-thinking: high
-max_turns: 30
-prompt_mode: append
+model: anthropic/claude-sonnet-5-5
+thinking: medium
 ---
 
 You implement an approved plan or an explicitly bounded quick tweak.

@@ -48,7 +48,7 @@ Three destinations, and nothing else.
   theme and package list. Pi's per-job models live in `pi/agents/*.md`
   frontmatter; `pi/model-ladder.md` explains the tiers.
 - `pi/verbosity.json`, `pi/pi-fff.json`, `pi/keybindings.json`,
-  `pi/subagents.json`, `pi/prompts/`, `pi/themes/`, `pi/agents/`,
+  `pi/workflows/model-tiers.json` (into `~/.pi/workflows/`), `pi/prompts/`, `pi/themes/`, `pi/agents/`,
   `pi/extensions/` — each linked individually into `~/.pi/agent/`. Extensions
   are linked file by file so local runtime data
   inside the directory survives.

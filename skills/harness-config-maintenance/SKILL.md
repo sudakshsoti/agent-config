@@ -17,7 +17,7 @@ the task.
 | Shared instructions | `global-agents.md` | Linked into the installed harnesses as `AGENTS.md`; changes have broad effect. |
 | Instructions for this checkout | root `AGENTS.md` | Do not confuse it with the shared `global-agents.md`. |
 | OMP behavior | `omp/config.yml`, `omp/lsp.yml`, `omp/keybindings.yml`, `omp/agents/`, `omp/overlays/` | Symlinked and rewritten by OMP; review the diff after TUI changes. |
-| Pi behavior | `pi/settings.json`, `pi/subagents.json`, `pi/pi-fff.json`, `pi/keybindings.json`, prompts, agents, extensions | Symlinked and rewritten by Pi; auth and runtime state stay machine-local. |
+| Pi behavior | `pi/settings.json`, `pi/workflows/model-tiers.json`, `pi/pi-fff.json`, `pi/keybindings.json`, prompts, agents, extensions | Symlinked and rewritten by Pi; auth and runtime state stay machine-local. |
 | Claude Code behavior | `claude/` (`settings.json`, `statusline.sh`, `claude-powerline.json`, `plugins.txt`) | `settings.json` is merged, the rest linked or declarative; applied only when `~/.claude` exists. |
 | herdr behavior | `herdr/` (`config.toml`, `plugins.txt`) | Declarative; herdr writes its own hooks into Claude settings. |
 | Shared skills | `skills/`, `plugins.txt` | Source-only. Follow `skill-lifecycle`; links go into `~/.agents/skills` and, when `~/.claude` exists, `~/.claude/skills`. |

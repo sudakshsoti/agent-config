@@ -1,0 +1,7 @@
+{
+  "tiers": {
+    "small": "opencode-go/glm-5.3-flash",
+    "medium": "anthropic/claude-sonnet-5-5",
+    "big": "anthropic/claude-opus-5-5"
+  }
+}
