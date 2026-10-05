@@ -1,9 +1,11 @@
 name: check
 
 # The repo's checks used to exist only as two scripts nobody remembered to
-# run. Running them on every push is the point.
+# run. Running them on every PR and every push to main is the point; push is
+# limited to main so a PR branch is not checked twice.
 on:
   push:
+    branches: [main]
   pull_request:
 
 jobs:
