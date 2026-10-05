@@ -45,6 +45,13 @@ for credential-shaped keys.
   untouched. `~/.claude/CLAUDE.md`, `hooks/` (herdr writes it), `agents/` and
   `~/.claude.json` stay out of scope; `--prune` still treats `CLAUDE.md` and
   `~/.claude/agents` as retired surfaces.
+- Claude Code also syncs every skill uploaded to claude.ai back as
+  `anthropic-skills:<name>`, which duplicates each linked skill in
+  `distribution.txt` and `distribution-vendor.txt`. `claude/settings.json`
+  `skillOverrides` sets each of those qualified names to `"off"`; a bare-name
+  key would hide the local copy too. `scripts/check-claude-skill-overrides.py`
+  (`check.sh`, pre-commit) keeps the entries equal to both lists; `--fix`
+  rewrites them. Claude.ai-only skills (docx, pdf, …) keep syncing.
 - `--skills-only` fills the shared root **only**, never `~/.claude/skills`;
   it is a shared-root operation by definition. A selective run therefore does
   not keep Claude Code in sync — use a full `./install.sh` for that.
