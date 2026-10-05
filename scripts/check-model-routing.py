@@ -94,8 +94,8 @@ def _declared_pi_packages(pi_settings):
     """Return the bare names in the tracked `pi/settings.json` `packages[]`.
 
     The repo's declared set, not the machine's: install links that file into
-    `~/.pi/agent/`, so it is what a box gets, and unlike `~/.pi` it exists on
-    CI. A missing settings file means no package is declared.
+    `~/.pi/agent/`, so it is what a box gets, and unlike `~/.pi` it is the same
+    on every box. A missing settings file means no package is declared.
     """
     return frozenset(
         _package_name(entry) for entry in ((pi_settings or {}).get("packages") or [])

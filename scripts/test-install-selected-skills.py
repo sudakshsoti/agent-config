@@ -49,7 +49,7 @@ CLAUDE_FILES = (
 # instead of the disposable checkout.
 GIT_REPO_SELECTOR_VARS = ("GIT_DIR", "GIT_INDEX_FILE", "GIT_WORK_TREE")
 # install.sh honors these to place pi-web-access config outside HOME; an
-# inherited value (CI runners set XDG_CONFIG_HOME) would send writes to the
+# inherited value (check.sh sets XDG_CONFIG_HOME) would send writes to the
 # real machine instead of the disposable HOME.
 CONFIG_DIR_OVERRIDE_VARS = ("XDG_CONFIG_HOME", "PI_CODING_AGENT_DIR")
 

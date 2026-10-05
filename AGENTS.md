@@ -132,9 +132,9 @@ Secrets belong in dotfiles (1Password + age), never here.
   add a name there when upstream ships a new one). Where `vendor/<slug>` is
   cloned for a bare source, the lint also fails when that source's
   `external-skills.txt` section (heading `# <owner/repo>[:<subdir>]`) and the
-  frontmatter `name:` values the clone ships differ, in either direction; the
-  push CI has no clone and skips it, so the weekly `upstream-drift` workflow
-  clones every bare source (`scripts/clone-bare-sources.py`) and runs the lint.
+  frontmatter `name:` values the clone ships differ, in either direction. With no
+  clone the check is silent; `scripts/clone-bare-sources.py` clones every bare
+  source so a fresh checkout can run it.
   Each `omp/commands/*.md` must load a `skill://` name from that same known set.
   `python3 scripts/check-manifest.py` (run by `check.sh`)
   rejects malformed `plugins.txt` lines and duplicate external allowlisting;
@@ -358,8 +358,8 @@ Secrets belong in dotfiles (1Password + age), never here.
   page prohibits that, and it has already broken twice on Pi prompt changes
   (0.86.0 restructure, `pi#9838`). **Never make it the default or a fallback** —
   `check-model-routing.py` allows an explicit agent pin only while the package
-  is declared in `pi/settings.json` `packages[]` (not read from `~/.pi`, so CI
-  agrees with the box), and rejects `anthropic` as `defaultProvider`, in
+  is declared in `pi/settings.json` `packages[]` (not read from `~/.pi`, so every box
+  agrees), and rejects `anthropic` as `defaultProvider`, in
   `enabledModels`, and as `summaryModel`. OMP remains the Claude harness on the
   subscription proper; Pi is still the flat-rate harness by default. The
   OpenRouter key stays dead (HTTP 401 "User not found"). Evidence:
