@@ -487,5 +487,24 @@ class RoutingCheckTest(unittest.TestCase):
         self.assert_fails(failures, "AGENTS.md: missing")
 
 
+
+class ClaudeAgentModelTest(unittest.TestCase):
+    def agent(self, model_line):
+        return {"scout.md": f"---\nname: scout\ndescription: x\n{model_line}---\n\nBody\n"}
+
+    def test_claude_alias_and_id_pass(self):
+        self.assertEqual(MODULE.check_claude_agents(self.agent("model: haiku\n")), [])
+        self.assertEqual(
+            MODULE.check_claude_agents(self.agent("model: claude-sonnet-5-5\n")), []
+        )
+
+    def test_non_claude_model_is_reported(self):
+        failures = MODULE.check_claude_agents(self.agent("model: opencode-go/glm-5.3-flash\n"))
+        self.assertTrue(any("not a Claude alias" in f for f in failures), failures)
+
+    def test_missing_model_is_reported(self):
+        failures = MODULE.check_claude_agents(self.agent(""))
+        self.assertTrue(any("inherits" in f for f in failures), failures)
+
 if __name__ == "__main__":
     unittest.main(verbosity=1)

@@ -47,6 +47,13 @@
 - [stated] The Indian English / INR / Indian-numbering line is removed from `design-strategy`, `design-visual-system`, `vbc-design` and `clinical-reasoning`, because most products are American. It is replaced by "Match the product's market locale for spelling, currency and number format" (the user's locale in `clinical-reasoning`). "No disclaimers" and "address the user as you" stay, deduplicated within each file. — User, 2026-10-04.
 - [stated] `clinical-reasoning` keeps its Indian clinical content (guideline hierarchy, brand examples, NCR references); only the voice line changes. — User, 2026-10-04.
 
+# Claude Code delegation
+
+- [stated] `specialist-delegation` covers Claude Code alongside Pi and OMP. Adversarial review has no Claude Code route, because every subagent there is Claude; it goes to `peer-review` in Pi or OMP. — User approved plan, 2026-10-06.
+- [stated] Claude Code gets three repo-owned agents in `claude/agents/`: `scout` on Haiku, `code-worker` and `builder` on Sonnet at medium effort. Reviewer, research, plan and critic stay on built-ins plus skills until there is evidence they need more. — User approved plan, 2026-10-06.
+- [stated] The work machine gets the agents only with `--claude-agents`: tokens are tightest there, and the agents run only Claude inside Claude Code, so no new vendor sees work code. The rest of the work gate is unchanged. — User, 2026-10-06.
+- [inferred] `builder` loads the design skills on demand with the Skill tool instead of preloading them, so a launch does not pay for skills a small tweak never reads.
+
 # OMP model routing
 
 Moved from `AGENTS.md` on 2026-10-06; the live routing table stays there.

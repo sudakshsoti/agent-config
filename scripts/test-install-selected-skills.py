@@ -42,6 +42,7 @@ CLAUDE_FILES = (
     "claude/statusline.sh",
     "claude/subagent-statusline.sh",
     "claude/claude-powerline.json",
+    "claude/agents/scout.md",
 )
 
 # A pre-commit hook exports these; an inherited GIT_DIR would redirect
@@ -363,6 +364,36 @@ class InstallerTest(DisposableInstallCase):
         self.assertFalse((claude / "statusline.sh").exists())
         self.assertTrue((claude / "skills/alpha").is_symlink())
 
+    def test_claude_agents_link_on_a_personal_machine(self):
+        self.stub_chezmoi_machine("personal")
+        (self.test_home / ".claude").mkdir()
+        result = self.install("--no-external")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(
+            os.readlink(self.test_home / ".claude/agents/scout.md"),
+            str(self.repo / "claude/agents/scout.md"),
+        )
+
+    def test_work_machine_links_claude_agents_only_when_asked(self):
+        self.stub_chezmoi_machine("work")
+        claude = self.test_home / ".claude"
+        claude.mkdir()
+
+        default = self.install("--no-external")
+        self.assertEqual(default.returncode, 0, default.stdout + default.stderr)
+        self.assertFalse((claude / "agents").exists())
+        self.assertIn("--claude-agents", default.stdout)
+
+        opted_in = self.install("--no-external", "--claude-agents")
+        self.assertEqual(opted_in.returncode, 0, opted_in.stdout + opted_in.stderr)
+        self.assertEqual(
+            os.readlink(claude / "agents/scout.md"), str(self.repo / "claude/agents/scout.md")
+        )
+        # The opt-in covers agents only; the rest of the work gate holds.
+        self.assertFalse((claude / "settings.json").exists())
+        self.assertFalse((claude / "statusline.sh").exists())
+        self.assertIn("SKIP omp + pi + claude config", opted_in.stdout)
+
     def test_selective_and_full_install_agree_on_the_shared_root(self):
         selected = self.install("--skills-only=alpha,beta,gamma")
         self.assertEqual(selected.returncode, 0, selected.stdout + selected.stderr)
@@ -664,6 +695,8 @@ class InstallerTest(DisposableInstallCase):
         (home / ".claude/CLAUDE.md").write_text("mine\n", encoding="utf-8")
         (home / ".claude/skills/alpha").symlink_to(self.repo / "skills/alpha")
         (home / ".claude/agents/plan-critic.md").symlink_to(self.repo / "agents/plan-critic.md")
+        # A Claude agent the repo no longer declares: its source is gone.
+        (home / ".claude/agents/gone.md").symlink_to(self.repo / "claude/agents/gone.md")
         (home / ".codex/AGENTS.md").symlink_to(self.repo / "global-agents.md")
         (home / ".codex/prompts/vibe.md").symlink_to(self.repo / "codex/prompts/vibe.md")
         (home / ".config/opencode/AGENTS.md").symlink_to(self.repo / "global-agents.md")
@@ -690,7 +723,8 @@ class InstallerTest(DisposableInstallCase):
         self.assertIn("retired harness link", result.stdout)
         self.assertNotIn("(dangling)", result.stdout)
 
-        for relative in (".claude/agents/plan-critic.md", ".codex/AGENTS.md",
+        for relative in (".claude/agents/plan-critic.md", ".claude/agents/gone.md",
+                         ".codex/AGENTS.md",
                          ".codex/prompts/vibe.md", ".config/opencode/AGENTS.md",
                          ".codex/skills/legacy"):
             self.assertFalse(
@@ -703,6 +737,11 @@ class InstallerTest(DisposableInstallCase):
         self.assertIn("left alone", result.stdout)
         self.assertEqual((home / ".claude/settings.json").read_text(), "mine\n")
         self.assertEqual((keep / "mine.md").read_text(), "mine\n")
+        # A declared Claude agent is a live destination and survives the prune.
+        self.assertEqual(
+            os.readlink(home / ".claude/agents/scout.md"),
+            str(self.repo / "claude/agents/scout.md"),
+        )
         self.assertEqual(
             os.readlink(home / ".claude/skills/local"), "/somewhere/else"
         )

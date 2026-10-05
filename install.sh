@@ -119,6 +119,12 @@
 #     snapshots/claude/mcp.json -> `claude mcp add-json --scope user`, adding
 #       only servers ~/.claude.json lacks; existing servers are never touched.
 #
+#   Claude Code agents (only when ~/.claude exists; on the work machine only
+#   with --claude-agents):
+#     claude/agents/*.md     -> ~/.claude/agents/*.md, one link per agent.
+#       Claude-only models inside Claude Code, so no new vendor sees work code;
+#       the work gate keeps them opt-in rather than off.
+#
 #   OMP extras:
 #     omp/plugins.txt        -> `omp plugin install` (skipped by --no-external)
 #     snapshots/omp/mcp.json -> ~/.omp/agent/mcp.json, adding only missing servers
@@ -166,6 +172,7 @@
 #   ./install.sh --no-external       # skip the external git fetch (offline)
 #   ./install.sh --skills-only=name,other-name  # link only named repo-owned
 #                                   # skills into ~/.agents/skills
+#   ./install.sh --claude-agents     # work machine: also link Claude Code agents
 #
 set -euo pipefail
 
@@ -211,11 +218,13 @@ FORCE=0
 EXTERNAL=1
 SKILLS_ONLY=0
 SELECTED_SKILLS=""
+CLAUDE_AGENTS=0
 for arg in "$@"; do
   case "$arg" in
   --prune) PRUNE=1 ;;
   --force) FORCE=1 ;;
   --no-external) EXTERNAL=0 ;;
+  --claude-agents) CLAUDE_AGENTS=1 ;;
   --skills-only=*)
     if [ "$SKILLS_ONLY" = "1" ]; then
       echo "--skills-only may be specified only once"
@@ -225,7 +234,7 @@ for arg in "$@"; do
     SELECTED_SKILLS="${arg#--skills-only=}"
     ;;
   *)
-    echo "unknown option: $arg (expected --prune, --force, --no-external, --skills-only=name,other-name)"
+    echo "unknown option: $arg (expected --prune, --force, --no-external, --claude-agents, --skills-only=name,other-name)"
     exit 2
     ;;
   esac
@@ -627,6 +636,21 @@ else
   echo "⚠️  SKIP claude — no $CLAUDE (Claude Code not installed). skills/ not linked."
 fi
 
+# 2c. Claude Code agents. They run only Claude models inside Claude Code, so
+#     unlike steps 3-5e they may reach the work machine, where tokens are
+#     tightest — but only when asked for with --claude-agents.
+if [ -d "$CLAUDE" ] && [ -d "$REPO/claude/agents" ]; then
+  if [ "$MACHINE" != "work" ] || [ "$CLAUDE_AGENTS" = "1" ]; then
+    mkdir -p "$CLAUDE/agents"
+    for agent in "$REPO"/claude/agents/*.md; do
+      [ -f "$agent" ] || continue
+      link_into "$agent" "$CLAUDE/agents/$(basename "$agent")"
+    done
+  else
+    echo "note: claude agents not linked on the work machine; re-run with --claude-agents to add them"
+  fi
+fi
+
 # Steps 3-5e link harness config, and never on the work machine: see the
 # header. Skills above are already linked there.
 if [ "$MACHINE" = "work" ]; then
@@ -1009,8 +1033,8 @@ if [ "$PRUNE" = "1" ]; then
     done
   fi
 
-  # 7d. Retired harness surfaces. This repo installs Claude Code skills and
-  #     config (steps 2b and 5d), but no Claude instruction file or agents, and
+  # 7d. Retired harness surfaces. This repo installs Claude Code skills,
+  #     agents and config (steps 2b, 2c and 5d), but no Claude instruction file, and
   #     nothing at all for Codex or OpenCode — so clean up what an older version left
   #     behind — but only entries that provably belong to this repo: symlinks
   #     pointing into this checkout (or its vendor/), and copies carrying our
@@ -1049,10 +1073,14 @@ if [ "$PRUNE" = "1" ]; then
   prune_retired_link "$HOME/.codex/AGENTS.md" --warn-real
   prune_retired_link "$HOME/.config/opencode/AGENTS.md" --warn-real
 
-  # ~/.claude/skills is a live destination again and is pruned by 7c above;
-  # only ~/.claude/agents stays retired (this repo declares no Claude agents).
+  # ~/.claude/skills is pruned by 7c above. In ~/.claude/agents a link into
+  # this checkout survives only while it resolves to a declared
+  # claude/agents/*.md; older agent links from elsewhere in the repo go.
   for link in "$HOME"/.claude/agents/*; do
     [ -L "$link" ] || continue
+    case "$(readlink "$link")" in
+    "$REPO"/claude/agents/*.md) [ -e "$link" ] && continue ;;
+    esac
     prune_retired_link "$link"
   done
   for link in "$HOME"/.codex/agents/* "$HOME"/.codex/prompts/*; do

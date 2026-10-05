@@ -1,14 +1,14 @@
 ---
 name: specialist-delegation
-description: "Use in Pi or OMP when deciding whether to delegate work, selecting specialist subagents, or preparing and verifying a worker handoff. Not for dependencies, edit ownership, or integration across multiple implementation streams (workstreams)."
-compatibility: "Pi with the Agent subagent tool, or OMP with the task tool; check the live tool schema and available agent roles."
+description: "Use in Pi, OMP or Claude Code when deciding whether to delegate work, selecting specialist subagents, or preparing and verifying a worker handoff. Not for dependencies, edit ownership, or integration across multiple implementation streams (workstreams)."
+compatibility: "Pi or Claude Code with the Agent tool, or OMP with the task tool; check the live tool schema and available agent roles."
 ---
 
 # Specialist delegation
 
 Delegate a bounded outcome, not responsibility for understanding the task. This
-skill covers Pi (the `Agent` tool) and OMP (the `task` tool). If neither
-delegation tool is available, work directly or report the limitation; do not
+skill covers Pi (the `Agent` tool), OMP (the `task` tool) and Claude Code (its
+own `Agent` tool). If no delegation tool is available, work directly or report the limitation; do not
 invent an API or install another coordinator.
 
 ## Decide before dispatching
@@ -33,28 +33,36 @@ not need a workflow graph.
 Inspect the currently available roles and tool schema. In this repository,
 Pi routing lives in `pi/agents/*.md` and `pi/model-ladder.md`; OMP mirrors that
 ladder in `omp/agents/*.md` plus `task.agentModelOverrides` in `omp/config.yml`,
-which takes precedence over agent frontmatter. These are agent-config source
-paths, not paths to assume in the target project. In an installed session,
-inspect available role definitions (normally `~/.pi/agent/agents/` or
-`~/.omp/agent/agents/` plus OMP's bundled agents) and the live tool schema. Do not copy model IDs into packets as permanent
-policy. Project role overrides may differ. Use the least
-expensive capable role, not an unspecified child inheriting the parent model.
+which takes precedence over agent frontmatter; Claude Code agents are
+`claude/agents/*.md`. These are agent-config source paths, not paths to assume
+in the target project. In an installed session, inspect available role
+definitions (normally `~/.pi/agent/agents/` or `~/.omp/agent/agents/` plus
+OMP's bundled agents; Claude Code lists its agents, including built-ins, in
+the `Agent` tool description) and the live tool schema. Do not copy model IDs
+into packets as permanent policy. Project role overrides may differ. Use the
+least expensive capable role, not an unspecified child inheriting the parent
+model.
+In Claude Code, `scout`, `code-worker` and `builder` carry their own models;
+for a built-in, name the `model` the table gives, because an omitted one
+inherits the parent's. Where those three are not installed (a work machine
+without `--claude-agents`), use `Explore` + `haiku` for `scout` and
+`general-purpose` + `sonnet` for the other two.
 
-| Work | Pi role | OMP agent | Boundary |
-| --- | --- | --- | --- |
-| One bounded path, reference, or fact lookup | `scout` | `scout` | Read-only; return a conclusion with locations. |
-| Unknown code paths, existing patterns, dependencies | `Explore` | `scout` | Read-only discovery; parent synthesizes the change. |
-| Public/disposable source lookup | `public-scout` | `scout` | Never private code, user data, unreleased designs, or credentials. |
-| Primary-source investigation and cited report | `research` | `research` | Follow the research skill; reserve its report path as a write. |
-| Precise low-risk fix, test, mechanical refactor | `code-worker` | `code-worker` | Parent has already made design decisions; exact scope and checks. |
-| Strictly mechanical update or data collection | `code-worker` | `sonic` | No judgement; exact instructions. |
-| Approved interface implementation | `builder` | `builder` | Follow vibe and relevant design skills, including rendered evidence. |
-| UX implementation plan | `Plan` | `plan` | Read-only planning, not a generic backend architect. |
-| Supplied interface screenshots | `Critic` | `critic` | Read-only visual review, not engineering peer review. |
-| Adversarial plan/diff review | `reviewer` | `adversary` | Read-only; preserve the second-lineage requirement for peer review. |
-| Structured review of recent code changes | `reviewer` | `reviewer` | OMP's bundled `/review` contract; keep its output shape. |
-| Broader reasoning or implementation outside these contracts | `general-purpose` | `task` | Explicit scope; use only when a narrower specialist is insufficient. |
-| Approved multi-part coordination | `workflow` | `workflow` | Check its child-role restrictions; see workstreams. |
+| Work | Pi role | OMP agent | Claude Code | Boundary |
+| --- | --- | --- | --- | --- |
+| One bounded path, reference, or fact lookup | `scout` | `scout` | `scout` | Read-only; return a conclusion with locations. |
+| Unknown code paths, existing patterns, dependencies | `Explore` | `scout` | `Explore` | Read-only discovery; parent synthesizes the change. |
+| Public/disposable source lookup | `public-scout` | `scout` | `scout` | Never private code, user data, unreleased designs, or credentials. |
+| Primary-source investigation and cited report | `research` | `research` | `general-purpose` | Follow the research skill; reserve its report path as a write. |
+| Precise low-risk fix, test, mechanical refactor | `code-worker` | `code-worker` | `code-worker` | Parent has already made design decisions; exact scope and checks. |
+| Strictly mechanical update or data collection | `code-worker` | `sonic` | `general-purpose` + `haiku` | No judgement; exact instructions. |
+| Approved interface implementation | `builder` | `builder` | `builder` | Follow vibe and relevant design skills, including rendered evidence. |
+| UX implementation plan | `Plan` | `plan` | `Plan` | Read-only planning, not a generic backend architect. |
+| Supplied interface screenshots | `Critic` | `critic` | `general-purpose`, read-only packet | Read-only visual review, not engineering peer review. |
+| Adversarial plan/diff review | `reviewer` | `adversary` | none: every child is Claude; run `peer-review` from Pi or OMP | Read-only; preserve the second-lineage requirement for peer review. |
+| Structured review of recent code changes | `reviewer` | `reviewer` | none: use `code-review` | OMP's bundled `/review` contract; keep its output shape. |
+| Broader reasoning or implementation outside these contracts | `general-purpose` | `task` | `general-purpose` | Explicit scope; use only when a narrower specialist is insufficient. |
+| Approved multi-part coordination | `workflow` | `workflow` | `Workflow`, only on the user's explicit opt-in | Check its child-role restrictions; see workstreams. |
 
 Escalate judgment-heavy or security-sensitive work rather than forcing it into
 `code-worker`. If overriding model or thinking, follow the current ladder and
@@ -92,7 +100,9 @@ before editing, not permission to redesign adjacent code.
 ## Launch and coordinate
 
 - **Pi:** use `Agent` with the exact `subagent_type`, a short description, and
-  the packet. **OMP:** use `task` with the exact `agent`, the shared packet in
+  the packet. **Claude Code:** the same `Agent` call, plus `model` for a
+  built-in; continue a
+  finished child with `SendMessage` to its ID. **OMP:** use `task` with the exact `agent`, the shared packet in
   `context`, and one `tasks` entry per assignment (`isolated` requests a
   worktree when enabled). Inspect the live schema rather than assuming optional
   tools exist.
