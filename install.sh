@@ -89,9 +89,9 @@
 #     pi/pi-fff.json         -> ~/.pi/agent/pi-fff.json
 #       Persistent global extension config; stops FFF indexing $HOME.
 #     pi/keybindings.json    -> ~/.pi/agent/keybindings.json
-#     pi/subagents.json      -> ~/.pi/agent/subagents.json
-#       Background-only widget and FleetView off. Global scope only — the
-#       /agents menu writes to <cwd>/.pi/subagents.json, never to this file.
+#     pi/workflows/model-tiers.json -> ~/.pi/workflows/model-tiers.json
+#       small/medium/big model tiers for pi-dynamic-workflows. Pi's
+#       /workflows-models may replace the link with a plain file; re-run to relink.
 #     pi/prompts/*.md, pi/themes/*.json, pi/agents/*.md
 #       Linked individually so machine-local entries survive.
 #     pi/extensions/*/{index.js,index.ts,theme.json} -> ~/.pi/agent/extensions/*/
@@ -715,7 +715,7 @@ else
   # 5. Pi configuration. Same reasoning as OMP above: Pi rewrites settings.json
   #    itself and the write follows the symlink into the repo.
   if [ ! -d "$PI" ]; then
-    echo "⚠️  SKIP pi — no $PI (pi not installed). settings.json, verbosity.json, pi-fff.json, keybindings.json, subagents.json, prompts/, themes/, extensions/ and agents/ not linked."
+    echo "⚠️  SKIP pi — no $PI (pi not installed). settings.json, verbosity.json, pi-fff.json, keybindings.json, workflows/model-tiers.json, prompts/, themes/, extensions/ and agents/ not linked."
   fi
   if [ -d "$PI" ] && [ -f "$REPO/pi/settings.json" ]; then
     mkdir -p "$PI"
@@ -732,8 +732,9 @@ else
   if [ -d "$PI" ] && [ -f "$REPO/pi/keybindings.json" ]; then
     link_into "$REPO/pi/keybindings.json" "$PI/keybindings.json"
   fi
-  if [ -d "$PI" ] && [ -f "$REPO/pi/subagents.json" ]; then
-    link_into "$REPO/pi/subagents.json" "$PI/subagents.json"
+  if [ -d "$PI" ] && [ -f "$REPO/pi/workflows/model-tiers.json" ]; then
+    mkdir -p "$HOME/.pi/workflows"
+    link_into "$REPO/pi/workflows/model-tiers.json" "$HOME/.pi/workflows/model-tiers.json"
   fi
   if [ -d "$PI" ] && [ -d "$REPO/pi/prompts" ]; then
     mkdir -p "$PI/prompts"
@@ -777,7 +778,7 @@ else
       done
     done
   fi
-  # pi subagents: custom agent definitions read by @tintinweb/pi-subagents.
+  # pi subagents: custom agent definitions read by pi-dynamic-workflows (agentType).
   if [ -d "$PI" ] && [ -d "$REPO/pi/agents" ]; then
     mkdir -p "$PI/agents"
     for a in "$REPO"/pi/agents/*.md; do

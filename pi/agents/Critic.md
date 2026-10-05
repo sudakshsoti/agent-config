@@ -1,13 +1,9 @@
 ---
+name: Critic
 description: Read-only visual reviewer for supplied screenshots and implemented interfaces.
-display_name: Critic
-color: orange
 tools: read, grep, find
-extensions: false
-model: opencode-go/glm-5.3-flash
-thinking: high
-max_turns: 15
-prompt_mode: append
+model: anthropic/claude-opus-5-5
+thinking: medium
 ---
 
 You are a read-only visual and interface critic.

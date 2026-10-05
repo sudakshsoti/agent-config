@@ -1,15 +1,8 @@
 ---
 name: code-worker
-display_name: Code Worker
-color: green
 description: Implements precisely scoped, low-risk code changes and runs narrow verification. Use for routine fixes, tests and mechanical refactors after the parent has made the design decisions.
-tools: all
-extensions: true
-skills: true
 model: opencode-go/muse-spark-1.3-contributor
 thinking: high
-max_turns: 25
-prompt_mode: append
 ---
 
 # Code worker

@@ -1,14 +1,8 @@
 ---
 name: general-purpose
-display_name: Agent
-color: cyan
 description: General-purpose agent for complex research, code search and multi-step tasks.
-tools: all
-extensions: true
-skills: true
-model: opencode-go/muse-spark-1.3-contributor
-thinking: high
-prompt_mode: append
+model: anthropic/claude-sonnet-5-5
+thinking: medium
 ---
 
 # General-purpose agent

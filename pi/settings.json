@@ -63,10 +63,9 @@
     ]
   },
   "packages": [
-    "npm:@tintinweb/pi-subagents@0.19.0",
-    "npm:@juicesharp/rpiv-ask-user-question@2.6.0",
-    "npm:pi-web-access@0.23.0",
-    "npm:pi-lens@4.0.1",
+    "npm:@juicesharp/rpiv-ask-user-question@2.12.0",
+    "npm:pi-web-access@0.36.0",
+    "npm:pi-lens@4.3.0",
     "npm:flexoki-pi-theme",
     "npm:pi-markdown-preview",
     "npm:pi-playwright",
@@ -76,7 +75,8 @@
     "npm:@plannotator/pi-extension",
     "npm:pi-simplify",
     "npm:pi-memory",
-    "npm:@gotgenes/pi-anthropic-auth"
+    "npm:@gotgenes/pi-anthropic-auth",
+    "npm:@quintinshaw/pi-dynamic-workflows"
   ],
   "lastChangelogVersion": "0.85.1",
   "tuiMode": "fullscreen"
