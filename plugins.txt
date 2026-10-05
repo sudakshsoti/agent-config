@@ -89,3 +89,11 @@ external humanlayer/skills:plugins/show-me/skills show-me
 # Technical English rewrites for agent-facing text) plus a stdlib-only linter,
 # scripts/ste-lint.py. Model-invocable, so its description is always loaded.
 external danyuchn/asd-ste100-skill asd-ste100
+
+# openclaw/gogcli — skills for the `gog` Google Workspace CLI (installed per
+# machine with `brew install openclaw/tap/gogcli`; OAuth tokens live in the
+# macOS keychain, never here). Plain generated SKILL.md files, no hooks or
+# scripts. `gog-gmail` and `gog-calendar` read `../gog/SKILL.md` for the shared
+# auth and safety rules, so `gog` must stay on this line. Add more `gog-*`
+# names (gog-drive, gog-docs, ...) to cover further services.
+external openclaw/gogcli:.agents/skills gog gog-gmail gog-calendar
