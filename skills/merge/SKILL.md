@@ -40,7 +40,10 @@ Merge the PR for the current branch, or the PR number given as an argument.
       and `git rev-parse <headRefName>` equals `headRefOid` (squash merges
       make `-d` refuse). Otherwise keep the branch and report why.
 5. Watch what the merge commit triggers: deploys report there, after the PR's
-   checks have passed. Get the SHA with
+   checks have passed. Skip this step when the repo has never deployed
+   (`gh api 'repos/{owner}/{repo}/deployments' --jq length` is 0): the merge
+   commit only reruns checks the PR already passed, so report "no deployments;
+   post-merge watch skipped". Otherwise get the SHA with
    `gh pr view <n> --json mergeCommit --jq .mergeCommit.oid`, then read
    `gh api 'repos/{owner}/{repo}/commits/<sha>/status' --jq '{state, total_count, statuses: [.statuses[] | {context, state, description}]}'`
    and `gh api 'repos/{owner}/{repo}/commits/<sha>/check-runs' --jq '[.check_runs[] | {name, status, conclusion}]'`.
@@ -51,7 +54,7 @@ Merge the PR for the current branch, or the PR number given as an argument.
    "Deployment rate limited"): the code merged but is not live.
 
 Done when the PR state is `MERGED`, the local base matches its upstream, and
-the merge commit has no pending status or check.
+the merge commit has no pending status or check (or step 5 was skipped).
 
 Report: PR URL, merge method, merge commit, current branch, and post-merge
 status/check results (passed, failed with description, or still pending at the
