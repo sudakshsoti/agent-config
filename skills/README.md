@@ -41,7 +41,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
   the template above makes colons and quotes literal — keep it. Single-line
   descriptions are also fine.
 
-The list below covers the 36 repo-owned skills that are active. Keep it
+The list below covers the 35 repo-owned skills that are active. Keep it
 synchronized with the actual `skills/*/SKILL.md` directories;
 `scripts/lint-skills.py` validates each skill's frontmatter and fails when this
 list and the source tree disagree. It also fails when a skill's `SKILL.md` or
@@ -77,7 +77,6 @@ lookup-documentation work.
 - `obsidian-markdown` — Author Obsidian Flavored Markdown — wikilinks, embeds, callouts, properties.
 - `overnight-run` — Unattended serial run of ready-for-agent tickets: preflight here, then a tmux loop runs one fresh `/implement` worker per ticket behind an `omp usage` gate and writes a morning report. User-invoked; `/overnight-run` in OMP via `omp/commands/`.
 - `peer-review` — Adversarial cross-lineage review of an engineering plan written by another agent. `/peer-review`.
-- `pr` — Branch, commit, push, and open a GitHub PR, or report the open one. User-invoked; `/pr` in OMP via `omp/commands/`.
 - `push` — Push the current branch: fetch, autostash-rebase when behind, never force unless asked. User-invoked; `/push` in OMP via `omp/commands/`.
 - `rights-counsel` — Indian consumer, EPF, and insurance rights analyst for advice, complaints, notices, and representations.
 - `self-review` — Critique your own plan against a fixed checklist, then revise it. `/self-review`.

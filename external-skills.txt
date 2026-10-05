@@ -52,6 +52,7 @@ scaffold-exercises
 setup-pre-commit
 
 # mattpocock/skills:skills/in-progress
+chief-of-staff
 claude-handoff
 loop-me
 setup-ts-deep-modules
