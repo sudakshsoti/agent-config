@@ -53,7 +53,12 @@ Fourth contract, external-skills.txt drift. When vendor/<slug> exists for a bare
 its `# <owner/repo>[:<subdir>]` heading) must equal the frontmatter `name:` values
 the clone ships, enumerated as install.sh does (audit-local.py's helpers). A name
 the clone ships but the section lacks, or the section lists but the clone does
-not ship, fails and names both. With no clone (CI) the check is silent.
+not ship, fails and names both. With no clone the check is silent; the weekly
+upstream-drift workflow clones every bare source so it runs in CI too.
+
+Fifth contract, OMP command wrappers. Each omp/commands/*.md must load a
+`skill://<name>` that is a known skill (as above), so retiring a repo-owned
+skill cannot leave `/name` loading nothing.
 
 FAILs exit 1. WARNs never do — two skills are legitimately over the body
 threshold today and shrinking them is somebody else's issue; a WARN that broke
@@ -383,6 +388,20 @@ def lint_references(repo_root, dirnames):
     return fails
 
 
+def lint_commands(repo_root, dirnames):
+    """Fail where an omp/commands/*.md wrapper loads no skill, or one nothing ships."""
+    known = known_skills(repo_root, dirnames)
+    commands_dir = Path(repo_root, "omp", "commands")
+    fails = []
+    for path in sorted(commands_dir.glob("*.md")) if commands_dir.is_dir() else []:
+        rel = path.relative_to(repo_root)
+        names = SKILL_REF_RES[0].findall(read_text(str(path)) or "")
+        if not names:
+            fails.append("%s loads no skill:// URL" % rel)
+        fails += ["%s loads unknown skill %r" % (rel, n) for n in names if n not in known]
+    return fails
+
+
 def main(argv):
     if len(argv) > 2:
         sys.stderr.write("usage: lint-skills.py [repo-root]\n")
@@ -448,7 +467,15 @@ def main(argv):
         print("  ok    external-skills.txt matches every cloned bare source")
 
     print()
-    failed += len(cat_fails) + len(ref_fails) + len(drift_fails)
+    print("omp command wrappers")
+    cmd_fails = lint_commands(repo_root, sources)
+    for detail in cmd_fails:
+        print("  FAIL  %s" % detail)
+    if not cmd_fails:
+        print("  ok    every omp/commands wrapper loads a known skill")
+
+    print()
+    failed += len(cat_fails) + len(ref_fails) + len(drift_fails) + len(cmd_fails)
     summary = "%d passed, %d failed" % (passed, failed)
     if warned:
         summary += ", %d warnings (not fatal)" % warned

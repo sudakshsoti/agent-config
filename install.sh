@@ -62,8 +62,8 @@
 #       `adversary` is the cross-lineage plan reviewer; it pins
 #       `model: "@adversary"`, so it follows the role in omp/config.yml.
 #     omp/commands/*.md      -> ~/.omp/agent/commands/*.md
-#       One-line `/name` wrappers that load the same-named user-invoked skill,
-#       so `/pr` works without the `/skill:` prefix. The skill stays the source.
+#       One-line `/name` wrappers that load the same-named skill, so `/push`
+#       works without the `/skill:` prefix. The skill stays the source.
 #     omp/overlays/*         -> ~/.config/omp/*
 #       Holds search-keys.tpl, the 1Password template behind
 #       `op inject -o ~/.omp/.env`. Linked file by file so other files in

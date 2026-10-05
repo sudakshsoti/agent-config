@@ -115,8 +115,8 @@ Secrets belong in dotfiles (1Password + age), never here.
   neither `claude` nor `anthropic`. Multi-line descriptions require `|` or `>-`;
   an unquoted colon-space can parse as a nested mapping and break loading.
 - `python3 scripts/lint-skills.py` enforces these rules and synchronizes the
-  `skills/README.md` list, including its sentence stating the count of 36
-  repo-owned skills. It also fails on dangling references in
+  `skills/README.md` list, including its sentence stating the repo-owned skill
+  count. It also fails on dangling references in
   `SKILL.md` and `references/**/*.md`: links or `references/`, `scripts/`, `skills/`
   paths that do not resolve, and skill names in hand-off contexts or a
   description's "Not for … (x)" clause that are not repo-owned, named on a
@@ -125,8 +125,11 @@ Secrets belong in dotfiles (1Password + age), never here.
   add a name there when upstream ships a new one). Where `vendor/<slug>` is
   cloned for a bare source, the lint also fails when that source's
   `external-skills.txt` section (heading `# <owner/repo>[:<subdir>]`) and the
-  frontmatter `name:` values the clone ships differ, in either direction; CI,
-  with no clone, skips it. `python3 scripts/check-manifest.py` (run by `check.sh`)
+  frontmatter `name:` values the clone ships differ, in either direction; the
+  push CI has no clone and skips it, so the weekly `upstream-drift` workflow
+  clones every bare source (`scripts/clone-bare-sources.py`) and runs the lint.
+  Each `omp/commands/*.md` must load a `skill://` name from that same known set.
+  `python3 scripts/check-manifest.py` (run by `check.sh`)
   rejects malformed `plugins.txt` lines and duplicate external allowlisting;
   `scripts/manifest.py` is the shared parser.
 - `distribution.txt` lists the skills shipped to claude.ai as `dist/<name>.zip`
@@ -253,58 +256,8 @@ Secrets belong in dotfiles (1Password + age), never here.
   note here, check `journalctl --user -u omp-update.service` for a version bump
   before assuming the note was wrong. Pause it with
   `systemctl --user disable --now omp-update.timer`.
-- Routing rationale (2026-09-16, `docs/research/*-2026-09.md`): the ladder ran
-  on `openai-codex` until that subscription was dropped over frontend quality —
-  Luna sits at DesignArena rank 48 overall (1242), the weakest routed model on
-  every board. Claude Opus 5 is rank 8 (1338), above GPT-5.6 Sol medium (1334),
-  and it wins DesignArena UI Components outright (#5, 1361, ahead of Fable 5.1
-  at #12), so it takes `default` and the roles that *decide* or *judge* visual
-  work (`plan`, `designer`, `vision`, `critic`). Claude
-  Fable 5.1 is rank 6 overall and #2 on LMArena WebDev, but on Max-class plans
-  Fable burns regular weekly limits at roughly double rate and is capped at 50%
-  of them before it needs usage credits — on Pro-class plans it is
-  credits-only from the first message. So Fable stays manual `/model`
-  escalation, never a role pin. Sonnet 5 ($2/$10, AA index 38 vs Opus 5's 51)
-  carries `task`, `workflow` and `builder`: `builder` implements a plan that
-  `plan`/`designer` already fixed, so Sonnet 5's weaker from-scratch design
-  standing (DesignArena task boards ranks 22-37) costs little. It ran at
-  `high` effort until 2026-09-28, when it dropped to `medium` (user decision)
-  alongside `task` and `workflow`. Haiku
-  4.5 is no longer pinned to a role: per-turn housekeeping (`smol`, `tiny`,
-  `commit`) went to GLM 5.3 Flash, and `code-worker`/`sonic` to Muse Spark 1.3
-  Contributor (AA 48 vs DeepSeek V4.1 Flash's 40 and Sonnet 5's 38), because
-  pre-decided work belongs on the cheapest adequate quota. Haiku stays a
-  fallback rung only. `scout` stays on GLM: it is the highest-frequency agent
-  and Go's flat rate absorbs discovery without touching either subscription.
-  DeepSeek V4.1 Flash's $60 Go cap is a promo ending 2026-09-20 (then $15,
-  i.e. $3 per 5 hours), which is why `code-worker` left it on 2026-09-18; it
-  remains the second rung under Muse and the manual throttle fallback.
-  Anthropic publishes no per-model weekly message counts, so subscription
-  burn rate per role is not predictable from primary docs.
-  The Opus rung moved from `claude-opus-5` to `claude-opus-5-5` on 2026-09-23
-  (user request, successor swap only): same provider, same 1M/128K limits and
-  the same low/medium/high/xhigh/max effort set per `omp models`, and
-  `anthropic/claude-opus-5-5` answered a retry-disabled `omp -p` probe. The
-  benchmark figures above are the 2026-09-16 Opus 5 evidence and have not been
-  re-measured for 5.5; the role split they justify is unchanged.
-  The `opencode-go/glm-5.3-flash` fallback chain gained
-  `opencode-go/mimo-v2.6-pro:high` as its first rung on 2026-10-02 (user
-  decision), ahead of `deepseek-v4.1-flash:max`. Artificial Analysis v4.3.2
-  per-benchmark data: hallucination rate GLM-5.3-Flash 27.6%, MiMo-V2.6-Pro
-  40.6%, MiMo-V2.6-Flash 54.4%, DeepSeek V4.1 Flash (max) 96.5%; Terminal-Bench
-  4.0 34.8 / 32.8 / 22.7 / 26.8. Review roles therefore fall back to the
-  lower-hallucination model, not DeepSeek. MiMo-V2.6-Pro's Go cap is $15/month,
-  so DeepSeek stays as the next rung. Chains match by exact model, so scout,
-  smol and commit traffic also lands on MiMo-Pro `:high` during a GLM outage.
-  No role was moved to MiMo: Pro's +4 index lead over GLM comes mostly from
-  HLE/CritPt, the Terminal-Bench gap is within noise, and Pro hallucinates more.
-  The same chain gained `openrouter/deepseek/deepseek-v4.1-flash:high` between
-  `deepseek-v4.1-flash:max` and the Sonnet rung on 2026-10-04 (user decision):
-  all three Go rungs share one provider, so the OpenRouter rung keeps review
-  cross-lineage through a Go outage, and OpenRouter per-token billing (the
-  `omp.sh` key) during that outage is accepted. The model answered a
-  retry-disabled probe; Sonnet stays last so scout, smol and commit traffic
-  still runs if Go and OpenRouter are both down.
+- Why each role sits on its model (benchmarks, quota caps, dated user
+  decisions): `design/decisions.md`, "OMP model routing".
 - `openai-codex` is in the base `disabledProviders`, so no role, chain or
   `/model` pick in a **plain** session reaches the lapsing ChatGPT account.
   There are no routing overlays: `omp/overlays/` holds only `search-keys.tpl`.

@@ -1,6 +1,6 @@
 ---
 name: skill-lifecycle
-description: "Use when adding, renaming, retiring, or installing a repo-owned skill in agent-config. Not for editing a skill's prose (writing-for-agents)."
+description: "Use when adding, renaming, retiring, or installing a repo-owned skill in agent-config, or replacing one with a vendored skill. Not for editing a skill's prose (writing-for-agents)."
 ---
 
 # Skill lifecycle
@@ -50,8 +50,12 @@ too; the pre-commit hook rebuilds the zips, and
 ## Retire a skill
 
 1. Search the repository for the skill name and references to its commands.
-2. Remove or update callers, documentation, `skills/README.md`, manifest entries
-   and its `distribution.txt` line.
+2. Remove or update callers, documentation, `skills/README.md`, manifest entries,
+   its `distribution.txt` line with `dist/<name>.zip`, and any
+   `omp/commands/<name>.md` wrapper. When a vendored skill of the same name
+   takes over, keep the wrapper (it now loads the vendored skill), list the
+   name in `distribution-vendor.txt`, and update the name-collision notes in
+   `plugins.txt`.
 3. Run `python3 scripts/lint-skills.py` and `python3 scripts/build-dist.py --check`.
 4. When cleaning live symlinks is intended, run `./install.sh --prune` from the
    canonical checkout. It removes only managed dangling links; never delete

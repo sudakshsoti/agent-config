@@ -37,9 +37,11 @@ external emilkowalski/skills
 # its own line because the installer reads one directory level per source.
 # `deprecated` is omitted: upstream keeps it empty. `in-progress` is beta and
 # upstream says its skills may change or vanish without warning. A repo-owned
-# skills/<name> wins a name collision, so upstream `handoff` and `pr` are
-# shadowed by ours, and upstream `prototype` by emilkowalski's line above
-# (install prints a SKIP warning for each). Model-invocable skills in these
+# skills/<name> wins a name collision, so upstream `handoff` is shadowed by
+# ours, and upstream `prototype` by emilkowalski's line above (install prints a
+# SKIP warning for each). Upstream `pr` replaced the repo-owned one (user
+# decision 2026-10-06), so `/pr` writes the PR body from its template.
+# Model-invocable skills in these
 # buckets add to the always-loaded skill list; user-invoked ones
 # (`disable-model-invocation: true`) do not.
 external mattpocock/skills:skills/engineering
