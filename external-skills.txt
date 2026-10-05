@@ -1,6 +1,6 @@
 # external-skills.txt — skill names shipped by BARE `external` lines in
 # plugins.txt (no allowlist, so the names are unknowable without a clone).
-# scripts/lint-skills.py reads this so CI, which has no vendor/ checkout, can
+# scripts/lint-skills.py reads this so a checkout with no vendor/ clone can
 # still tell a real vendored skill from a typo. One name per line; `#` starts a
 # comment. A name here must be that skill's frontmatter `name:` (what install.sh
 # links), not its directory. Names that plugins.txt already allowlists, or that
@@ -11,8 +11,8 @@
 # skill, update that section. A reference to a skill listed nowhere still fails
 # the lint. Where vendor/<slug> is cloned, the lint compares that source's
 # section with the names the clone really ships and fails on any difference, in
-# either direction; CI has no clone, so it cannot catch drift (run the lint with
-# vendor/ present to refresh this file).
+# either direction; without a clone it cannot catch drift (run
+# scripts/clone-bare-sources.py, then the lint, to refresh this file).
 
 # mattpocock/skills:skills/engineering
 ask-matt

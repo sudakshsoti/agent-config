@@ -3,7 +3,7 @@
 #
 # Before this existed each check had to be remembered and run by hand, which
 # in practice meant neither test script ran between the day it was written and
-# the day something broke. One command, run manually and by CI; pre-commit runs
+# the day something broke. One command, run manually; pre-commit runs
 # only the fast subset.
 #
 #   ./scripts/check.sh
@@ -109,9 +109,9 @@ else
   fi
 fi
 
-# CI parity. CI runs with an empty HOME and the runner sets XDG_CONFIG_HOME,
-# so a check that reads ~/.pi or ignores XDG_CONFIG_HOME passes here and fails
-# on the PR (#69, #70). Run every check under that shape. After the npm
+# Hermetic run. Every check runs with an empty HOME and its own
+# XDG_CONFIG_HOME, so a check judges tracked files, never ~/.pi or other
+# machine state that differs between boxes (#69, #70). After the npm
 # bootstrap, so npm keeps the real ~/.npm cache.
 ci_scratch="$(mktemp -d)"
 trap 'rm -rf "$ci_scratch"' EXIT

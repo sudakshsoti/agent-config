@@ -2,8 +2,8 @@
 """clone-bare-sources.py — shallow-clone each bare `external` source into vendor/.
 
 lint-skills.py's external-skills.txt drift check only runs where vendor/<slug>
-exists, so CI (no install, no vendor/) never saw upstream add a skill. The
-weekly upstream-drift workflow runs this, then lint-skills.py. An existing
+exists, so a checkout without vendor/ never sees upstream add a skill. Run
+this, then lint-skills.py, to check a fresh checkout for drift. An existing
 clone is left alone. Slugs follow install.sh: <owner>-<repo>.
 
   ./scripts/clone-bare-sources.py [repo-root]

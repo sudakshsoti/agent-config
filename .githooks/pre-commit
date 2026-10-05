@@ -4,7 +4,7 @@
 # .git/hooks, so it survives a clone and works from a git worktree, where
 # .git is a file and has no hooks/ directory of its own.
 #
-# Only fast checks run here; scripts/check.sh and CI run the full set.
+# Only fast checks run here; scripts/check.sh runs the full set.
 #
 # Bypass with `git commit --no-verify` when you genuinely mean to.
 set -uo pipefail

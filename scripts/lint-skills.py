@@ -40,7 +40,7 @@ Known skills are the live repo-owned skills/*/ directories, the skills named on
 `external` lines in plugins.txt, any SKILL.md found under vendor/ (when cloned;
 named by its frontmatter `name:`, as install.sh links it), and the names in the
 tracked external-skills.txt. Vendored skills are therefore never false-failed in
-CI where vendor/ is absent, provided plugins.txt or external-skills.txt names
+a checkout where vendor/ is absent, provided plugins.txt or external-skills.txt names
 them; a bare `external` line cannot be enumerated offline, so its skills go in
 external-skills.txt. skills/_archive/ is neither scanned nor a live target.
 Skipped as not-a-reference: fenced code blocks, placeholders (`<name>`, `*`,
@@ -53,8 +53,8 @@ Fourth contract, external-skills.txt drift. When vendor/<slug> exists for a bare
 its `# <owner/repo>[:<subdir>]` heading) must equal the frontmatter `name:` values
 the clone ships, enumerated as install.sh does (audit-local.py's helpers). A name
 the clone ships but the section lacks, or the section lists but the clone does
-not ship, fails and names both. With no clone the check is silent; the weekly
-upstream-drift workflow clones every bare source so it runs in CI too.
+not ship, fails and names both. With no clone the check is silent; run
+scripts/clone-bare-sources.py first to check a fresh checkout.
 
 Fifth contract, OMP command wrappers. Each omp/commands/*.md must load a
 `skill://<name>` that is a known skill (as above), so retiring a repo-owned
@@ -90,7 +90,7 @@ SIBLING_LINK_RE = re.compile(r"\]\(\.\./([a-z0-9-]+)/SKILL\.md\)")
 
 
 # Tracked list of the skills that bare `external` lines in plugins.txt ship
-# (their names are unknowable offline, and CI has no vendor/).
+# (their names are unknowable offline without a vendor/ clone).
 EXTERNAL_SKILLS_FILE = "external-skills.txt"
 PATH_RE = re.compile(r"`((?:references|scripts|skills)/[^`\s]*)`")
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
