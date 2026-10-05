@@ -3,6 +3,7 @@
 TAVILY_API_KEY={{ op://Homelab/Tavily - API key/credential }}
 EXA_API_KEY={{ op://Homelab/Exa - API key/credential }}
 FIRECRAWL_API_KEY={{ op://Homelab/Firecrawl - API key/credential }}
+PARALLEL_API_KEY={{ op://Homelab/Parallel Search API Key/credential }}
 OPENROUTER_API_KEY={{ op://Homelab/OpenRouter API Key - omp.sh/credential }}
 # Jev compaction (claude-compact-openrouter); install.sh copies it into
 # ~/.claude/settings.json as OPENROUTER_API_KEY.
