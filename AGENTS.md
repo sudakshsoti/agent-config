@@ -19,79 +19,47 @@ This file applies to this checkout. Shared, harness-neutral preferences live in
 | `~/.config/herdr/config.toml` | `herdr/config.toml` | one symlink; herdr writes through it; only when `~/.config/herdr` exists. `herdr/plugins.txt` entries go through `herdr plugin install` (skipped by `--no-external`); `herdr/<dir>/herdr-plugin.toml` local plugins are `herdr plugin link`ed (`herdr/marksman-root` drops `.marksman.toml` into linked worktrees, since Marksman rejects a `.git` file) |
 
 `pi/web-search.json` and `claude/settings.json` are **merges**, not links
-(`scripts/apply-json-config.py`): the first is pi-web-access's credential
-store, the second is written by Claude Code, carries herdr's `hooks` entry and
-holds `OPENROUTER_API_KEY` for the Jev compaction plugin. Only repo-owned keys
-are pushed. The key is never tracked: install copies `JEV_OPENROUTER_API_KEY`
-(item `OpenRouter API Key - Jev`) from `~/.omp/.env` into the live `env` as
-`OPENROUTER_API_KEY`, kept apart from OMP's own `OPENROUTER_API_KEY` (item
+(`scripts/apply-json-config.py`); only repo-owned keys are pushed. The first is
+pi-web-access's credential store; the second is written by Claude Code and
+carries herdr's `hooks` entry. The OpenRouter key is never tracked: install
+copies `JEV_OPENROUTER_API_KEY` (item `OpenRouter API Key - Jev`) from
+`~/.omp/.env` into the live `env` as `OPENROUTER_API_KEY` for the Jev
+compaction plugin, kept apart from OMP's own `OPENROUTER_API_KEY` (item
 `OpenRouter API Key - omp.sh`) so each is billed separately. `~/.omp/.env` is
-1Password-injected from `omp/overlays/search-keys.tpl`, so run `op inject`
-before installing on a new box; on the homelab box use the read-only
-service-account token (see `global-agents.md`). The tracked file is checked
-for credential-shaped keys.
+1Password-injected from `omp/overlays/search-keys.tpl`: run `op inject` before
+installing on a new box; on the homelab box use the read-only service-account
+token (see `global-agents.md`).
 
 - Link skills **once** into `~/.agents/skills`; never also link
   `~/.pi/agent/skills` or skills are discovered twice and consume double the
-  context budget. Codex and OpenCode read this shared root natively; this repo
-  only checks their directories and writes no config for them.
-- **Claude Code is the one exception**, because it does not read the shared
-  root at all: the same declared set is linked a second time into
-  `~/.claude/skills`. That is not double discovery, because no harness reads
-  both roots — but it only stays true while `omp/config.yml` pins
-  `skills.enableClaudeUser: false`. OMP scans `~/.claude/skills` by default;
-  drop that pin and every skill is discovered twice in OMP. The pin is the
-  load-bearing half of this arrangement, not a stylistic preference.
-  `install.sh` never creates `~/.claude`, so a machine without Claude Code is
-  untouched. `~/.claude/CLAUDE.md`, `hooks/` (herdr writes it) and
-  `~/.claude.json` stay out of scope; `--prune` still treats `CLAUDE.md` as a
-  retired surface. `~/.claude/agents` holds `scout` (Haiku), `code-worker` and
-  `builder` (Sonnet), Claude Code's half of `specialist-delegation`; `--prune`
-  keeps a link there only while it resolves into `claude/agents/`, and
-  `check-model-routing.py` fails any of them whose `model:` is not Claude.
-- Claude Code also syncs every skill uploaded to claude.ai back as
-  `anthropic-skills:<name>`, which duplicates each linked skill in
-  `distribution.txt` and `distribution-vendor.txt`. `claude/settings.json`
-  `skillOverrides` sets each of those qualified names to `"off"`; a bare-name
-  key would hide the local copy too. `scripts/check-claude-skill-overrides.py`
-  (`check.sh`, pre-commit) keeps the entries equal to both lists; `--fix`
-  rewrites them. Claude.ai-only skills (docx, pdf, …) keep syncing.
-- `--skills-only` fills the shared root **only**, never `~/.claude/skills`;
-  it is a shared-root operation by definition. A selective run therefore does
-  not keep Claude Code in sync — use a full `./install.sh` for that.
+  context budget.
+- **Claude Code is the one exception** (it does not read the shared root): the
+  same set is linked again into `~/.claude/skills`. That stays single discovery
+  only while `omp/config.yml` pins `skills.enableClaudeUser: false`; OMP scans
+  `~/.claude/skills` by default, so dropping the pin doubles every skill in
+  OMP. The pin is load-bearing. `install.sh` never creates `~/.claude`.
+- Claude Code syncs every skill uploaded to claude.ai back as
+  `anthropic-skills:<name>`, duplicating each skill in `distribution.txt` and
+  `distribution-vendor.txt`. `claude/settings.json` `skillOverrides` sets each
+  qualified name to `"off"`; a bare-name key would hide the local copy too.
+  `scripts/check-claude-skill-overrides.py --fix` rewrites them.
+- `--skills-only=name,other-name` fills the shared root **only** (never
+  `~/.claude/skills`), links only named repo-owned skills, writes no config,
+  fetches nothing, and cannot be combined with `--prune`. Use a full
+  `./install.sh` to keep Claude Code in sync.
 - **Work machine gate.** When `chezmoi data` reports `.machine` = `work`,
   install links skills only and skips every OMP, Pi and Claude config step
-  (`global-agents.md`, `omp/`, overlays, `pi/`, `web-search.json`,
-  `claude/`, plugins, MCP seeding). Their model routing sends prompts and
-  repository source to OpenCode Go and Muse Code, `claude-compact-openrouter`
-  sends transcripts to Jev via OpenRouter, and employer code may only reach the
-  employer's sanctioned vendor. `--claude-agents` opts back into
-  `claude/agents/` alone: those run only Claude inside Claude Code, so they add
-  no vendor. Dotfiles
-  owns the profile; this repo only reads it. With no chezmoi or no profile the
-  machine counts as unknown and installs as before, so apply dotfiles first.
-  Claude.ai connectors (Gmail, Todoist, Notion) belong to the claude.ai account,
-  not this repo, and are not gated here.
-- Edits are live through symlinks; there is no sync step. OMP and Pi can rewrite
-  linked config in this checkout. **Check `git diff` before committing** after
-  interactive setting changes; `pi/settings.json` and `omp/config.yml` are the
-  usual suspects.
-- `--prune` removes only managed links pointing into this checkout and copies
-  marked `.agent-config-managed`; unmarked real files/directories are left with
-  a warning.
-- `--skills-only=name,other-name` links only named repo-owned skills, with no
-  config writes or external fetches. It cannot be combined with `--prune`.
-- Full, `--skills-only` and `--prune` runs share the
-  `shared_root_consumers_present` predicate: one of `~/.omp/agent`,
-  `~/.pi/agent`, `~/.codex` or `~/.config/opencode` must exist. With none,
-  `~/.agents` is not created and `--prune` skips the shared root.
-- `--no-external` skips external git fetches but still relinks existing clones.
-- Install refuses paths matching `*/.git/worktrees/*` or `*/worktrees/*`, and
-  refuses a linked `git worktree add` checkout when `rev-parse --git-dir` and
-  `--git-common-dir` differ. Both guards exit 1 with `linked worktree` and are
-  overridden by `--force`; symlinks contain absolute paths that would dangle.
-  Git older than 2.31 falls back when `--path-format=absolute` is unavailable;
-  if Git cannot answer, only the path guard remains.
+  (`global-agents.md`, `omp/`, overlays, `pi/`, `web-search.json`, `claude/`,
+  plugins, MCP seeding). Their routing sends prompts and repository source to
+  OpenCode Go and Muse Code, `claude-compact-openrouter` sends transcripts to
+  Jev via OpenRouter, and employer code may only reach the employer's
+  sanctioned vendor. `--claude-agents` opts back into `claude/agents/` alone
+  (Claude only, no new vendor). With no chezmoi or no profile the machine counts
+  as unknown and installs as before, so apply dotfiles first. Claude.ai
+  connectors belong to the claude.ai account and are not gated here.
+- OMP and Pi rewrite linked config in this checkout: **check `git diff`
+  before committing**; `pi/settings.json` and `omp/config.yml` are the usual
+  suspects.
 
 ## Ownership
 
@@ -103,88 +71,41 @@ Secrets belong in dotfiles (1Password + age), never here.
 | `skills/`, `plugins.txt` | agent-config | source; only `distribution.txt` skills are also packaged |
 | `distribution.txt`, `dist/*.zip` | agent-config | list of claude.ai skills; zips are generated, never hand-edited |
 | `global-agents.md` | agent-config | linked to `~/.omp/agent/AGENTS.md` and `~/.pi/agent/AGENTS.md` |
-| `omp/config.yml`, `lsp.yml`, `keybindings.yml`, `themes/`, `agents/`, `commands/`, `overlays/` | agent-config | OMP writes through links; `commands/*.md` are `/name` wrappers over same-named skills |
-| `pi/settings.json`, `verbosity.json`, `subagents.json`, `pi-fff.json`, `keybindings.json`, `prompts/`, `themes/`, `extensions/`, `agents/` | agent-config | Pi writes through links |
-| `herdr/config.toml`, `herdr/plugins.txt` | agent-config | keybindings and pinned plugins; plugin state under `~/.config/herdr/plugins/` is untracked |
-| `pi/web-search.json` | **shared** | merged; credentials and unmanaged keys stay machine-local |
-| `claude/settings.json`, `statusline.sh`, `subagent-statusline.sh`, `claude-powerline.json`, `plugins.txt`, `agents/` | agent-config / **shared** (settings) | settings merged; the rest linked or declarative |
-| `omp/plugins.txt`, `snapshots/*/mcp.json` | agent-config | declared sets, add-only; snapshots refreshed from live by `scripts/snapshot-machine-config.sh` |
-| `~/.omp/agent/mcp.json`, `~/.omp/agent/extensions/`, `~/.omp/agent/agent.db` (logins), `~/.claude.json`, `~/.claude/plugins/`, `~/.claude/hooks/`, `~/.pi/agent/auth.json`, `~/.pi/agent/models-store.json`, `~/.pi/agent/sessions/`, `~/.pi/agent/npm/` | **neither** | credentials or runtime state; untracked. Logins (`/login`, `claude`) are per box |
+| `omp/`, `pi/`, `herdr/` config | agent-config | harnesses write through links; `omp/commands/*.md` are `/name` wrappers over same-named skills |
+| `pi/web-search.json`, `claude/settings.json` | **shared** | merged; credentials and unmanaged keys stay machine-local |
+| `omp/plugins.txt`, `snapshots/*/mcp.json` | agent-config | add-only; snapshots refreshed by `scripts/snapshot-machine-config.sh` |
+| `~/.omp/agent/mcp.json`, `extensions/`, `agent.db`, `~/.claude.json`, `~/.claude/plugins/`, `~/.claude/hooks/`, `~/.pi/agent/auth.json`, `models-store.json`, `sessions/`, `npm/` | **neither** | credentials or runtime state; untracked. Logins (`/login`, `claude`) are per box |
 | `~/.local/bin/omp-*-overlay`, `~/.zshrc`, Brewfile, fonts | **dotfiles** | chezmoi |
-| `scripts/` | agent-config | checks and installer helpers, referenced by `check.sh` |
-| `repo-audit/`, `scripts/repo-audit.py` | agent-config | weekly audit runner, prompt and repo list; the box timer that runs it is dotfiles' `repo-audit.timer` |
+| `repo-audit/`, `scripts/repo-audit.py` | agent-config | its timer is dotfiles' `repo-audit.timer` |
 
 ## Skills
 
 - Repo-owned skills are `skills/<name>/SKILL.md`; `external` lines in
-  `plugins.txt` clone third-party sources into ignored `vendor/`, vendored by
-  reference only. A bare external repo imports every skill and can consume the
-  shared context budget; name only the skills wanted on an `external` line.
-  Name collisions resolve by fixed precedence: repo-owned `skills/<name>` beats
-  every external source; an `external` line naming the skill beats a bare line;
-  among lines of the same kind the earliest one in `plugins.txt` wins. Losers are
-  skipped with a `SKIP … shadowed by` warning, not an error.
+  `plugins.txt` clone third-party sources into ignored `vendor/`. A bare
+  external repo imports every skill and eats the shared context budget; name
+  only the skills wanted. Collisions: repo-owned beats external; an `external`
+  line naming the skill beats a bare line; else the earliest line wins. Losers
+  are skipped with a `SKIP … shadowed by` warning.
 - Skill `name` must equal its directory, be lowercase kebab-case, and contain
   neither `claude` nor `anthropic`. Multi-line descriptions require `|` or `>-`;
   an unquoted colon-space can parse as a nested mapping and break loading.
-- `python3 scripts/lint-skills.py` enforces these rules and synchronizes the
-  `skills/README.md` list, including its sentence stating the repo-owned skill
-  count. It also fails on dangling references in
-  `SKILL.md` and `references/**/*.md`: links or `references/`, `scripts/`, `skills/`
-  paths that do not resolve, and skill names in hand-off contexts or a
-  description's "Not for … (x)" clause that are not repo-owned, named on a
-  `plugins.txt` `external` line, cloned under `vendor/` (by frontmatter `name:`),
-  or listed in `external-skills.txt` (the skills of bare `external` sources;
-  add a name there when upstream ships a new one). Where `vendor/<slug>` is
-  cloned for a bare source, the lint also fails when that source's
-  `external-skills.txt` section (heading `# <owner/repo>[:<subdir>]`) and the
-  frontmatter `name:` values the clone ships differ, in either direction. With no
-  clone the check is silent; `scripts/clone-bare-sources.py` clones every bare
-  source so a fresh checkout can run it.
-  Each `omp/commands/*.md` must load a `skill://` name from that same known set.
-  `python3 scripts/check-manifest.py` (run by `check.sh`)
-  rejects malformed `plugins.txt` lines and duplicate external allowlisting;
-  `scripts/manifest.py` is the shared parser.
-- `distribution.txt` lists the skills shipped to claude.ai as `dist/<name>.zip`
-  by `scripts/build-dist.py`. The packaged `SKILL.md` drops frontmatter keys
-  claude.ai rejects (e.g. `disable-model-invocation`) and is validated against
-  the upload rules. The pre-commit hook rebuilds from the staged tree and stages
-  `dist/`; `check.sh` runs `--check`. List only skills that work without a
-  local harness: `research` and `design-grill` are excluded because they rely
-  on Pi/OMP subagents, repo files or an unshipped skill.
-- `distribution-vendor.txt` does the same for vendored third-party skills,
-  resolved from `vendor/` via `plugins.txt`. A working-tree
-  `./scripts/build-dist.py` writes them to `dist/vendor/`, which is gitignored
-  (third-party content never enters this history); `--check` and `--from-index`
-  ignore them, so rebuild per machine after `./install.sh`. Everything
-  vendored is listed except `firecrawl-web` and `frontend-design`.
-- `scripts/ownership_collisions.py` (tested by `check.sh`) detects chezmoi
-  entries claiming install destinations.
-- `python3 scripts/audit-local.py [--home DIR] [--dotfiles DIR] [--json]` is an
-  opt-in, read-only, offline local drift audit; it exits 0 with findings and is
-  not run by `check.sh`.
-- `scripts/repo-audit.py` is the weekly **repo audit**: on the homelab box
-  (dotfiles' `repo-audit.timer`, Sunday 00:30 IST) it audits each repo in
-  `repo-audit/repos.txt` with one headless `omp -p` session on
-  `anthropic/claude-sonnet-5-5:high` running `repo-audit/prompt.md`
-  (architecture deepening per `improve-codebase-architecture`, plus doc drift,
-  dead references, stale plans and failing checks). The session only writes a
-  JSON file; the script files at most 5 issues per repo labelled
-  `needs-triage` and `enhancement`, each carrying a
-  `<!-- repo-audit:<key> -->` marker so a finding already filed, in any
-  state, is never filed again. Reject a finding with `wontfix` (and an
-  `.out-of-scope/` note for a recurring idea) so the next run skips it. Try
-  a change with
-  `python3 scripts/repo-audit.py --repo <owner/repo> --dry-run` on the box.
-  It runs on Sonnet 5.5 `high`, not GLM (user decision 2026-10-04): the
-  architecture findings need depth, and `/triage` is the human check that a
-  second model lineage would otherwise provide.
+- `python3 scripts/lint-skills.py` enforces these rules, syncs
+  `skills/README.md`, and fails on dangling skill references. When a bare
+  upstream ships a new skill, add its name to `external-skills.txt`.
+- `distribution.txt` and `distribution-vendor.txt` list skills packaged for
+  claude.ai by `scripts/build-dist.py` (list only skills that work without a
+  local harness). Vendored zips go to gitignored `dist/vendor/`, so third-party
+  content never enters this history; rebuild them per machine after `./install.sh`.
+- `scripts/repo-audit.py` (weekly on the homelab box) files issues carrying a
+  `<!-- repo-audit:<key> -->` marker, never refiled in any state. Reject a
+  finding with `wontfix` (plus an `.out-of-scope/` note for a recurring idea).
+  It runs on Sonnet, not GLM (user decision 2026-10-04): architecture findings
+  need depth, and `/triage` is the human second check.
 - Never `npx skills add`: its machine-local `~/.agents/.skill-lock.json` has no
   restore command and is invisible to this repo. Every `~/.agents/skills/*`
   entry must be a symlink; audit with:
   `for d in ~/.agents/skills/*/; do [ -L "${d%/}" ] || echo "${d%/}"; done`
-- `codebase-memory` is repo-owned in `skills/codebase-memory/`; its MCP server
-  is separate and does not supply the skill.
+- The `codebase-memory` MCP server does not supply the repo-owned skill.
 
 ## Gotchas
 
@@ -193,8 +114,8 @@ Secrets belong in dotfiles (1Password + age), never here.
   `--browser=chromium`; do not assume system Chrome.
 - macOS has no GNU `timeout`; use Python `subprocess.run(..., timeout=...)` or a
   background process plus `kill`.
-- The repo-local `.githooks/pre-commit` runs fast checks; `scripts/check.sh` runs
-  the full set. After commits, inspect `git status` for unrelated changes.
+- `.githooks/pre-commit` runs fast checks; `scripts/check.sh` the full set.
+  Never commit `node_modules/`.
 - **Plain OMP routing is authoritative in `omp/config.yml`:**
 
   | Roles/settings | Value |
@@ -217,95 +138,43 @@ Secrets belong in dotfiles (1Password + age), never here.
   | `task.maxEffort` / `providers.autoThinkingMaxEffort` | `high` / `high` |
 
   `slow` is explicit escalation only. Agent models are set in
-  `task.agentModelOverrides`, which beats agent frontmatter. OMP's bundled `scout`, `reviewer`,
-  `security-reviewer`, `task` and `sonic` are kept, not shadowed: `/review`
-  depends on bundled `reviewer`. Pi `Explore`/`public-scout` map to OMP
-  `scout`, Pi `reviewer` to `adversary`, Pi `general-purpose` to `task`.
-  `adversary`/`reviewer`/`advisor` stay on GLM so a hostile pass is a second
-  lineage, not Claude reviewing Claude; `scout` stays on GLM to spend flat-rate
-  Go tokens on discovery instead of subscription allowance.
-  Claude load is deliberately bounded: `thinkingBudgets` maps `medium` to 8192
-  reasoning tokens against `high`'s 16384 and `xhigh`'s 32768, so the main
-  session (`default`) runs Opus 5.5 at `medium` and only the roles that judge
-  pixels or plan a screen pay `high`. Housekeeping roles (`smol`, `tiny`,
-  `commit`), discovery (`scout`) and the `adversary`/`reviewer`/`advisor` pass
-  run on flat-rate Go ($60/month GLM cap) instead of plan usage, while
-  mechanical agents (`sonic`) and bounded implementation (`code-worker`) run on
-  the $5/month Muse Code Everyday Usage subscription. The split is deliberate:
-  Muse and Go are separate quota pools, so exhausting one never stalls commits,
-  discovery or review. `code-worker`, `sonic` and `research` on
-  `muse-spark-*-contributor` means Meta may train on their prompts, including
-  repository source; the earlier prohibition was lifted by user decision on
-  2026-09-18 (evidence and scope:
-  `docs/research/muse-code-subscription-2026-09.md`). Route a session that
-  touches client or sensitive material away from those agents, or pin
-  `muse-code/muse-spark-1.3` (standard tier, not trained on, ~12.5x the quota
-  burn).
-  `retry.usageAwareFallback` preflights the coding-plan usage report and, at
-  20% remaining, shifts to the configured Go rung without asking; an unmapped
-  usage report fails open, so it is a backstop, not a guarantee.
+  `task.agentModelOverrides`, which beats agent frontmatter. OMP's bundled
+  `scout`, `reviewer`, `security-reviewer`, `task` and `sonic` are kept, not
+  shadowed: `/review` depends on bundled `reviewer`. `adversary`/`reviewer`/
+  `advisor` stay on GLM so a hostile pass is a second lineage, not Claude
+  reviewing Claude. Why each role sits where it does: `design/decisions.md`,
+  "OMP model routing".
 
-  `omp -p` from a persistent kernel needs closed stdin
+  `code-worker`, `sonic` and `research` on `muse-spark-*-contributor` means
+  Meta may train on their prompts, including repository source (allowed by user
+  decision 2026-09-18; `docs/research/muse-code-subscription-2026-09.md`).
+  Route a session that touches client or sensitive material away from those
+  agents, or pin `muse-code/muse-spark-1.3` (standard tier, not trained on,
+  ~12.5x the quota burn).
+
+  `retry.usageAwareFallback` shifts to the Go rung at 20% coding-plan usage
+  remaining; an unmapped usage report fails open, so it is a backstop, not a
+  guarantee. `openai-codex` is disabled so no plain-session role, chain or
+  `/model` pick reaches the lapsing ChatGPT account; there are no routing
+  overlays (`omp/overlays/` holds only `search-keys.tpl`).
+- `python3 scripts/check-model-routing.py` enforces routing invariants that
+  used to fail silently, and diffs the table above, `pi/model-ladder.md` and
+  every `<!-- routing:current -->` block against the config (format rules in
+  its docstring). Fix drift in the docs, not by bending the config.
+- `omp -p` from a persistent kernel needs closed stdin
   (`stdin=DEVNULL` or `</dev/null`) or it waits at `readPipedInput`.
 - `omp` is the binary, not a restoring wrapper; never add persistent
-  apply/restore state. Thinking levels are
-  model-specific: `glm-5.3-flash` and `kimi-k3` accept only low/high/max;
-  `deepseek-v4-flash`/`v4.1-flash` accept low/high/max (minimal→low,
-  medium/xhigh→high). `claude-opus-5-5`/`claude-opus-5`/`claude-sonnet-5-5`/
-  `claude-fable-5-1` use adaptive thinking (default `high`) over
-  low/medium/high/xhigh/max, and Opus 5/5.5 cannot disable thinking at
-  xhigh/max. `claude-haiku-4-5` has no effort
-  parameter at all — it uses manual extended thinking, and OMP's `:low`
-  selector is accepted (probed). `minimal` is not a real level on the Go
-  models. `muse-spark-1.3-contributor` accepts minimal through xhigh (no
-  `max`); standard `muse-spark-1.3` adds `max`. Evidence: `docs/research/`.
-- On the homelab box the omp binary self-updates: an `omp-update.timer` user
-  unit runs `omp update` (stable channel) daily at 04:30 ± 30min jitter. The
-  unit is **machine state owned by dotfiles**
-  (`dot_config/systemd/user/omp-update.{service,timer}`, Linux-gated in
-  `.chezmoiignore`); this list documents the behaviour, not the file, and the
-  Macs deliberately have no such job. Consequences: never pin an omp version in
-  these docs, and if a routing or thinking-level probe suddenly disagrees with a
-  note here, check `journalctl --user -u omp-update.service` for a version bump
-  before assuming the note was wrong. Pause it with
-  `systemctl --user disable --now omp-update.timer`.
-- Why each role sits on its model (benchmarks, quota caps, dated user
-  decisions): `design/decisions.md`, "OMP model routing".
-- `openai-codex` is in the base `disabledProviders`, so no role, chain or
-  `/model` pick in a **plain** session reaches the lapsing ChatGPT account.
-  There are no routing overlays: `omp/overlays/` holds only `search-keys.tpl`.
-- `python3 scripts/check-model-routing.py` (in `check.sh` and the pre-commit
-  fast set) enforces the routing invariants, all of which failed silently
-  before: a repo-owned `omp/agents/*.md` `model:` — literal or `@role` — must
-  resolve to that agent's base `task.agentModelOverrides` value; every
-  override key must name a real agent (repo file or one of OMP's bundled
-  `task`/`scout`/`sonic`/`reviewer`/`security-reviewer`); every selector must parse as
-  `provider/model[:effort]` and must not name a provider the same file
-  disables; and no `pi/agents/*.md`, `pi/settings.json` or
-  `pi/web-search.json` entry may use `openrouter/*`, which Pi cannot reach.
-  `anthropic/*` is conditional: an explicit agent pin passes only while
-  `@gotgenes/pi-anthropic-auth` is in `pi/settings.json` `packages[]`, and Claude is always rejected as
-  a Pi default, cycle entry or summary model. It also compares the docs with
-  the config, in both directions, naming the line and both values: the OMP table
-  above and the `pi/model-ladder.md` ladder table (found by header row, not
-  position), plus any text between `<!-- routing:current -->` and
-  `<!-- routing:end -->` in either doc. Table rows must be `name`/`name` groups
-  each followed by `role`/`roles`/`agent`/`agents` (groups split by `;`, one
-  backticked `provider/model:level` value), or the backticked setting keys
-  `disabledProviders`, `retry.usageAwareFallback`, `retry.usageReservePct`,
-  `retry.usageReservePolicy`, `task.maxEffort` and
-  `providers.autoThinkingMaxEffort`; a row it cannot parse fails, never skips.
-  Every non-blank marked line must read `` `name` → `provider/model` level ``
-  (names joined by ` and ` or `, `; no bullet prefix). Every matching table is
-  checked (a second table with the same header is not ignored), and a missing
-  separator row, an empty table or marked block, or a marker line with extra text
-  fails (backticked marker mentions in prose are fine). Names resolve in the doc's own source
-  (AGENTS.md: OMP roles/agents; ladder: Pi agents, plus `main` for the Pi
-  default); prefix `omp:` or `pi:` to cross over. Text outside the markers is
-  never read. Fix drift in the docs, not by bending the config. Tests:
-  `scripts/test-check-model-routing.py`.
-- OMP rewrites `omp/config.yml` and removes comments while preserving values;
-  keep rationale in `design/decisions.md` or here, never in that file. A bare
+  apply/restore state.
+- Thinking levels are model-specific: the Go models (`glm-5.3-flash`,
+  `kimi-k3`, `deepseek-v4*-flash`) accept only low/high/max; Opus 5/5.5 cannot
+  disable thinking at xhigh/max; `claude-haiku-4-5` has no effort parameter
+  (OMP's `:low` is accepted); `muse-spark-1.3-contributor` has no `max`.
+  Evidence: `docs/research/`.
+- The homelab box self-updates omp daily (dotfiles' `omp-update.timer`), so
+  never pin an omp version in these docs; if a probe disagrees with a note
+  here, check `journalctl --user -u omp-update.service` for a version bump first.
+- OMP rewrites `omp/config.yml` and strips comments; keep rationale in
+  `design/decisions.md` or here, never in that file. A bare
   `omp -p --model <id>` can hide failures behind fallback; probe with retry
   disabled:
   `omp -p --model <id> --config <(printf 'retry:\n  enabled: false\n') "Reply with exactly: ok"`
@@ -314,105 +183,43 @@ Secrets belong in dotfiles (1Password + age), never here.
   model id and can build an invalid gateway id. OMP loads `~/.omp/.env` at
   startup and existing process variables win; after `op inject`, restart OMP.
   `omp token <provider>` shows the key actually used.
-- Muse Spark requires `/v1/responses` and omp ≥18.1.6; check the installed
-  build with `omp --version` rather than trusting a version pinned in docs.
-  Two providers serve it and they meter separately: `muse-code` is the
-  OAuth-logged Muse Code subscription ($5/month Everyday Usage, 5-hour and
-  weekly windows, both visible in `omp usage -p muse-code`), and `opencode-go`
-  serves it over `https://opencode.ai/zen/go/v1` against the shared Go cap.
-  Plain OMP routes these to `muse-code`; no role or agent uses
-  `opencode-go/muse-spark-*` any more:
+- Muse Spark requires omp ≥18.1.6. `muse-code` (subscription;
+  `omp usage -p muse-code`) and `opencode-go` (shared Go cap) both serve it and
+  meter separately; plain OMP uses only `muse-code`:
 
   <!-- routing:current -->
   `code-worker` and `research` → `muse-code/muse-spark-1.3-contributor` high
   `sonic` → `muse-code/muse-spark-1.3-contributor` low
   <!-- routing:end -->
-
-  The Muse window is
-  cost-weighted, not prompt-counted: a full `code-worker`-shaped turn (two
-  edits plus test runs) measured under 1% of the 5-hour window on the
-  contributor tier, while a one-token standard-tier prompt measured 1%
-  (`docs/research/muse-code-subscription-2026-09.md`).
-- Pi has no OMP-style `modelRoles` or `fallbackChains`; per-job models are in
-  `pi/agents/*.md` frontmatter. Pi runs on OpenCode Go by default; default is
-  `opencode-go/muse-spark-1.3-contributor` xhigh. Routing, checked against
-  `pi/settings.json` and `pi/agents/*.md` (`pi:` scopes a name to Pi):
-
-  <!-- routing:current -->
-  `pi:main` → `opencode-go/muse-spark-1.3-contributor` xhigh
-  `pi:builder` → `anthropic/claude-opus-5-5` high
-  `pi:Plan`, `pi:workflow`, `pi:code-worker`, `pi:general-purpose` and `pi:research` → `opencode-go/muse-spark-1.3-contributor` high
-  `pi:scout`, `pi:Explore` and `pi:public-scout` → `opencode-go/muse-spark-1.3-contributor` minimal
-  `pi:reviewer` and `pi:Critic` → `opencode-go/glm-5.3-flash` high
-  <!-- routing:end -->
-
-  `reviewer` and `Critic` are the second lineage; `research` and `public-scout`
-  take public or user-approved disposable material only. Kimi K3 not routed
-  (scarcest Go cap, user cost decision); DeepSeek V4.1 Flash is the manual
-  throttle fallback via Ctrl+P. Muse is Meta's training-eligible
-  tier: any session touching private or sensitive material must be rerouted to
-  GLM/DeepSeek. Claude is now reachable from Pi through the
-  `@gotgenes/pi-anthropic-auth` shim, but only as an explicit agent pin — see
-  the entry below. Full table: `pi/model-ladder.md`.
-- Pi reaches Claude only through the `@gotgenes/pi-anthropic-auth` extension
-  (installed 2026-10-02), which de-fingerprints Pi's system prompt and injects
-  Claude Code's billing header. Without it the subscription rejects third-party
-  clients with HTTP 400 "Third-party apps now draw from your extra usage"
-  (`earendil-works/pi#3372`, which Pi's maintainer closed as a ToS violation he
-  would not work around). The extension is a deliberate dependency on
-  untrusted upstream behaviour: it impersonates Claude Code, Anthropic's legal
-  page prohibits that, and it has already broken twice on Pi prompt changes
-  (0.86.0 restructure, `pi#9838`). **Never make it the default or a fallback** —
-  `check-model-routing.py` allows an explicit agent pin only while the package
-  is declared in `pi/settings.json` `packages[]` (not read from `~/.pi`, so every box
-  agrees), and rejects `anthropic` as `defaultProvider`, in
-  `enabledModels`, and as `summaryModel`. OMP remains the Claude harness on the
-  subscription proper; Pi is still the flat-rate harness by default. The
-  OpenRouter key stays dead (HTTP 401 "User not found"). Evidence:
-  `docs/research/pi-claude-subscription-2026-10.md` and
-  `docs/research/harness-provider-access-2026-09.md`.
+- Pi has no `modelRoles` or `fallbackChains`; per-job models are in
+  `pi/agents/*.md` frontmatter, and the routing lives in `pi/model-ladder.md`.
+  Pi defaults to Muse, Meta's training-eligible tier: any session touching
+  private or sensitive material must be rerouted to GLM/DeepSeek.
+- Pi reaches Claude only through the `@gotgenes/pi-anthropic-auth` extension,
+  which impersonates Claude Code (Anthropic's legal page prohibits that; it has
+  broken twice on Pi prompt changes). **Never make it the default or a
+  fallback**; `check-model-routing.py` allows an explicit agent pin only while
+  the package is in `pi/settings.json` `packages[]`. OMP remains the Claude
+  harness. Evidence: `docs/research/pi-claude-subscription-2026-10.md`.
 - Pi `enabledModels` is the Ctrl+P cycle list, not an access restriction. It
-  deduplicates by provider/model ID, retaining the first effort preset; use
-  `/thinking` or explicit agent thinking overrides instead of duplicate entries.
-  The only credential in untracked `~/.pi/agent/auth.json` is the
-  `opencode-go` API key; the `openai-codex` and `anthropic` OAuth credentials
-  and the OpenRouter key were removed on 2026-09-16. Restoring the Claude path
-  needs `/login anthropic` again (machine-local, per box).
+  deduplicates by provider/model ID, keeping the first effort preset; use
+  `/thinking` or agent thinking overrides instead of duplicate entries.
+  Restoring Pi's Claude path needs `/login anthropic` per box.
 - Fetch before pushing. If another process advanced the branch, preserve
   unrelated dirty files, rebase, then restore them.
-- `scripts/check.sh` bootstraps ignored `node_modules/` with `npm ci` when
-  `node_modules/@earendil-works/pi-tui` is missing; it carries `pi-token-speed`,
-  consumed by `pi/settings.json`. Never commit `node_modules/`.
 
 ## Plans and docs
 
-- Plans and runbooks live in `plans/`. The first line of each tracked `.md`
-  there is exactly `Status: planned` or `Status: active`. A finished plan is
-  deleted, not archived; git history keeps it. There is no `done` status.
-- `scripts/check-docs-placement.py` (run by `scripts/check.sh` and pre-commit)
-  checks tracked files only: it fails a `plans/` file without that status line,
-  and any `.md` under `docs/` outside `docs/research/` and `docs/agents/`.
-- Research notes in `docs/research/` are dated history and need no status.
+- Plans and runbooks live in `plans/`; the first line is exactly
+  `Status: planned` or `Status: active` (add it to an OMP-autosaved plan before
+  committing). A finished plan is deleted, not archived.
+- `docs/` holds only `docs/research/` (dated history) and `docs/agents/`.
   Decisions go in `design/decisions.md`.
-- OMP plan mode autosaves approved plans to `plans/` (`plan.autosaveDir` in
-  `omp/config.yml`). Add the status line before committing an autosaved plan;
-  an untracked autosave does not fail the check.
 
 ## Agent skills
 
-### Issue tracker
-
-Issues live in GitHub Issues and use the `gh` CLI. See `docs/agents/issue-tracker.md`.
-
-### Triage labels
-
-Use `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, and
-`wontfix`. See `docs/agents/triage-labels.md`.
-
-### Domain docs
-
-`GLOSSARY.md` at the repo root is the domain vocabulary; `domain-modeling`,
-`wait-what` and the other mattpocock skills read and write that name only. It
-was `CONTEXT.md` before upstream v1.3.0, so a repo that still has one needs
-`git mv CONTEXT.md GLOSSARY.md`. `docs/adr/` is absent in this checkout; do not
-assume it exists.
+- **Issue tracker:** GitHub Issues via `gh`. See `docs/agents/issue-tracker.md`.
+- **Triage labels:** `needs-triage`, `needs-info`, `ready-for-agent`,
+  `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+- **Domain docs:** `GLOSSARY.md` (formerly `CONTEXT.md`; `git mv` an old one)
+  is the domain vocabulary. `docs/adr/` is absent in this checkout.
