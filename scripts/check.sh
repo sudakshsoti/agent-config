@@ -126,6 +126,7 @@ run "check-manifest.py" python3 "$repo_root/scripts/check-manifest.py" "$repo_ro
 run "check-docs-placement.py" python3 "$repo_root/scripts/check-docs-placement.py" "$repo_root"
 run "check-model-routing.py" python3 "$repo_root/scripts/check-model-routing.py" "$repo_root"
 run "build-dist.py" python3 "$repo_root/scripts/build-dist.py" "$repo_root" --check
+run "check-claude-skill-overrides.py" python3 "$repo_root/scripts/check-claude-skill-overrides.py" "$repo_root"
 
 npm_dependency_available=false
 [[ -d "$pi_tui_marker" ]] && npm_dependency_available=true
