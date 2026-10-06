@@ -1,7 +1,6 @@
 ---
 name: writing-editor
 description: "Use when working on a personal essay or blog post: finding ideas, getting feedback on a draft, deciding it is ready to publish, or getting unstuck. Not for writing the piece, removing AI-sounding prose (humanizer), or UI microcopy (ux-writing)."
-disable-model-invocation: true
 ---
 
 # Writing Editor

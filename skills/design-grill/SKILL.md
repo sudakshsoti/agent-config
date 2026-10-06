@@ -1,7 +1,6 @@
 ---
 name: design-grill
 description: "Run a round-based interview to settle visual and behavioural interface decisions, recording agreed design decisions while excluding implementation architecture."
-disable-model-invocation: true
 ---
 
 Load the `grilling` skill (skill:// in OMP, the Skill tool in Claude Code) and run its loop unchanged — the design tree, the frontier, one round of numbered questions each carrying a recommended answer, wait, recompute.

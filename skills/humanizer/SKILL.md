@@ -1,7 +1,6 @@
 ---
 name: humanizer
 description: "Use to rewrite AI-sounding prose so it reads human: strip stock wording, inflated claims, vague sourcing, filler, and chatbot artefacts without changing meaning. Not for essay ideas or structure (writing-editor), interface microcopy (ux-writing), or Obsidian note syntax (obsidian-markdown)."
-disable-model-invocation: true
 license: MIT
 metadata:
   version: "2.11.2"
