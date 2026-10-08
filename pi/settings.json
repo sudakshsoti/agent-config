@@ -1,83 +1,63 @@
 {
-  "defaultProvider": "opencode-go",
-  "defaultModel": "muse-spark-1.3-contributor",
-  "defaultThinkingLevel": "xhigh",
+  "defaultProvider": "role",
+  "defaultModel": "default",
+  "defaultThinkingLevel": "medium",
   "enabledModels": [
-    "opencode-go/muse-spark-1.3-contributor:xhigh",
-    "opencode-go/glm-5.3-flash:high",
-    "opencode-go/deepseek-v4.1-flash:high"
+    "role/default:medium",
+    "role/task:medium",
+    "role/plan:high",
+    "role/slow:xhigh",
+    "role/sonic:low",
+    "role/adversary:high",
+    "role/smol:low",
+    "role/tiny:low"
   ],
-  "theme": "kohra",
-  "quietStartup": true,
-  "showLastPrompt": false,
-  "hideThinkingBlock": true,
   "compaction": {
     "enabled": true,
     "reserveTokens": 49152,
-    "keepRecentTokens": 32768
-  },
-  "tokenSpeed": {
-    "colors": {
-      "slow": "#E19796",
-      "medium": "#D2A56D",
-      "fast": "#A4B776",
-      "blazing": "#70B4A2"
-    }
-  },
-  "powerline": {
-    "preset": "default",
-    "separator": "dot",
-    "layout": {
-      "left": [
-        "model",
-        "custom:kohra-thinking",
-        "path",
-        "git",
-        "context_pct",
-        "custom:subagents"
-      ],
-      "right": [
-        "custom:token-speed"
-      ],
-      "secondary": []
-    },
-    "customItems": [
-      {
-        "id": "kohra-thinking",
-        "statusKey": "kohra-thinking",
-        "position": "left",
-        "selfColorize": true
+    "keepRecentTokens": 32768,
+    "modelOverrides": {
+      "anthropic/claude-sonnet-5-5": {
+        "reserveTokens": 800000
       },
-      {
-        "id": "subagents",
-        "statusKey": "subagents",
-        "position": "left",
-        "color": "thinkingHigh"
+      "anthropic/claude-opus-5-5": {
+        "reserveTokens": 800000
       },
-      {
-        "id": "token-speed",
-        "statusKey": "tokenSpeed",
-        "position": "right",
-        "selfColorize": true
+      "opencode-go/glm-5.3-flash": {
+        "reserveTokens": 800000
+      },
+      "opencode-go/muse-spark-1.3-contributor": {
+        "reserveTokens": 800000
+      },
+      "opencode-go/deepseek-v4.1-flash": {
+        "reserveTokens": 800000
+      },
+      "opencode-go/mimo-v2.6-pro": {
+        "reserveTokens": 800000
       }
-    ]
+    }
   },
   "packages": [
     "npm:@juicesharp/rpiv-ask-user-question@2.12.0",
     "npm:pi-web-access@0.36.0",
     "npm:pi-lens@4.3.0",
-    "npm:flexoki-pi-theme",
     "npm:pi-markdown-preview",
     "npm:pi-playwright",
     "npm:@juicesharp/rpiv-todo",
-    "npm:pi-token-speed",
-    "npm:pi-mcp-adapter",
     "npm:@plannotator/pi-extension",
-    "npm:pi-simplify",
     "npm:pi-memory",
     "npm:@gotgenes/pi-anthropic-auth",
+    "npm:@alexlikevibe/pi-jev@0.2.1",
+    "npm:@josephyoung/pi-exit",
     "npm:@quintinshaw/pi-dynamic-workflows"
   ],
-  "lastChangelogVersion": "0.85.1",
-  "tuiMode": "fullscreen"
+  "lastChangelogVersion": "1.0.3",
+  "tuiMode": "fullscreen",
+  "steeringMode": "all",
+  "followUpMode": "one-at-a-time",
+  "extensions": [
+    "-extensions/operational-footer/index.js",
+    "-extensions/kohra-thinking-status/index.js"
+  ],
+  "theme": "system"
 }

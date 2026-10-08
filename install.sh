@@ -736,6 +736,13 @@ else
     mkdir -p "$HOME/.pi/workflows"
     link_into "$REPO/pi/workflows/model-tiers.json" "$HOME/.pi/workflows/model-tiers.json"
   fi
+  # Role table read by pi/extensions/model-roles, and Plannotator's per-phase
+  # roles. Both are read-only to Pi, so a link is safe.
+  for pi_file in model-roles.json plannotator.json; do
+    if [ -d "$PI" ] && [ -f "$REPO/pi/$pi_file" ]; then
+      link_into "$REPO/pi/$pi_file" "$PI/$pi_file"
+    fi
+  done
   if [ -d "$PI" ] && [ -d "$REPO/pi/prompts" ]; then
     mkdir -p "$PI/prompts"
     for prompt_file in "$REPO"/pi/prompts/*.md; do

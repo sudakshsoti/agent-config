@@ -1,113 +1,94 @@
 # Pi model ladder
 
-Pi's ladder runs on OpenCode Go, and the only credential it holds today is an
-OpenCode Go API key: the `openai-codex`, `anthropic` and `openrouter`
-credentials were removed from `~/.pi/agent/auth.json` on 2026-09-16. Pi is
-therefore a Go-only harness in practice. A Claude path exists again in principle
-through the `@gotgenes/pi-anthropic-auth` extension (installed 2026-10-02), but
-it stays inert until `/login anthropic` re-adds the credential — see
-[Reaching Claude from Pi](#reaching-claude-from-pi) below.
-`docs/research/harness-provider-access-2026-09.md` holds the original probe
-evidence and `docs/research/pi-claude-subscription-2026-10.md` the newer
-findings. Claude 5x work belongs in OMP by default, whose routing is in
-`omp/config.yml`.
+Pi selects models by **role**. `pi/extensions/model-roles` registers each entry
+of `pi/model-roles.json` `roles` as a virtual model `role/<name>`, so
+`pi/settings.json` (default and `enabledModels`), `pi/web-search.json`
+`summaryModel` and `pi/plannotator.json` phases all name a role, not a model.
+Before every request the extension walks the role's fallback chain
+(`chains`, keyed by exact model like OMP's `retry.fallbackChains`) and picks
+the first model that has credentials and is not benched. `/roles` shows the
+live chain; `/roles reset` clears the bench. Agents in `pi/agents/` still pin
+physical models.
 
-The default ladder is deliberately Muse-heavy: Muse Spark 1.3 Contributor anchors
-nearly everything because it is the strongest model on Go (Artificial Analysis
-Intelligence Index 48) and the cheapest per request, and it sits on the largest,
-least-used quota ($60/month cap, ~226.6k est. requests/month, 220.8 tok/s,
-$0.10/$0.20 rates). The previous restriction of Muse to public material only is
-lifted by user decision: Pi runs disposable personal work containing no private
-information, and the user explicitly accepted Meta's training-eligible tier for
-that work.
+**Claude is the default** (user decision 2026-10-09, `design/decisions.md`
+"Pi Claude default"): `role/default` and `role/task` resolve to Sonnet 5.5 and
+`role/plan`/`role/slow` to Opus 5.5. Pi reaches Claude only through the
+`@gotgenes/pi-anthropic-auth` impersonation extension — see
+[Reaching Claude from Pi](#reaching-claude-from-pi). On a box without
+`/login anthropic` every Claude rung lacks credentials, so the roles fall
+through to their OpenCode Go rungs instead of failing.
 
 **Guardrail:** `muse-spark-*-contributor` is Meta training-eligible and not
-zero-data-retention — prompts and completions may be used for training. Any
-session that will touch private, client or sensitive material MUST be routed to
-GLM 5.3 Flash or DeepSeek V4.1 Flash (both ZDR on Go) via an agent override or
-Ctrl+P before the work starts.
+zero-data-retention — prompts and completions may be used for training. It
+backs `code-worker`, `research`, `sonic`, `public-scout` and `role/sonic`. Any
+session that will touch private, client or sensitive material MUST avoid those
+and stay on Claude, GLM 5.3 Flash or DeepSeek V4.1 Flash.
 
 ## Ladder
 
 | Task / agent | Provider and model | Effort |
 | --- | --- | --- |
-| Main session | `opencode-go/muse-spark-1.3-contributor` | xhigh |
-| `builder` implementing an approved UI plan | `anthropic/claude-opus-5-5` | high |
-| `Plan` planning a screen or feature | `opencode-go/muse-spark-1.3-contributor` | high |
+| Main session (`role/default`) | `anthropic/claude-sonnet-5-5` | medium |
+| `builder` implementing an approved UI plan | `anthropic/claude-sonnet-5-5` | medium |
+| `Plan` planning a screen or feature | `anthropic/claude-opus-5-5` | high |
+| `task`, `workflow` and the unnamed `general-purpose` fallback | `anthropic/claude-sonnet-5-5` | medium |
+| `security-reviewer` vulnerability discovery | `anthropic/claude-opus-5-5` | high |
+| `Critic` visual review of implemented work | `anthropic/claude-opus-5-5` | medium |
 | `code-worker` precisely scoped routine fixes, tests and mechanical refactors | `opencode-go/muse-spark-1.3-contributor` | high |
-| `workflow` coordinating multi-part implementation | `opencode-go/muse-spark-1.3-contributor` | high |
-| unnamed `general-purpose` fallback | `opencode-go/muse-spark-1.3-contributor` | high |
 | `research` primary-source investigation and cited reports | `opencode-go/muse-spark-1.3-contributor` | high |
-| `scout`, `Explore` and codebase discovery | `opencode-go/muse-spark-1.3-contributor` | minimal |
+| `sonic` strictly mechanical updates | `opencode-go/muse-spark-1.3-contributor` | low |
 | Optional `public-scout`, public/disposable material only | `opencode-go/muse-spark-1.3-contributor` | minimal |
-| `reviewer` adversarial review of plans and diffs on a second model lineage | `opencode-go/glm-5.3-flash` | high |
-| `Critic` visual review of implemented work | `opencode-go/glm-5.3-flash` | high |
-| Manual fallback when Muse or GLM throttles (Ctrl+P) | `opencode-go/deepseek-v4.1-flash` | high |
+| `scout`, `Explore` and codebase discovery | `opencode-go/glm-5.3-flash` | low |
+| `reviewer`, `adversary` hostile review on a second model lineage | `opencode-go/glm-5.3-flash` | high |
 
-Anything that needs Claude judgement or Claude-grade frontend work runs in OMP,
-not in this ladder.
+The role table itself (`default`, `task`, `plan`, `slow`, `sonic`,
+`adversary`, `smol`, …) lives only in `pi/model-roles.json`; it follows OMP's
+`modelRoles` except `default`, which is Sonnet here and Opus in OMP.
 
 Rationale per model:
 
-- **Muse Spark 1.3 Contributor** carries the main session, all implementer/planner
-  agents and all discovery. At ~$0.0003/request at `minimal` effort it is the
-  cheapest discovery on Go, and at `xhigh` it was the strongest UI implementer
-  available on Go once the privacy constraint lifted (LMArena WebDev muse-max
-  rank 8 / 1652; muse xhigh rank 12 / 1623 — both above DeepSeek V4.1's 1614).
-  Educational note: the `contributor` tier means Meta trains on this traffic.
-- **GLM 5.3 Flash** keeps the review/discovery second lineage and reviews
-  Meta-lineage output. Its own permanent $60/month cap means a Muse 5-hour
-  exhaustion still leaves a working second lineage. GLM is ZDR, so `Critic` and
-  `reviewer` are the only agents that may touch private or sensitive material on
-  a non-Muse model if a private-material session slips through.
+- **Claude (Sonnet 5.5 / Opus 5.5)** carries the main session, implementers,
+  planners and security review, matching OMP's split: Sonnet for doing, Opus
+  for planning and judgement. The cost is the impersonation route's ToS and
+  breakage risk, accepted by the user.
+- **Muse Spark 1.3 Contributor** keeps the cheap, high-volume agents. It is the
+  cheapest per request on Go and sits on the largest quota.
+- **GLM 5.3 Flash** keeps discovery and the hostile second lineage, so review
+  is never Claude checking Claude. It is ZDR on Go.
+- **DeepSeek V4.1 Flash** has no pin; it is a chain rung under Sonnet, Haiku
+  and GLM.
 - **Kimi K3 is not routed at all.** Its ~490 requests/month cap is the scarcest
-  on Go and the user judged the cost unjustified ("can't afford it") — this is a
-  cost decision, not a benchmark finding. The Go key still covers Kimi, so it
-  stays probeable; to use it again, re-add it to `enabledModels` and pin it on an
-  agent.
-- **DeepSeek V4.1 Flash has no agent pin.** It is the manual quota fallback: its
-  promoted $60/month cap ends 2026-09-20, after which it is $15/month (≈$3 per
-  5-hour window), too tight for daily pinned use.
+  on Go and the user judged the cost unjustified — a cost decision, not a
+  benchmark finding.
 
-## Manual quota fallback
+## Fallback
 
-Pi implements no automatic fallback chains. Quota rules:
-
-- If Muse Spark throttles (its 5-hour window is $12), switch the main session to
-  `opencode-go/glm-5.3-flash` high or `opencode-go/deepseek-v4.1-flash` high via
-  Ctrl+P.
-- If GLM throttles, use DeepSeek V4.1 Flash.
-- Escalate repeated failed approaches instead of allowing an extended retry loop.
+Fallback is automatic for role selections, not for agent pins or physical
+`/model` picks. Pi's own retry handles transient errors; after
+`failuresBeforeFallback` consecutive failures the model is benched for
+`cooldownMinutes` and the next rung answers. Quota, billing and auth errors
+bench immediately and trigger one continuation on the next rung, at most
+`maxFallbacksPerPrompt` times per prompt. A rung without credentials (the
+`openrouter` one, or Claude before `/login anthropic`) is skipped.
 
 Effort support: GLM 5.3 Flash and Kimi K3 accept only low/high/max; medium runs
-as high. DeepSeek V4.x Flash accepts low, high and max (minimal→low, medium and
-xhigh→high). Muse Spark 1.3 accepts all levels, `minimal` through `xhigh`,
-natively.
-Model overrides on agent calls take precedence over agent defaults; these files
-do not implement automatic escalation or quota-based routing.
+as high. DeepSeek V4.x Flash accepts low, high and max. Muse Spark 1.3 accepts
+`minimal` through `xhigh`. A role selection's effort (`role/plan:high`) beats
+the effort written in the role table.
 
 ## Scoped models
 
 `settings.json` sets the default (checked against the Main session row):
 
 <!-- routing:current -->
-`main` → `opencode-go/muse-spark-1.3-contributor` xhigh
+`main` → `anthropic/claude-sonnet-5-5` medium
 <!-- routing:end -->
 
-`settings.json` sets `enabledModels` to
-Muse Spark 1.3 Contributor xhigh, GLM 5.3 Flash high and DeepSeek V4.1 Flash
-high, in that order (most-used first).
-This is the Ctrl+P quick-switch list, not an access restriction or an
-agent-routing table.
-Pi deduplicates scoped entries by provider/model ID; multiple effort presets for
-the same model do not create multiple cycle entries.
-Use `/thinking` to change effort for the current session, or set it explicitly
-on an agent call.
-The GLM cycle entry pins `:high` so switching away from Muse never sends Muse's
-`xhigh` to a model that only accepts low/high/max.
-Other authenticated Go models remain selectable through `/model` or explicit
-agent overrides. The OpenRouter key is dead and was removed from
-`~/.pi/agent/auth.json` on 2026-09-16.
+`enabledModels` is the Ctrl+P cycle: `role/default`, `role/task`,
+`role/plan`, `role/slow`, `role/sonic`, `role/adversary`, `role/smol` and
+`role/tiny`, each with its own effort. It is a quick-switch list, not an access
+restriction. Plannotator's planning phase uses `role/plan` high and its
+executing phase `role/default` medium (`pi/plannotator.json`).
 
 ## Reaching Claude from Pi
 
@@ -122,21 +103,13 @@ only `opencode-go`, because the `anthropic` OAuth credential was removed on
 2026-09-16. Run `/login anthropic` in Pi; it is an interactive browser flow and
 is per box, like every other login in this repo.
 
-When it is live, Claude is a **manual escalation, not a ladder rung**, and
-`builder` is its one deliberate consumer — the UI implementer, where Claude's
-frontend judgement beats Muse Spark and the fragile route earns its keep. It
-runs at `high`, not `xhigh`: Claude thinking is the scarce plan resource.
-
-- Pin it explicitly on an agent (`model: anthropic/claude-opus-5-5`).
-  `scripts/check-model-routing.py` permits this only while the package is
-  listed in the tracked `pi/settings.json` `packages[]`, so removing the package also reverts the pin to a hard failure
-  rather than a silent wrong route.
-- Never set it as `defaultProvider`, an `enabledModels` cycle entry, or
-  `web-search.json` `summaryModel`. The check rejects all three unconditionally,
-  because the extension impersonates Claude Code and must not become the face of
-  the harness.
-- Never put it in a fallback: Pi has no fallback chains, and a silent Claude
-  route is exactly the failure mode the check exists to prevent.
+When it is live, Claude is the default model (see the top of this file).
+`scripts/check-model-routing.py` allows `anthropic/*` anywhere Pi selects a
+model — agent pins, the default, `enabledModels`, `summaryModel` and role
+targets, with `role/*` resolved through `pi/model-roles.json` — only while the
+package is listed in the tracked `pi/settings.json` `packages[]`. Removing the
+package turns every Claude route into a hard check failure rather than a silent
+wrong route.
 
 Two halves must both hold, and either can rot silently:
 
@@ -157,9 +130,8 @@ The other options remain:
 - or add a live OpenRouter key and route `anthropic/claude-sonnet-5-5` through
   `openrouter`, also metered per token.
 
-OMP remains the Claude harness on the subscription proper; Pi is the flat-rate
-harness by default. Full evidence and the ToS/breakage caveats:
-`docs/research/pi-claude-subscription-2026-10.md`.
+OMP remains the Claude harness on the subscription proper. Full evidence and
+the ToS/breakage caveats: `docs/research/pi-claude-subscription-2026-10.md`.
 
 `~/.pi/agent/settings.json` and the files in `~/.pi/agent/agents/` link to this repository's Pi configuration.
 No installation or copy step is needed for edits to existing linked files.

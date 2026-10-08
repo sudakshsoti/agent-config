@@ -110,3 +110,15 @@ Moved from `AGENTS.md` on 2026-10-06; the live routing table stays there.
   `omp.sh` key) during that outage is accepted. The model answered a
   retry-disabled probe; Sonnet stays last so scout, smol and commit traffic
   still runs if Go and OpenRouter are both down.
+
+# Pi Jev compaction
+
+- [stated] Pi uses `@alexlikevibe/pi-jev@0.2.1` for context compaction, over the TypeSafe transport, with the key from 1Password item `Mail - TypeSafe API key` (Homelab vault). Routing stays off: it activates only when `routing.cheap` or `routing.strong` is set, and none is. — User, 2026-10-06.
+- [inferred] This reverses the 2026-09-28 "do not install" verdict (`docs/research/jev-compaction-effectiveness-2026-09.md`) for Pi only. That verdict rested on OMP's `shake` and `snapcompact`, which Pi lacks; Pi's only built-in path is a model-written summary. The caveats stand: Jev prunes tool output and cannot summarise, each compaction costs one prompt-cache miss, and tool output (repository source included) reaches TypeSafe, so the key is read on the personal Mac only.
+- [stated] The key is never written to a file: dotfiles' `pi()` wrapper reads it at launch and hands it to that one process as `TYPESAFE_API_KEY`. A failed read leaves Pi on its normal compaction. `JEVC_DISABLED=1 pi` bypasses Jev. — User, 2026-10-06.
+
+# Pi Claude default
+
+- [stated] Pi defaults to Claude: `role/default` and `role/task` resolve to Sonnet 5.5 and `role/plan`/`role/slow` to Opus 5.5 through `pi/model-roles.json`, and Sonnet is a rung in the GLM fallback chain. — User, 2026-10-09.
+- [stated] This overrides the earlier rule that the `@gotgenes/pi-anthropic-auth` impersonation route must never be Pi's default or a fallback. The ToS risk (Anthropic's legal page prohibits impersonating Claude Code) and the breakage risk (it broke twice on Pi prompt changes) are accepted. — User, 2026-10-09.
+- [inferred] `check-model-routing.py` now resolves `role/*` through `pi/model-roles.json` and allows `anthropic/*` anywhere in Pi only while the package is in `pi/settings.json` `packages[]`, so dropping the package still fails every Claude route loudly. Without `/login anthropic` the Claude rungs have no credentials and the role chains fall through to OpenCode Go.

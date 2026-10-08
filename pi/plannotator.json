@@ -1,0 +1,12 @@
+{
+  "phases": {
+    "planning": {
+      "model": { "provider": "role", "id": "plan" },
+      "thinking": "high"
+    },
+    "executing": {
+      "model": { "provider": "role", "id": "default" },
+      "thinking": "medium"
+    }
+  }
+}

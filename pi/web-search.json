@@ -1,5 +1,18 @@
 {
-  "provider": "auto",
-  "summaryModel": "opencode-go/deepseek-v4.1-flash",
-  "workflow": "auto-summary"
+  "summaryModel": "role/smol",
+  "workflow": "auto-summary",
+  "searchRouting": {
+    "providers": [
+      "parallel",
+      "firecrawl",
+      "exa",
+      "duckduckgo"
+    ],
+    "fallbackOn": [
+      "transient",
+      "quota",
+      "network",
+      "invalid-response"
+    ]
+  }
 }

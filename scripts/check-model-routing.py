@@ -19,7 +19,9 @@ of them errors at runtime; they just quietly route work to the wrong model:
    `pi/settings.json` `packages[]` (install links it into `~/.pi`) *and* an
    OAuth credential exists; `openrouter/*` has a dead key. Those pins fail on
    first request otherwise, per
-   `docs/research/harness-provider-access-2026-09.md`.
+   `docs/research/harness-provider-access-2026-09.md`. `role/<name>`
+   selectors (the `pi/extensions/model-roles` virtual models) are resolved
+   through `pi/model-roles.json` first, so a role cannot hide either case.
 
 5. **Docs vs config drift.** `AGENTS.md`'s OMP routing table and
    `pi/model-ladder.md`'s ladder table state the routing in prose; between
@@ -297,7 +299,7 @@ def _pi_agent_selector(name, pi_agents):
     return (f"{model}:{thinking}" if thinking else model), None
 
 
-def _pi_default_selector(pi_settings):
+def _pi_default_raw(pi_settings):
     if not pi_settings:
         return None
     provider, model = pi_settings.get("defaultProvider"), pi_settings.get("defaultModel")
@@ -305,6 +307,34 @@ def _pi_default_selector(pi_settings):
     if not provider or not model:
         return None
     return f"{provider}/{model}" + (f":{level}" if level else "")
+
+
+def _resolve_pi(selector, pi_roles):
+    """Return (physical `provider/model[:level]`, error) for a Pi selector.
+
+    `role/<name>[:level]` resolves through `pi/model-roles.json` `roles`; the
+    selector's own level beats the role's, as in pi/extensions/model-roles.
+    Any other selector is already physical and is returned unchanged.
+    """
+    match = SELECTOR_RE.match(selector or "")
+    if not match:
+        return None, "is not provider/model[:effort]"
+    if match.group("provider") != "role":
+        return selector, None
+    target = ((pi_roles or {}).get("roles") or {}).get(match.group("model"))
+    if target is None:
+        return None, "names no role in pi/model-roles.json"
+    resolved = SELECTOR_RE.match(target)
+    if not resolved or resolved.group("provider") == "role":
+        return None, f"resolves to {target!r}, not a physical provider/model[:effort]"
+    level = match.group("effort") or resolved.group("effort")
+    return f"{resolved.group('provider')}/{resolved.group('model')}" + (f":{level}" if level else ""), None
+
+
+def _pi_default_selector(pi_settings, pi_roles):
+    raw = _pi_default_raw(pi_settings)
+    physical, _ = _resolve_pi(raw, pi_roles)
+    return physical or raw
 
 
 def _mismatch(where, subject, doc_value, source, config_value):
@@ -371,7 +401,7 @@ def _check_omp_table(text, config, failures):
             )
 
 
-def _check_pi_table(text, pi_agents, pi_settings, failures):
+def _check_pi_table(text, pi_agents, pi_settings, pi_roles, failures):
     rows = _table_rows(PI_DOC, text, PI_TABLE_HEADER, failures)
     if rows is None:
         failures.append(f"{PI_DOC}: ladder table with header {'| '.join(PI_TABLE_HEADER)!r} not found")
@@ -393,13 +423,13 @@ def _check_pi_table(text, pi_agents, pi_settings, failures):
             continue
         doc = f"{model.group(1)}:{effort}"
         if first.startswith("Main session"):
-            _compare(failures, where, "Main session", doc, "pi/settings.json default", _pi_default_selector(pi_settings))
+            _compare(failures, where, "Main session", doc, "pi/settings.json default", _pi_default_selector(pi_settings, pi_roles))
         elif first.startswith("Manual fallback"):
-            cycle = (pi_settings or {}).get("enabledModels") or []
+            cycle = [_resolve_pi(entry, pi_roles)[0] or entry for entry in (pi_settings or {}).get("enabledModels") or []]
             if doc not in cycle:
                 failures.append(
                     f"{where}: Manual fallback is {doc!r} in the docs but pi/settings.json "
-                    f"enabledModels is {cycle!r}"
+                    f"enabledModels resolves to {cycle!r}"
                 )
         else:
             names = _TICKED.findall(first)
@@ -441,7 +471,7 @@ def _marked_lines(label, text, failures):
         failures.append(f"{label}:{start}: {MARK_START} never closed by {MARK_END}")
 
 
-def _check_marked(label, text, native, config, pi_agents, pi_settings, failures):
+def _check_marked(label, text, native, config, pi_agents, pi_settings, pi_roles, failures):
     """Check `name` -> `provider/model` level sentences between the markers.
 
     A name resolves in the doc's native source (AGENTS.md: OMP roles and agents;
@@ -479,7 +509,7 @@ def _check_marked(label, text, native, config, pi_agents, pi_settings, failures)
                 for source, actual in found.items():
                     _compare(failures, where, f"`{name}`", doc, source, actual)
             elif bare == "main":
-                _compare(failures, where, f"`{name}`", doc, "pi/settings.json default", _pi_default_selector(pi_settings))
+                _compare(failures, where, f"`{name}`", doc, "pi/settings.json default", _pi_default_selector(pi_settings, pi_roles))
             else:
                 actual, error = _pi_agent_selector(bare, pi_agents)
                 if error:
@@ -488,7 +518,7 @@ def _check_marked(label, text, native, config, pi_agents, pi_settings, failures)
                     _compare(failures, where, f"`{name}`", doc, f"pi/agents/{bare}.md", actual)
 
 
-def check_docs(docs, config, pi_agents, pi_settings):
+def check_docs(docs, config, pi_agents, pi_settings, pi_roles=None):
     """Compare routing claims in AGENTS.md and pi/model-ladder.md with the config."""
     failures = []
     for label, native in ((OMP_DOC, "omp"), (PI_DOC, "pi")):
@@ -499,19 +529,20 @@ def check_docs(docs, config, pi_agents, pi_settings):
         if label == OMP_DOC:
             _check_omp_table(text, config, failures)
         else:
-            _check_pi_table(text, pi_agents, pi_settings, failures)
+            _check_pi_table(text, pi_agents, pi_settings, pi_roles, failures)
         if not any(line.strip() == MARK_START for line in text.splitlines()):
             failures.append(f"{label}: no routing:current block ({MARK_START} ... {MARK_END}); mark the current-state routing lines")
-        _check_marked(label, text, native, config, pi_agents, pi_settings, failures)
+        _check_marked(label, text, native, config, pi_agents, pi_settings, pi_roles, failures)
     return failures
 
 
-def check(config, agents, pi_agents, pi_settings=None, pi_search=None, docs=None):
+def check(config, agents, pi_agents, pi_settings=None, pi_search=None, docs=None, pi_roles=None):
     """Return routing failures for already-read inputs; performs no I/O.
 
     config: parsed omp/config.yml mapping.
     agents / pi_agents: {filename: text} for omp/agents/*.md and pi/agents/*.md.
-    pi_settings / pi_search: parsed pi/settings.json / pi/web-search.json, or None.
+    pi_settings / pi_search / pi_roles: parsed pi/settings.json /
+        pi/web-search.json / pi/model-roles.json, or None.
     docs: {repo-relative path: text} of AGENTS.md and pi/model-ladder.md, or None
         to skip the docs-vs-config comparison.
     """
@@ -575,62 +606,78 @@ def check(config, agents, pi_agents, pi_settings=None, pi_search=None, docs=None
                 f"{agent} from its overrides would route it to the wrong model"
             )
 
-    # 4. Pi may not pin a provider it cannot reach.
+    # 4. Pi may not route to a provider it cannot reach.
     #
-    # `anthropic/*` is the one conditional case. With the shim declared in
-    # pi/settings.json an explicit agent pin is a deliberate routing decision
-    # and is allowed; as a default or in the Ctrl+P cycle it is not, because
-    # the shim impersonates Claude Code (which Anthropic's legal page prohibits
-    # and actively detects) and should never be the face of the harness.
-    # Without the shim the provider is unreachable and every use is a failure.
-    # See docs/research/pi-claude-subscription-2026-10.md.
+    # `anthropic/*` is reachable only through the shim declared in
+    # pi/settings.json. With it, Claude is allowed wherever Pi selects a model,
+    # default and Ctrl+P cycle included (user decision 2026-10-09,
+    # design/decisions.md "Pi Claude default"); without it every use is a
+    # failure. See docs/research/pi-claude-subscription-2026-10.md.
     claude_allowed = PI_ANTHROPIC_SHIM in _declared_pi_packages(pi_settings)
+
+    def reach(where, selector):
+        physical, error = _resolve_pi(selector, pi_roles)
+        if error:
+            failures.append(f"{where} {selector!r} {error}")
+            return
+        provider = physical.split("/", 1)[0]
+        if provider in PI_UNREACHABLE:
+            failures.append(
+                f"{where} {selector!r} routes to {provider!r}, which Pi has no working credential path to"
+            )
+        elif provider == "anthropic" and not claude_allowed:
+            failures.append(
+                f"{where} {selector!r} pins Claude, but {PI_ANTHROPIC_SHIM!r} is not in "
+                "pi/settings.json packages[], so the subscription bills third-party usage "
+                "and the request fails"
+            )
+
     for name, text in sorted(pi_agents.items()):
         fields = frontmatter(text, f"pi/agents/{name}", failures)
         declared = fields.get("model")
         if not declared:
             failures.append(f"pi/agents/{name}: no `model:` key")
             continue
-        match = SELECTOR_RE.match(declared)
-        if not match:
-            failures.append(f"pi/agents/{name}: model {declared!r} is not provider/model[:effort]")
-            continue
-        provider = match.group("provider")
-        if provider in PI_UNREACHABLE:
-            failures.append(
-                f"pi/agents/{name}: model {declared!r} uses {provider!r}, "
-                "which Pi has no working credential path to"
-            )
-        elif provider == "anthropic" and not claude_allowed:
-            failures.append(
-                f"pi/agents/{name}: model {declared!r} pins Claude, but "
-                f"{PI_ANTHROPIC_SHIM!r} is not in pi/settings.json packages[], so the "
-                "subscription bills third-party usage and the request fails"
-            )
+        reach(f"pi/agents/{name}: model", declared)
 
     if pi_settings is not None:
-        # Default and cycle entries always stay off Claude, shim or not.
-        always_unreachable = PI_UNREACHABLE | {"anthropic"}
-        provider = pi_settings.get("defaultProvider")
-        if provider in always_unreachable:
-            failures.append(
-                f"pi/settings.json: defaultProvider {provider!r} is unreachable from Pi"
-            )
+        default = _pi_default_raw(pi_settings)
+        if default:
+            reach("pi/settings.json: defaultProvider/defaultModel", default)
         for entry in pi_settings.get("enabledModels") or []:
-            if entry.split("/", 1)[0] in always_unreachable:
-                failures.append(
-                    f"pi/settings.json: enabledModels entry {entry!r} is unreachable from Pi"
-                )
+            reach("pi/settings.json: enabledModels entry", entry)
 
-    if pi_search is not None:
-        summary = pi_search.get("summaryModel") or ""
-        if summary.split("/", 1)[0] in PI_UNREACHABLE | {"anthropic"}:
-            failures.append(
-                f"pi/web-search.json: summaryModel {summary!r} is unreachable from Pi"
-            )
+    if pi_search is not None and pi_search.get("summaryModel"):
+        reach("pi/web-search.json: summaryModel", pi_search["summaryModel"])
+
+    if pi_roles is not None:
+        # Role targets are what a role selection lands on, so they are held to
+        # the same reachability rule. Chain rungs are not: the router skips a
+        # rung without credentials, so an unreachable rung is inert.
+        for name, target in sorted((pi_roles.get("roles") or {}).items()):
+            match = SELECTOR_RE.match(target)
+            if not match or match.group("provider") == "role":
+                failures.append(
+                    f"pi/model-roles.json: roles.{name} = {target!r} is not a physical provider/model[:effort]"
+                )
+                continue
+            reach(f"pi/model-roles.json: roles.{name}", target)
+        for key, rungs in sorted((pi_roles.get("chains") or {}).items()):
+            match = SELECTOR_RE.match(key)
+            if not match or match.group("effort") or match.group("provider") == "role":
+                failures.append(
+                    f"pi/model-roles.json: chains key {key!r} is not a physical provider/model "
+                    "(chains are keyed by exact model, without effort)"
+                )
+            for rung in rungs or []:
+                match = SELECTOR_RE.match(rung)
+                if not match or match.group("provider") == "role":
+                    failures.append(
+                        f"pi/model-roles.json: chains.{key} rung {rung!r} is not a physical provider/model[:effort]"
+                    )
 
     if docs is not None:
-        failures.extend(check_docs(docs, config, pi_agents, pi_settings))
+        failures.extend(check_docs(docs, config, pi_agents, pi_settings, pi_roles))
 
     return failures
 
@@ -691,6 +738,7 @@ def check_repo(repo):
         _read_json(os.path.join(repo, "pi", "settings.json")),
         _read_json(os.path.join(repo, "pi", "web-search.json")),
         docs,
+        _read_json(os.path.join(repo, "pi", "model-roles.json")),
     ) + check_claude_agents(_read_dir(os.path.join(repo, "claude", "agents"), ".md"))
 
 

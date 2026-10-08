@@ -120,6 +120,7 @@ class RoutingCheckTest(unittest.TestCase):
         pi_settings=PI_SETTINGS,
         omp_doc=None,
         pi_doc=None,
+        pi_roles=None,
     ):
         parsed, parse_failures = MODULE.parse_config(config, "omp/config.yml")
         self.assertEqual(parse_failures, [])
@@ -131,6 +132,7 @@ class RoutingCheckTest(unittest.TestCase):
             docs=None
             if omp_doc is None and pi_doc is None
             else {"AGENTS.md": omp_doc or OMP_DOC, "pi/model-ladder.md": pi_doc or PI_DOC},
+            pi_roles=pi_roles,
         )
 
     def docs_check(self, **kwargs):
@@ -231,24 +233,48 @@ class RoutingCheckTest(unittest.TestCase):
         failures = self.run_check(pi_agent=agent, pi_settings=PI_SETTINGS_WITH_SHIM)
         self.assertFalse(any("pins Claude" in f for f in failures), failures)
 
-    def test_claude_default_provider_is_reported_even_with_shim(self):
-        """The shim must never become the face of the harness."""
+    def test_claude_default_and_cycle_are_allowed_with_shim(self):
+        """User decision 2026-10-09: with the shim, Claude may be Pi's default."""
         settings = (
             '{"defaultProvider": "anthropic", "defaultModel": "claude-opus-5",'
-            ' "packages": ["npm:@gotgenes/pi-anthropic-auth"]}\n'
-        )
-        failures = self.run_check(pi_settings=settings)
-        self.assertTrue(any("defaultProvider" in f for f in failures), failures)
-
-    def test_claude_enabled_model_is_reported_even_with_shim(self):
-        """Claude must stay out of the Ctrl+P cycle regardless of the shim."""
-        settings = (
-            '{"defaultProvider": "opencode-go", "defaultModel": "deepseek-v4.1-flash",'
             ' "enabledModels": ["anthropic/claude-opus-5:high"],'
             ' "packages": ["npm:@gotgenes/pi-anthropic-auth"]}\n'
         )
-        failures = self.run_check(pi_settings=settings)
-        self.assertTrue(any("enabledModels" in f for f in failures), failures)
+        self.assertEqual(self.run_check(pi_settings=settings), [])
+
+    def test_role_resolving_to_claude_without_shim_is_reported(self):
+        """A role must not hide a Claude route from the shim requirement."""
+        settings = '{"defaultProvider": "role", "defaultModel": "default", "enabledModels": ["role/default:high"]}\n'
+        roles = {"roles": {"default": "anthropic/claude-sonnet-5-5:medium"}}
+        failures = self.run_check(pi_settings=settings, pi_roles=roles)
+        self.assert_fails(failures, "defaultProvider", "pins Claude")
+        self.assert_fails(failures, "enabledModels", "pins Claude")
+        self.assert_fails(failures, "roles.default", "pins Claude")
+
+    def test_unknown_or_nested_role_is_reported(self):
+        settings = '{"defaultProvider": "opencode-go", "defaultModel": "glm-5.3-flash", "enabledModels": ["role/ghost:low"]}\n'
+        roles = {"roles": {"loop": "role/loop"}}
+        failures = self.run_check(pi_settings=settings, pi_roles=roles)
+        self.assert_fails(failures, "role/ghost", "names no role")
+        self.assert_fails(failures, "roles.loop", "not a physical")
+
+    def test_unreachable_chain_rung_is_inert_but_malformed_one_fails(self):
+        """The router skips rungs without credentials; only shape is checked."""
+        roles = {"roles": {}, "chains": {"opencode-go/glm-5.3-flash": ["openrouter/deepseek/deepseek-v4.1-flash:high"]}}
+        self.assertEqual(self.run_check(pi_roles=roles), [])
+        roles["chains"]["opencode-go/glm-5.3-flash:high"] = ["role/default"]
+        failures = self.run_check(pi_roles=roles)
+        self.assert_fails(failures, "chains key", "without effort")
+        self.assert_fails(failures, "rung 'role/default'")
+
+    def test_docs_compare_role_default_resolved_with_selection_effort(self):
+        """`role/default:high` over a `:low` role is documented as the model at high."""
+        settings = PI_SETTINGS.replace(
+            '"defaultProvider": "opencode-go", "defaultModel": "deepseek-v4.1-flash"',
+            '"defaultProvider": "role", "defaultModel": "default"',
+        )
+        roles = {"roles": {"default": "opencode-go/deepseek-v4.1-flash:low"}}
+        self.assertEqual(self.docs_check(pi_settings=settings, pi_roles=roles), [])
 
     def test_scoped_and_pinned_package_names_parse(self):
         """`npm:@scope/name@1.2.3` must not split on the scope's `@`."""

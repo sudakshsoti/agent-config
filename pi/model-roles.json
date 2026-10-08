@@ -1,0 +1,48 @@
+{
+  "roles": {
+    "default": "anthropic/claude-sonnet-5-5:medium",
+    "task": "anthropic/claude-sonnet-5-5:medium",
+    "plan": "anthropic/claude-opus-5-5:high",
+    "slow": "anthropic/claude-opus-5-5:xhigh",
+    "designer": "anthropic/claude-opus-5-5:high",
+    "vision": "anthropic/claude-opus-5-5:high",
+    "security-reviewer": "anthropic/claude-opus-5-5:high",
+    "sonic": "opencode-go/muse-spark-1.3-contributor:low",
+    "adversary": "opencode-go/glm-5.3-flash:high",
+    "reviewer": "opencode-go/glm-5.3-flash:high",
+    "advisor": "opencode-go/glm-5.3-flash:high",
+    "smol": "opencode-go/glm-5.3-flash:low",
+    "tiny": "opencode-go/glm-5.3-flash:low",
+    "commit": "opencode-go/glm-5.3-flash:low"
+  },
+  "chains": {
+    "anthropic/claude-opus-5-5": [
+      "anthropic/claude-sonnet-5-5:high",
+      "opencode-go/glm-5.3-flash:high"
+    ],
+    "anthropic/claude-sonnet-5-5": [
+      "anthropic/claude-haiku-4-5:high",
+      "opencode-go/deepseek-v4.1-flash:high"
+    ],
+    "anthropic/claude-haiku-4-5": [
+      "opencode-go/deepseek-v4.1-flash:high"
+    ],
+    "opencode-go/glm-5.3-flash": [
+      "opencode-go/mimo-v2.6-pro:high",
+      "opencode-go/deepseek-v4.1-flash:max",
+      "openrouter/deepseek/deepseek-v4.1-flash:high",
+      "anthropic/claude-sonnet-5-5:medium"
+    ],
+    "opencode-go/deepseek-v4.1-flash": [
+      "opencode-go/muse-spark-1.3-contributor:high",
+      "opencode-go/glm-5.3-flash:high"
+    ],
+    "opencode-go/muse-spark-1.3-contributor": [
+      "opencode-go/glm-5.3-flash:high",
+      "opencode-go/deepseek-v4.1-flash:high"
+    ]
+  },
+  "cooldownMinutes": 15,
+  "failuresBeforeFallback": 2,
+  "maxFallbacksPerPrompt": 4
+}

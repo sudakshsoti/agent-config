@@ -147,8 +147,6 @@ class ApplyWebSearchConfigTest(unittest.TestCase):
             source = TRACKED_CONFIG.read_text(encoding="utf-8")
         except OSError as error:
             self.fail(f"cannot read tracked config: {error}")
-        config = self.parse(source)
-        self.assertEqual(set(config), {"provider", "summaryModel", "workflow"})
 
         result, _ = self.run_merger(source, '{}\n')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

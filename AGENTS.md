@@ -25,7 +25,10 @@ carries herdr's `hooks` entry. The OpenRouter key is never tracked: install
 copies `JEV_OPENROUTER_API_KEY` (item `OpenRouter API Key - Jev`) from
 `~/.omp/.env` into the live `env` as `OPENROUTER_API_KEY` for the Jev
 compaction plugin, kept apart from OMP's own `OPENROUTER_API_KEY` (item
-`OpenRouter API Key - omp.sh`) so each is billed separately. `~/.omp/.env` is
+`OpenRouter API Key - omp.sh`) so each is billed separately. Pi's `pi-jev`
+compaction uses a different key, item `Mail - TypeSafe API key`, which
+dotfiles' `pi()` wrapper reads from 1Password at launch and passes to that
+process alone as `TYPESAFE_API_KEY`; it is in no file here. `~/.omp/.env` is
 1Password-injected from `omp/overlays/search-keys.tpl`: run `op inject` before
 installing on a new box; on the homelab box use the read-only service-account
 token (see `global-agents.md`).
@@ -191,16 +194,19 @@ Secrets belong in dotfiles (1Password + age), never here.
   `code-worker` and `research` → `muse-code/muse-spark-1.3-contributor` high
   `sonic` → `muse-code/muse-spark-1.3-contributor` low
   <!-- routing:end -->
-- Pi has no `modelRoles` or `fallbackChains`; per-job models are in
-  `pi/agents/*.md` frontmatter, and the routing lives in `pi/model-ladder.md`.
-  Pi defaults to Muse, Meta's training-eligible tier: any session touching
-  private or sensitive material must be rerouted to GLM/DeepSeek.
+- Pi selects by role: `pi/extensions/model-roles` turns each
+  `pi/model-roles.json` role into a virtual `role/<name>` model with its own
+  fallback chain; agents in `pi/agents/*.md` still pin physical models. Routing
+  prose lives in `pi/model-ladder.md`. `code-worker`, `research`, `sonic` and
+  `role/sonic` run on Muse, Meta's training-eligible tier: any session touching
+  private or sensitive material must avoid them.
 - Pi reaches Claude only through the `@gotgenes/pi-anthropic-auth` extension,
   which impersonates Claude Code (Anthropic's legal page prohibits that; it has
-  broken twice on Pi prompt changes). **Never make it the default or a
-  fallback**; `check-model-routing.py` allows an explicit agent pin only while
-  the package is in `pi/settings.json` `packages[]`. OMP remains the Claude
-  harness. Evidence: `docs/research/pi-claude-subscription-2026-10.md`.
+  broken twice on Pi prompt changes). By user decision (2026-10-09,
+  `design/decisions.md` "Pi Claude default") it is nevertheless Pi's default
+  and a chain rung; `check-model-routing.py` allows any Claude route, `role/*`
+  resolved, only while the package is in `pi/settings.json` `packages[]`.
+  Evidence: `docs/research/pi-claude-subscription-2026-10.md`.
 - Pi `enabledModels` is the Ctrl+P cycle list, not an access restriction. It
   deduplicates by provider/model ID, keeping the first effort preset; use
   `/thinking` or agent thinking overrides instead of duplicate entries.
