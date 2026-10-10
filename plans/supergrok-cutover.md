@@ -324,10 +324,11 @@ before committing. No agent co-author line.
 
 ## 7. Cancel
 
-After step 5 passes: cancel OpenCode Go and Muse Code (Everyday Usage, renews
-2026-10-18). Remove their credentials on each box: the `muse-code` and
-`opencode-go` entries OMP stores (`omp auth-broker list` for the removal
-command) and `opencode-go` in `~/.pi/agent/auth.json`.
+Cancelled 2026-10-10: Muse Code Everyday Usage (active until 2026-10-18) and
+OpenCode Go (active until about 2026-11-03). OpenRouter stays the metered
+backstop over OpenCode Zen (same token prices, account kept for Jev
+compaction). Remaining: on each box, `/logout` Muse Code and OpenCode Go in
+omp, and drop `opencode-go` from `~/.pi/agent/auth.json` where Pi exists.
 
 ## 8. Watch the pool (first two weeks), then delete this plan
 

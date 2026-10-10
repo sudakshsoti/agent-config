@@ -68,6 +68,10 @@ Moved from `AGENTS.md` on 2026-10-06; the live routing table stays there.
   Review roles fall back to OpenRouter before Claude to keep a second lineage.
   SuperGrok's usage-aware reserve is 35% (Claude's stays 20%) to leave headroom
   for the Grok apps. `opencode-go` and `muse-code` join `disabledProviders`.
+  Both subscriptions were cancelled 2026-10-10 (Muse Code active until
+  2026-10-18, OpenCode Go until about 2026-11-03). OpenRouter, not OpenCode
+  Zen, stays the metered backstop: identical token prices, failover across
+  providers, and the account is kept anyway for Jev compaction.
   Evidence: `docs/research/ladder-benchmarks-2026-10.md`. — User, 2026-10-10.
   Supersedes the routing rationale below and the 2026-10-04 GLM-chain entry
   under "Skill audit follow-up".
