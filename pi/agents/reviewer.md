@@ -2,7 +2,7 @@
 name: reviewer
 description: Read-only adversarial reviewer for plans and diffs on a second model lineage. Returns assumptions, blind spots, over-engineering and a ship/fix/rethink verdict.
 tools: read, grep, find, bash
-model: opencode-go/glm-5.3-flash
+model: xai/grok-4.7
 thinking: high
 ---
 

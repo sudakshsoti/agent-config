@@ -84,13 +84,15 @@ preflight with a report. Questions to the user are not failures.
    value the dry run prints.
    - An override goes in plan.json `worker_model`, never in
      `OVERNIGHT_WORKER_MODEL`: the multiplexer launch does not inherit this
-     session's environment. Example: `opencode-go/deepseek-v4.1-flash:high`,
-     to spend the OpenCode Go allowance instead of Anthropic.
+     session's environment. Example: `anthropic/claude-opus-5-5:high`, for a
+     harder queue than the Sonnet default.
    - The model must be an exact `omp models` selector, optionally with a
      `:<thinking>` suffix. `~`-prefixed aliases are not accepted.
    - `--worker claude` takes an Anthropic model, or the same default. It
      always runs headless.
-   - The usage gate follows the model's provider.
+   - The usage gate follows the model's provider. It needs `5h` and `7d`
+     windows, so `xai-oauth` (SuperGrok reports weekly/monthly only) cannot
+     pass it; keep overnight workers on Anthropic.
 6. **Write the plan** to `.scratch/overnight/plan.json`:
 
    ```json

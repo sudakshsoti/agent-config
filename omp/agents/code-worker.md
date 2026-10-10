@@ -1,7 +1,7 @@
 ---
 name: code-worker
 description: Implements precisely scoped, low-risk code changes and runs narrow verification. Use for routine fixes, tests and mechanical refactors after the parent has made the design decisions.
-model: muse-code/muse-spark-1.3-contributor:high
+model: anthropic/claude-sonnet-5-5:medium
 ---
 
 # Code worker

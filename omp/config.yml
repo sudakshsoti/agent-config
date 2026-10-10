@@ -5,18 +5,20 @@ modelRoles:
   designer: anthropic/claude-opus-5-5:high
   vision: anthropic/claude-opus-5-5:high
   task: anthropic/claude-sonnet-5-5:medium
-  adversary: opencode-go/glm-5.3-flash:high
-  reviewer: opencode-go/glm-5.3-flash:high
+  adversary: xai-oauth/grok-4.7:high
+  reviewer: xai-oauth/grok-4.7:high
   security-reviewer: anthropic/claude-opus-5-5:high
-  advisor: opencode-go/glm-5.3-flash:high
-  smol: opencode-go/glm-5.3-flash:low
-  tiny: opencode-go/glm-5.3-flash:low
-  commit: opencode-go/glm-5.3-flash:low
+  advisor: xai-oauth/grok-4.7:high
+  smol: anthropic/claude-haiku-5-5:low
+  tiny: anthropic/claude-haiku-5-5:low
+  commit: anthropic/claude-haiku-5-5:low
   web: web/parallel
 enabledModels:
   []
 disabledProviders:
   - openai-codex
+  - opencode-go
+  - muse-code
 task:
   batch: true
   enableEffort: false
@@ -25,17 +27,17 @@ task:
   maxEffort: high
   agentModelOverrides:
     task: anthropic/claude-sonnet-5-5:medium
-    scout: opencode-go/glm-5.3-flash:low
-    sonic: muse-code/muse-spark-1.3-contributor:low
-    adversary: opencode-go/glm-5.3-flash:high
-    reviewer: opencode-go/glm-5.3-flash:high
+    scout: xai-oauth/grok-4.7:low
+    sonic: anthropic/claude-haiku-5-5:medium
+    adversary: xai-oauth/grok-4.7:high
+    reviewer: xai-oauth/grok-4.7:high
     security-reviewer: anthropic/claude-opus-5-5:high
-    code-worker: muse-code/muse-spark-1.3-contributor:high
+    code-worker: anthropic/claude-sonnet-5-5:medium
     builder: anthropic/claude-sonnet-5-5:medium
     plan: anthropic/claude-opus-5-5:high
     critic: anthropic/claude-opus-5-5:medium
     workflow: anthropic/claude-sonnet-5-5:medium
-    research: muse-code/muse-spark-1.3-contributor:high
+    research: xai-oauth/grok-4.7:high
   maxConcurrency: 4
 retry:
   enabled: true
@@ -46,37 +48,37 @@ retry:
   fallbackChains:
     anthropic/claude-opus-5-5:
       - anthropic/claude-sonnet-5-5:high
-      - opencode-go/glm-5.3-flash:high
+      - xai-oauth/grok-4.7:high
+      - openrouter/z-ai/glm-5.3-flash:high
     anthropic/claude-sonnet-5-5:
-      - anthropic/claude-haiku-4-5:high
-      - opencode-go/deepseek-v4.1-flash:high
-    anthropic/claude-haiku-4-5:
-      - opencode-go/deepseek-v4.1-flash:high
-    opencode-go/glm-5.3-flash:
-      - opencode-go/mimo-v2.6-pro:high
-      - opencode-go/deepseek-v4.1-flash:max
-      - openrouter/deepseek/deepseek-v4.1-flash:high
+      - xai-oauth/grok-4.7:medium
+      - openrouter/z-ai/glm-5.3-flash:high
+    anthropic/claude-haiku-5-5:
+      - xai-oauth/grok-4.7:low
+      - openrouter/z-ai/glm-5.3-flash:low
+    xai-oauth/grok-4.7:
+      - openrouter/z-ai/glm-5.3-flash:high
       - anthropic/claude-sonnet-5-5:medium
-    opencode-go/deepseek-v4.1-flash:
-      - muse-code/muse-spark-1.3-contributor:high
-      - opencode-go/glm-5.3-flash:high
-    muse-code/muse-spark-1.3-contributor:
-      - opencode-go/glm-5.3-flash:high
-      - opencode-go/deepseek-v4.1-flash:high
     smol:
-      - opencode-go/glm-5.3-flash:low
+      - anthropic/claude-haiku-5-5:low
     tiny:
-      - opencode-go/glm-5.3-flash:low
+      - anthropic/claude-haiku-5-5:low
     commit:
-      - opencode-go/glm-5.3-flash:low
+      - anthropic/claude-haiku-5-5:low
     default:
       - anthropic/claude-sonnet-5-5:medium
-      - opencode-go/glm-5.3-flash:high
+      - xai-oauth/grok-4.7:medium
     web:
       - web/firecrawl
       - web/exa
       - web/duckduckgo
       - web/public
+auth:
+  accountPolicies:
+    - provider: xai-oauth
+      account:
+        accountId: 2f8e5318-8b2f-430d-90f8-4c1da98d6c2a
+      reservePct: 35
 symbolPreset: nerd
 theme:
   dark: dark-lunar-statusline

@@ -16,13 +16,13 @@ physical models.
 `@gotgenes/pi-anthropic-auth` impersonation extension — see
 [Reaching Claude from Pi](#reaching-claude-from-pi). On a box without
 `/login anthropic` every Claude rung lacks credentials, so the roles fall
-through to their OpenCode Go rungs instead of failing.
+through to their Grok rungs instead of failing.
 
-**Guardrail:** `muse-spark-*-contributor` is Meta training-eligible and not
-zero-data-retention — prompts and completions may be used for training. It
-backs `code-worker`, `research`, `sonic`, `public-scout` and `role/sonic`. Any
-session that will touch private, client or sensitive material MUST avoid those
-and stay on Claude, GLM 5.3 Flash or DeepSeek V4.1 Flash.
+Grok (`xai`) needs its own `/login` → "xAI (Grok/X subscription)" per box;
+`grok-4.7` is listed from Pi 1.1.0. Without it the Grok roles fall back to
+Sonnet (review becomes Claude checking Claude), and the Grok-pinned agents
+(`scout`, `Explore`, `reviewer`, `adversary`, `research`) fail, because agent
+pins do not fall back.
 
 ## Ladder
 
@@ -34,12 +34,11 @@ and stay on Claude, GLM 5.3 Flash or DeepSeek V4.1 Flash.
 | `task`, `workflow` and the unnamed `general-purpose` fallback | `anthropic/claude-sonnet-5-5` | medium |
 | `security-reviewer` vulnerability discovery | `anthropic/claude-opus-5-5` | high |
 | `Critic` visual review of implemented work | `anthropic/claude-opus-5-5` | medium |
-| `code-worker` precisely scoped routine fixes, tests and mechanical refactors | `opencode-go/muse-spark-1.3-contributor` | high |
-| `research` primary-source investigation and cited reports | `opencode-go/muse-spark-1.3-contributor` | high |
-| `sonic` strictly mechanical updates | `opencode-go/muse-spark-1.3-contributor` | low |
-| Optional `public-scout`, public/disposable material only | `opencode-go/muse-spark-1.3-contributor` | minimal |
-| `scout`, `Explore` and codebase discovery | `opencode-go/glm-5.3-flash` | low |
-| `reviewer`, `adversary` hostile review on a second model lineage | `opencode-go/glm-5.3-flash` | high |
+| `code-worker` precisely scoped routine fixes, tests and mechanical refactors | `anthropic/claude-sonnet-5-5` | medium |
+| `research` primary-source investigation and cited reports | `xai/grok-4.7` | high |
+| `sonic` strictly mechanical updates | `anthropic/claude-haiku-5-5` | medium |
+| `scout`, `Explore` and codebase discovery | `xai/grok-4.7` | low |
+| `reviewer`, `adversary` hostile review on a second model lineage | `xai/grok-4.7` | high |
 
 The role table itself (`default`, `task`, `plan`, `slow`, `sonic`,
 `adversary`, `smol`, …) lives only in `pi/model-roles.json`; it follows OMP's
@@ -51,15 +50,14 @@ Rationale per model:
   planners and security review, matching OMP's split: Sonnet for doing, Opus
   for planning and judgement. The cost is the impersonation route's ToS and
   breakage risk, accepted by the user.
-- **Muse Spark 1.3 Contributor** keeps the cheap, high-volume agents. It is the
-  cheapest per request on Go and sits on the largest quota.
-- **GLM 5.3 Flash** keeps discovery and the hostile second lineage, so review
-  is never Claude checking Claude. It is ZDR on Go.
-- **DeepSeek V4.1 Flash** has no pin; it is a chain rung under Sonnet, Haiku
-  and GLM.
-- **Kimi K3 is not routed at all.** Its ~490 requests/month cap is the scarcest
-  on Go and the user judged the cost unjustified — a cost decision, not a
-  benchmark finding.
+- **Grok 4.7** (SuperGrok subscription) keeps the hostile second lineage, so
+  review is never Claude checking Claude, plus `research` (X search) and
+  discovery. Its weekly pool is shared with Grok Chat/Build/Bot and unpublished,
+  so nothing else runs on it. It has a 500K context window.
+- **Haiku 5.5** carries `sonic` and the cheap roles (`smol`, `tiny`, `commit`).
+  Its context is 100K, so it never backs exploration or a long session.
+- No OpenRouter rung: Pi cannot reach OpenRouter, so every chain ends on Claude
+  or Grok.
 
 ## Fallback
 
@@ -68,13 +66,12 @@ Fallback is automatic for role selections, not for agent pins or physical
 `failuresBeforeFallback` consecutive failures the model is benched for
 `cooldownMinutes` and the next rung answers. Quota, billing and auth errors
 bench immediately and trigger one continuation on the next rung, at most
-`maxFallbacksPerPrompt` times per prompt. A rung without credentials (the
-`openrouter` one, or Claude before `/login anthropic`) is skipped.
+`maxFallbacksPerPrompt` times per prompt. A rung without credentials (Claude
+before `/login anthropic`, Grok before the xAI login) is skipped.
 
-Effort support: GLM 5.3 Flash and Kimi K3 accept only low/high/max; medium runs
-as high. DeepSeek V4.x Flash accepts low, high and max. Muse Spark 1.3 accepts
-`minimal` through `xhigh`. A role selection's effort (`role/plan:high`) beats
-the effort written in the role table.
+Effort support: Grok 4.7 accepts `minimal` through `xhigh`; Haiku 5.5, Sonnet
+5.5 and Opus 5.5 accept `low` through `max`. A role selection's effort
+(`role/plan:high`) beats the effort written in the role table.
 
 ## Scoped models
 
@@ -98,10 +95,9 @@ de-fingerprints Pi's system prompt and injects Claude Code's billing header,
 which is what stops Anthropic classifying the request as third-party traffic
 and billing it against extra usage instead of the plan.
 
-**It does not work until the credential exists.** `~/.pi/agent/auth.json` holds
-only `opencode-go`, because the `anthropic` OAuth credential was removed on
-2026-09-16. Run `/login anthropic` in Pi; it is an interactive browser flow and
-is per box, like every other login in this repo.
+**It does not work until the credential exists.** Run `/login anthropic` in Pi;
+it is an interactive browser flow and is per box, like every other login in
+this repo.
 
 When it is live, Claude is the default model (see the top of this file).
 `scripts/check-model-routing.py` allows `anthropic/*` anywhere Pi selects a
@@ -140,22 +136,17 @@ Resumed sessions may restore their previously selected model and effort.
 
 ## Evidence and limits
 
-The ladder was re-based on 16 September 2026 against Artificial Analysis
-Intelligence Index v4.3, the Coding Agent Index, LMArena text/WebDev,
-DesignArena, the OpenCode Go usage-limit table and the local provider probes
-(GLM, DeepSeek, Kimi, Luna probed 2026-09-16; Muse Spark 1.3 contributor probed
-from Pi the same day). Full citations:
-`docs/research/opencode-go-models-2026-09.md`,
-`docs/research/designarena-2026-09.md`,
-`docs/research/anthropic-models-2026-09.md`,
-`docs/research/harness-provider-access-2026-09.md`.
+The ladder was re-based on 10 October 2026 against the Artificial Analysis
+Intelligence Index, the official Terminal-Bench 4.0 board, LMArena text/WebDev
+and DesignArena, with local OMP probes of `claude-haiku-5-5`, `grok-4.7` and
+the OpenRouter rungs the same day. Full citations:
+`docs/research/ladder-benchmarks-2026-10.md`,
+`docs/research/chatgpt-vs-supergrok-coding-2026-10.md`.
 Arena and DesignArena scores are single-shot generations and do not measure tool
 use, repository grounding or multi-turn editing; harness experience overrides
 them.
-Provider message estimates are not fixed limits or controlled comparisons
-between models.
-The Muse-unrestricted decision and the Kimi removal are user cost/privacy
-decisions, not benchmark findings.
+Choosing SuperGrok over ChatGPT Plus, and keeping `code-worker` on Claude, are
+user decisions (2026-10-10), not benchmark findings.
 
 - [Artificial Analysis methodology](https://artificialanalysis.ai/methodology/intelligence-benchmarking)
-- [OpenCode Go usage limits](https://opencode.ai/docs/go/#usage-limits)
+- [xAI Grok FAQ](https://docs.x.ai/grok/faq)

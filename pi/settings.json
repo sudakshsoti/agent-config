@@ -22,18 +22,6 @@
       },
       "anthropic/claude-opus-5-5": {
         "reserveTokens": 800000
-      },
-      "opencode-go/glm-5.3-flash": {
-        "reserveTokens": 800000
-      },
-      "opencode-go/muse-spark-1.3-contributor": {
-        "reserveTokens": 800000
-      },
-      "opencode-go/deepseek-v4.1-flash": {
-        "reserveTokens": 800000
-      },
-      "opencode-go/mimo-v2.6-pro": {
-        "reserveTokens": 800000
       }
     }
   },

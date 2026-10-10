@@ -44,7 +44,7 @@ work or let workers recursively build their own fleets.
 
 The configured `workflow` agent is an optional owner of one disjoint approved
 slice, not a mandatory orchestrator. This repository currently restricts its
-children to `Plan`, `Explore`, `scout`, and `public-scout` in Pi, and to `plan`
+children to `Plan`, `Explore` and `scout` in Pi, and to `plan`
 and `scout` in OMP (its `spawns` list); its instructions
 permit only discovery/planning delegation. It can implement its assigned slice
 itself and return evidence, but cannot be told to dispatch `code-worker` or

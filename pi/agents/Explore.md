@@ -2,7 +2,7 @@
 name: Explore
 description: Fast read-only explorer for private codebases. Finds relevant files, established patterns and dependencies.
 tools: read, grep, find, bash
-model: opencode-go/glm-5.3-flash
+model: xai/grok-4.7
 thinking: low
 ---
 

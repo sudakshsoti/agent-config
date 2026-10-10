@@ -513,6 +513,40 @@ class RoutingCheckTest(unittest.TestCase):
         self.assert_fails(failures, "AGENTS.md: missing")
 
 
+class ParseConfigTest(unittest.TestCase):
+    def test_list_of_mappings_keeps_siblings_and_scalar_selectors(self):
+        config = (
+            "retry:\n"
+            "  fallbackChains:\n"
+            "    xai-oauth/grok-4.7:\n"
+            "      - openrouter/z-ai/glm-5.3-flash:high\n"
+            "auth:\n"
+            "  accountPolicies:\n"
+            "    - provider: xai-oauth\n"
+            "      account:\n"
+            "        accountId: a1\n"
+            "      reservePct: 35\n"
+            "    - provider: anthropic\n"
+            "      account:\n"
+            "        email: x@example.com\n"
+            "symbolPreset: nerd\n"
+        )
+        parsed, failures = MODULE.parse_config(config, "omp/config.yml")
+        self.assertEqual(failures, [])
+        self.assertEqual(
+            parsed["retry"]["fallbackChains"]["xai-oauth/grok-4.7"],
+            ["openrouter/z-ai/glm-5.3-flash:high"],
+        )
+        self.assertEqual(
+            parsed["auth"]["accountPolicies"],
+            [
+                {"provider": "xai-oauth", "account": {"accountId": "a1"}, "reservePct": "35"},
+                {"provider": "anthropic", "account": {"email": "x@example.com"}},
+            ],
+        )
+        self.assertEqual(parsed["symbolPreset"], "nerd")
+
+
 
 class ClaudeAgentModelTest(unittest.TestCase):
     def agent(self, model_line):

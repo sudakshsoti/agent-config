@@ -40,7 +40,7 @@
 
 # Skill audit follow-up
 
-- [stated] The `opencode-go/glm-5.3-flash` fallback chain becomes `mimo-v2.6-pro:high` → `deepseek-v4.1-flash:max` → `openrouter/deepseek/deepseek-v4.1-flash:high` → `anthropic/claude-sonnet-5-5:medium`. All three Go rungs share one provider, so OpenRouter DeepSeek keeps review cross-lineage through a Go outage; Sonnet stays last so scout, smol and commit traffic still runs if Go and OpenRouter are both down. OpenRouter per-token billing (the `omp.sh` key) during a Go outage is accepted. — User, 2026-10-04.
+- [stated] (Superseded 2026-10-10 by "OMP model routing": Go is dropped.) The `opencode-go/glm-5.3-flash` fallback chain becomes `mimo-v2.6-pro:high` → `deepseek-v4.1-flash:max` → `openrouter/deepseek/deepseek-v4.1-flash:high` → `anthropic/claude-sonnet-5-5:medium`. All three Go rungs share one provider, so OpenRouter DeepSeek keeps review cross-lineage through a Go outage; Sonnet stays last so scout, smol and commit traffic still runs if Go and OpenRouter are both down. OpenRouter per-token billing (the `omp.sh` key) during a Go outage is accepted. — User, 2026-10-04.
 - [stated] `peer-review` reports the model that actually ran and labels a Claude fallback "same-lineage", instead of claiming the chain holds no Anthropic model. — User, 2026-10-04.
 - [stated] `find-skills` is retired to `skills/_archive/`; adding skills goes through `skill-lifecycle` and `plugins.txt`. — User, 2026-10-04.
 - [stated] `ux-writing` capitalisation: sentence case by default; native apps follow platform convention (e.g. Title Case for macOS menus and buttons). — User, 2026-10-04.
@@ -58,7 +58,20 @@
 
 Moved from `AGENTS.md` on 2026-10-06; the live routing table stays there.
 
-- Routing rationale (2026-09-16, `docs/research/*-2026-09.md`): the ladder ran
+- [stated] SuperGrok (three-month deal, OMP `xai-oauth`, Pi `xai`) replaces
+  OpenCode Go and Muse Code; ChatGPT Plus was the cost-vs-intelligence pick but
+  is deferred. `code-worker` moves to Sonnet medium and the cheap roles
+  (`smol`, `tiny`, `commit`, `sonic`) to Haiku 5.5 because the Claude plan is
+  underused. Grok 4.7 carries only review (`adversary`, `reviewer`, `advisor`),
+  `research` and `scout`. OpenRouter `z-ai/glm-5.3-flash` replaces DeepSeek V4.1
+  Flash as the metered last rung (AA 42 vs 39, hallucination 0.28 vs 0.54–0.97).
+  Review roles fall back to OpenRouter before Claude to keep a second lineage.
+  SuperGrok's usage-aware reserve is 35% (Claude's stays 20%) to leave headroom
+  for the Grok apps. `opencode-go` and `muse-code` join `disabledProviders`.
+  Evidence: `docs/research/ladder-benchmarks-2026-10.md`. — User, 2026-10-10.
+  Supersedes the routing rationale below and the 2026-10-04 GLM-chain entry
+  under "Skill audit follow-up".
+- Routing rationale (2026-09-16, superseded 2026-10-10; `docs/research/*-2026-09.md`): the ladder ran
   on `openai-codex` until that subscription was dropped over frontend quality —
   Luna sits at DesignArena rank 48 overall (1242), the weakest routed model on
   every board. Claude Opus 5 is rank 8 (1338), above GPT-5.6 Sol medium (1334),

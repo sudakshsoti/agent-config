@@ -52,7 +52,6 @@ without `--claude-agents`), use `Explore` + `haiku` for `scout` and
 | --- | --- | --- | --- | --- |
 | One bounded path, reference, or fact lookup | `scout` | `scout` | `scout` | Read-only; return a conclusion with locations. |
 | Unknown code paths, existing patterns, dependencies | `Explore` | `scout` | `Explore` | Read-only discovery; parent synthesizes the change. |
-| Public/disposable source lookup | `public-scout` | `scout` | `scout` | Never private code, user data, unreleased designs, or credentials. |
 | Primary-source investigation and cited report | `research` | `research` | `general-purpose` | Follow the research skill; reserve its report path as a write. |
 | Precise low-risk fix, test, mechanical refactor | `code-worker` | `code-worker` | `code-worker` | Parent has already made design decisions; exact scope and checks. |
 | Strictly mechanical update or data collection | `code-worker` | `sonic` | `general-purpose` + `haiku` | No judgement; exact instructions. |

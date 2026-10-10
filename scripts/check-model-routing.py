@@ -94,6 +94,9 @@ _TICKED_LIST_RE = re.compile(r"^`[^`]+`(?: / `[^`]+`)*$")
 _MARKED_LINE_RE = re.compile(
     r"^(?P<names>`[^`]+`(?:(?: and |, )`[^`]+`)*) \u2192 `(?P<model>[^`]+)` (?P<level>\S+)$"
 )
+# A list item that opens a mapping (`- provider: xai-oauth`). Model selectors
+# such as `- anthropic/claude-opus-5-5:high` never match: their key holds `/`.
+_MAPPING_ITEM_RE = re.compile(r"^[A-Za-z_][\w.-]*:(?:\s|$)")
 
 
 def _declared_pi_packages(pi_settings):
@@ -143,8 +146,16 @@ def parse_config(text, path):
             if not isinstance(parent, (list, _Pending)):
                 failures.append(f"{path}:{lineno}: list item outside a list")
                 return root, failures
-            parent.append(_scalar(line[2:].strip()))
-            continue
+            item = line[2:].strip()
+            if not _MAPPING_ITEM_RE.match(item):
+                parent.append(_scalar(item))
+                continue
+            # The item's own keys sit two columns right of the dash, so later
+            # sibling keys stay inside it and the next `- ` closes it.
+            mapping = {}
+            parent.append(mapping)
+            stack.append((indent, mapping))
+            parent, indent, line = mapping, indent + 2, item
         if line in ("[]", "{}"):
             continue
         key, sep, value = line.partition(":")

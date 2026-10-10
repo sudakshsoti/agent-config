@@ -24,7 +24,7 @@
  *
  * Unlike setModel()-based fallback packages, routing never changes the
  * selection, so a fallback is never saved as the new default model. Physical
- * model selections (`/model opencode-go/...`) are left alone.
+ * model selections (`/model xai/...`) are left alone.
  *
  * Chains are keyed by physical `provider/model`, modelled on omp/config.yml
  * `retry.fallbackChains`; scripts/check-model-routing.py validates their shape

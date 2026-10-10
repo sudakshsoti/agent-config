@@ -7,39 +7,27 @@
     "designer": "anthropic/claude-opus-5-5:high",
     "vision": "anthropic/claude-opus-5-5:high",
     "security-reviewer": "anthropic/claude-opus-5-5:high",
-    "sonic": "opencode-go/muse-spark-1.3-contributor:low",
-    "adversary": "opencode-go/glm-5.3-flash:high",
-    "reviewer": "opencode-go/glm-5.3-flash:high",
-    "advisor": "opencode-go/glm-5.3-flash:high",
-    "smol": "opencode-go/glm-5.3-flash:low",
-    "tiny": "opencode-go/glm-5.3-flash:low",
-    "commit": "opencode-go/glm-5.3-flash:low"
+    "sonic": "anthropic/claude-haiku-5-5:medium",
+    "adversary": "xai/grok-4.7:high",
+    "reviewer": "xai/grok-4.7:high",
+    "advisor": "xai/grok-4.7:high",
+    "smol": "anthropic/claude-haiku-5-5:low",
+    "tiny": "anthropic/claude-haiku-5-5:low",
+    "commit": "anthropic/claude-haiku-5-5:low"
   },
   "chains": {
     "anthropic/claude-opus-5-5": [
       "anthropic/claude-sonnet-5-5:high",
-      "opencode-go/glm-5.3-flash:high"
+      "xai/grok-4.7:high"
     ],
     "anthropic/claude-sonnet-5-5": [
-      "anthropic/claude-haiku-4-5:high",
-      "opencode-go/deepseek-v4.1-flash:high"
+      "xai/grok-4.7:medium"
     ],
-    "anthropic/claude-haiku-4-5": [
-      "opencode-go/deepseek-v4.1-flash:high"
+    "anthropic/claude-haiku-5-5": [
+      "xai/grok-4.7:low"
     ],
-    "opencode-go/glm-5.3-flash": [
-      "opencode-go/mimo-v2.6-pro:high",
-      "opencode-go/deepseek-v4.1-flash:max",
-      "openrouter/deepseek/deepseek-v4.1-flash:high",
+    "xai/grok-4.7": [
       "anthropic/claude-sonnet-5-5:medium"
-    ],
-    "opencode-go/deepseek-v4.1-flash": [
-      "opencode-go/muse-spark-1.3-contributor:high",
-      "opencode-go/glm-5.3-flash:high"
-    ],
-    "opencode-go/muse-spark-1.3-contributor": [
-      "opencode-go/glm-5.3-flash:high",
-      "opencode-go/deepseek-v4.1-flash:high"
     ]
   },
   "cooldownMinutes": 15,

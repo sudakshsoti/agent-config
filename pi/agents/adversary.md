@@ -2,7 +2,7 @@
 name: adversary
 description: Adversarially review an engineering plan, design, or RFC written by someone else. Cross-lineage hostile pass on a non-Anthropic model. Read-only. Returns assumptions, blind spots, over-engineering, a steelmanned alternative, and a verdict.
 tools: read, grep, find
-model: opencode-go/glm-5.3-flash
+model: xai/grok-4.7
 thinking: high
 ---
 

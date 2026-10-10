@@ -1,7 +1,7 @@
 ---
 name: research
 description: Research agent for primary-source investigation and cited Markdown reports.
-model: opencode-go/muse-spark-1.3-contributor
+model: xai/grok-4.7
 thinking: high
 ---
 

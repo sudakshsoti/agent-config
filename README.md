@@ -31,8 +31,9 @@ Three destinations, and nothing else.
   for this checkout only.
 - `omp/config.yml` — OMP's baseline settings: model roles (`default` plus the
   per-task worker roles), thinking level, statusline and task options. This is
-  the config OMP actually loads. Plain OMP runs Claude 5 models from `anthropic` plus `opencode-go`
-  for discovery and cross-lineage review; `openai-codex` is disabled.
+  the config OMP actually loads. Plain OMP runs Claude 5 models from `anthropic`
+  plus `xai-oauth` (SuperGrok) for cross-lineage review, research and discovery;
+  `openai-codex`, `opencode-go` and `muse-code` are disabled.
   Symlinked to `~/.omp/agent/config.yml`, so `omp config set` and TUI toggles
   edit the repo copy directly — check `git diff` before committing. Only linked
   if `~/.omp/agent` exists.

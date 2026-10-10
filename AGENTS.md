@@ -54,7 +54,7 @@ token (see `global-agents.md`).
   install links skills only and skips every OMP, Pi and Claude config step
   (`global-agents.md`, `omp/`, overlays, `pi/`, `web-search.json`, `claude/`,
   plugins, MCP seeding). Their routing sends prompts and repository source to
-  OpenCode Go and Muse Code, `claude-compact-openrouter` sends transcripts to
+  xAI (`xai-oauth`) and OpenRouter, `claude-compact-openrouter` sends transcripts to
   Jev via OpenRouter, and employer code may only reach the employer's
   sanctioned vendor. `--claude-agents` opts back into `claude/agents/` alone
   (Claude only, no new vendor). With no chezmoi or no profile the machine counts
@@ -129,14 +129,13 @@ Secrets belong in dotfiles (1Password + age), never here.
   | `slow` role | `anthropic/claude-opus-5-5:xhigh` |
   | `security-reviewer` role; `security-reviewer` agent | `anthropic/claude-opus-5-5:high` |
   | `builder` agent | `anthropic/claude-sonnet-5-5:medium` |
-  | `task` role; `task`/`workflow` agents | `anthropic/claude-sonnet-5-5:medium` |
-  | `code-worker` agent | `muse-code/muse-spark-1.3-contributor:high` |
-  | `sonic` agent | `muse-code/muse-spark-1.3-contributor:low` |
-  | `smol`/`tiny`/`commit` roles | `opencode-go/glm-5.3-flash:low` |
-  | `adversary`/`reviewer`/`advisor` roles; `adversary`/`reviewer` agents | `opencode-go/glm-5.3-flash:high` |
-  | `scout` agent | `opencode-go/glm-5.3-flash:low` |
-  | `research` agent | `muse-code/muse-spark-1.3-contributor:high` |
-  | `disabledProviders` | `[openai-codex]` |
+  | `task` role; `task`/`workflow`/`code-worker` agents | `anthropic/claude-sonnet-5-5:medium` |
+  | `sonic` agent | `anthropic/claude-haiku-5-5:medium` |
+  | `smol`/`tiny`/`commit` roles | `anthropic/claude-haiku-5-5:low` |
+  | `adversary`/`reviewer`/`advisor` roles; `adversary`/`reviewer` agents | `xai-oauth/grok-4.7:high` |
+  | `scout` agent | `xai-oauth/grok-4.7:low` |
+  | `research` agent | `xai-oauth/grok-4.7:high` |
+  | `disabledProviders` | `[openai-codex, opencode-go, muse-code]` |
   | `retry.usageAwareFallback` / `retry.usageReservePct` / `retry.usageReservePolicy` | `true` / `20` / `auto` |
   | `task.maxEffort` / `providers.autoThinkingMaxEffort` | `high` / `high` |
 
@@ -144,22 +143,27 @@ Secrets belong in dotfiles (1Password + age), never here.
   `task.agentModelOverrides`, which beats agent frontmatter. OMP's bundled
   `scout`, `reviewer`, `security-reviewer`, `task` and `sonic` are kept, not
   shadowed: `/review` depends on bundled `reviewer`. `adversary`/`reviewer`/
-  `advisor` stay on GLM so a hostile pass is a second lineage, not Claude
+  `advisor` stay on Grok so a hostile pass is a second lineage, not Claude
   reviewing Claude. Why each role sits where it does: `design/decisions.md`,
   "OMP model routing".
 
-  `code-worker`, `sonic` and `research` on `muse-spark-*-contributor` means
-  Meta may train on their prompts, including repository source (allowed by user
-  decision 2026-09-18; `docs/research/muse-code-subscription-2026-09.md`).
-  Route a session that touches client or sensitive material away from those
-  agents, or pin `muse-code/muse-spark-1.3` (standard tier, not trained on,
-  ~12.5x the quota burn).
+  Claude carries everything that does not need a second lineage (the plan is
+  underused); Grok carries only review, `research` (X search) and `scout`,
+  because its one weekly pool is shared with Grok Chat/Build/Bot and its size is
+  unpublished. Haiku 5.5 is 100K context in omp, so it backs only short-prompt
+  roles and is never a rung under Opus or Sonnet. OpenRouter
+  `z-ai/glm-5.3-flash` is the metered last resort (pay per token).
 
-  `retry.usageAwareFallback` shifts to the Go rung at 20% coding-plan usage
-  remaining; an unmapped usage report fails open, so it is a backstop, not a
-  guarantee. `openai-codex` is disabled so no plain-session role, chain or
-  `/model` pick reaches the lapsing ChatGPT account; there are no routing
-  overlays (`omp/overlays/` holds only `search-keys.tpl`).
+  `retry.usageAwareFallback` covers both subscriptions: before each turn and at
+  subagent start, a provider at or below its reserve moves to the next rung of
+  its exact-model chain. Claude's reserve is the global 20%; SuperGrok's is 35%
+  (`auth.accountPolicies`, keyed by xAI `accountId`) to leave headroom for the
+  Grok apps. Grok is measured on "SuperGrok Weekly Credits" (monthly included
+  allowance if there is no weekly one). Unknown usage fails open: xAI marking the
+  quota advisory, or paid on-demand usage switched on, keeps Grok spending, so
+  keep on-demand off. `openai-codex`, `opencode-go` and `muse-code` are disabled
+  so no role, chain or `/model` pick reaches a dropped subscription; there are
+  no routing overlays (`omp/overlays/` holds only `search-keys.tpl`).
 - `python3 scripts/check-model-routing.py` enforces routing invariants that
   used to fail silently, and diffs the table above, `pi/model-ladder.md` and
   every `<!-- routing:current -->` block against the config (format rules in
@@ -168,11 +172,11 @@ Secrets belong in dotfiles (1Password + age), never here.
   (`stdin=DEVNULL` or `</dev/null`) or it waits at `readPipedInput`.
 - `omp` is the binary, not a restoring wrapper; never add persistent
   apply/restore state.
-- Thinking levels are model-specific: the Go models (`glm-5.3-flash`,
-  `kimi-k3`, `deepseek-v4*-flash`) accept only low/high/max; Opus 5/5.5 cannot
-  disable thinking at xhigh/max; `claude-haiku-4-5` has no effort parameter
-  (OMP's `:low` is accepted); `muse-spark-1.3-contributor` has no `max`.
-  Evidence: `docs/research/`.
+- Thinking levels are model-specific: OpenRouter `z-ai/glm-5.3*` and
+  `deepseek-v4*-flash` accept only low/high/max; `xai-oauth/grok-4.7` takes
+  minimal..xhigh (no `max`); Opus 5/5.5 cannot disable thinking at xhigh/max;
+  `claude-haiku-5-5` takes low..max and has a 100K context in omp (the API's 1M
+  is not exposed). Evidence: `docs/research/`.
 - The homelab box self-updates omp daily (dotfiles' `omp-update.timer`), so
   never pin an omp version in these docs; if a probe disagrees with a note
   here, check `journalctl --user -u omp-update.service` for a version bump first.
@@ -186,20 +190,23 @@ Secrets belong in dotfiles (1Password + age), never here.
   model id and can build an invalid gateway id. OMP loads `~/.omp/.env` at
   startup and existing process variables win; after `op inject`, restart OMP.
   `omp token <provider>` shows the key actually used.
-- Muse Spark requires omp ≥18.1.6. `muse-code` (subscription;
-  `omp usage -p muse-code`) and `opencode-go` (shared Go cap) both serve it and
-  meter separately; plain OMP uses only `muse-code`:
+- SuperGrok (`xai-oauth`, three-month deal from 2026-10) is one weekly credit
+  pool shared with Grok Chat, Build and Bot; xAI publishes no size. `omp usage
+  --provider xai-oauth` shows it. It reports no `5h` window, so
+  `skills/overnight-run/scripts/usage-gate.sh` cannot gate it and overnight
+  workers stay on Anthropic. Before the deal ends, decide renew vs ChatGPT Plus
+  (`docs/research/chatgpt-vs-supergrok-coding-2026-10.md`):
 
   <!-- routing:current -->
-  `code-worker` and `research` → `muse-code/muse-spark-1.3-contributor` high
-  `sonic` → `muse-code/muse-spark-1.3-contributor` low
+  `code-worker` → `anthropic/claude-sonnet-5-5` medium
+  `research` → `xai-oauth/grok-4.7` high
+  `sonic` → `anthropic/claude-haiku-5-5` medium
   <!-- routing:end -->
 - Pi selects by role: `pi/extensions/model-roles` turns each
   `pi/model-roles.json` role into a virtual `role/<name>` model with its own
   fallback chain; agents in `pi/agents/*.md` still pin physical models. Routing
-  prose lives in `pi/model-ladder.md`. `code-worker`, `research`, `sonic` and
-  `role/sonic` run on Muse, Meta's training-eligible tier: any session touching
-  private or sensitive material must avoid them.
+  prose lives in `pi/model-ladder.md`. Pi's Grok roles need `/login` → "xAI
+  (Grok/X subscription)" per box (provider `xai`; Pi ≥1.1.0 lists `grok-4.7`).
 - Pi reaches Claude only through the `@gotgenes/pi-anthropic-auth` extension,
   which impersonates Claude Code (Anthropic's legal page prohibits that; it has
   broken twice on Pi prompt changes). By user decision (2026-10-09,
