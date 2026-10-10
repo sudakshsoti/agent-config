@@ -26,18 +26,37 @@
     }
   },
   "packages": [
-    "npm:@juicesharp/rpiv-ask-user-question@2.12.0",
-    "npm:pi-web-access@0.36.0",
+    "npm:@juanibiapina/pi-extension-settings",
+    "npm:pi-web-access",
     "npm:pi-lens@4.3.0",
     "npm:pi-markdown-preview",
     "npm:pi-playwright",
-    "npm:@juicesharp/rpiv-todo",
     "npm:@plannotator/pi-extension",
-    "npm:pi-memory",
     "npm:@gotgenes/pi-anthropic-auth",
     "npm:@alexlikevibe/pi-jev@0.2.1",
     "npm:@josephyoung/pi-exit",
-    "npm:@quintinshaw/pi-dynamic-workflows"
+    "npm:@quintinshaw/pi-dynamic-workflows",
+    "npm:pi-subagents",
+    "npm:pi-ask-user",
+    "npm:pi-mcp-adapter",
+    "npm:@devkade/pi-plan",
+    "npm:pi-simplify",
+    "npm:pi-add-dir",
+    "npm:pi-prompt-template-model",
+    "npm:@saccolabs/pi-claude-cli@0.6.1",
+    "npm:pi-slopchop",
+    "npm:@juanibiapina/pi-powerbar",
+    "npm:@tmustier/pi-usage-extension",
+    "npm:@tmustier/pi-raw-paste",
+    "git:github.com/tintinweb/pi-manage-todo-list@b75c449aa85ce328e9a8b632f62bf642aed40359",
+    "npm:pi-btw",
+    "npm:pi-interactive-shell",
+    "git:github.com/davebcn87/pi-autoresearch",
+    "npm:@tmustier/pi-ralph-wiggum",
+    "git:github.com/javierportillo/pi-hackerman@63b0a3ef2c7b14985ffeb6cac44614ba59cd5693",
+    "npm:@victor-software-house/pi-curated-themes",
+    "npm:pi-terminal-theme",
+    "git:github.com/VandeeFeng/pi-memory-md"
   ],
   "lastChangelogVersion": "1.0.3",
   "tuiMode": "fullscreen",
@@ -45,7 +64,30 @@
   "followUpMode": "one-at-a-time",
   "extensions": [
     "-extensions/operational-footer/index.js",
-    "-extensions/kohra-thinking-status/index.js"
+    "-extensions/kohra-thinking-status/index.js",
+    "-builtin:mcp"
   ],
-  "theme": "system"
+  "theme": "system",
+  "subagents": {
+    "agentOverrides": {
+      "context-builder": {
+        "model": ""
+      },
+      "planner": {
+        "model": ""
+      },
+      "researcher": {
+        "model": ""
+      },
+      "reviewer": {
+        "model": ""
+      },
+      "scout": {
+        "model": ""
+      },
+      "worker": {
+        "model": ""
+      }
+    }
+  }
 }
