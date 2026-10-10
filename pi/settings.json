@@ -48,7 +48,7 @@
     "npm:@juanibiapina/pi-powerbar",
     "npm:@tmustier/pi-usage-extension",
     "npm:@tmustier/pi-raw-paste",
-    "git:github.com/tintinweb/pi-manage-todo-list@b75c449aa85ce328e9a8b632f62bf642aed40359",
+    "git:github.com/tintinweb/pi-manage-todo-list@2eb22d3b0c9dd981398d928c8edcc4afce202fa1",
     "npm:pi-btw",
     "npm:pi-interactive-shell",
     "git:github.com/davebcn87/pi-autoresearch",
@@ -58,7 +58,7 @@
     "npm:pi-terminal-theme",
     "git:github.com/VandeeFeng/pi-memory-md"
   ],
-  "lastChangelogVersion": "1.0.3",
+  "lastChangelogVersion": "1.1.0",
   "tuiMode": "fullscreen",
   "steeringMode": "all",
   "followUpMode": "one-at-a-time",
