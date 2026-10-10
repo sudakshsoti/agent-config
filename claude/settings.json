@@ -39,6 +39,7 @@
     "anthropic-skills:ask-sonner": "off",
     "anthropic-skills:break": "off",
     "anthropic-skills:break-ui": "off",
+    "anthropic-skills:bro": "off",
     "anthropic-skills:clinical-reasoning": "off",
     "anthropic-skills:code-review": "off",
     "anthropic-skills:codebase-design": "off",

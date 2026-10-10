@@ -41,7 +41,7 @@ description: | # ≤1024 chars. Say what it does AND when to use it —
   the template above makes colons and quotes literal — keep it. Single-line
   descriptions are also fine.
 
-The list below covers the 35 repo-owned skills that are active. Keep it
+The list below covers the 36 repo-owned skills that are active. Keep it
 synchronized with the actual `skills/*/SKILL.md` directories;
 `scripts/lint-skills.py` validates each skill's frontmatter and fails when this
 list and the source tree disagree. It also fails when a skill's `SKILL.md` or
@@ -56,6 +56,7 @@ lookup-documentation work.
 
 - `agent-reach` — Read YouTube, Bilibili, V2EX and RSS from the shell without logins (yt-dlp, bili-cli). Adapted from [Panniantong/Agent-Reach](https://github.com/Panniantong/Agent-Reach) (MIT), narrowed to no-account channels; CLIs installed by dotfiles on the personal Mac only.
 - `backlog` — Run any project's backlog in Linear like a PM: capture, triage, grooming, acceptance criteria, and milestone/session planning (batch Ready issues into equal-effort, one-sitting Linear Milestones).
+- `bro` — Restate the last message in plain words, one human to another: bottom line first, every risk and decision kept, next step last. Plain-language rules borrowed from ASD-STE100. User-invoked; `/bro` in OMP via `omp/commands/`.
 - `clinical-reasoning` — Clinical decision support for clinicians in India: diagnostics, differentials, labs, imaging, drug interactions, prescribing, and escalation.
 - `codebase-memory` — Query a codebase knowledge graph for architecture, callers, dependencies, dead code, and impact analysis.
 - `commit-push` — Commit the current task's changes in the repo's log style, leaving unrelated files unstaged, then push. User-invoked; `/commit-push` in OMP via `omp/commands/`.
