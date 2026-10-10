@@ -162,8 +162,11 @@ Secrets belong in dotfiles (1Password + age), never here.
   allowance if there is no weekly one). Unknown usage fails open: xAI marking the
   quota advisory, or paid on-demand usage switched on, keeps Grok spending, so
   keep on-demand off. `openai-codex`, `opencode-go` and `muse-code` are disabled
-  so no role, chain or `/model` pick reaches a dropped subscription; there are
-  no routing overlays (`omp/overlays/` holds only `search-keys.tpl`).
+  so no role, chain or `/model` pick reaches a dropped subscription. The one
+  routing overlay, `omp/overlays/openrouter-overlay.yml`, is session-only
+  (`omp --config ~/.config/omp/openrouter-overlay.yml`) for grey-area work
+  Claude refuses; it disables `anthropic` and routes to OpenRouter GLM 5.3 and
+  Grok 4.20 (`design/decisions.md`, "OpenRouter refusal overlay").
 - `python3 scripts/check-model-routing.py` enforces routing invariants that
   used to fail silently, and diffs the table above, `pi/model-ladder.md` and
   every `<!-- routing:current -->` block against the config (format rules in

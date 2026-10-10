@@ -103,6 +103,7 @@ MANAGED_DESTINATIONS: tuple[ManagedDestination, ...] = (
     ManagedDestination("file", ".omp/agent/config.yml"),
     ManagedDestination("file", ".omp/agent/keybindings.yml"),
     ManagedDestination("file", ".omp/agent/lsp.yml"),
+    ManagedDestination("file", ".omp/agent/models.yml"),
     ManagedDestination("glob", ".omp/agent/themes", ("*.json",)),
     ManagedDestination("glob", ".omp/agent/agents", ("*.md",)),
     ManagedDestination("glob", ".omp/agent/commands", ("*.md",)),

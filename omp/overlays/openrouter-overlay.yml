@@ -1,0 +1,66 @@
+# Applied only to one session through `omp --config ~/.config/omp/openrouter-overlay.yml`.
+# For grey-area work Claude refuses (reverse engineering, piracy-adjacent, lyrics).
+# Never rewrite the saved base config or create restore snapshots.
+# Rationale and probe results: design/decisions.md, "OpenRouter refusal overlay".
+modelRoleStorage: session
+enabledModels:
+  - openrouter/z-ai/glm-5.3-flash
+  - openrouter/z-ai/glm-5.3
+  - xai-oauth/grok-4.20-0309-reasoning
+  - openrouter/x-ai/grok-4.20
+  - openrouter/mistralai/mistral-large-2512
+disabledProviders:
+  - anthropic
+  - openai-codex
+  - opencode-go
+  - muse-code
+modelRoles:
+  default: openrouter/z-ai/glm-5.3-flash:high
+  plan: openrouter/z-ai/glm-5.3:high
+  slow: openrouter/z-ai/glm-5.3:max
+  designer: openrouter/z-ai/glm-5.3:high
+  vision: openrouter/z-ai/glm-5.3-flash:high
+  task: openrouter/z-ai/glm-5.3-flash:high
+  adversary: xai-oauth/grok-4.20-0309-reasoning:high
+  reviewer: xai-oauth/grok-4.20-0309-reasoning:high
+  security-reviewer: openrouter/z-ai/glm-5.3:high
+  advisor: xai-oauth/grok-4.20-0309-reasoning:high
+  smol: openrouter/z-ai/glm-5.3-flash:low
+  tiny: openrouter/z-ai/glm-5.3-flash:low
+  commit: openrouter/z-ai/glm-5.3-flash:low
+task:
+  agentModelOverrides:
+    task: openrouter/z-ai/glm-5.3-flash:high
+    scout: openrouter/z-ai/glm-5.3-flash:low
+    sonic: openrouter/z-ai/glm-5.3-flash:low
+    adversary: xai-oauth/grok-4.20-0309-reasoning:high
+    reviewer: xai-oauth/grok-4.20-0309-reasoning:high
+    security-reviewer: openrouter/z-ai/glm-5.3:high
+    code-worker: openrouter/z-ai/glm-5.3-flash:high
+    builder: openrouter/z-ai/glm-5.3-flash:high
+    plan: openrouter/z-ai/glm-5.3:high
+    critic: openrouter/z-ai/glm-5.3-flash:high
+    workflow: openrouter/z-ai/glm-5.3-flash:high
+    research: xai-oauth/grok-4.20-0309-reasoning:high
+retry:
+  fallbackChains:
+    openrouter/z-ai/glm-5.3:
+      - openrouter/z-ai/glm-5.3-flash:high
+      - openrouter/x-ai/grok-4.20:high
+    openrouter/z-ai/glm-5.3-flash:
+      - xai-oauth/grok-4.20-0309-reasoning:high
+      - openrouter/x-ai/grok-4.20:high
+    xai-oauth/grok-4.20-0309-reasoning:
+      - openrouter/x-ai/grok-4.20:high
+      - openrouter/z-ai/glm-5.3-flash:high
+    openrouter/x-ai/grok-4.20:
+      - openrouter/z-ai/glm-5.3-flash:high
+    smol:
+      - openrouter/deepseek/deepseek-v4.1-flash:low
+    tiny:
+      - openrouter/deepseek/deepseek-v4.1-flash:low
+    commit:
+      - openrouter/deepseek/deepseek-v4.1-flash:low
+    default:
+      - openrouter/z-ai/glm-5.3:high
+      - openrouter/x-ai/grok-4.20:high

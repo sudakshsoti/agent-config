@@ -22,6 +22,7 @@ OMP_FILES = (
     "omp/config.yml",
     "omp/keybindings.yml",
     "omp/lsp.yml",
+    "omp/models.yml",
     "omp/agents/adversary.md",
     "omp/themes/kohra.json",
     "omp/overlays/go-overlay.yml",
@@ -215,6 +216,7 @@ class InstallerTest(DisposableInstallCase):
         expected[".omp/agent/config.yml"] = str(self.repo / "omp/config.yml")
         expected[".omp/agent/keybindings.yml"] = str(self.repo / "omp/keybindings.yml")
         expected[".omp/agent/lsp.yml"] = str(self.repo / "omp/lsp.yml")
+        expected[".omp/agent/models.yml"] = str(self.repo / "omp/models.yml")
         expected[".omp/agent/agents/adversary.md"] = str(self.repo / "omp/agents/adversary.md")
         expected[".omp/agent/themes/kohra.json"] = str(self.repo / "omp/themes/kohra.json")
         expected[".config/omp/go-overlay.yml"] = str(self.repo / "omp/overlays/go-overlay.yml")

@@ -1,0 +1,13 @@
+providers:
+  openrouter:
+    modelOverrides:
+      z-ai/glm-5.3:
+        compat:
+          openRouterRouting:
+            only: [novita/fp8, gmicloud/fp8, z-ai/fp8, parasail/fp8]
+            order: [novita/fp8, gmicloud/fp8, z-ai/fp8, parasail/fp8]
+      z-ai/glm-5.3-flash:
+        compat:
+          openRouterRouting:
+            only: [novita/fp8, gmicloud/fp8, z-ai/fp8, baseten/fp8]
+            order: [novita/fp8, gmicloud/fp8, z-ai/fp8, baseten/fp8]

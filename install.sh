@@ -56,6 +56,9 @@
 #       Partial overrides of OMP's built-in LSP server definitions. The server
 #       binaries are machine dependencies; OMP activates one only when its root
 #       markers match the working directory.
+#     omp/models.yml         -> ~/.omp/agent/models.yml
+#       Model overrides only: pins OpenRouter GLM 5.3 / 5.3 Flash to fp8
+#       providers (`compat.openRouterRouting`) for base and overlay alike.
 #     omp/themes/*.json      -> ~/.omp/agent/themes/*.json
 #       Linked individually so machine-local themes survive.
 #     omp/agents/*.md        -> ~/.omp/agent/agents/*.md
@@ -66,7 +69,8 @@
 #       works without the `/skill:` prefix. The skill stays the source.
 #     omp/overlays/*         -> ~/.config/omp/*
 #       Holds search-keys.tpl, the 1Password template behind
-#       `op inject -o ~/.omp/.env`. Linked file by file so other files in
+#       `op inject -o ~/.omp/.env`, and openrouter-overlay.yml, a session-only
+#       `omp --config` routing overlay. Linked file by file so other files in
 #       ~/.config/omp stay untouched.
 #     global-agents.md       -> ~/.omp/agent/AGENTS.md
 #       Harness-neutral shared preferences, linked so one edit reaches every
@@ -679,6 +683,9 @@ else
   fi
   if [ -d "$OMP" ] && [ -f "$REPO/omp/lsp.yml" ]; then
     link_into "$REPO/omp/lsp.yml" "$OMP/lsp.yml"
+  fi
+  if [ -d "$OMP" ] && [ -f "$REPO/omp/models.yml" ]; then
+    link_into "$REPO/omp/models.yml" "$OMP/models.yml"
   fi
   if [ -d "$OMP" ] && [ -d "$REPO/omp/themes" ]; then
     mkdir -p "$OMP/themes"

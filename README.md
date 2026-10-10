@@ -37,14 +37,19 @@ Three destinations, and nothing else.
   Symlinked to `~/.omp/agent/config.yml`, so `omp config set` and TUI toggles
   edit the repo copy directly — check `git diff` before committing. Only linked
   if `~/.omp/agent` exists.
-- `omp/keybindings.yml`, `omp/lsp.yml`, `omp/themes/*.json`, `omp/agents/*.md` —
-  linked individually into `~/.omp/agent/`, so machine-local entries survive.
+- `omp/keybindings.yml`, `omp/lsp.yml`, `omp/models.yml`, `omp/themes/*.json`,
+  `omp/agents/*.md` — linked individually into `~/.omp/agent/`, so
+  machine-local entries survive. `models.yml` pins OpenRouter GLM 5.3 and
+  5.3 Flash to four fp8 providers, cheapest first, so a provider outage
+  fails over without landing on fp4 endpoints.
   `adversary` is the cross-lineage plan reviewer behind `/peer-review`;
   `builder`, `code-worker`, `plan`, `critic`, `research` and `workflow` port
   Pi's roles, with models set in `task.agentModelOverrides`.
-- `omp/overlays/*` — holds only `search-keys.tpl`, symlinked file by file
-  into `~/.config/omp/`. It is the 1Password template behind
+- `omp/overlays/*` — symlinked file by file into `~/.config/omp/`.
+  `search-keys.tpl` is the 1Password template behind
   `op inject -o ~/.omp/.env` — `op://` references only, never a literal key.
+  `openrouter-overlay.yml` is a session-only routing overlay for work Claude
+  refuses: `omp --config ~/.config/omp/openrouter-overlay.yml`.
 - `pi/settings.json` — Pi's default model, Ctrl+P model list, thinking level,
   theme and package list. Pi's per-job models live in `pi/agents/*.md`
   frontmatter; `pi/model-ladder.md` explains the tiers.
